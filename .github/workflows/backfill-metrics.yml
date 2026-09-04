@@ -1,0 +1,88 @@
+name: Backfill metrics (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      project:
+        description: 'Project id from projects.json, or "all".'
+        required: true
+        default: 'all'
+        type: string
+      month:
+        description: 'Newest month to collect, as YYYY-MM. Defaults to the current month.'
+        required: false
+        type: string
+      months:
+        description: 'How many months to collect, counting back from that month.'
+        required: true
+        default: '6'
+        type: string
+
+concurrency:
+  group: collect-metrics
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    # A backfill of several months across many agent runs is slow, because each run costs three
+    # API calls and the client waits out the rate limit rather than dropping data.
+    timeout-minutes: 350
+    steps:
+      # Minted before checkout so the repository is cloned with these credentials. A push made with
+      # the default GITHUB_TOKEN does not trigger other workflows, which would leave collected data
+      # committed but never deployed. An App token does trigger them.
+      - name: Generate App token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.BOT_APP_ID }}
+          private-key: ${{ secrets.BOT_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # A green collection run does not mean the numbers are right. Metrics degrade to
+      # "unavailable" on purpose, so a regression can finish successfully having written nothing
+      # useful, which is how two real bugs survived. Typecheck and tests run before any write.
+      - name: Verify the collector before it writes anything
+        run: pnpm --filter @project-health/collector run verify
+
+      - name: Backfill
+        env:
+          # An App installation allows 15000 calls an hour against a user token's 5000, which a
+          # multi month backfill will need.
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          OTEL_EXPORTER_OTLP_ENDPOINT: ${{ vars.OTEL_EXPORTER_OTLP_ENDPOINT }}
+        run: |
+          pnpm --filter @project-health/collector run start \
+            --project '${{ inputs.project }}' \
+            ${{ inputs.month && format('--month {0}', inputs.month) || '' }} \
+            --backfill '${{ inputs.months }}'
+
+      - name: Commit collected data
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add data
+          if git diff --staged --quiet; then
+            echo 'No metric changes to commit.'
+          else
+            git commit -m "chore(data): backfill ${{ inputs.project }} (${{ inputs.months }} month(s))"
+            git push
+          fi

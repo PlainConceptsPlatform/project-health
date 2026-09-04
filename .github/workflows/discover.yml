@@ -1,0 +1,48 @@
+name: Discover a repository
+
+# Answers "what should this project's entry look like" for a repository that is not configured yet.
+# Read only: it inspects the repository and prints an entry to paste into projects.json.
+on:
+  workflow_dispatch:
+    inputs:
+      repo:
+        description: 'Repository to inspect, as owner/name'
+        required: true
+        type: string
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # Reading another repository needs more than the built in token, which only reaches this one.
+      # An App installation token is used where the org has one; otherwise set DISCOVER_TOKEN.
+      - name: Generate App token
+        id: app-token
+        if: env.HAS_APP == 'true'
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        env:
+          HAS_APP: ${{ secrets.BOT_APP_ID != '' }}
+        with:
+          app-id: ${{ secrets.BOT_APP_ID }}
+          private-key: ${{ secrets.BOT_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Inspect
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token || secrets.DISCOVER_TOKEN || secrets.GITHUB_TOKEN }}
+        run: |
+          # pipefail matters: without it tee swallows a non-zero exit and an unreadable repository
+          # would report the whole run as successful.
+          set -o pipefail
+          pnpm --filter @project-health/collector run start --discover '${{ inputs.repo }}'             | tee -a "$GITHUB_STEP_SUMMARY"

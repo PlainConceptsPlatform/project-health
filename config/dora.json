@@ -1,0 +1,64 @@
+{
+  "_comment": "Band edges used to place a project on the throughput and stability axes. DORA derives its clusters from each year's survey rather than publishing fixed cutoffs, so these are directional reference lines, not official thresholds.",
+  "reference": "2024 DORA cluster shapes, applied as directional bands",
+  "windowDays": 90,
+  "minimumSampleSize": 5,
+  "throughput": {
+    "deploymentsPerWeek": { "high": 7, "medium": 1, "low": 0 },
+    "leadTimeHoursP50": { "high": 24, "medium": 168, "low": 720 }
+  },
+  "stability": {
+    "reworkRate": { "high": 0.05, "medium": 0.15, "low": 0.3 }
+  },
+  "profiles": [
+    {
+      "id": "harmonious-high-achievers",
+      "name": "Harmonious High-Achievers",
+      "throughput": "high",
+      "stability": "high",
+      "wellbeing": "high"
+    },
+    {
+      "id": "pragmatic-performers",
+      "name": "Pragmatic Performers",
+      "throughput": "high",
+      "stability": "high",
+      "wellbeing": "medium"
+    },
+    {
+      "id": "stable-and-methodical",
+      "name": "Stable and Methodical",
+      "throughput": "medium",
+      "stability": "high",
+      "wellbeing": "medium"
+    },
+    {
+      "id": "high-impact-low-cadence",
+      "name": "High Impact, Low Cadence",
+      "throughput": "low",
+      "stability": "high",
+      "wellbeing": "medium"
+    },
+    {
+      "id": "constrained-by-process",
+      "name": "Constrained by Process",
+      "throughput": "low",
+      "stability": "medium",
+      "wellbeing": "low"
+    },
+    {
+      "id": "legacy-bottleneck",
+      "name": "Legacy Bottleneck",
+      "throughput": "medium",
+      "stability": "low",
+      "wellbeing": "low"
+    },
+    {
+      "id": "foundational-challenges",
+      "name": "Foundational Challenges",
+      "throughput": "low",
+      "stability": "low",
+      "wellbeing": "low"
+    }
+  ]
+}

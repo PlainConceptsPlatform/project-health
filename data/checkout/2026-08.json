@@ -1,0 +1,547 @@
+{
+  "schemaVersion": 1,
+  "synthetic": true,
+  "project": "checkout",
+  "name": "Checkout",
+  "repo": "your-org/checkout",
+  "status": "production",
+  "period": {
+    "year": 2026,
+    "month": 8,
+    "from": "2026-08-01T00:00:00.000Z",
+    "to": "2026-09-01T00:00:00.000Z"
+  },
+  "generatedAt": "2026-08-31T03:15:00.000Z",
+  "delivery": {
+    "productionEnvironment": "pro",
+    "stagingEnvironment": "pre",
+    "deploymentFrequency": {
+      "available": true,
+      "data": {
+        "partialMonth": false,
+        "elapsedDays": 31,
+        "releases": [
+          {
+            "ref": "v1.8.0",
+            "sha": "6eda6f560b53a12b8824",
+            "deployedAt": "2026-08-01T16:09:00Z",
+            "deployedBy": "sam",
+            "deploymentIds": [
+              750947889
+            ],
+            "outOfProcess": false,
+            "unplanned": true,
+            "unplannedSource": "label"
+          },
+          {
+            "ref": "v1.8.1",
+            "sha": "e1c2ad515b02f9f91bff",
+            "deployedAt": "2026-08-03T15:53:00Z",
+            "deployedBy": "sam",
+            "deploymentIds": [
+              740025512
+            ],
+            "outOfProcess": false,
+            "unplanned": true,
+            "unplannedSource": "label"
+          },
+          {
+            "ref": "v1.8.2",
+            "sha": "90aac995ae98fcd1e607",
+            "deployedAt": "2026-08-05T13:07:00Z",
+            "deployedBy": "sam",
+            "deploymentIds": [
+              940448484
+            ],
+            "outOfProcess": false,
+            "unplanned": false,
+            "unplannedSource": null
+          },
+          {
+            "ref": "v1.8.3",
+            "sha": "841ff373fb24debe551f",
+            "deployedAt": "2026-08-08T16:11:00Z",
+            "deployedBy": "alex",
+            "deploymentIds": [
+              280254098
+            ],
+            "outOfProcess": false,
+            "unplanned": false,
+            "unplannedSource": null
+          },
+          {
+            "ref": "v1.8.4",
+            "sha": "ea2abbe949b73e4de49d",
+            "deployedAt": "2026-08-10T18:01:00Z",
+            "deployedBy": "jo",
+            "deploymentIds": [
+              296556773
+            ],
+            "outOfProcess": false,
+            "unplanned": false,
+            "unplannedSource": null
+          },
+          {
+            "ref": "v1.8.5",
+            "sha": "7d6f50d18d34778d09cf",
+            "deployedAt": "2026-08-13T15:50:00Z",
+            "deployedBy": "jo",
+            "deploymentIds": [
+              279657898
+            ],
+            "outOfProcess": false,
+            "unplanned": false,
+            "unplannedSource": null
+          },
+          {
+            "ref": "v1.8.6",
+            "sha": "8df304ab61c0e492bde2",
+            "deployedAt": "2026-08-15T16:50:00Z",
+            "deployedBy": "jo",
+            "deploymentIds": [
+              766038230
+            ],
+            "outOfProcess": false,
+            "unplanned": false,
+            "unplannedSource": null
+          },
+          {
+            "ref": "v1.8.7",
+            "sha": "36811756c28d56b44306",
+            "deployedAt": "2026-08-17T10:33:00Z",
+            "deployedBy": "jo",
+            "deploymentIds": [
+              742271441
+            ],
+            "outOfProcess": false,
+            "unplanned": false,
+            "unplannedSource": null
+          },
+          {
+            "ref": "v1.8.8",
+            "sha": "b1db85873e0d4b41b315",
+            "deployedAt": "2026-08-20T09:59:00Z",
+            "deployedBy": "sam",
+            "deploymentIds": [
+              579492541
+            ],
+            "outOfProcess": false,
+            "unplanned": false,
+            "unplannedSource": null
+          },
+          {
+            "ref": "v1.8.9",
+            "sha": "b7651ade276c27468288",
+            "deployedAt": "2026-08-22T20:38:00Z",
+            "deployedBy": "sam",
+            "deploymentIds": [
+              240761090
+            ],
+            "outOfProcess": false,
+            "unplanned": false,
+            "unplannedSource": null
+          },
+          {
+            "ref": "v1.8.10",
+            "sha": "e4736ab0f0e6240371a0",
+            "deployedAt": "2026-08-25T09:05:00Z",
+            "deployedBy": "jo",
+            "deploymentIds": [
+              663150380
+            ],
+            "outOfProcess": false,
+            "unplanned": false,
+            "unplannedSource": null
+          },
+          {
+            "ref": "v1.8.11",
+            "sha": "16c6164d0e8f1b1d9559",
+            "deployedAt": "2026-08-27T10:05:00Z",
+            "deployedBy": "sam",
+            "deploymentIds": [
+              380006824
+            ],
+            "outOfProcess": false,
+            "unplanned": false,
+            "unplannedSource": null
+          }
+        ],
+        "count": 12,
+        "rawObjectCount": 12,
+        "perWeek": 2.71,
+        "medianIntervalHours": 22.26
+      }
+    },
+    "leadTime": {
+      "available": true,
+      "data": {
+        "commitToProduction": {
+          "available": true,
+          "data": {
+            "count": 36,
+            "p50Hours": 16.18,
+            "p75Hours": 38.83,
+            "p90Hours": 66.34
+          }
+        },
+        "issueToStaging": {
+          "available": true,
+          "data": {
+            "count": 9,
+            "p50Hours": 48.54,
+            "p75Hours": 129.44,
+            "p90Hours": 226.52
+          }
+        }
+      }
+    },
+    "reworkRate": {
+      "available": true,
+      "data": {
+        "label": "hotfix",
+        "unplanned": 2,
+        "total": 12,
+        "rate": 0.167,
+        "confidence": "marked"
+      }
+    }
+  },
+  "agents": {
+    "available": true,
+    "data": {
+      "runs": [
+        {
+          "runId": 54335152377,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-08-12T10:00:00Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 172,
+          "executionSeconds": 821,
+          "usage": {
+            "inputTokens": 3500000,
+            "outputTokens": 14000,
+            "cacheReadTokens": 0,
+            "cacheWriteTokens": 0,
+            "ambientContext": 5000,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 86854352359,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-08-17T10:00:00Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 157,
+          "executionSeconds": 818,
+          "usage": {
+            "inputTokens": 3500000,
+            "outputTokens": 14000,
+            "cacheReadTokens": 0,
+            "cacheWriteTokens": 0,
+            "ambientContext": 5000,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 96390915906,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-08-26T10:00:00Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 343,
+          "executionSeconds": 811,
+          "usage": {
+            "inputTokens": 3500000,
+            "outputTokens": 14000,
+            "cacheReadTokens": 0,
+            "cacheWriteTokens": 0,
+            "ambientContext": 5000,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 89350808568,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-08-18T10:00:00Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 274,
+          "executionSeconds": 950,
+          "usage": {
+            "inputTokens": 3500000,
+            "outputTokens": 14000,
+            "cacheReadTokens": 0,
+            "cacheWriteTokens": 0,
+            "ambientContext": 5000,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 14101997736,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-08-23T10:00:00Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 229,
+          "executionSeconds": 465,
+          "usage": null
+        },
+        {
+          "runId": 82919940446,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-08-01T10:00:00Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 297,
+          "executionSeconds": 1230,
+          "usage": null
+        },
+        {
+          "runId": 43430633328,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-08-01T10:00:00Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 192,
+          "executionSeconds": 268,
+          "usage": {
+            "inputTokens": 900000,
+            "outputTokens": 3600,
+            "cacheReadTokens": 0,
+            "cacheWriteTokens": 0,
+            "ambientContext": 5000,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 75594820763,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-08-27T10:00:00Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 100,
+          "executionSeconds": 975,
+          "usage": {
+            "inputTokens": 900000,
+            "outputTokens": 3600,
+            "cacheReadTokens": 0,
+            "cacheWriteTokens": 0,
+            "ambientContext": 5000,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 23889622375,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-08-28T10:00:00Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 289,
+          "executionSeconds": 990,
+          "usage": {
+            "inputTokens": 900000,
+            "outputTokens": 3600,
+            "cacheReadTokens": 0,
+            "cacheWriteTokens": 0,
+            "ambientContext": 5000,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 93629534318,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-08-10T10:00:00Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 359,
+          "executionSeconds": 804,
+          "usage": {
+            "inputTokens": 900000,
+            "outputTokens": 3600,
+            "cacheReadTokens": 0,
+            "cacheWriteTokens": 0,
+            "ambientContext": 5000,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 17926289437,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-08-16T10:00:00Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 305,
+          "executionSeconds": 1119,
+          "usage": null
+        },
+        {
+          "runId": 85034262336,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-08-06T10:00:00Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 395,
+          "executionSeconds": 1249,
+          "usage": null
+        },
+        {
+          "runId": 75651529236,
+          "workflow": "All Work Router",
+          "kind": "triage",
+          "conclusion": "success",
+          "startedAt": "2026-08-25T10:00:00Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 303,
+          "executionSeconds": 519,
+          "usage": {
+            "inputTokens": 120000,
+            "outputTokens": 480,
+            "cacheReadTokens": 0,
+            "cacheWriteTokens": 0,
+            "ambientContext": 5000,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        }
+      ],
+      "byKind": {
+        "implement": {
+          "runs": 12,
+          "runsWithUsage": 8,
+          "successful": 11,
+          "tokens": {
+            "inputTokens": 28000000,
+            "outputTokens": 112000,
+            "cacheReadTokens": 0,
+            "cacheWriteTokens": 0,
+            "ambientContext": 5000,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          },
+          "executionSeconds": {
+            "available": true,
+            "data": {
+              "count": 12,
+              "p50": 818,
+              "p75": 950,
+              "p90": 1230
+            }
+          },
+          "totalExecutionSeconds": 8491
+        },
+        "refine": {
+          "runs": 6,
+          "runsWithUsage": 4,
+          "successful": 4,
+          "tokens": {
+            "inputTokens": 3600000,
+            "outputTokens": 14400,
+            "cacheReadTokens": 0,
+            "cacheWriteTokens": 0,
+            "ambientContext": 5000,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          },
+          "executionSeconds": {
+            "available": true,
+            "data": {
+              "count": 6,
+              "p50": 990,
+              "p75": 1119,
+              "p90": 1249
+            }
+          },
+          "totalExecutionSeconds": 5405
+        },
+        "triage": {
+          "runs": 1,
+          "runsWithUsage": 1,
+          "successful": 1,
+          "tokens": {
+            "inputTokens": 120000,
+            "outputTokens": 480,
+            "cacheReadTokens": 0,
+            "cacheWriteTokens": 0,
+            "ambientContext": 5000,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          },
+          "executionSeconds": {
+            "available": true,
+            "data": {
+              "count": 1,
+              "p50": 519,
+              "p75": 519,
+              "p90": 519
+            }
+          },
+          "totalExecutionSeconds": 519
+        }
+      }
+    }
+  },
+  "contributors": {
+    "available": true,
+    "data": {
+      "requesters": [
+        {
+          "login": "alex",
+          "count": 9,
+          "bot": false
+        },
+        {
+          "login": "sam",
+          "count": 3,
+          "bot": false
+        }
+      ],
+      "deployers": [
+        {
+          "login": "jo",
+          "count": 7,
+          "bot": false
+        }
+      ]
+    }
+  },
+  "placement": {
+    "available": true,
+    "data": {
+      "throughput": "medium",
+      "stability": "medium",
+      "wellbeing": "unknown",
+      "exact": true,
+      "candidateProfiles": [],
+      "note": "Well being is measured by survey and cannot come from GitHub, so the result is the set of profiles consistent with the measured axes."
+    }
+  },
+  "warnings": [
+    {
+      "code": "USAGE_ARTIFACT_MISSING",
+      "severity": "warn",
+      "message": "6 of 19 agent run(s) had no readable usage artifact. Artifacts expire, and a run still in progress has not uploaded one."
+    }
+  ]
+}

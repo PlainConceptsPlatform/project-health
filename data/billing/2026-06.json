@@ -1,0 +1,259 @@
+{
+  "schemaVersion": 1,
+  "synthetic": true,
+  "project": "billing",
+  "name": "Billing",
+  "repo": "your-org/billing",
+  "status": "production",
+  "period": {
+    "year": 2026,
+    "month": 6,
+    "from": "2026-06-01T00:00:00.000Z",
+    "to": "2026-07-01T00:00:00.000Z"
+  },
+  "generatedAt": "2026-06-30T03:15:00.000Z",
+  "delivery": {
+    "productionEnvironment": "production",
+    "stagingEnvironment": null,
+    "deploymentFrequency": {
+      "available": true,
+      "data": {
+        "partialMonth": false,
+        "elapsedDays": 30,
+        "releases": [
+          {
+            "ref": "main",
+            "sha": "8d588cb2c5f2cccb0ad2",
+            "deployedAt": "2026-06-01T14:47:00Z",
+            "deployedBy": "alex",
+            "deploymentIds": [
+              204467213
+            ],
+            "outOfProcess": false,
+            "unplanned": true,
+            "unplannedSource": "label"
+          },
+          {
+            "ref": "main",
+            "sha": "c65fe7931ec150fc5de9",
+            "deployedAt": "2026-06-03T10:22:00Z",
+            "deployedBy": "jo",
+            "deploymentIds": [
+              555015259
+            ],
+            "outOfProcess": false,
+            "unplanned": true,
+            "unplannedSource": "label"
+          },
+          {
+            "ref": "main",
+            "sha": "a91c1195f6311e3df158",
+            "deployedAt": "2026-06-05T15:31:00Z",
+            "deployedBy": "jo",
+            "deploymentIds": [
+              258518712
+            ],
+            "outOfProcess": false,
+            "unplanned": false,
+            "unplannedSource": null
+          },
+          {
+            "ref": "main",
+            "sha": "21aa3c45880bbbb26a44",
+            "deployedAt": "2026-06-08T19:54:00Z",
+            "deployedBy": "jo",
+            "deploymentIds": [
+              405334414
+            ],
+            "outOfProcess": false,
+            "unplanned": false,
+            "unplannedSource": null
+          },
+          {
+            "ref": "main",
+            "sha": "9621c528913735493165",
+            "deployedAt": "2026-06-10T14:34:00Z",
+            "deployedBy": "jo",
+            "deploymentIds": [
+              652516541
+            ],
+            "outOfProcess": false,
+            "unplanned": false,
+            "unplannedSource": null
+          },
+          {
+            "ref": "main",
+            "sha": "b8043fb896d22a4a4e52",
+            "deployedAt": "2026-06-12T14:28:00Z",
+            "deployedBy": "jo",
+            "deploymentIds": [
+              848792354
+            ],
+            "outOfProcess": false,
+            "unplanned": false,
+            "unplannedSource": null
+          },
+          {
+            "ref": "main",
+            "sha": "5bf22e7c9e77ba5dffe4",
+            "deployedAt": "2026-06-15T14:52:00Z",
+            "deployedBy": "sam",
+            "deploymentIds": [
+              345563584
+            ],
+            "outOfProcess": false,
+            "unplanned": false,
+            "unplannedSource": null
+          },
+          {
+            "ref": "main",
+            "sha": "7f6c842518cb0041f743",
+            "deployedAt": "2026-06-17T08:49:00Z",
+            "deployedBy": "sam",
+            "deploymentIds": [
+              852343688
+            ],
+            "outOfProcess": false,
+            "unplanned": false,
+            "unplannedSource": null
+          },
+          {
+            "ref": "main",
+            "sha": "178e2293dc54b03d3efe",
+            "deployedAt": "2026-06-19T12:32:00Z",
+            "deployedBy": "sam",
+            "deploymentIds": [
+              581552103
+            ],
+            "outOfProcess": true,
+            "unplanned": false,
+            "unplannedSource": null
+          },
+          {
+            "ref": "main",
+            "sha": "4ee5e69f71bbddd8cb66",
+            "deployedAt": "2026-06-22T17:06:00Z",
+            "deployedBy": "alex",
+            "deploymentIds": [
+              448612892
+            ],
+            "outOfProcess": true,
+            "unplanned": false,
+            "unplannedSource": null
+          },
+          {
+            "ref": "main",
+            "sha": "fbda9409dd8d6313f382",
+            "deployedAt": "2026-06-24T17:14:00Z",
+            "deployedBy": "sam",
+            "deploymentIds": [
+              562797026
+            ],
+            "outOfProcess": false,
+            "unplanned": false,
+            "unplannedSource": null
+          },
+          {
+            "ref": "main",
+            "sha": "c79053d39781dcf5017d",
+            "deployedAt": "2026-06-26T19:21:00Z",
+            "deployedBy": "sam",
+            "deploymentIds": [
+              436918888
+            ],
+            "outOfProcess": false,
+            "unplanned": false,
+            "unplannedSource": null
+          }
+        ],
+        "count": 12,
+        "rawObjectCount": 12,
+        "perWeek": 2.8,
+        "medianIntervalHours": 66.9
+      }
+    },
+    "leadTime": {
+      "available": true,
+      "data": {
+        "commitToProduction": {
+          "available": true,
+          "data": {
+            "count": 36,
+            "p50Hours": 37.07,
+            "p75Hours": 88.97,
+            "p90Hours": 151.99
+          }
+        },
+        "issueToStaging": {
+          "available": false,
+          "reason": "No staging environment configured."
+        }
+      }
+    },
+    "reworkRate": {
+      "available": true,
+      "data": {
+        "label": "bug",
+        "unplanned": 2,
+        "total": 12,
+        "rate": 0.167,
+        "confidence": "marked"
+      }
+    }
+  },
+  "agents": {
+    "available": false,
+    "reason": "Billing does not run agent workflows."
+  },
+  "contributors": {
+    "available": true,
+    "data": {
+      "requesters": [
+        {
+          "login": "alex",
+          "count": 5,
+          "bot": false
+        },
+        {
+          "login": "sam",
+          "count": 2,
+          "bot": false
+        }
+      ],
+      "deployers": [
+        {
+          "login": "jo",
+          "count": 6,
+          "bot": false
+        }
+      ]
+    }
+  },
+  "placement": {
+    "available": true,
+    "data": {
+      "throughput": "medium",
+      "stability": "unknown",
+      "wellbeing": "unknown",
+      "exact": true,
+      "candidateProfiles": [
+        {
+          "id": "stable-and-methodical",
+          "name": "Stable and Methodical"
+        },
+        {
+          "id": "legacy-bottleneck",
+          "name": "Legacy Bottleneck"
+        }
+      ],
+      "note": "Rework rate is measured from the bug label, which covers planned fixes as well as reactions to incidents. It is reported but not used to place the project."
+    }
+  },
+  "warnings": [
+    {
+      "code": "AGENTS_DISABLED",
+      "severity": "info",
+      "message": "Agent collection is off for Billing."
+    }
+  ]
+}

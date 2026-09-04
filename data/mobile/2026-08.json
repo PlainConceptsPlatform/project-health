@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "synthetic": true,
+  "project": "mobile",
+  "name": "Mobile",
+  "repo": "your-org/mobile",
+  "status": "pre-production",
+  "period": {
+    "year": 2026,
+    "month": 8,
+    "from": "2026-08-01T00:00:00.000Z",
+    "to": "2026-09-01T00:00:00.000Z"
+  },
+  "generatedAt": "2026-08-31T03:15:00.000Z",
+  "delivery": {
+    "productionEnvironment": null,
+    "stagingEnvironment": "pre",
+    "deploymentFrequency": {
+      "available": false,
+      "reason": "Mobile has no production environment configured, so deployment frequency is not measured."
+    },
+    "leadTime": {
+      "available": false,
+      "reason": "No production releases in this period."
+    },
+    "reworkRate": {
+      "available": false,
+      "reason": "Mobile has no production environment, so rework rate is not measured."
+    }
+  },
+  "agents": {
+    "available": false,
+    "reason": "Mobile does not run agent workflows."
+  },
+  "contributors": {
+    "available": true,
+    "data": {
+      "requesters": [
+        {
+          "login": "alex",
+          "count": 5,
+          "bot": false
+        },
+        {
+          "login": "sam",
+          "count": 5,
+          "bot": false
+        }
+      ],
+      "deployers": [
+        {
+          "login": "jo",
+          "count": 5,
+          "bot": false
+        }
+      ]
+    }
+  },
+  "placement": {
+    "available": false,
+    "reason": "Throughput could not be measured for this period."
+  },
+  "warnings": [
+    {
+      "code": "NO_PRODUCTION_ENVIRONMENT",
+      "severity": "info",
+      "message": "Mobile has no production environment, so production metrics are skipped."
+    },
+    {
+      "code": "AGENTS_DISABLED",
+      "severity": "info",
+      "message": "Agent collection is off for Mobile."
+    }
+  ]
+}

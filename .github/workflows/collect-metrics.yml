@@ -1,0 +1,77 @@
+name: Collect metrics (daily)
+
+on:
+  schedule:
+    # Agent usage artifacts expire after about 90 days, so collection has to be continuous.
+    # A run already measured is read back from the stored JSON, so a daily run only pays for
+    # what happened since yesterday.
+    - cron: '15 3 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: collect-metrics
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      # Minted before checkout so the repository is cloned with these credentials. A push made with
+      # the default GITHUB_TOKEN does not trigger other workflows, which would leave collected data
+      # committed but never deployed. An App token does trigger them.
+      - name: Generate App token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.BOT_APP_ID }}
+          private-key: ${{ secrets.BOT_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # A green collection run does not mean the numbers are right. Metrics degrade to
+      # "unavailable" on purpose, so a regression can finish successfully having written nothing
+      # useful, which is how two real bugs survived. Typecheck and tests run before any write.
+      - name: Verify the collector before it writes anything
+        run: pnpm --filter @project-health/collector run verify
+
+      # Two months, not one. A run on the first of the month would otherwise write the new month
+      # and never revisit the old one, losing everything that happened after the previous day's run
+      # on the last day of the month. The second month is nearly free because runs already measured
+      # are read back from the stored JSON instead of being fetched again.
+
+      - name: Collect the current and previous month for every project
+        env:
+          # The App installation token. Needs Metadata, Contents, Deployments, Issues and
+          # Actions read on every repository in projects.json. The collector runs a preflight and
+          # skips any project it cannot read, rather than writing empty metrics over good data.
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          OTEL_EXPORTER_OTLP_ENDPOINT: ${{ vars.OTEL_EXPORTER_OTLP_ENDPOINT }}
+        run: pnpm --filter @project-health/collector run start --backfill 2
+
+      - name: Commit collected data
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add data
+          if git diff --staged --quiet; then
+            echo 'No metric changes to commit.'
+          else
+            git commit -m 'chore(data): refresh collected metrics'
+            git push
+          fi

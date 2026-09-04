@@ -1,0 +1,86 @@
+{
+  "$schema": "./schema/projects.schema.json",
+  "organization": "your-org",
+  "projects": [
+    {
+      "id": "checkout",
+      "name": "Checkout",
+      "repo": "your-org/checkout",
+      "enabled": true,
+      "status": "production",
+      "environments": {
+        "production": "pro",
+        "staging": "pre"
+      },
+      "productionRefPattern": "^v[0-9]+[.][0-9]+[.][0-9]+$",
+      "workItemLabel": "implement",
+      "reworkLabel": "hotfix",
+      "reworkLabelPrecision": "incident",
+      "agents": {
+        "enabled": true,
+        "workflow": ".github/workflows/work-router.yml"
+      },
+      "notes": "Tag based releases and a dedicated hotfix label, so every metric including the stability axis is available."
+    },
+    {
+      "id": "billing",
+      "name": "Billing",
+      "repo": "your-org/billing",
+      "enabled": true,
+      "status": "production",
+      "environments": {
+        "production": "production",
+        "staging": null
+      },
+      "productionRefPattern": "^main$",
+      "workItemLabel": null,
+      "reworkLabel": "bug",
+      "reworkLabelPrecision": "broad",
+      "agents": {
+        "enabled": false,
+        "workflow": null
+      },
+      "notes": "Names its environment production rather than pro, deploys main rather than tags, and has no dedicated hotfix label. Every one of those is why these are configuration and not assumptions."
+    },
+    {
+      "id": "mobile",
+      "name": "Mobile",
+      "repo": "your-org/mobile",
+      "enabled": true,
+      "status": "pre-production",
+      "environments": {
+        "production": null,
+        "staging": "pre"
+      },
+      "productionRefPattern": "^v[0-9]+[.][0-9]+[.][0-9]+$",
+      "workItemLabel": null,
+      "reworkLabel": "bug",
+      "reworkLabelPrecision": "broad",
+      "agents": {
+        "enabled": false,
+        "workflow": null
+      },
+      "notes": "Ships to staging but not yet to production, so production metrics are skipped rather than reported as zero."
+    },
+    {
+      "id": "ledger",
+      "name": "Ledger",
+      "repo": "your-org/ledger",
+      "enabled": true,
+      "status": "planned",
+      "environments": {
+        "production": null,
+        "staging": null
+      },
+      "productionRefPattern": "^v[0-9]+[.][0-9]+[.][0-9]+$",
+      "workItemLabel": null,
+      "reworkLabel": "bug",
+      "reworkLabelPrecision": "broad",
+      "agents": {
+        "enabled": false,
+        "workflow": null
+      },
+      "notes": "On the roadmap. Listed on the dashboard but never collected, because there is nothing to measure and the repository may not exist yet."
+    }
+  ]
+}

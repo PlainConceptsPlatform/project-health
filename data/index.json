@@ -1,0 +1,49 @@
+{
+  "generatedAt": "2026-08-21T11:20:00.000Z",
+  "projects": [
+    {
+      "id": "checkout",
+      "name": "Checkout",
+      "repo": "your-org/checkout",
+      "status": "production",
+      "months": [
+        "2026-06",
+        "2026-07",
+        "2026-08"
+      ],
+      "latest": "2026-08"
+    },
+    {
+      "id": "billing",
+      "name": "Billing",
+      "repo": "your-org/billing",
+      "status": "production",
+      "months": [
+        "2026-06",
+        "2026-07",
+        "2026-08"
+      ],
+      "latest": "2026-08"
+    },
+    {
+      "id": "mobile",
+      "name": "Mobile",
+      "repo": "your-org/mobile",
+      "status": "pre-production",
+      "months": [
+        "2026-06",
+        "2026-07",
+        "2026-08"
+      ],
+      "latest": "2026-08"
+    },
+    {
+      "id": "ledger",
+      "name": "Ledger",
+      "repo": "your-org/ledger",
+      "status": "planned",
+      "months": [],
+      "latest": null
+    }
+  ]
+}

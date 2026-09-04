@@ -1,0 +1,4 @@
+@import "tailwindcss";
+@import "@plainconceptsplatform/ui-theme";
+
+@source '../../src';

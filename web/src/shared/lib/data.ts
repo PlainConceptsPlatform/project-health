@@ -1,0 +1,169 @@
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+import type { DataIndex, MonthlyReport } from './types'
+
+/**
+ * Reads the collected JSON at build time. The site is exported as static files, so nothing here
+ * runs in the browser and no API or database is involved.
+ *
+ * The project list comes from projects.json rather than from collected data, so every configured
+ * project has a page from the first build, before any collection has run. Months come from the
+ * collector's index and are simply empty until it has.
+ */
+/**
+ * Both default to a sibling of the web package, which is the layout when the code and the data share
+ * a repository. They are overridable so this app can be built from a published template against a
+ * project list and collected data checked out from somewhere private.
+ */
+const configRoot = process.env.PROJECT_HEALTH_CONFIG_DIR ?? join(process.cwd(), '..')
+const dataDir = process.env.PROJECT_HEALTH_DATA_DIR ?? join(configRoot, 'data')
+const repoRoot = configRoot
+
+interface ProjectsFile {
+  projects: {
+    id: string
+    name: string
+    repo: string
+    enabled: boolean
+    status: string
+  }[]
+}
+
+/**
+ * The configured projects, falling back to the example file.
+ *
+ * A fresh clone has no projects.json, and a static export refuses a dynamic route with zero
+ * parameters, so without a fallback the template simply cannot be built until somebody configures
+ * it. Falling back to the example also means the first build shows a working dashboard with empty
+ * metrics, which is a better introduction than a build error.
+ */
+function readConfiguredProjects(): ProjectsFile['projects'] {
+  for (const name of ['projects.json', 'projects.example.json']) {
+    try {
+      const file = JSON.parse(readFileSync(join(repoRoot, name), 'utf8')) as ProjectsFile
+      const projects = file.projects.filter((p) => p.enabled)
+      if (projects.length > 0) return projects
+    } catch {
+      // Try the next candidate.
+    }
+  }
+  return []
+}
+
+function readCollectedMonths(): Record<string, string[]> {
+  try {
+    const index = JSON.parse(readFileSync(join(dataDir, 'index.json'), 'utf8')) as DataIndex
+    return Object.fromEntries(index.projects.map((p) => [p.id, p.months]))
+  } catch {
+    return {}
+  }
+}
+
+export function readIndex(): DataIndex {
+  const collected = readCollectedMonths()
+  return {
+    generatedAt: new Date().toISOString(),
+    projects: readConfiguredProjects().map((project) => {
+      const months = collected[project.id] ?? []
+      return {
+        id: project.id,
+        name: project.name,
+        repo: project.repo,
+        status: project.status,
+        months,
+        latest: months.at(-1) ?? null,
+      }
+    }),
+  }
+}
+
+/** Returns null when a month was never collected, so a caller can render an empty state. */
+export function readReport(projectId: string, month: string): MonthlyReport | null {
+  try {
+    const raw = readFileSync(join(dataDir, projectId, `${month}.json`), 'utf8')
+    return JSON.parse(raw) as MonthlyReport
+  } catch {
+    return null
+  }
+}
+
+/** Whether a month actually recorded anything, rather than merely existing. */
+function hasActivity(report: MonthlyReport): boolean {
+  const frequency = report.delivery.deploymentFrequency
+  if (frequency.available && frequency.data.count > 0) return true
+  if (report.agents.available && report.agents.data.runs.length > 0) return true
+  return false
+}
+
+/**
+ * The most recent month that recorded something, falling back to the newest month collected.
+ *
+ * The newest month is the wrong default on its own. On the first of a month it is hours old and
+ * empty, so a healthy project reads as "n/a" everywhere and the dashboard looks broken. Every card
+ * names the month it is showing, so stepping back to the last month with activity stays honest.
+ */
+export function readLatestReport(projectId: string): MonthlyReport | null {
+  const entry = readIndex().projects.find((p) => p.id === projectId)
+  if (!entry?.latest) return null
+
+  for (const month of [...entry.months].reverse()) {
+    const report = readReport(projectId, month)
+    if (report && hasActivity(report)) return report
+  }
+  return readReport(projectId, entry.latest)
+}
+
+/** The month a page should fall back to when a project has nothing collected yet. */
+export function currentMonth(): string {
+  const now = new Date()
+  return `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`
+}
+
+/** Releases and lead time per collected month, for the trend chart. */
+export function readTrend(projectId: string): {
+  month: string
+  releases: number
+  leadTimeHours: number | null
+}[] {
+  const entry = readIndex().projects.find((p) => p.id === projectId)
+  if (!entry) return []
+  return entry.months.flatMap((month) => {
+    const report = readReport(projectId, month)
+    if (!report) return []
+    const frequency = report.delivery.deploymentFrequency
+    const lead = report.delivery.leadTime
+    return [
+      {
+        month,
+        releases: frequency.available ? frequency.data.count : 0,
+        leadTimeHours:
+          lead.available && lead.data.commitToProduction.available
+            ? lead.data.commitToProduction.data.p50Hours
+            : null,
+      },
+    ]
+  })
+}
+
+/**
+ * When the data was actually collected, taken from the newest report rather than from build time.
+ * A dashboard that refreshes on a schedule has to say how fresh it is, otherwise a stale build is
+ * indistinguishable from a quiet week.
+ */
+export function readCollectedAt(): string | null {
+  const index = readIndex()
+  const stamps = index.projects
+    .flatMap((p) => p.months.map((m) => readReport(p.id, m)?.generatedAt))
+    .filter((s): s is string => Boolean(s))
+    .sort()
+  return stamps.at(-1) ?? null
+}
+
+/** True while any example data is still present, so the site can say the numbers are made up. */
+export function hasSyntheticData(): boolean {
+  return readIndex().projects.some((p) => {
+    const month = p.latest
+    if (!month) return false
+    return readReport(p.id, month)?.synthetic === true
+  })
+}

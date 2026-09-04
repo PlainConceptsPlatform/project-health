@@ -1,0 +1,134 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Project Health project list",
+  "type": "object",
+  "required": [
+    "organization",
+    "projects"
+  ],
+  "properties": {
+    "organization": {
+      "type": "string",
+      "description": "GitHub organisation that owns every listed repository."
+    },
+    "projects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "repo",
+          "enabled",
+          "status",
+          "environments",
+          "productionRefPattern",
+          "agents"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+$",
+            "description": "Folder name under data/ and the URL segment on the site."
+          },
+          "name": {
+            "type": "string"
+          },
+          "repo": {
+            "type": "string",
+            "pattern": "^[^/]+/[^/]+$",
+            "description": "owner/repository"
+          },
+          "enabled": {
+            "type": "boolean",
+            "description": "Disabled projects are skipped without being removed from the list."
+          },
+          "status": {
+            "enum": [
+              "production",
+              "pre-production"
+            ],
+            "description": "pre-production means the project has no production environment yet, so production metrics are skipped rather than reported as zero."
+          },
+          "environments": {
+            "type": "object",
+            "required": [
+              "production",
+              "staging"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "production": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Environment name that counts as production. Names are not standardised across repositories, so this is configuration. null means the project has no production environment, and its production metrics are skipped rather than reported as zero."
+              },
+              "staging": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Environment name that counts as staging."
+              }
+            }
+          },
+          "productionRefPattern": {
+            "type": "string",
+            "description": "Regular expression a production ref should match. Releases that do not match are flagged as out of process rather than excluded."
+          },
+          "agents": {
+            "type": "object",
+            "required": [
+              "enabled",
+              "workflow"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "enabled": {
+                "type": "boolean"
+              },
+              "workflow": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Workflow that runs the agents, matched on file path first and display name second. The path is preferred because the display name often differs between repositories while the path does not."
+              },
+              "ignoreTitlePatterns": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Run title prefixes that cannot be an agent run, excluded before jobs are fetched purely to save API calls. The kind itself is read from the job named \"call-<kind> / agent\", so a new kind is discovered without configuration."
+              }
+            }
+          },
+          "notes": {
+            "type": "string"
+          },
+          "reworkLabel": {
+            "type": "string",
+            "description": "Label that marks a pull request as an unplanned fix, feeding deployment rework rate. Defaults to hotfix. A broad label such as bug counts planned backlog fixes as rework and overstates the rate."
+          },
+          "reworkLabelPrecision": {
+            "enum": [
+              "incident",
+              "broad"
+            ],
+            "description": "Whether reworkLabel means only unplanned production fixes (incident) or any bug fix (broad). A broad marker is collected and displayed but is not used to place the project on the DORA stability axis, because \"released a bug fix\" is not the same as \"reacted to an incident\"."
+          },
+          "workItemLabel": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Label marking an issue as work intended to ship, used for the issue to staging measure and the requesters chart. Conventions differ per repository. null reports the metric as not measured rather than as empty."
+          }
+        }
+      }
+    }
+  }
+}
