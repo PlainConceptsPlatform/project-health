@@ -20,6 +20,9 @@
         "enabled": true,
         "workflow": ".github/workflows/work-router.yml"
       },
+      "engineeringExcellence": {
+        "enabled": true
+      },
       "notes": "Tag based releases and a dedicated hotfix label, so every metric including the stability axis is available."
     },
     {

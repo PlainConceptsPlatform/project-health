@@ -1,6 +1,16 @@
 'use client'
 
-import { Bar, BarChart, CartesianGrid, LabelList, Line, LineChart, XAxis, YAxis } from 'recharts'
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  LabelList,
+  Line,
+  LineChart,
+  ReferenceLine,
+  XAxis,
+  YAxis,
+} from 'recharts'
 import {
   type ChartConfig,
   ChartContainer,
@@ -193,6 +203,77 @@ export function MonthlyTrend({
           stroke="var(--color-releases)"
           strokeWidth={2}
           dot={{ r: 4, strokeWidth: 2 }}
+        />
+      </LineChart>
+    </ChartContainer>
+  )
+}
+
+/**
+ * One scope's percentage over time, against its floor. Scopes are drawn as small multiples rather
+ * than as one chart with a line each: a repository can have four or five scopes, and only two
+ * colour slots are safe to use (see above). The floor is a dashed reference line in muted ink, so
+ * it never competes with the series for a colour.
+ */
+export function ScopeTrend({
+  label,
+  points,
+  floor,
+  unit = 'percent',
+}: {
+  label: string
+  points: { at: string; value: number }[]
+  floor: number | null
+  /** A count is not clamped to 0..100 and its ticks carry no percent sign. */
+  unit?: 'percent' | 'count'
+}) {
+  const config = { value: { label, color: SERIES_1 } } satisfies ChartConfig
+  const data = points.map((p) => ({
+    day: new Date(p.at).toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      timeZone: 'UTC',
+    }),
+    value: p.value,
+  }))
+  const values = points.map((p) => p.value).concat(floor ?? [])
+  const ceiling = unit === 'percent' ? 100 : Number.POSITIVE_INFINITY
+  const low = Math.max(0, Math.floor((Math.min(...values) - 5) / 5) * 5)
+  const high = Math.min(ceiling, Math.ceil((Math.max(...values) + 5) / 5) * 5)
+  const percentLabel = (v: number) => (unit === 'percent' ? `${v}%` : String(v))
+
+  return (
+    <ChartContainer config={config} className="h-[150px] w-full">
+      <LineChart data={data}>
+        {grid}
+        <XAxis dataKey="day" {...AXIS} interval="preserveStartEnd" minTickGap={24} />
+        <YAxis
+          domain={[low, high]}
+          width={40}
+          allowDecimals={unit === 'percent'}
+          tickFormatter={percentLabel}
+          {...AXIS}
+        />
+        <ChartTooltip content={<ChartTooltipContent />} />
+        {floor !== null ? (
+          <ReferenceLine
+            y={floor}
+            stroke="var(--muted-foreground)"
+            strokeDasharray="4 4"
+            label={{
+              value: `floor ${floor}%`,
+              position: 'insideBottomRight',
+              className: 'fill-muted-foreground text-[10px]',
+            }}
+          />
+        ) : null}
+        <Line
+          dataKey="value"
+          type="monotone"
+          stroke="var(--color-value)"
+          strokeWidth={2}
+          dot={data.length <= 12 ? { r: 4, strokeWidth: 2 } : false}
+          activeDot={{ r: 4 }}
         />
       </LineChart>
     </ChartContainer>

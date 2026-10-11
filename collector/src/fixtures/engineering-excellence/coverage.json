@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "facet": "coverage",
+  "repo": "your-org/checkout",
+  "ref": "refs/heads/main",
+  "commitSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "runId": 1001,
+  "runAttempt": 1,
+  "generatedAt": "2026-10-11T23:03:56.547Z",
+  "data": {
+    "scopes": {
+      "Atlas.Domain": {
+        "lineRate": 0.991,
+        "branchRate": 0.9667,
+        "linesCovered": 1644,
+        "linesValid": 1659,
+        "floor": 0.85,
+        "modules": {
+          "AiGovernance": {
+            "lineRate": 0.991,
+            "branchRate": 0.98,
+            "linesCovered": 219,
+            "linesValid": 221
+          },
+          "AiLicensing": {
+            "lineRate": 1,
+            "branchRate": 1,
+            "linesCovered": 11,
+            "linesValid": 11
+          }
+        }
+      },
+      "web": {
+        "lineRate": 0.4955,
+        "branchRate": 0.4169,
+        "linesCovered": 8666,
+        "linesValid": 17489,
+        "floor": 0.47,
+        "modules": {
+          "(root)": {
+            "lineRate": 0.4292,
+            "branchRate": 0.2572,
+            "linesCovered": 200,
+            "linesValid": 466
+          },
+          "components": {
+            "lineRate": 0.5407,
+            "branchRate": 0.4284,
+            "linesCovered": 578,
+            "linesValid": 1069
+          }
+        }
+      }
+    },
+    "global": {
+      "lineRate": 0.5676,
+      "linesCovered": 32189,
+      "linesValid": 56709
+    },
+    "passed": false
+  }
+}

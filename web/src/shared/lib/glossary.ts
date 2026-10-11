@@ -50,6 +50,23 @@ export const GLOSSARY = {
 
   percentiles:
     'p50 is the middle value, p75 and p90 are the slower tail. The tail usually matters more than the middle, because that is where the frustrating cases live.',
+
+  coverage:
+    'The share of lines that the test suite executes, across every scope the repository measures. It says what ran, not what was checked: a test that asserts nothing still covers the lines it touches.',
+
+  mutationScore:
+    'Mutation testing changes the code in small ways and checks that some test fails. The covered score counts only the changes that tests reach, so it measures how well the tests that run actually assert. It is usually collected weekly, because it is slow.',
+
+  crap: 'CRAP combines cyclomatic complexity with coverage: complexity squared times the uncovered share cubed, plus complexity. Above 30 a method is both complicated and poorly tested, which makes it risky to change.',
+
+  vulnerabilities:
+    'Known vulnerabilities in dependencies reported by Trivy, counting only critical and high severity. Findings without a fix yet are included, because they still describe exposure.',
+
+  complexityDebt:
+    'Methods over the complexity or CRAP limit that the repository has accepted into a baseline rather than fix at once. Its gate blocks any new one, so this count should only fall. New violations and justified exemptions are shown underneath.',
+
+  sbomComponents:
+    'Every third party component in the software bill of materials, across all ecosystems. More components mean more surface to keep patched; the licence mix says what obligations ship with them.',
 } as const
 
 export type GlossaryKey = keyof typeof GLOSSARY

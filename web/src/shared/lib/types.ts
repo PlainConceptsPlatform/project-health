@@ -139,6 +139,8 @@ export interface MonthlyReport {
   agents: MetricBlock<AgentSummary>
   contributors: MetricBlock<Contributors>
   placement: MetricBlock<Placement>
+  /** Absent when the project has not opted in, and in files written before it existed. */
+  engineeringExcellence?: EngineeringExcellence
   warnings: Warning[]
 }
 
@@ -152,4 +154,149 @@ export interface DataIndex {
     months: string[]
     latest: string | null
   }[]
+}
+
+export const FACETS = ['coverage', 'complexity', 'mutation', 'security', 'sbom'] as const
+export type Facet = (typeof FACETS)[number]
+
+export interface LineStats {
+  lineRate: number | null
+  branchRate: number | null
+  linesCovered: number
+  linesValid: number
+}
+
+/**
+ * Facet data mirrors schema/engineering-excellence-facets.schema.json. Fields marked optional are
+ * the heavy per-module detail: they are kept on the latest sample of a month and dropped from the
+ * others, because a month of per-commit samples with every module would make each stored file
+ * several megabytes for a trend line that only reads the scope totals.
+ */
+export interface CoverageData {
+  scopes: Record<string, LineStats & { floor: number | null; modules?: Record<string, LineStats> }>
+  global: { lineRate: number | null; linesCovered: number; linesValid: number }
+  passed: boolean
+}
+
+export interface ComplexitySummary {
+  methods: number
+  ccP50: number | null
+  ccP90: number | null
+  ccMax: number | null
+  over10: number
+  crapOver30: number
+}
+
+export interface Hotspot {
+  scope: string
+  module: string
+  file: string
+  method: string
+  line: number | null
+  cc: number
+  coverage: number
+  crap: number
+}
+
+export interface ComplexityData {
+  thresholds: { cc: number; crap: number }
+  scopes: Record<string, ComplexitySummary & { modules?: Record<string, ComplexitySummary> }>
+  global: ComplexitySummary
+  hotspots?: Hotspot[]
+  /**
+   * The repository's blocking complexity gate as evaluated on this commit, when it runs one.
+   * baselined is the remaining backlog of known violations, so it should only go down.
+   */
+  gate?: ComplexityGate | null
+}
+
+export interface ComplexityGate {
+  ccMax: number
+  crapMax: number
+  baselined: number
+  violations: number
+  justified: number
+}
+
+export interface MutationScores {
+  coveredScore: number
+  fullScore: number
+  killed: number
+  timeout: number
+  survived: number
+  noCoverage: number
+  valid: number
+}
+
+export interface MutationData {
+  scopes: Record<
+    string,
+    MutationScores & {
+      floor: number | null
+      passed: boolean
+      modules?: Record<string, MutationScores>
+    }
+  >
+  global: MutationScores
+  passed: boolean
+}
+
+export type Severities = Record<'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' | 'UNKNOWN', number>
+
+export interface SecurityData {
+  trivy: {
+    vuln: Severities
+    misconfig: Severities
+    secret: Severities
+    fixableVulns: number
+  } | null
+  semgrep: {
+    ERROR: number
+    WARNING: number
+    INFO: number
+    total: number
+    scanErrors: number
+  } | null
+  jobs: Record<string, 'success' | 'failure' | 'cancelled' | 'skipped'>
+  passed: boolean
+}
+
+export interface SbomData {
+  format: string
+  specVersion: string | null
+  components: number
+  byEcosystem: Record<string, number>
+  licenses?: Record<string, number>
+  unlicensed: number
+  sha256: string
+}
+
+export interface FacetDataMap {
+  coverage: CoverageData
+  complexity: ComplexityData
+  mutation: MutationData
+  security: SecurityData
+  sbom: SbomData
+}
+
+export interface FacetSample<T> {
+  commitSha: string | null
+  runId: number | null
+  runAttempt: number | null
+  /** Lets a later collection skip an artifact it has already read. */
+  artifactId: number
+  generatedAt: string
+  data: T
+}
+
+export interface FacetSeries<T> {
+  /** One per commit, oldest first, carrying the scope totals only. */
+  samples: FacetSample<T>[]
+  /** The full data of the newest sample, per-module detail included. */
+  latest: T
+  latestGeneratedAt: string
+}
+
+export type EngineeringExcellence = {
+  [F in Facet]: MetricBlock<FacetSeries<FacetDataMap[F]>>
 }

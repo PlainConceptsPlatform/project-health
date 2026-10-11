@@ -196,4 +196,13 @@ export interface Artifact {
   id: number
   name: string
   expired: boolean
+  created_at?: string
+  /** Present on the repository-wide artifact list, absent on some older per-run responses. */
+  workflow_run?: {
+    id: number
+    repository_id?: number
+    head_repository_id?: number
+    head_branch: string | null
+    head_sha: string
+  } | null
 }

@@ -1,4 +1,4 @@
-import { readIndex, readLatestReport, readTrend } from '@/shared/lib/data'
+import { readExcellenceHistory, readIndex, readLatestReport, readTrend } from '@/shared/lib/data'
 import { Unavailable } from '@/shared/ui'
 import { ProjectView } from '@/views/project'
 
@@ -22,5 +22,13 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
       />
     )
   }
-  return <ProjectView report={report} months={entry.months} trend={readTrend(id)} />
+  const shown = `${report.period.year}-${String(report.period.month).padStart(2, '0')}`
+  return (
+    <ProjectView
+      report={report}
+      months={entry.months}
+      trend={readTrend(id)}
+      excellence={readExcellenceHistory(id, shown)}
+    />
+  )
 }
