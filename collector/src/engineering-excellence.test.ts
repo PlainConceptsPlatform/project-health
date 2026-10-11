@@ -11,6 +11,7 @@ import {
   selectArtifacts,
 } from './metrics/engineering-excellence.ts'
 import type {
+  ComplexityData,
   CoverageData,
   EngineeringExcellence,
   FacetSample,
@@ -184,6 +185,34 @@ describe('readFacet', () => {
     if (!mutationRead.ok) expect(mutationRead.reason).toContain('above 1')
   })
 
+  it('accepts a complexity facet with or without the optional gate block', () => {
+    const read = (doc: unknown) =>
+      readFacet({ 'complexity.json': strToU8(JSON.stringify(doc)) }, 'complexity', REPO, 'main')
+    const withoutGate = fixture('complexity')
+    const withGate = fixture('complexity')
+    withGate.data.gate = { ccMax: 10, crapMax: 30, baselined: 117, violations: 0, justified: 2 }
+    const nullGate = fixture('complexity')
+    nullGate.data.gate = null
+
+    expect(read(withoutGate).ok).toBe(true)
+    expect(read(nullGate).ok).toBe(true)
+    const accepted = read(withGate)
+    expect(accepted.ok && accepted.envelope.data.gate?.baselined).toBe(117)
+  })
+
+  it('rejects a gate missing its backlog count, since that is the number the page trends', () => {
+    const doc = fixture('complexity')
+    doc.data.gate = { ccMax: 10, crapMax: 30, violations: 0, justified: 0 }
+    const read = readFacet(
+      { 'complexity.json': strToU8(JSON.stringify(doc)) },
+      'complexity',
+      REPO,
+      'main',
+    )
+    expect(read).toMatchObject({ ok: false, kind: 'mismatch' })
+    if (!read.ok) expect(read.reason).toContain("missing 'baselined'")
+  })
+
   it('reports a missing file as missing, not as a mismatch', () => {
     expect(readFacet({ 'other.json': strToU8('{}') }, 'coverage', REPO, 'main')).toMatchObject({
       ok: false,
@@ -241,6 +270,32 @@ describe('mergeSamples', () => {
     expect(merged?.latestGeneratedAt).toBe('2026-10-05T00:00:00Z')
     expect(merged?.samples[0]?.data.scopes['Atlas.Domain']?.modules).toBeUndefined()
     expect(merged?.latest.scopes['Atlas.Domain']?.modules).toBeDefined()
+  })
+
+  it('keeps the complexity gate on every sample while dropping hotspots', () => {
+    const data = fixture('complexity').data as unknown as ComplexityData
+    const gate = { ccMax: 10, crapMax: 30, baselined: 40, violations: 1, justified: 3 }
+    const merged = mergeSamples('complexity', null, [
+      {
+        commitSha: 'a',
+        runId: 1,
+        runAttempt: 1,
+        artifactId: 1,
+        generatedAt: '2026-10-01T00:00:00Z',
+        data: { ...data, gate },
+      },
+      {
+        commitSha: 'b',
+        runId: 2,
+        runAttempt: 1,
+        artifactId: 2,
+        generatedAt: '2026-10-02T00:00:00Z',
+        data: { ...data, gate: { ...gate, baselined: 38 } },
+      },
+    ])
+    expect(merged?.samples.map((s) => s.data.gate?.baselined)).toEqual([40, 38])
+    expect(merged?.samples[0]?.data.hotspots).toBeUndefined()
+    expect(merged?.latest.hotspots?.length).toBeGreaterThan(0)
   })
 
   it('reuses the stored latest detail when nothing newer arrived', () => {

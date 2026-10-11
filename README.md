@@ -146,7 +146,7 @@ The zip holds a single `<facet>.json`:
 | Facet | Artifact | Typical cadence | Carries |
 | --- | --- | --- | --- |
 | `coverage` | `engineering-excellence-coverage` | every push to main | line and branch rate per scope and module, against each scope's floor |
-| `complexity` | `engineering-excellence-complexity` | every push to main | cyclomatic complexity percentiles, CC above 10 and CRAP above 30 counts, the worst CRAP methods |
+| `complexity` | `engineering-excellence-complexity` | every push to main | cyclomatic complexity percentiles, CC above 10 and CRAP above 30 counts, the worst CRAP methods, and optionally the repository's complexity `gate` (baselined backlog, new violations, justified exemptions) |
 | `mutation` | `engineering-excellence-mutation` | weekly | covered and full mutation score per scope and module, against floors |
 | `security` | `engineering-excellence-security` | every push to main | Trivy vulnerabilities, misconfigurations and secrets by severity, Semgrep counts, scanner job results |
 | `sbom` | `engineering-excellence-sbom` | every push to main | component count by ecosystem, licence mix, components without a licence |
@@ -207,7 +207,8 @@ Add one line to the project's entry in `projects.json`:
 project page then shows an Engineering excellence section: headline numbers with the change against
 the previous month, coverage and mutation trends per scope against their floors, a per-module table
 joining coverage, mutation and complexity, the worst CRAP methods, security counts by severity and
-the SBOM's ecosystems and licences. With OTLP configured, the month's latest coverage, mutation
+the SBOM's ecosystems and licences. When the complexity facet carries a `gate`, a Complexity debt tile
+shows its baselined backlog (lower is better) with a trend line; without one the tile is hidden. With OTLP configured, the month's latest coverage, mutation
 score, CRAP count, critical and high vulnerabilities and SBOM size are exported as `engineering.*`
 gauges.
 

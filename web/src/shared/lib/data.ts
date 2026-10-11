@@ -1,7 +1,14 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { type ExcellenceKpis, kpisOf } from './excellence'
-import type { CoverageData, DataIndex, FacetSample, MonthlyReport, MutationData } from './types'
+import type {
+  ComplexityData,
+  CoverageData,
+  DataIndex,
+  FacetSample,
+  MonthlyReport,
+  MutationData,
+} from './types'
 
 /**
  * Reads the collected JSON at build time. The site is exported as static files, so nothing here
@@ -149,6 +156,7 @@ export function readTrend(projectId: string): {
 export interface ExcellenceHistory {
   coverage: FacetSample<CoverageData>[]
   mutation: FacetSample<MutationData>[]
+  complexity: FacetSample<ComplexityData>[]
   /** The month before the one shown, for deltas. null when it has no facets. */
   previous: { month: string; kpis: ExcellenceKpis } | null
 }
@@ -159,7 +167,12 @@ export interface ExcellenceHistory {
  */
 export function readExcellenceHistory(projectId: string, month: string): ExcellenceHistory {
   const entry = readIndex().projects.find((p) => p.id === projectId)
-  const history: ExcellenceHistory = { coverage: [], mutation: [], previous: null }
+  const history: ExcellenceHistory = {
+    coverage: [],
+    mutation: [],
+    complexity: [],
+    previous: null,
+  }
   if (!entry) return history
 
   const months = entry.months.filter((m) => m <= month)
@@ -168,6 +181,9 @@ export function readExcellenceHistory(projectId: string, month: string): Excelle
     if (!excellence) continue
     if (excellence.coverage.available) history.coverage.push(...excellence.coverage.data.samples)
     if (excellence.mutation.available) history.mutation.push(...excellence.mutation.data.samples)
+    if (excellence.complexity.available) {
+      history.complexity.push(...excellence.complexity.data.samples)
+    }
   }
 
   const before = months.filter((m) => m < month).at(-1)

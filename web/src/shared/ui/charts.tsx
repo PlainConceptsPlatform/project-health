@@ -219,10 +219,13 @@ export function ScopeTrend({
   label,
   points,
   floor,
+  unit = 'percent',
 }: {
   label: string
   points: { at: string; value: number }[]
   floor: number | null
+  /** A count is not clamped to 0..100 and its ticks carry no percent sign. */
+  unit?: 'percent' | 'count'
 }) {
   const config = { value: { label, color: SERIES_1 } } satisfies ChartConfig
   const data = points.map((p) => ({
@@ -234,16 +237,23 @@ export function ScopeTrend({
     value: p.value,
   }))
   const values = points.map((p) => p.value).concat(floor ?? [])
+  const ceiling = unit === 'percent' ? 100 : Number.POSITIVE_INFINITY
   const low = Math.max(0, Math.floor((Math.min(...values) - 5) / 5) * 5)
-  const high = Math.min(100, Math.ceil((Math.max(...values) + 5) / 5) * 5)
-  const percentLabel = (v: number) => `${v}%`
+  const high = Math.min(ceiling, Math.ceil((Math.max(...values) + 5) / 5) * 5)
+  const percentLabel = (v: number) => (unit === 'percent' ? `${v}%` : String(v))
 
   return (
     <ChartContainer config={config} className="h-[150px] w-full">
       <LineChart data={data}>
         {grid}
         <XAxis dataKey="day" {...AXIS} interval="preserveStartEnd" minTickGap={24} />
-        <YAxis domain={[low, high]} width={40} tickFormatter={percentLabel} {...AXIS} />
+        <YAxis
+          domain={[low, high]}
+          width={40}
+          allowDecimals={unit === 'percent'}
+          tickFormatter={percentLabel}
+          {...AXIS}
+        />
         <ChartTooltip content={<ChartTooltipContent />} />
         {floor !== null ? (
           <ReferenceLine

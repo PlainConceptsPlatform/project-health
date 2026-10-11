@@ -1,4 +1,5 @@
 import type {
+  ComplexityData,
   CoverageData,
   EngineeringExcellence,
   FacetSample,
@@ -13,6 +14,8 @@ export interface ExcellenceKpis {
   crapOver30: number | null
   criticalHigh: number | null
   components: number | null
+  /** Baselined complexity violations still in the code. null when the repository runs no gate. */
+  complexityDebt: number | null
 }
 
 export function kpisOf(excellence: EngineeringExcellence | undefined | null): ExcellenceKpis {
@@ -28,6 +31,7 @@ export function kpisOf(excellence: EngineeringExcellence | undefined | null): Ex
     crapOver30: complexity?.available ? complexity.data.latest.global.crapOver30 : null,
     criticalHigh: trivy ? trivy.vuln.CRITICAL + trivy.vuln.HIGH : null,
     components: sbom?.available ? sbom.data.latest.components : null,
+    complexityDebt: complexity?.available ? (complexity.data.latest.gate?.baselined ?? null) : null,
   }
 }
 
@@ -131,3 +135,9 @@ export function scopeTrends<T extends CoverageData | MutationData>(
   }
   return [...byScope.values()].sort((a, b) => a.scope.localeCompare(b.scope))
 }
+
+/** The gate backlog per complexity sample. Samples without a gate are left out, not drawn as zero. */
+export const debtTrend = (
+  samples: FacetSample<ComplexityData>[],
+): { at: string; value: number }[] =>
+  samples.flatMap((s) => (s.data.gate ? [{ at: s.generatedAt, value: s.data.gate.baselined }] : []))

@@ -1,13 +1,19 @@
 import type { ExcellenceHistory } from '@/shared/lib/data'
 import {
   type ExcellenceKpis,
+  debtTrend,
   kpisOf,
   moduleRows,
   scopeTrends,
   topHotspots,
 } from '@/shared/lib/excellence'
 import { monthName, percent } from '@/shared/lib/format'
-import type { EngineeringExcellence, MonthlyReport, Severities } from '@/shared/lib/types'
+import type {
+  ComplexityGate,
+  EngineeringExcellence,
+  MonthlyReport,
+  Severities,
+} from '@/shared/lib/types'
 import {
   Badge,
   DataTable,
@@ -44,17 +50,60 @@ function delta(
   return `${sign}${amount} vs ${short}`
 }
 
+/**
+ * The change in a backlog that should only shrink. An arrow and the words carry the direction, and
+ * the value turns red only when the backlog grew, so a fall never reads as a warning.
+ */
+function debtDelta(current: number, previous: number | null | undefined, month?: string) {
+  if (previous === null || previous === undefined || !month) return { text: undefined, grew: false }
+  const diff = current - previous
+  const short = monthName(month).split(' ')[0]?.slice(0, 3)
+  if (diff === 0) return { text: `unchanged vs ${short}`, grew: false }
+  return diff < 0
+    ? { text: `▼ ${-diff} fewer vs ${short}`, grew: false }
+    : { text: `▲ ${diff} more vs ${short}`, grew: true }
+}
+
+function DebtStat({
+  debt,
+  gate,
+  previous,
+  month,
+}: {
+  debt: number
+  gate: ComplexityGate | null | undefined
+  previous: number | null | undefined
+  month?: string
+}) {
+  const change = debtDelta(debt, previous, month)
+  const detail = gate ? `${gate.violations} new, ${gate.justified} justified` : undefined
+  return (
+    <Stat
+      label="Complexity debt"
+      explain="complexityDebt"
+      value={debt}
+      tone={change.grew ? 'bad' : undefined}
+      hint={[change.text, detail].filter(Boolean).join(' · ') || 'baselined methods'}
+    />
+  )
+}
+
 function Kpis({
   kpis,
   previous,
+  gate,
 }: {
   kpis: ExcellenceKpis
   previous: ExcellenceHistory['previous']
+  gate: ComplexityGate | null | undefined
 }) {
   const p = previous?.kpis
   const m = previous?.month
+  const hasDebt = kpis.complexityDebt !== null
   return (
-    <div className="grid grid-cols-2 gap-5 rounded-md border bg-muted/30 p-4 sm:grid-cols-5">
+    <div
+      className={`grid grid-cols-2 gap-5 rounded-md border bg-muted/30 p-4 sm:grid-cols-3 ${hasDebt ? 'lg:grid-cols-6' : 'lg:grid-cols-5'}`}
+    >
       <Stat
         label="Coverage"
         explain="coverage"
@@ -86,6 +135,9 @@ function Kpis({
         value={kpis.components ?? 'n/a'}
         hint={delta(kpis.components, p?.components, 'count', m) ?? 'in the SBOM'}
       />
+      {kpis.complexityDebt !== null ? (
+        <DebtStat debt={kpis.complexityDebt} gate={gate} previous={p?.complexityDebt} month={m} />
+      ) : null}
     </div>
   )
 }
@@ -306,16 +358,29 @@ export function ExcellencePanel({
 
   const coverageTrends = scopeTrends(history?.coverage ?? [], (s) => s.lineRate)
   const mutationTrends = scopeTrends(history?.mutation ?? [], (s) => s.coveredScore)
+  const gate = excellence.complexity.available ? excellence.complexity.data.latest.gate : null
+  const debt = gate ? debtTrend(history?.complexity ?? []) : []
 
   return (
     <Panel title="Engineering excellence" description={description}>
       <div className="space-y-6">
-        <Kpis kpis={kpisOf(excellence)} previous={history?.previous ?? null} />
+        <Kpis kpis={kpisOf(excellence)} previous={history?.previous ?? null} gate={gate} />
 
         <div className="grid gap-6 lg:grid-cols-2">
           <Trends title="Coverage by scope" trends={coverageTrends} />
           <Trends title="Mutation score by scope" trends={mutationTrends} />
         </div>
+
+        {debt.length > 1 ? (
+          <div>
+            <p className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">
+              Complexity debt
+            </p>
+            <div className="lg:w-1/2">
+              <ScopeTrend label="Baselined" points={debt} floor={null} unit="count" />
+            </div>
+          </div>
+        ) : null}
 
         <div>
           <p className="mb-2 text-sm font-medium">Modules</p>

@@ -62,6 +62,9 @@ export const GLOSSARY = {
   vulnerabilities:
     'Known vulnerabilities in dependencies reported by Trivy, counting only critical and high severity. Findings without a fix yet are included, because they still describe exposure.',
 
+  complexityDebt:
+    'Methods over the complexity or CRAP limit that the repository has accepted into a baseline rather than fix at once. Its gate blocks any new one, so this count should only fall. New violations and justified exemptions are shown underneath.',
+
   sbomComponents:
     'Every third party component in the software bill of materials, across all ecosystems. More components mean more surface to keep patched; the licence mix says what obligations ship with them.',
 } as const

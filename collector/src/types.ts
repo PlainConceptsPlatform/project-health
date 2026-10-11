@@ -250,6 +250,19 @@ export interface ComplexityData {
   scopes: Record<string, ComplexitySummary & { modules?: Record<string, ComplexitySummary> }>
   global: ComplexitySummary
   hotspots?: Hotspot[]
+  /**
+   * The repository's blocking complexity gate as evaluated on this commit, when it runs one.
+   * baselined is the remaining backlog of known violations, so it should only go down.
+   */
+  gate?: ComplexityGate | null
+}
+
+export interface ComplexityGate {
+  ccMax: number
+  crapMax: number
+  baselined: number
+  violations: number
+  justified: number
 }
 
 export interface MutationScores {

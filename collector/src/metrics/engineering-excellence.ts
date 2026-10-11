@@ -257,6 +257,7 @@ export function summarize<F extends Facet>(facet: F, data: FacetDataMap[F]): Fac
       return { ...d, scopes: withoutModules(d.scopes) } as FacetDataMap[F]
     }
     case 'complexity': {
+      // The gate stays: its baselined count is the complexity backlog, and that is a trend.
       const { hotspots: _hotspots, ...d } = data as FacetDataMap['complexity']
       return { ...d, scopes: withoutModules(d.scopes) } as FacetDataMap[F]
     }

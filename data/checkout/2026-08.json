@@ -945,6 +945,13 @@
                 "ccMax": 44,
                 "over10": 24,
                 "crapOver30": 23
+              },
+              "gate": {
+                "ccMax": 10,
+                "crapMax": 30,
+                "baselined": 46,
+                "violations": 0,
+                "justified": 2
               }
             }
           },
@@ -992,6 +999,13 @@
                 "ccMax": 44,
                 "over10": 24,
                 "crapOver30": 23
+              },
+              "gate": {
+                "ccMax": 10,
+                "crapMax": 30,
+                "baselined": 45,
+                "violations": 0,
+                "justified": 2
               }
             }
           },
@@ -1039,6 +1053,13 @@
                 "ccMax": 44,
                 "over10": 24,
                 "crapOver30": 23
+              },
+              "gate": {
+                "ccMax": 10,
+                "crapMax": 30,
+                "baselined": 44,
+                "violations": 0,
+                "justified": 2
               }
             }
           },
@@ -1086,6 +1107,13 @@
                 "ccMax": 44,
                 "over10": 24,
                 "crapOver30": 23
+              },
+              "gate": {
+                "ccMax": 10,
+                "crapMax": 30,
+                "baselined": 43,
+                "violations": 0,
+                "justified": 2
               }
             }
           },
@@ -1133,6 +1161,13 @@
                 "ccMax": 44,
                 "over10": 24,
                 "crapOver30": 23
+              },
+              "gate": {
+                "ccMax": 10,
+                "crapMax": 30,
+                "baselined": 42,
+                "violations": 0,
+                "justified": 2
               }
             }
           },
@@ -1180,6 +1215,13 @@
                 "ccMax": 44,
                 "over10": 24,
                 "crapOver30": 23
+              },
+              "gate": {
+                "ccMax": 10,
+                "crapMax": 30,
+                "baselined": 41,
+                "violations": 0,
+                "justified": 2
               }
             }
           },
@@ -1227,6 +1269,13 @@
                 "ccMax": 44,
                 "over10": 24,
                 "crapOver30": 23
+              },
+              "gate": {
+                "ccMax": 10,
+                "crapMax": 30,
+                "baselined": 40,
+                "violations": 0,
+                "justified": 2
               }
             }
           }
@@ -1401,7 +1450,14 @@
               "coverage": 0.4748,
               "crap": 32.9
             }
-          ]
+          ],
+          "gate": {
+            "ccMax": 10,
+            "crapMax": 30,
+            "baselined": 40,
+            "violations": 0,
+            "justified": 2
+          }
         },
         "latestGeneratedAt": "2026-08-26T14:30:00.000Z"
       }

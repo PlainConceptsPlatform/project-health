@@ -220,6 +220,31 @@
               }
             }
           }
+        },
+        "gate": {
+          "type": ["object", "null"],
+          "description": "Blocking complexity gate (Atlas #1941) as evaluated on this commit: backlog size (baseline entries still violating), violations outside the baseline, and justified exemptions. Absent or null when the repo runs no gate.",
+          "required": ["ccMax", "crapMax", "baselined", "violations", "justified"],
+          "properties": {
+            "ccMax": {
+              "type": "number"
+            },
+            "crapMax": {
+              "type": "number"
+            },
+            "baselined": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "violations": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "justified": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
         }
       }
     },
