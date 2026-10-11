@@ -1,3 +1,4 @@
+import type { ExcellenceHistory } from '@/shared/lib/data'
 import {
   dateTime,
   hours,
@@ -26,6 +27,7 @@ import {
   ReleasesPerDay,
   TokensByKind,
 } from '@/shared/ui/charts'
+import { ExcellencePanel } from './excellence'
 
 export interface TrendPoint {
   month: string
@@ -446,10 +448,12 @@ export function ProjectView({
   report,
   months,
   trend,
+  excellence,
 }: {
   report: MonthlyReport
   months: string[]
   trend: TrendPoint[]
+  excellence?: ExcellenceHistory
 }) {
   const current = monthKey(report)
 
@@ -543,6 +547,8 @@ export function ProjectView({
           <MonthlyTrend data={trend} />
         </Panel>
       ) : null}
+
+      <ExcellencePanel report={report} history={excellence} />
 
       <AgentsPanel report={report} />
       <PeoplePanel report={report} />

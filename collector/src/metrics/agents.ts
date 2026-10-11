@@ -23,7 +23,7 @@ const CONCURRENCY = 8
  * month can hold several hundred runs, so doing them strictly one at a time makes a backfill take
  * hours. The bound keeps it polite rather than opening one connection per run.
  */
-async function mapLimit<T, R>(
+export async function mapLimit<T, R>(
   items: T[],
   limit: number,
   fn: (item: T) => Promise<R>,

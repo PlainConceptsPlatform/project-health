@@ -60,6 +60,11 @@ function samplesFor(report: MonthlyReport): Record<string, Sample[]> {
     'agent.token.usage': [],
     'agent.run.count': [],
     'cicd.pipeline.run.duration': [],
+    'engineering.coverage.line_rate': [],
+    'engineering.mutation.covered_score': [],
+    'engineering.complexity.crap_hotspots': [],
+    'engineering.security.vulnerabilities': [],
+    'engineering.sbom.components': [],
   }
 
   const frequency = report.delivery.deploymentFrequency
@@ -118,6 +123,45 @@ function samplesFor(report: MonthlyReport): Record<string, Sample[]> {
     }
   }
 
+  // The month's latest sample only. Per-commit samples stay in the JSON, which is the history.
+  const excellence = report.engineeringExcellence
+  if (excellence) {
+    const { coverage, mutation, complexity, security, sbom } = excellence
+    if (coverage.available && coverage.data.latest.global.lineRate !== null) {
+      series['engineering.coverage.line_rate']?.push({
+        value: coverage.data.latest.global.lineRate,
+        attributes: base,
+      })
+    }
+    if (mutation.available) {
+      series['engineering.mutation.covered_score']?.push({
+        value: mutation.data.latest.global.coveredScore,
+        attributes: base,
+      })
+    }
+    if (complexity.available) {
+      series['engineering.complexity.crap_hotspots']?.push({
+        value: complexity.data.latest.global.crapOver30,
+        attributes: base,
+      })
+    }
+    const trivy = security.available ? security.data.latest.trivy : null
+    if (trivy) {
+      for (const severity of ['CRITICAL', 'HIGH'] as const) {
+        series['engineering.security.vulnerabilities']?.push({
+          value: trivy.vuln[severity],
+          attributes: { ...base, severity },
+        })
+      }
+    }
+    if (sbom.available) {
+      series['engineering.sbom.components']?.push({
+        value: sbom.data.latest.components,
+        attributes: base,
+      })
+    }
+  }
+
   return series
 }
 
@@ -138,6 +182,20 @@ const DESCRIPTIONS: Record<string, { unit: string; description: string }> = {
   'agent.token.usage': { unit: '{token}', description: 'Tokens consumed by agent runs' },
   'agent.run.count': { unit: '{run}', description: 'Agent workflow runs in the period' },
   'cicd.pipeline.run.duration': { unit: 's', description: 'Duration of the agent execution step' },
+  'engineering.coverage.line_rate': { unit: '1', description: 'Line coverage across all scopes' },
+  'engineering.mutation.covered_score': {
+    unit: '1',
+    description: 'Mutation score over mutants that tests reach',
+  },
+  'engineering.complexity.crap_hotspots': {
+    unit: '{method}',
+    description: 'Methods whose CRAP score is above 30',
+  },
+  'engineering.security.vulnerabilities': {
+    unit: '{vulnerability}',
+    description: 'Dependency vulnerabilities reported by Trivy, by severity',
+  },
+  'engineering.sbom.components': { unit: '{component}', description: 'Components in the SBOM' },
 }
 
 export async function exportToOtlp(reports: MonthlyReport[]): Promise<void> {

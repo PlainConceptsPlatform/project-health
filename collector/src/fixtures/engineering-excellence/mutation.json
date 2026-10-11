@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "facet": "mutation",
+  "repo": "your-org/checkout",
+  "ref": "refs/heads/main",
+  "commitSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "runId": 1001,
+  "runAttempt": 1,
+  "generatedAt": "2026-10-11T23:03:38.933Z",
+  "data": {
+    "scopes": {
+      "domain": {
+        "coveredScore": 0.8593,
+        "fullScore": 0.8525,
+        "killed": 873,
+        "timeout": 0,
+        "survived": 143,
+        "noCoverage": 8,
+        "valid": 1024,
+        "floor": 0.83,
+        "passed": true,
+        "modules": {
+          "AiGovernance": {
+            "coveredScore": 0.7879,
+            "fullScore": 0.7602,
+            "killed": 130,
+            "timeout": 0,
+            "survived": 35,
+            "noCoverage": 6,
+            "valid": 171
+          },
+          "AiLicensing": {
+            "coveredScore": 1,
+            "fullScore": 1,
+            "killed": 4,
+            "timeout": 0,
+            "survived": 0,
+            "noCoverage": 0,
+            "valid": 4
+          }
+        }
+      },
+      "web": {
+        "coveredScore": 0.9584,
+        "fullScore": 0.9051,
+        "killed": 535,
+        "timeout": 18,
+        "survived": 24,
+        "noCoverage": 34,
+        "valid": 611,
+        "floor": 0.92,
+        "passed": true,
+        "modules": {
+          "(root)": {
+            "coveredScore": 0.9697,
+            "fullScore": 0.9143,
+            "killed": 32,
+            "timeout": 0,
+            "survived": 1,
+            "noCoverage": 2,
+            "valid": 35
+          },
+          "lib": {
+            "coveredScore": 0.9577,
+            "fullScore": 0.9045,
+            "killed": 503,
+            "timeout": 18,
+            "survived": 23,
+            "noCoverage": 32,
+            "valid": 576
+          }
+        }
+      }
+    },
+    "global": {
+      "coveredScore": 0.8471,
+      "fullScore": 0.7765,
+      "killed": 4975,
+      "timeout": 28,
+      "survived": 903,
+      "noCoverage": 537,
+      "valid": 6443
+    },
+    "passed": false
+  }
+}

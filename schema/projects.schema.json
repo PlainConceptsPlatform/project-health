@@ -106,6 +106,29 @@
               }
             }
           },
+          "engineeringExcellence": {
+            "type": "object",
+            "required": [
+              "enabled"
+            ],
+            "additionalProperties": false,
+            "description": "Reads the engineering excellence facet artifacts (coverage, complexity, mutation, security, sbom) that the repository's own CI uploads. The contract is schema/engineering-excellence-facets.schema.json.",
+            "properties": {
+              "enabled": {
+                "type": "boolean"
+              },
+              "branch": {
+                "type": "string",
+                "default": "main",
+                "description": "Only artifacts uploaded by runs on this branch are read."
+              },
+              "artifactPrefix": {
+                "type": "string",
+                "default": "engineering-excellence-",
+                "description": "Artifact name prefix. The facet name is appended, so the default reads engineering-excellence-coverage and so on."
+              }
+            }
+          },
           "notes": {
             "type": "string"
           },

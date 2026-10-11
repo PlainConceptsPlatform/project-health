@@ -6,6 +6,10 @@ import { get } from './github.ts'
 import { collectAgents } from './metrics/agents.ts'
 import { collectContributors } from './metrics/contributors.ts'
 import { computeDeploymentFrequency } from './metrics/deployments.ts'
+import {
+  collectEngineeringExcellence,
+  unavailableExcellence,
+} from './metrics/engineering-excellence.ts'
 import { collectLeadTime } from './metrics/leadtime.ts'
 import { fetchReleaseHistory, withinWindow } from './metrics/releases.ts'
 import { collectRework } from './metrics/rework.ts'
@@ -15,6 +19,7 @@ import {
   type AgentRun,
   type AgentSummary,
   type Contributors,
+  type EngineeringExcellence,
   type MonthlyReport,
   type ProjectConfig,
   type Warning,
@@ -34,6 +39,9 @@ const INFO_CODES = new Set([
   'NO_PRODUCTION_ENVIRONMENT',
   'NO_PRODUCTION_DEPLOYMENTS',
   'DUPLICATE_DEPLOYMENT_OBJECTS',
+  // A repository may produce only some facets, and mutation testing often runs weekly, so an
+  // early month without one is expected rather than a data quality problem.
+  'ENGINEERING_EXCELLENCE_ARTIFACT_MISSING',
 ])
 
 const applySeverity = (warnings: Warning[]): Warning[] =>
@@ -129,6 +137,14 @@ async function preflight(
       if (actions) problems.push(actions)
     }
 
+    if (project.engineeringExcellence?.enabled) {
+      const artifacts = await check(
+        `/repos/${project.repo}/actions/artifacts?per_page=1`,
+        'Actions read',
+      )
+      if (artifacts) problems.push(artifacts)
+    }
+
     if (problems.length > 0) {
       failed.push(`${project.repo}: ${problems.join('; ')}`)
       continue
@@ -140,16 +156,25 @@ async function preflight(
   return { usable, failed }
 }
 
+function previousReport(projectId: string, month: string): MonthlyReport | null {
+  const file = join(dataDir, projectId, `${month}.json`)
+  if (!existsSync(file)) return null
+  try {
+    return JSON.parse(readFileSync(file, 'utf8')) as MonthlyReport
+  } catch {
+    return null
+  }
+}
+
 /** Agent runs already measured for this project and month, so finished runs are not refetched. */
 function previousAgentRuns(projectId: string, month: string): AgentRun[] {
-  const file = join(dataDir, projectId, `${month}.json`)
-  if (!existsSync(file)) return []
-  try {
-    const prior = JSON.parse(readFileSync(file, 'utf8')) as MonthlyReport
-    return prior.agents.available ? prior.agents.data.runs : []
-  } catch {
-    return []
-  }
+  const prior = previousReport(projectId, month)
+  return prior?.agents.available ? prior.agents.data.runs : []
+}
+
+/** Facet samples already stored for this month, kept even after their artifacts expire. */
+function previousExcellence(projectId: string, month: string): EngineeringExcellence | null {
+  return previousReport(projectId, month)?.engineeringExcellence ?? null
 }
 
 async function collectProject(project: ProjectConfig, period: Period): Promise<MonthlyReport> {
@@ -217,6 +242,19 @@ async function collectProject(project: ProjectConfig, period: Period): Promise<M
     (reason) => skip<Contributors>(reason),
   )
 
+  let engineeringExcellence: EngineeringExcellence | undefined
+  if (project.engineeringExcellence?.enabled) {
+    const stored = previousExcellence(project.id, label(period))
+    const excellence = await attempt(
+      'engineering excellence',
+      warnings,
+      () => collectEngineeringExcellence(project, period.from, period.to, stored),
+      (reason) => ({ block: stored ?? unavailableExcellence(reason), warnings: [] }),
+    )
+    warnings.push(...excellence.warnings)
+    engineeringExcellence = excellence.block
+  }
+
   const placement = placeProject(dora, project, frequency.block, leadTime, rework)
 
   if (frequency.block.available && frequency.block.data.count < dora.minimumSampleSize) {
@@ -250,6 +288,7 @@ async function collectProject(project: ProjectConfig, period: Period): Promise<M
     agents: agents.block,
     contributors,
     placement,
+    ...(engineeringExcellence ? { engineeringExcellence } : {}),
     warnings: applySeverity(warnings),
   }
 }

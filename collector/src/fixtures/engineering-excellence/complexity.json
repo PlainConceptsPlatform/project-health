@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "facet": "complexity",
+  "repo": "your-org/checkout",
+  "ref": "refs/heads/main",
+  "commitSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "runId": 1001,
+  "runAttempt": 1,
+  "generatedAt": "2026-10-11T23:03:56.443Z",
+  "data": {
+    "thresholds": {
+      "cc": 10,
+      "crap": 30
+    },
+    "scopes": {
+      "Atlas.Domain": {
+        "methods": 545,
+        "ccP50": 1,
+        "ccP90": 2,
+        "ccMax": 64,
+        "over10": 9,
+        "crapOver30": 2,
+        "modules": {
+          "AiGovernance": {
+            "methods": 54,
+            "ccP50": 1,
+            "ccP90": 2,
+            "ccMax": 64,
+            "over10": 2,
+            "crapOver30": 1
+          },
+          "AiLicensing": {
+            "methods": 6,
+            "ccP50": 1,
+            "ccP90": 2,
+            "ccMax": 2,
+            "over10": 0,
+            "crapOver30": 0
+          }
+        }
+      },
+      "web": {
+        "methods": 6867,
+        "ccP50": 1,
+        "ccP90": 3,
+        "ccMax": 62,
+        "over10": 68,
+        "crapOver30": 90,
+        "modules": {
+          "(root)": {
+            "methods": 43,
+            "ccP50": 1,
+            "ccP90": 1,
+            "ccMax": 19,
+            "over10": 1,
+            "crapOver30": 1
+          },
+          "components": {
+            "methods": 369,
+            "ccP50": 1,
+            "ccP90": 4,
+            "ccMax": 18,
+            "over10": 3,
+            "crapOver30": 7
+          }
+        }
+      }
+    },
+    "global": {
+      "methods": 13092,
+      "ccP50": 1,
+      "ccP90": 3,
+      "ccMax": 92,
+      "over10": 184,
+      "crapOver30": 117
+    },
+    "hotspots": [
+      {
+        "scope": "Atlas.Application",
+        "module": "AiLicensing",
+        "file": "apps/api/src/Atlas.Application/AiLicensing/ForgeOpsDtos.cs",
+        "method": "ForgeOpsPanelParser.Parse",
+        "line": 149,
+        "cc": 57,
+        "coverage": 0.3529,
+        "crap": 937.2
+      },
+      {
+        "scope": "web",
+        "module": "pages/ai-licensing",
+        "file": "apps/web/src/pages/ai-licensing/UsersTab.tsx",
+        "method": "UsersTab",
+        "line": 60,
+        "cc": 62,
+        "coverage": 0.4057,
+        "crap": 868.81
+      },
+      {
+        "scope": "web",
+        "module": "pages",
+        "file": "apps/web/src/pages/CloudUsageResourceGroups.tsx",
+        "method": "anonymous",
+        "line": 112,
+        "cc": 28,
+        "coverage": 0,
+        "crap": 812
+      }
+    ]
+  }
+}

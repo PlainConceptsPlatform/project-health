@@ -1,0 +1,439 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/PlainConceptsPlatform/Project-Health/schema/engineering-excellence-facets.schema.json",
+  "title": "Engineering Excellence facet",
+  "description": "One artifact `<prefix><facet>` (default prefix `engineering-excellence-`) containing `<facet>.json`, uploaded by a repository's main-branch CI and read by the Project Health collector (collector/src/metrics/engineering-excellence.ts). Rates and scores are 0..1 fractions. This copy is canonical; producers vendor it. A breaking change bumps schemaVersion.",
+  "$ref": "#/$defs/envelope",
+  "$defs": {
+    "rate": {
+      "type": ["number", "null"],
+      "minimum": 0,
+      "maximum": 1
+    },
+    "count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "envelope": {
+      "type": "object",
+      "required": [
+        "schemaVersion",
+        "facet",
+        "repo",
+        "ref",
+        "commitSha",
+        "runId",
+        "generatedAt",
+        "data"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "type": "integer",
+          "enum": [1]
+        },
+        "facet": {
+          "type": "string",
+          "enum": ["coverage", "complexity", "mutation", "security", "sbom"]
+        },
+        "repo": {
+          "type": ["string", "null"]
+        },
+        "ref": {
+          "type": ["string", "null"]
+        },
+        "commitSha": {
+          "type": ["string", "null"]
+        },
+        "runId": {
+          "type": ["integer", "null"]
+        },
+        "runAttempt": {
+          "type": ["integer", "null"]
+        },
+        "generatedAt": {
+          "type": "string"
+        },
+        "data": {
+          "type": "object"
+        }
+      }
+    },
+    "lines": {
+      "type": "object",
+      "required": ["lineRate", "branchRate", "linesCovered", "linesValid"],
+      "properties": {
+        "lineRate": {
+          "$ref": "#/$defs/rate"
+        },
+        "branchRate": {
+          "$ref": "#/$defs/rate"
+        },
+        "linesCovered": {
+          "$ref": "#/$defs/count"
+        },
+        "linesValid": {
+          "$ref": "#/$defs/count"
+        }
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "required": ["scopes", "global", "passed"],
+      "additionalProperties": false,
+      "properties": {
+        "scopes": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "lineRate",
+              "branchRate",
+              "linesCovered",
+              "linesValid",
+              "floor",
+              "modules"
+            ],
+            "properties": {
+              "lineRate": {
+                "type": ["number", "null"],
+                "minimum": 0,
+                "maximum": 1
+              },
+              "branchRate": {
+                "type": ["number", "null"],
+                "minimum": 0,
+                "maximum": 1
+              },
+              "linesCovered": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "linesValid": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "floor": {
+                "type": ["number", "null"],
+                "minimum": 0,
+                "maximum": 1
+              },
+              "modules": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object",
+                  "required": ["lineRate", "branchRate", "linesCovered", "linesValid"]
+                }
+              }
+            }
+          }
+        },
+        "global": {
+          "type": "object",
+          "required": ["lineRate", "linesCovered", "linesValid"]
+        },
+        "passed": {
+          "type": "boolean"
+        }
+      }
+    },
+    "complexitySummary": {
+      "type": "object",
+      "required": ["methods", "ccP50", "ccP90", "ccMax", "over10", "crapOver30"],
+      "properties": {
+        "methods": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "ccP50": {
+          "type": ["number", "null"]
+        },
+        "ccP90": {
+          "type": ["number", "null"]
+        },
+        "ccMax": {
+          "type": ["number", "null"]
+        },
+        "over10": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "crapOver30": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "complexity": {
+      "type": "object",
+      "required": ["thresholds", "scopes", "global", "hotspots"],
+      "additionalProperties": false,
+      "properties": {
+        "thresholds": {
+          "type": "object",
+          "required": ["cc", "crap"]
+        },
+        "scopes": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["methods", "ccP50", "ccP90", "ccMax", "over10", "crapOver30", "modules"]
+          }
+        },
+        "global": {
+          "type": "object",
+          "required": ["methods", "ccP50", "ccP90", "ccMax", "over10", "crapOver30"]
+        },
+        "hotspots": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["scope", "module", "file", "method", "line", "cc", "coverage", "crap"],
+            "properties": {
+              "scope": {
+                "type": "string"
+              },
+              "module": {
+                "type": "string"
+              },
+              "file": {
+                "type": "string"
+              },
+              "method": {
+                "type": "string"
+              },
+              "line": {
+                "type": ["integer", "null"]
+              },
+              "cc": {
+                "type": "number",
+                "minimum": 1
+              },
+              "coverage": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "crap": {
+                "type": "number",
+                "minimum": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    "mutationScores": {
+      "type": "object",
+      "required": [
+        "coveredScore",
+        "fullScore",
+        "killed",
+        "timeout",
+        "survived",
+        "noCoverage",
+        "valid"
+      ],
+      "properties": {
+        "coveredScore": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "fullScore": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "killed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "timeout": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "survived": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "noCoverage": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "valid": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "mutation": {
+      "type": "object",
+      "required": ["scopes", "global", "passed"],
+      "additionalProperties": false,
+      "properties": {
+        "scopes": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "coveredScore",
+              "fullScore",
+              "killed",
+              "timeout",
+              "survived",
+              "noCoverage",
+              "valid",
+              "floor",
+              "passed",
+              "modules"
+            ],
+            "properties": {
+              "coveredScore": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "fullScore": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "floor": {
+                "type": ["number", "null"],
+                "minimum": 0,
+                "maximum": 1
+              },
+              "passed": {
+                "type": "boolean"
+              },
+              "modules": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object",
+                  "required": [
+                    "coveredScore",
+                    "fullScore",
+                    "killed",
+                    "timeout",
+                    "survived",
+                    "noCoverage",
+                    "valid"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "global": {
+          "type": "object",
+          "required": [
+            "coveredScore",
+            "fullScore",
+            "killed",
+            "timeout",
+            "survived",
+            "noCoverage",
+            "valid"
+          ]
+        },
+        "passed": {
+          "type": "boolean"
+        }
+      }
+    },
+    "severities": {
+      "type": "object",
+      "required": ["CRITICAL", "HIGH", "MEDIUM", "LOW", "UNKNOWN"]
+    },
+    "security": {
+      "type": "object",
+      "required": ["trivy", "semgrep", "jobs", "passed"],
+      "additionalProperties": false,
+      "properties": {
+        "trivy": {
+          "type": ["object", "null"],
+          "required": ["vuln", "misconfig", "secret", "fixableVulns"],
+          "properties": {
+            "vuln": {
+              "type": "object",
+              "required": ["CRITICAL", "HIGH", "MEDIUM", "LOW", "UNKNOWN"]
+            },
+            "misconfig": {
+              "type": "object",
+              "required": ["CRITICAL", "HIGH", "MEDIUM", "LOW", "UNKNOWN"]
+            },
+            "secret": {
+              "type": "object",
+              "required": ["CRITICAL", "HIGH", "MEDIUM", "LOW", "UNKNOWN"]
+            },
+            "fixableVulns": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "semgrep": {
+          "type": ["object", "null"],
+          "required": ["ERROR", "WARNING", "INFO", "total", "scanErrors"]
+        },
+        "jobs": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "enum": ["success", "failure", "cancelled", "skipped"]
+          }
+        },
+        "passed": {
+          "type": "boolean"
+        }
+      }
+    },
+    "sbom": {
+      "type": "object",
+      "required": [
+        "format",
+        "specVersion",
+        "components",
+        "byEcosystem",
+        "licenses",
+        "unlicensed",
+        "sha256"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "format": {
+          "type": "string"
+        },
+        "specVersion": {
+          "type": ["string", "null"]
+        },
+        "components": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "byEcosystem": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "licenses": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "unlicensed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "sha256": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

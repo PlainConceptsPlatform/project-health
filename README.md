@@ -35,7 +35,10 @@ recorded as failed, so a pipeline based change fail rate would have read zero fo
 Rework rate survives because it is a property of one release in isolation. It asks whether a release
 was planned or shipped in reaction to something, which a person can state when they ship it.
 
-It also collects what the DORA report does not: **agent cost in tokens and time**, per kind of work.
+It also collects what the DORA report does not: **agent cost in tokens and time**, per kind of work,
+and, for repositories that opt in, **engineering excellence facets** their own CI reports: coverage,
+mutation score, complexity, scanner findings and the SBOM. See
+[Engineering excellence facets](#engineering-excellence-facets).
 
 ## Team profiles
 
@@ -119,11 +122,94 @@ The App needs five repository permissions, all read: **Metadata**, **Deployments
 time and rework rate. A token missing a permission answers 404 rather than 403, so the collector runs a
 preflight and names what is missing instead of silently writing empty metrics.
 
+The same five permissions cover engineering excellence facets: they are read from the repository's
+artifact list, which is Actions read. Preflight checks that endpoint for every project that opts in.
+
 ### That is it
 
 A project appears on the dashboard as soon as it is in `projects.json`, before anything is collected,
 showing an empty state rather than nothing. Remove a project by deleting its entry, and delete
 `data/<id>/` if you want its history gone too.
+
+## Engineering excellence facets
+
+DORA says how fast and how safely work ships. It says nothing about the code that shipped. That part
+can only come from the repository itself, so this is the one place where a repository supplies its
+own numbers: its CI uploads small JSON files as workflow artifacts, and the collector finds, checks
+and keeps them.
+
+### The convention
+
+One artifact per facet, named `<prefix><facet>` with the default prefix `engineering-excellence-`.
+The zip holds a single `<facet>.json`:
+
+| Facet | Artifact | Typical cadence | Carries |
+| --- | --- | --- | --- |
+| `coverage` | `engineering-excellence-coverage` | every push to main | line and branch rate per scope and module, against each scope's floor |
+| `complexity` | `engineering-excellence-complexity` | every push to main | cyclomatic complexity percentiles, CC above 10 and CRAP above 30 counts, the worst CRAP methods |
+| `mutation` | `engineering-excellence-mutation` | weekly | covered and full mutation score per scope and module, against floors |
+| `security` | `engineering-excellence-security` | every push to main | Trivy vulnerabilities, misconfigurations and secrets by severity, Semgrep counts, scanner job results |
+| `sbom` | `engineering-excellence-sbom` | every push to main | component count by ecosystem, licence mix, components without a licence |
+
+Every file is an envelope:
+
+```json
+{
+  "schemaVersion": 1,
+  "facet": "coverage",
+  "repo": "your-org/some-repo",
+  "ref": "refs/heads/main",
+  "commitSha": "<sha>",
+  "runId": 123,
+  "runAttempt": 1,
+  "generatedAt": "2026-10-11T23:03:56.547Z",
+  "data": {}
+}
+```
+
+The contract is [`schema/engineering-excellence-facets.schema.json`](schema/engineering-excellence-facets.schema.json),
+and this copy is canonical: producers vendor it. Rates and scores are fractions from 0 to 1. A breaking
+change bumps `schemaVersion`, and the collector ignores a version it does not know rather than
+misreading it.
+
+Rules for the producing repository:
+
+- **Upload only from the main branch.** A pull request run measures code that may never merge.
+- **Upload even when a gate fails.** A drop is the sample most worth keeping. Facets never gate
+  anything here; the repository's own CI decides what fails.
+- **Any workflow can upload.** Artifacts are found by name and branch, not by workflow, because CI on
+  main often runs as a reusable workflow inside a deployment workflow.
+- **Produce only the facets you have.** A missing facet renders as not available, with a reason.
+
+### How the collector reads them
+
+For each facet it lists the repository's artifacts by name, keeps those that have not expired, came
+from the configured branch of the repository itself (not a fork), and were created inside the month
+being collected, then downloads the newest one per commit. Each file is validated against the schema,
+and its `repo` and `ref` must match the project; one that does not is ignored and noted as
+`engineering excellence schema mismatch`.
+
+The month file keeps one sample per commit, oldest first, deduplicated to the latest run attempt, plus
+the full detail of the newest sample. Only scope totals are kept on the older samples, because a month
+of per-commit samples carrying every module would make each file several megabytes for a trend line
+that never reads them. Samples already stored are merged with new ones and never refetched, so, as
+with agent usage, the stored JSON is the durable record once artifacts expire after about 90 days.
+
+### Opting in
+
+Add one line to the project's entry in `projects.json`:
+
+```json
+"engineeringExcellence": { "enabled": true }
+```
+
+`branch` (default `main`) and `artifactPrefix` (default `engineering-excellence-`) are optional. The
+project page then shows an Engineering excellence section: headline numbers with the change against
+the previous month, coverage and mutation trends per scope against their floors, a per-module table
+joining coverage, mutation and complexity, the worst CRAP methods, security counts by severity and
+the SBOM's ecosystems and licences. With OTLP configured, the month's latest coverage, mutation
+score, CRAP count, critical and high vulnerabilities and SBOM size are exported as `engineering.*`
+gauges.
 
 ## Setting it up the first time
 
@@ -199,9 +285,9 @@ If you swap in your own palette, validate it rather than eyeballing it.
 ## Architecture
 
 ```
-collector/        TypeScript. Reads the API, writes data/, 28 tests
+collector/        TypeScript. Reads the API, writes data/, 48 tests
 web/              Next.js static export, Tailwind v4, shadcn/ui
-schema/           JSON Schema for projects.json
+schema/           JSON Schema for projects.json and the engineering excellence facets
 config/dora.json  band edges and the seven profiles
 ```
 
