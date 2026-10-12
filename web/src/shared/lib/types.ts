@@ -308,6 +308,18 @@ export interface HygieneGate {
   fixed: number
 }
 
+export interface CommentSlop {
+  findings: number
+  byRule: Record<string, number>
+  byScope: Record<string, number>
+  gate: {
+    baselinedFiles: number
+    baselineFindings: number
+    violations: number
+    fixed: number
+  } | null
+}
+
 export interface HygieneData {
   thresholds: { minLines: number; minTokens: number }
   scopes: Record<
@@ -318,6 +330,7 @@ export interface HygieneData {
   deadCode: { gated: boolean; warnings: number }
   hotspots?: HygieneHotspot[]
   gate: HygieneGate | null
+  commentSlop?: CommentSlop
 }
 
 export interface FacetDataMap {

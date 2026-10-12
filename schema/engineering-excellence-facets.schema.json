@@ -553,6 +553,50 @@
               "$ref": "#/$defs/count"
             }
           }
+        },
+        "commentSlop": {
+          "type": "object",
+          "description": "Deterministic comment-slop findings (Atlas #1969): decorative banners, #region, untracked TODOs, doc comments that restate the member name, filler <returns>, commented-out code and apologetic notes. Optional: absent when the repository runs no comment-slop rules.",
+          "required": ["findings", "byRule", "byScope", "gate"],
+          "additionalProperties": false,
+          "properties": {
+            "findings": {
+              "$ref": "#/$defs/count",
+              "description": "Findings across the scanned files, baselined ones included."
+            },
+            "byRule": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/$defs/count"
+              }
+            },
+            "byScope": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/$defs/count"
+              }
+            },
+            "gate": {
+              "type": ["object", "null"],
+              "description": "Blocking comment-slop gate as evaluated on this commit: files in the baseline, their recorded findings, files over their baseline, and baseline entries that improved. Null when the rules run report-only.",
+              "required": ["baselinedFiles", "baselineFindings", "violations", "fixed"],
+              "additionalProperties": false,
+              "properties": {
+                "baselinedFiles": {
+                  "$ref": "#/$defs/count"
+                },
+                "baselineFindings": {
+                  "$ref": "#/$defs/count"
+                },
+                "violations": {
+                  "$ref": "#/$defs/count"
+                },
+                "fixed": {
+                  "$ref": "#/$defs/count"
+                }
+              }
+            }
+          }
         }
       }
     },

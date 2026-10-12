@@ -607,6 +607,7 @@ describe('facetEvidence', () => {
       dead?: number
       gated?: boolean
       gate?: boolean
+      commentSlopViolations?: number
     } = {},
   ) => {
     const ee = excellence()
@@ -637,6 +638,21 @@ describe('facetEvidence', () => {
                 violations: patch.violations ?? 0,
                 fixed: 0,
               },
+        ...(patch.commentSlopViolations === undefined
+          ? {}
+          : {
+              commentSlop: {
+                findings: 4,
+                byRule: { banner: 4 },
+                byScope: { api: 4 },
+                gate: {
+                  baselinedFiles: 2,
+                  baselineFindings: 3,
+                  violations: patch.commentSlopViolations,
+                  fixed: 0,
+                },
+              },
+            }),
       },
       '2026-10-15T00:00:00Z',
     )
@@ -659,6 +675,12 @@ describe('facetEvidence', () => {
     expect(hygiene({ violations: 1 })?.result).toBe('failing')
     expect(hygiene({ swallowed: 2 })?.result).toBe('failing')
     expect(hygiene({ dead: 1, gated: false })?.result).toBe('failing')
+  })
+
+  it('fails hygiene on a comment-slop gate violation and ignores a producer without the rules', () => {
+    expect(hygiene({ commentSlopViolations: 1 })?.result).toBe('failing')
+    expect(hygiene({ commentSlopViolations: 0 })?.result).toBe('passing')
+    expect(hygiene()?.result).toBe('passing')
   })
 
   it('treats hygiene measured without a duplication gate as report-only', () => {

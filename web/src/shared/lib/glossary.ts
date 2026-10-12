@@ -65,6 +65,9 @@ export const GLOSSARY = {
   commentDensity:
     'Comment-only lines per line of code. It is a rough, line-based measure, so it is shown for its trend only: a sudden jump can mean comments that restate the code.',
 
+  commentSlop:
+    'Comments that are noise by their shape alone: decorative banners, #region labels, TODOs with no issue, doc comments that only repeat the member name, filler return docs, commented-out code and apologetic notes. Where the repository gates them, a change may not add any beyond its baseline.',
+
   duplicationDebt:
     'Duplicated lines the repository has accepted into a baseline rather than remove at once. Its gate fails a change that adds a clone or grows a baselined file, so this count should only fall.',
 
