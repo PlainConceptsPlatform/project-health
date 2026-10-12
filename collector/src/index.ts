@@ -1,13 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import {
-  collectableProjects,
-  isExampleConfig,
-  loadDora,
-  loadProjects,
-  loadScorecardConfig,
-  repoRoot,
-} from './config.ts'
+import { isExampleConfig, loadDora, loadProjects, loadScorecardConfig, repoRoot } from './config.ts'
 import { discover } from './discover.ts'
 import { get } from './github.ts'
 import { collectAgents } from './metrics/agents.ts'
@@ -22,6 +15,7 @@ import { fetchReleaseHistory, withinWindow } from './metrics/releases.ts'
 import { collectRework } from './metrics/rework.ts'
 import { collectScorecard } from './metrics/scorecard.ts'
 import { exportToOtlp, otlpConfigured } from './otel.ts'
+import { collectPlannedProject, partitionPlanned } from './planned.ts'
 import { placeProject } from './profile.ts'
 import {
   type AgentRun,
@@ -398,11 +392,11 @@ async function main(): Promise<void> {
   const onlyArg = args[args.indexOf('--project') + 1]
   const only = onlyArg && !onlyArg.startsWith('--') && onlyArg !== 'all' ? onlyArg : null
 
-  // Every enabled project, so the index lists the roadmap, but only the collectable ones are
-  // measured. A planned project has nothing to read and its repository may not exist yet.
+  // Every enabled project, so the index lists the roadmap. A planned project is not deployed, so
+  // only its Engineering scorecard is collected, and only once its repository exists.
   const all = loadProjects()
-  const collectable = collectableProjects()
-  const projects = only ? collectable.filter((p) => p.id === only) : collectable
+  const projects = only ? all.filter((p) => p.id === only) : all
+  const delivered = projects.filter((p) => p.status !== 'planned')
 
   // An unconfigured template points at repositories that do not exist. Collecting would fail every
   // preflight, so a scheduled run says what is missing and succeeds instead of going red daily.
@@ -425,7 +419,16 @@ async function main(): Promise<void> {
     return
   }
 
-  const { usable, failed } = await preflight(projects)
+  const { usable, failed } = await preflight(delivered)
+  const planned = await partitionPlanned(projects)
+
+  // A planned repository that does not exist yet is the normal state of a roadmap entry, so it is
+  // named but never turns the run red.
+  for (const project of planned.missing) {
+    console.log(
+      `  ${project.id}: planned, repository ${project.repo} is not readable yet; skipped.`,
+    )
+  }
 
   if (failed.length > 0) {
     console.error('Preflight failed for:')
@@ -436,14 +439,19 @@ async function main(): Promise<void> {
     process.exitCode = 1
   }
 
-  if (usable.length === 0) {
-    console.error('No project is readable with this token. Nothing was written.')
-    process.exitCode = 1
+  if (usable.length === 0 && planned.readable.length === 0) {
+    if (delivered.length > 0) {
+      console.error('No project is readable with this token. Nothing was written.')
+      process.exitCode = 1
+      return
+    }
+    console.log('Only planned projects without a readable repository; nothing to collect.')
+    writeIndex(all)
     return
   }
 
   console.log(
-    `Collecting ${usable.length} project(s) over ${periods.length} month(s)${only ? ` for ${only}` : ''}.`,
+    `Collecting ${usable.length + planned.readable.length} project(s), ${planned.readable.length} planned, over ${periods.length} month(s)${only ? ` for ${only}` : ''}.`,
   )
 
   for (const project of usable) {
@@ -469,13 +477,42 @@ async function main(): Promise<void> {
     }
   }
 
+  const scorecardConfig = loadScorecardConfig()
+  for (const project of planned.readable) {
+    mkdirSync(join(dataDir, project.id), { recursive: true })
+
+    for (const period of periods) {
+      try {
+        const report = await collectPlannedProject({
+          project,
+          period,
+          config: scorecardConfig,
+          previousScores: previousScores(
+            project.id,
+            period,
+            scorecardConfig.alerts.decliningMonths,
+          ),
+        })
+        const file = join(dataDir, project.id, `${label(period)}.json`)
+        writeFileSync(file, `${JSON.stringify(report, null, 2)}\n`)
+        console.log(
+          `  ${project.id} ${label(period)}: planned, scorecard ${report.scorecard?.available ? 'collected' : 'unavailable'}`,
+        )
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error)
+        console.error(`  ${project.id} ${label(period)} failed: ${message}`)
+      }
+    }
+  }
+
   // The index always lists every enabled project, even when this run collected only one, so a
   // scoped backfill never removes the others from the site.
   writeIndex(all)
   console.log('Wrote data/index.json')
 
+  // Planned projects are left out: OTLP carries delivery and agent metrics, which they do not have.
   if (otlpConfigured()) {
-    const all = projects.flatMap((project) =>
+    const all = delivered.flatMap((project) =>
       periods
         .map((period) => {
           const file = join(dataDir, project.id, `${label(period)}.json`)

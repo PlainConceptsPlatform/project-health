@@ -131,6 +131,11 @@ A project appears on the dashboard as soon as it is in `projects.json`, before a
 showing an empty state rather than nothing. Remove a project by deleting its entry, and delete
 `data/<id>/` if you want its history gone too.
 
+A project with `"status": "planned"` is not deployed, so it stays **Planned** in Delivery and its
+delivery, agent, contributor and facet blocks read "Planned project: not deployed yet." Once its
+repository exists and is readable, its Engineering scorecard and AI usage are collected like any other
+project's, and it appears in the scorecard table. Until then it is skipped without failing the run.
+
 ## Engineering excellence facets
 
 DORA says how fast and how safely work ships. It says nothing about the code that shipped. That part

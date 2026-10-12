@@ -60,9 +60,11 @@ function DeliveryPanel({ report }: { report: MonthlyReport }) {
     <Panel
       title="Delivery"
       description={
-        report.delivery.productionEnvironment
-          ? `Production environment: ${report.delivery.productionEnvironment}`
-          : 'No production environment configured'
+        report.status === 'planned'
+          ? 'Planned project: not deployed yet'
+          : report.delivery.productionEnvironment
+            ? `Production environment: ${report.delivery.productionEnvironment}`
+            : 'No production environment configured'
       }
     >
       <div className="grid gap-6 lg:grid-cols-2">

@@ -83,8 +83,8 @@ export function scorecardRows(
     const latest = withCard.at(-1)
     const newest = reports.at(-1)?.report
     const reason =
-      entry.status === 'planned'
-        ? 'On the roadmap; nothing is collected yet.'
+      entry.status === 'planned' && collected.length === 0
+        ? 'On the roadmap; scored once its repository exists.'
         : collected.length === 0
           ? 'Nothing collected yet.'
           : newest?.scorecard && !newest.scorecard.available

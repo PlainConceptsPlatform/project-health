@@ -79,13 +79,6 @@ export const isExampleConfig = (): boolean => {
 export const loadProjects = (): ProjectConfig[] =>
   readProjectsFile().projects.filter((p) => p.enabled)
 
-/**
- * The projects worth spending API calls on. A planned project has nothing to measure yet, and its
- * repository may not even exist, so collecting it would only produce preflight failures.
- */
-export const collectableProjects = (): ProjectConfig[] =>
-  loadProjects().filter((p) => p.status !== 'planned')
-
 export const loadDora = (): DoraConfig => read<DoraConfig>('config/dora.json')
 
 export interface ToolPattern {
