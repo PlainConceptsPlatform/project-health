@@ -2,9 +2,16 @@ import { shortDate } from '@/shared/lib/format'
 import { PHASES, typeLabel } from '@/shared/lib/scorecard'
 import type { MonthlyReport, PracticeResult, Scorecard } from '@/shared/lib/types'
 import { Badge, DataTable, InfoTip, Metric, Panel, Stat, TableCell, TableRow } from '@/shared/ui'
-import { AiUsageValue, AlertBadge, LevelBadge, ModeBadge, RagDot } from '@/shared/ui/scorecard'
+import {
+  AiUsageValue,
+  AlertBadge,
+  LevelBadge,
+  ModeIcon,
+  ScorecardLegend,
+  StatusDot,
+} from '@/shared/ui/scorecard'
 
-const HEAD = ['#', 'Practice', 'Tool(s)', 'Description', 'Standard', 'Status', 'Source', 'Last run']
+const HEAD = ['#', 'Practice', 'Description', 'Tool(s)', 'Mode', 'Status', 'Source', 'Last run']
 
 function SourceCell({ practice }: { practice: PracticeResult }) {
   if (practice.source === 'none') return <span className="text-xs text-muted-foreground">None</span>
@@ -32,21 +39,20 @@ function PracticeRow({ practice }: { practice: PracticeResult }) {
     <TableRow className={practice.applicable ? undefined : 'text-muted-foreground'}>
       <TableCell className="tabular-nums text-muted-foreground">{practice.number}</TableCell>
       <TableCell className="font-medium">{practice.name}</TableCell>
-      <TableCell className="text-xs">
+      <TableCell className="min-w-72 max-w-md whitespace-normal text-xs text-muted-foreground">
+        {practice.description}
+      </TableCell>
+      <TableCell className="max-w-56 whitespace-normal text-xs">
         {practice.tools.length > 0 ? practice.tools.join(', ') : 'none found'}
         {practice.mode === 'report-only' ? (
           <span className="block text-muted-foreground">report-only</span>
         ) : null}
       </TableCell>
-      <TableCell className="max-w-72 whitespace-normal text-xs text-muted-foreground">
-        {practice.description}
+      <TableCell>
+        <ModeIcon mode={practice.standardMode} />
       </TableCell>
       <TableCell>
-        <ModeBadge mode={practice.standardMode} />
-      </TableCell>
-      <TableCell className="max-w-56 whitespace-normal">
-        <RagDot rag={practice.rag} />
-        <span className="mt-0.5 block text-xs text-muted-foreground">{practice.reason}</span>
+        <StatusDot rag={practice.rag} reason={practice.reason} />
       </TableCell>
       <TableCell>
         <SourceCell practice={practice} />
@@ -139,6 +145,8 @@ export function ScorecardPanel({
                 ))}
               </div>
             ) : null}
+
+            <ScorecardLegend />
 
             {PHASES.map((phase) => {
               const practices = card.practices.filter((p) => p.phase === phase.key)
