@@ -300,6 +300,16 @@ export function facetEvidence(
     }
   }
   const passed = (d: { passed: boolean }): PracticeResultState => (d.passed ? 'passing' : 'failing')
+  // The security facet's `jobs` are, by contract, the results of the BLOCKING scanner jobs
+  // (schema/engineering-excellence-facets.schema.json; Atlas, Janus and others write
+  // secretScan / depsAndIac / sast). A scanner the facet reports is a gate, whatever its workflow
+  // line looks like: a step that runs `bash scripts/security/sast.sh` hides `--error` from YAML.
+  const SECRETS = /trufflehog|secret|gitleaks/i
+  const VULNS = /trivy|depsandiac|dependenc/i
+  const SAST = /semgrep|sast/i
+  const securityJobs = excellence.security.available ? excellence.security.data.latest.jobs : null
+  const gateMode = (pattern: RegExp): DetectedMode | null =>
+    securityJobs && Object.keys(securityJobs).some((name) => pattern.test(name)) ? 'blocking' : null
 
   switch (practiceId) {
     case 'tests':
@@ -316,25 +326,38 @@ export function facetEvidence(
         : evidence(excellence.complexity, 'complexity facet', () => 'passing', 'report-only')
     }
     case 'secrets':
-      return evidence(excellence.security, 'security facet', (d) =>
-        jobResult(d.jobs, /trufflehog|secret|gitleaks/i),
+      return evidence(
+        excellence.security,
+        'security facet',
+        (d) => jobResult(d.jobs, SECRETS),
+        gateMode(SECRETS),
       )
     case 'vulnerabilities':
-      return evidence(excellence.security, 'Trivy (facet)', (d) => {
-        const job = jobResult(d.jobs, /trivy/i)
-        if (job) return job
-        if (!d.trivy) return null
-        const { vuln, misconfig } = d.trivy
-        const blocking = vuln.CRITICAL + vuln.HIGH + misconfig.CRITICAL + misconfig.HIGH
-        return blocking === 0 ? 'passing' : 'failing'
-      })
+      return evidence(
+        excellence.security,
+        'Trivy (facet)',
+        (d) => {
+          const job = jobResult(d.jobs, VULNS)
+          if (job) return job
+          if (!d.trivy) return null
+          const { vuln, misconfig } = d.trivy
+          const blocking = vuln.CRITICAL + vuln.HIGH + misconfig.CRITICAL + misconfig.HIGH
+          return blocking === 0 ? 'passing' : 'failing'
+        },
+        gateMode(VULNS),
+      )
     case 'sast':
-      return evidence(excellence.security, 'Semgrep (facet)', (d) => {
-        const job = jobResult(d.jobs, /semgrep/i)
-        if (job) return job
-        if (!d.semgrep) return null
-        return d.semgrep.ERROR === 0 ? 'passing' : 'failing'
-      })
+      return evidence(
+        excellence.security,
+        'Semgrep (facet)',
+        (d) => {
+          const job = jobResult(d.jobs, SAST)
+          if (job) return job
+          if (!d.semgrep) return null
+          return d.semgrep.ERROR === 0 ? 'passing' : 'failing'
+        },
+        gateMode(SAST),
+      )
     case 'sbom':
       return evidence(excellence.sbom, 'SBOM facet', () => 'passing')
     default:

@@ -26,6 +26,7 @@ import {
   facetEvidence,
   gateCounts,
   matchJob,
+  mergeEvidence,
   ratePractice,
   scorecardAlerts,
 } from './metrics/scorecard.ts'
@@ -521,6 +522,34 @@ describe('facetEvidence', () => {
     expect(facetEvidence('secrets', ee, 'o/r')).toBeNull()
     expect(facetEvidence('sbom', ee, 'o/r')).toBeNull()
     expect(facetEvidence('spec', ee, 'o/r')).toBeNull()
+  })
+
+  it('treats a scanner the security facet reports as blocking, whatever its workflow line says', () => {
+    const contract = excellence()
+    if (contract.security.available) {
+      contract.security.data.latest.jobs = {
+        secretScan: 'success',
+        depsAndIac: 'success',
+        sast: 'success',
+      }
+    }
+    for (const id of ['secrets', 'vulnerabilities', 'sast'] as const) {
+      expect(facetEvidence(id, contract, 'o/r')).toMatchObject({
+        mode: 'blocking',
+        result: 'passing',
+      })
+    }
+    // A step running `bash scripts/security/sast.sh` reads as report-only from YAML alone.
+    const facet = facetEvidence('sast', contract, 'o/r')
+    if (!facet) throw new Error('expected facet evidence for sast')
+    const detected = { ...facet, source: 'detected' as const, mode: 'report-only' as const }
+    expect(mergeEvidence(facet, detected)?.mode).toBe('blocking')
+  })
+
+  it('leaves the mode to workflow detection when the facet has no job for that scanner', () => {
+    // The fixture's only job is Trivy: Semgrep's mode is not the facet's to claim.
+    expect(facetEvidence('sast', ee, 'o/r')?.mode).toBeNull()
+    expect(facetEvidence('vulnerabilities', ee, 'o/r')?.mode).toBe('blocking')
   })
 
   it('treats complexity measured without a gate as report-only', () => {
