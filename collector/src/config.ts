@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import type { ProjectConfig } from './types.ts'
+import type { PracticePhase, ProjectConfig, ProjectType, StandardMode } from './types.ts'
 
 const packageRoot = join(import.meta.dirname, '..', '..')
 
@@ -87,3 +87,51 @@ export const collectableProjects = (): ProjectConfig[] =>
   loadProjects().filter((p) => p.status !== 'planned')
 
 export const loadDora = (): DoraConfig => read<DoraConfig>('config/dora.json')
+
+export interface ToolPattern {
+  name: string
+  /** Case-insensitive regular expression matched against a workflow step or job. */
+  pattern: string
+  /**
+   * For tools that do not fail the build unless told to, such as Trivy, whose exit code is 0 by
+   * default. The step only counts as blocking when this also matches.
+   */
+  blockingWhen?: string
+}
+
+export interface PracticeDefinition {
+  id: string
+  number: number
+  name: string
+  phase: PracticePhase
+  mode: StandardMode
+  description: string
+  tools: ToolPattern[]
+  /** Only applicable to projects that ask for it in scorecard.<id> in projects.json. */
+  optIn?: boolean
+  /** false drops the practice from every scorecard, for a platform that does not want it. */
+  enabled?: boolean
+}
+
+export interface ScorecardConfig {
+  staleDays: number
+  practices: PracticeDefinition[]
+  types: Record<ProjectType, { label: string; notApplicable: string[] }>
+  aiUsage: {
+    /** Upper bounds of levels 1 to 4 as shares; anything at or above the last is level 5. */
+    buckets: number[]
+    assistants: { name: string; pattern: string }[]
+    /** Bot logins that automate but are not AI, matched as a prefix of the login. */
+    excludedBots: string[]
+  }
+  alerts: {
+    highAiUsage: number
+    lowLevel: number
+    decliningPoints: number
+    decliningMonths: number
+  }
+}
+
+/** The template default lives in config/, which a platform mirror may override as a whole. */
+export const loadScorecardConfig = (): ScorecardConfig =>
+  read<ScorecardConfig>('config/scorecard.json')

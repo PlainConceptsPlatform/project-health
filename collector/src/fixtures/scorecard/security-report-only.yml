@@ -1,0 +1,33 @@
+name: Security scan
+
+on:
+  schedule:
+    - cron: '0 3 * * *'
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # - uses: trufflesecurity/trufflehog@main
+      - name: Secrets, advisory only
+        uses: trufflesecurity/trufflehog@v3.82.0
+        continue-on-error: true
+      - name: Trivy without an exit code
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs
+      - name: Semgrep
+        run: semgrep scan --config auto --sarif -o semgrep.sarif || true
+      - name: Upload
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: semgrep.sarif
+
+  dast:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: zaproxy/action-baseline@v0.14.0
+        with:
+          target: https://test.example.invalid

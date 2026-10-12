@@ -6,6 +6,7 @@
       "id": "checkout",
       "name": "Checkout",
       "repo": "your-org/checkout",
+      "type": "back-front",
       "enabled": true,
       "status": "production",
       "environments": {
@@ -23,12 +24,16 @@
       "engineeringExcellence": {
         "enabled": true
       },
+      "scorecard": {
+        "performance": true
+      },
       "notes": "Tag based releases and a dedicated hotfix label, so every metric including the stability axis is available."
     },
     {
       "id": "billing",
       "name": "Billing",
       "repo": "your-org/billing",
+      "type": "back-front",
       "enabled": true,
       "status": "production",
       "environments": {
@@ -49,6 +54,7 @@
       "id": "mobile",
       "name": "Mobile",
       "repo": "your-org/mobile",
+      "type": "mobile",
       "enabled": true,
       "status": "pre-production",
       "environments": {
@@ -69,6 +75,7 @@
       "id": "ledger",
       "name": "Ledger",
       "repo": "your-org/ledger",
+      "type": "library",
       "enabled": true,
       "status": "planned",
       "environments": {

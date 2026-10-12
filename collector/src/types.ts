@@ -69,8 +69,19 @@ export interface ProjectConfig {
     /** Artifact name prefix; the facet name is appended. Defaults to engineering-excellence-. */
     artifactPrefix?: string
   }
+  /** Decides which scorecard practices apply. Absent means other, where every practice applies. */
+  type?: ProjectType
+  scorecard?: {
+    /** Performance testing is only expected when a project says it needs it. */
+    performance?: boolean
+    /** Practice ids that do not apply to this project, on top of its type's defaults. */
+    notApplicable?: string[]
+  }
   notes?: string
 }
+
+export const PROJECT_TYPES = ['back-front', 'mobile', 'data', 'ml', 'library', 'other'] as const
+export type ProjectType = (typeof PROJECT_TYPES)[number]
 
 export interface Release {
   ref: string
@@ -200,7 +211,79 @@ export interface MonthlyReport {
   placement: MetricBlock<Placement>
   /** Absent when the project has not opted in, and in files written before it existed. */
   engineeringExcellence?: EngineeringExcellence
+  /** Absent in files written before the scorecard existed. */
+  scorecard?: MetricBlock<Scorecard>
   warnings: Warning[]
+}
+
+export type PracticePhase = 'build' | 'test-env'
+/** How the practice is expected to run: fail the build, hold a score, or follow a policy. */
+export type StandardMode = 'blocking' | 'threshold' | 'policy'
+export type DetectedMode = 'blocking' | 'report-only'
+export type Rag = 'green' | 'yellow' | 'red' | 'grey'
+/** What decided a cell: a published facet, workflow detection, or nothing found. */
+export type PracticeSource = 'facet' | 'detected' | 'none'
+export type PracticeResultState = 'passing' | 'failing' | 'unknown'
+
+export interface LastRun {
+  workflow: string
+  url: string
+  conclusion: string | null
+  at: string
+}
+
+export interface PracticeResult {
+  id: string
+  number: number
+  name: string
+  phase: PracticePhase
+  standardMode: StandardMode
+  description: string
+  applicable: boolean
+  rag: Rag
+  /** Why the cell has its colour, in a sentence, so nobody has to reverse engineer the rules. */
+  reason: string
+  source: PracticeSource
+  tools: string[]
+  mode: DetectedMode | null
+  result: PracticeResultState | null
+  /** When the result was produced, which is what staleness is measured against. */
+  resultAt: string | null
+  lastRun: LastRun | null
+}
+
+export interface AiUsage {
+  /** 1 to 5, from the share of AI-assisted commits. */
+  level: number
+  share: number
+  aiCommits: number
+  totalCommits: number
+  byAssistant: Record<string, number>
+}
+
+export type ScorecardAlertCode = 'HIGH_AI_LOW_ENGINEERING' | 'ENGINEERING_DECLINING'
+
+export interface ScorecardAlert {
+  code: ScorecardAlertCode
+  severity: 'red' | 'amber'
+  message: string
+}
+
+export interface Scorecard {
+  projectType: ProjectType
+  defaultBranch: string | null
+  /** False when no engineering excellence facet was available, so every cell came from workflows. */
+  facetsPublished: boolean
+  workflowsScanned: number
+  practices: PracticeResult[]
+  /** 0 to 3, N0 to N3. */
+  level: number
+  /** 0 to 100, null when nothing applies. */
+  score: number | null
+  /** Build phase gates that are present (green or yellow) out of those that apply. */
+  gates: { present: number; applicable: number }
+  aiUsage: MetricBlock<AiUsage>
+  alerts: ScorecardAlert[]
 }
 
 export const FACETS = ['coverage', 'complexity', 'mutation', 'security', 'sbom'] as const

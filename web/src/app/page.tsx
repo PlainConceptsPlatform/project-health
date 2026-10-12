@@ -1,4 +1,4 @@
-import { readIndex, readLatestReport, readReport } from '@/shared/lib/data'
+import { readIndex, readLatestReport, readReport, readScorecardTypeLabels } from '@/shared/lib/data'
 import type { MonthlyReport } from '@/shared/lib/types'
 import { OverviewView } from '@/views/overview'
 
@@ -18,5 +18,12 @@ export default function Page() {
     }
   }
 
-  return <OverviewView index={index} reports={latest} months={months} />
+  return (
+    <OverviewView
+      index={index}
+      reports={latest}
+      months={months}
+      typeLabels={readScorecardTypeLabels()}
+    />
+  )
 }

@@ -214,3 +214,22 @@ export function hasSyntheticData(): boolean {
     return readReport(p.id, month)?.synthetic === true
   })
 }
+
+/**
+ * Display names for project types, from config/scorecard.json so a platform that renames or adds a
+ * type sees it here too. Empty when the file is missing; the page then falls back to built-in names.
+ */
+export function readScorecardTypeLabels(): Record<string, string> {
+  try {
+    const config = JSON.parse(
+      readFileSync(join(configRoot, 'config', 'scorecard.json'), 'utf8'),
+    ) as { types?: Record<string, { label?: string }> }
+    return Object.fromEntries(
+      Object.entries(config.types ?? {}).flatMap(([type, value]) =>
+        value.label ? [[type, value.label]] : [],
+      ),
+    )
+  } catch {
+    return {}
+  }
+}

@@ -2324,6 +2324,285 @@
       }
     }
   },
+  "scorecard": {
+    "available": true,
+    "data": {
+      "projectType": "back-front",
+      "defaultBranch": "main",
+      "facetsPublished": true,
+      "workflowsScanned": 6,
+      "practices": [
+        {
+          "id": "spec",
+          "number": 1,
+          "name": "Spec (Gherkin)",
+          "phase": "build",
+          "standardMode": "blocking",
+          "description": "Acceptance behaviour is written as Gherkin scenarios and executed on every build.",
+          "applicable": true,
+          "rag": "green",
+          "reason": "Present, blocking and passing.",
+          "source": "detected",
+          "tools": [
+            "playwright-bdd"
+          ],
+          "mode": "blocking",
+          "result": "passing",
+          "resultAt": "2026-08-29T03:15:00.000Z",
+          "lastRun": {
+            "workflow": ".github/workflows/ci.yml",
+            "url": "https://github.com/your-org/checkout/actions/runs/9240",
+            "conclusion": "success",
+            "at": "2026-08-29T03:15:00.000Z"
+          }
+        },
+        {
+          "id": "tests",
+          "number": 2,
+          "name": "Tests & coverage",
+          "phase": "build",
+          "standardMode": "blocking",
+          "description": "API and web tests run on every build with a minimum coverage per module.",
+          "applicable": true,
+          "rag": "green",
+          "reason": "Present, blocking and passing.",
+          "source": "facet",
+          "tools": [
+            "coverlet",
+            "coverage-v8",
+            "coverage facet"
+          ],
+          "mode": "blocking",
+          "result": "passing",
+          "resultAt": "2026-08-26T14:30:00.000Z",
+          "lastRun": {
+            "workflow": "engineering-excellence facet",
+            "url": "https://github.com/your-org/checkout/actions/runs/905071",
+            "conclusion": "success",
+            "at": "2026-08-26T14:30:00.000Z"
+          }
+        },
+        {
+          "id": "mutation",
+          "number": 3,
+          "name": "Mutation score",
+          "phase": "build",
+          "standardMode": "threshold",
+          "description": "Mutation testing proves the tests assert, held above a minimum score.",
+          "applicable": true,
+          "rag": "green",
+          "reason": "Present and threshold met.",
+          "source": "facet",
+          "tools": [
+            "Stryker",
+            "mutation facet"
+          ],
+          "mode": "blocking",
+          "result": "passing",
+          "resultAt": "2026-08-25T05:30:00.000Z",
+          "lastRun": {
+            "workflow": "engineering-excellence facet",
+            "url": "https://github.com/your-org/checkout/actions/runs/905082",
+            "conclusion": "success",
+            "at": "2026-08-25T05:30:00.000Z"
+          }
+        },
+        {
+          "id": "secrets",
+          "number": 4,
+          "name": "Secrets",
+          "phase": "build",
+          "standardMode": "blocking",
+          "description": "Committed credentials fail the build.",
+          "applicable": true,
+          "rag": "green",
+          "reason": "Present, blocking and passing.",
+          "source": "detected",
+          "tools": [
+            "TruffleHog"
+          ],
+          "mode": "blocking",
+          "result": "passing",
+          "resultAt": "2026-08-29T03:15:00.000Z",
+          "lastRun": {
+            "workflow": ".github/workflows/ci.yml",
+            "url": "https://github.com/your-org/checkout/actions/runs/9261",
+            "conclusion": "success",
+            "at": "2026-08-29T03:15:00.000Z"
+          }
+        },
+        {
+          "id": "vulnerabilities",
+          "number": 5,
+          "name": "Vulnerabilities (deps & IaC)",
+          "phase": "build",
+          "standardMode": "blocking",
+          "description": "Dependencies and infrastructure as code are scanned; critical and high findings block.",
+          "applicable": true,
+          "rag": "green",
+          "reason": "Present, blocking and passing.",
+          "source": "facet",
+          "tools": [
+            "Trivy",
+            "Trivy (facet)"
+          ],
+          "mode": "blocking",
+          "result": "passing",
+          "resultAt": "2026-08-26T14:30:00.000Z",
+          "lastRun": {
+            "workflow": "engineering-excellence facet",
+            "url": "https://github.com/your-org/checkout/actions/runs/905089",
+            "conclusion": "success",
+            "at": "2026-08-26T14:30:00.000Z"
+          }
+        },
+        {
+          "id": "sast",
+          "number": 6,
+          "name": "Insecure patterns (SAST)",
+          "phase": "build",
+          "standardMode": "blocking",
+          "description": "Static analysis for insecure code patterns blocks on errors.",
+          "applicable": true,
+          "rag": "green",
+          "reason": "Present, blocking and passing.",
+          "source": "facet",
+          "tools": [
+            "Semgrep",
+            "Semgrep (facet)"
+          ],
+          "mode": "blocking",
+          "result": "passing",
+          "resultAt": "2026-08-26T14:30:00.000Z",
+          "lastRun": {
+            "workflow": "engineering-excellence facet",
+            "url": "https://github.com/your-org/checkout/actions/runs/905089",
+            "conclusion": "success",
+            "at": "2026-08-26T14:30:00.000Z"
+          }
+        },
+        {
+          "id": "sbom",
+          "number": 7,
+          "name": "SBOM & licenses",
+          "phase": "build",
+          "standardMode": "policy",
+          "description": "A software bill of materials is produced and licences are checked against policy.",
+          "applicable": true,
+          "rag": "green",
+          "reason": "Present and within policy.",
+          "source": "facet",
+          "tools": [
+            "anchore/sbom-action",
+            "SBOM facet"
+          ],
+          "mode": "blocking",
+          "result": "passing",
+          "resultAt": "2026-08-26T14:30:00.000Z",
+          "lastRun": {
+            "workflow": "engineering-excellence facet",
+            "url": "https://github.com/your-org/checkout/actions/runs/905096",
+            "conclusion": "success",
+            "at": "2026-08-26T14:30:00.000Z"
+          }
+        },
+        {
+          "id": "complexity",
+          "number": 8,
+          "name": "Complexity",
+          "phase": "build",
+          "standardMode": "blocking",
+          "description": "A cyclomatic complexity and CRAP gate stops new hotspots.",
+          "applicable": true,
+          "rag": "green",
+          "reason": "Present, blocking and passing.",
+          "source": "facet",
+          "tools": [
+            "check-complexity",
+            "complexity gate"
+          ],
+          "mode": "blocking",
+          "result": "passing",
+          "resultAt": "2026-08-26T14:30:00.000Z",
+          "lastRun": {
+            "workflow": "engineering-excellence facet",
+            "url": "https://github.com/your-org/checkout/actions/runs/905078",
+            "conclusion": "success",
+            "at": "2026-08-26T14:30:00.000Z"
+          }
+        },
+        {
+          "id": "dast",
+          "number": 9,
+          "name": "DAST",
+          "phase": "test-env",
+          "standardMode": "threshold",
+          "description": "The deployed test environment is scanned dynamically for vulnerabilities.",
+          "applicable": true,
+          "rag": "green",
+          "reason": "Present and threshold met.",
+          "source": "detected",
+          "tools": [
+            "OWASP ZAP"
+          ],
+          "mode": "blocking",
+          "result": "passing",
+          "resultAt": "2026-08-29T03:15:00.000Z",
+          "lastRun": {
+            "workflow": ".github/workflows/deploy-pre.yml",
+            "url": "https://github.com/your-org/checkout/actions/runs/9296",
+            "conclusion": "success",
+            "at": "2026-08-29T03:15:00.000Z"
+          }
+        },
+        {
+          "id": "performance",
+          "number": 10,
+          "name": "Performance",
+          "phase": "test-env",
+          "standardMode": "threshold",
+          "description": "Load tests against the test environment hold response times within budget. Only when the project requires it.",
+          "applicable": true,
+          "rag": "green",
+          "reason": "Present and threshold met.",
+          "source": "detected",
+          "tools": [
+            "k6"
+          ],
+          "mode": "blocking",
+          "result": "passing",
+          "resultAt": "2026-08-29T03:15:00.000Z",
+          "lastRun": {
+            "workflow": ".github/workflows/deploy-pre.yml",
+            "url": "https://github.com/your-org/checkout/actions/runs/9303",
+            "conclusion": "success",
+            "at": "2026-08-29T03:15:00.000Z"
+          }
+        }
+      ],
+      "level": 3,
+      "score": 100,
+      "gates": {
+        "present": 8,
+        "applicable": 8
+      },
+      "aiUsage": {
+        "available": true,
+        "data": {
+          "level": 3,
+          "share": 0.418,
+          "aiCommits": 23,
+          "totalCommits": 55,
+          "byAssistant": {
+            "Claude": 17,
+            "Copilot": 5,
+            "Codex": 1
+          }
+        }
+      },
+      "alerts": []
+    }
+  },
   "warnings": [
     {
       "code": "USAGE_ARTIFACT_MISSING",

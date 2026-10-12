@@ -1,0 +1,150 @@
+{
+  "staleDays": 14,
+  "practices": [
+    {
+      "id": "spec",
+      "number": 1,
+      "name": "Spec (Gherkin)",
+      "phase": "build",
+      "mode": "blocking",
+      "description": "Acceptance behaviour is written as Gherkin scenarios and executed on every build.",
+      "tools": [
+        { "name": "playwright-bdd", "pattern": "playwright-bdd|bddgen" },
+        { "name": "Cucumber", "pattern": "cucumber" },
+        { "name": "Reqnroll", "pattern": "reqnroll" },
+        { "name": "SpecFlow", "pattern": "specflow" },
+        { "name": ".feature files", "pattern": "\\.feature\\b" }
+      ]
+    },
+    {
+      "id": "tests",
+      "number": 2,
+      "name": "Tests & coverage",
+      "phase": "build",
+      "mode": "blocking",
+      "description": "API and web tests run on every build with a minimum coverage per module.",
+      "tools": [
+        { "name": "coverlet", "pattern": "coverlet|XPlat Code Coverage" },
+        { "name": "coverage-v8", "pattern": "coverage-v8" },
+        { "name": "--coverage", "pattern": "--coverage\\b" },
+        { "name": "JaCoCo", "pattern": "jacoco" },
+        { "name": "pytest-cov", "pattern": "pytest-cov|pytest[^\\n]*--cov\\b" }
+      ]
+    },
+    {
+      "id": "mutation",
+      "number": 3,
+      "name": "Mutation score",
+      "phase": "build",
+      "mode": "threshold",
+      "description": "Mutation testing proves the tests assert, held above a minimum score.",
+      "tools": [{ "name": "Stryker", "pattern": "stryker" }]
+    },
+    {
+      "id": "secrets",
+      "number": 4,
+      "name": "Secrets",
+      "phase": "build",
+      "mode": "blocking",
+      "description": "Committed credentials fail the build.",
+      "tools": [{ "name": "TruffleHog", "pattern": "trufflehog" }]
+    },
+    {
+      "id": "vulnerabilities",
+      "number": 5,
+      "name": "Vulnerabilities (deps & IaC)",
+      "phase": "build",
+      "mode": "blocking",
+      "description": "Dependencies and infrastructure as code are scanned; critical and high findings block.",
+      "tools": [
+        {
+          "name": "Trivy",
+          "pattern": "trivy",
+          "blockingWhen": "exit-code:\\s*['\"]?[1-9]|--exit-code[ =]['\"]?[1-9]"
+        }
+      ]
+    },
+    {
+      "id": "sast",
+      "number": 6,
+      "name": "Insecure patterns (SAST)",
+      "phase": "build",
+      "mode": "blocking",
+      "description": "Static analysis for insecure code patterns blocks on errors.",
+      "tools": [{ "name": "Semgrep", "pattern": "semgrep" }]
+    },
+    {
+      "id": "sbom",
+      "number": 7,
+      "name": "SBOM & licenses",
+      "phase": "build",
+      "mode": "policy",
+      "description": "A software bill of materials is produced and licences are checked against policy.",
+      "tools": [
+        { "name": "Syft", "pattern": "\\bsyft\\b" },
+        { "name": "anchore/sbom-action", "pattern": "anchore/sbom-action" },
+        { "name": "CycloneDX", "pattern": "cyclonedx" }
+      ]
+    },
+    {
+      "id": "complexity",
+      "number": 8,
+      "name": "Complexity",
+      "phase": "build",
+      "mode": "blocking",
+      "enabled": true,
+      "description": "A cyclomatic complexity and CRAP gate stops new hotspots.",
+      "tools": [
+        { "name": "check-complexity", "pattern": "check-complexity" },
+        { "name": "lizard", "pattern": "\\blizard\\b" },
+        { "name": "complexity gate", "pattern": "complexity" }
+      ]
+    },
+    {
+      "id": "dast",
+      "number": 9,
+      "name": "DAST",
+      "phase": "test-env",
+      "mode": "threshold",
+      "description": "The deployed test environment is scanned dynamically for vulnerabilities.",
+      "tools": [{ "name": "OWASP ZAP", "pattern": "zaproxy|owasp-zap|\\bzap\\b" }]
+    },
+    {
+      "id": "performance",
+      "number": 10,
+      "name": "Performance",
+      "phase": "test-env",
+      "mode": "threshold",
+      "optIn": true,
+      "description": "Load tests against the test environment hold response times within budget. Only when the project requires it.",
+      "tools": [{ "name": "k6", "pattern": "\\bk6\\b" }, { "name": "JMeter", "pattern": "jmeter" }]
+    }
+  ],
+  "types": {
+    "back-front": { "label": "Back + front", "notApplicable": [] },
+    "mobile": { "label": "Mobile", "notApplicable": ["dast"] },
+    "data": { "label": "Data", "notApplicable": ["mutation", "dast"] },
+    "ml": { "label": "ML", "notApplicable": ["spec", "mutation", "dast"] },
+    "library": { "label": "Library", "notApplicable": ["dast"] },
+    "other": { "label": "Other", "notApplicable": [] }
+  },
+  "aiUsage": {
+    "buckets": [0.1, 0.25, 0.5, 0.75],
+    "assistants": [
+      { "name": "Claude", "pattern": "claude|anthropic" },
+      { "name": "Copilot", "pattern": "copilot" },
+      { "name": "Codex", "pattern": "codex|openai" },
+      { "name": "Cursor", "pattern": "cursor" },
+      { "name": "Devin", "pattern": "devin" },
+      { "name": "Gemini", "pattern": "gemini" },
+      { "name": "Windsurf", "pattern": "windsurf|codeium" }
+    ],
+    "excludedBots": ["dependabot", "renovate", "github-actions"]
+  },
+  "alerts": {
+    "highAiUsage": 4,
+    "lowLevel": 1,
+    "decliningPoints": 10,
+    "decliningMonths": 3
+  }
+}
