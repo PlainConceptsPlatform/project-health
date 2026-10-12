@@ -600,7 +600,13 @@ export function matchJob(
 const stateOf = (conclusion: string | null): PracticeResultState =>
   conclusion === 'success' ? 'passing' : conclusion === 'failure' ? 'failing' : 'unknown'
 
-/** Turns a detection into evidence by reading the latest run of the workflow it was found in. */
+/**
+ * Turns a detection into evidence by reading the newest DECISIVE run of the job it was found in,
+ * across the workflow itself and every workflow that calls it. A reusable CI workflow often has
+ * runs of its own (a weekly schedule) in which the job is skipped, while on the default branch it
+ * actually runs inside the caller (CD calling CI). Taking the first workflow that has any run
+ * read Numa's scheduled `skipped` as "unknown" while its CD-hosted runs passed.
+ */
 export async function detectedEvidence(
   detection: PracticeDetection,
   files: WorkflowFile[],
@@ -609,6 +615,8 @@ export async function detectedEvidence(
   source: ScorecardSource,
 ): Promise<PracticeEvidence> {
   const candidates = [detection.workflow, ...callersOf(detection.workflow, files)]
+  type Seen = { workflow: string; run: RunWithJobs; conclusion: string | null }
+  const seen: Seen[] = []
   for (const workflow of candidates) {
     let run: RunWithJobs | null = null
     try {
@@ -618,14 +626,25 @@ export async function detectedEvidence(
     }
     if (!run) continue
     const job = matchJob(run.jobs, detection.jobName ?? detection.job)
-    const conclusion = job ? job.conclusion : run.conclusion
+    seen.push({ workflow, run, conclusion: job ? job.conclusion : run.conclusion })
+  }
+  const newest = (list: Seen[]) =>
+    [...list].sort((a, b) => Date.parse(b.run.at) - Date.parse(a.run.at))[0]
+  const decisive = seen.filter((s) => s.conclusion === 'success' || s.conclusion === 'failure')
+  const pick = newest(decisive.length > 0 ? decisive : seen)
+  if (pick) {
     return {
       source: 'detected',
       tools: detection.tools,
       mode: detection.mode,
-      result: stateOf(conclusion),
-      resultAt: run.at,
-      lastRun: { workflow, url: run.url, conclusion, at: run.at },
+      result: stateOf(pick.conclusion),
+      resultAt: pick.run.at,
+      lastRun: {
+        workflow: pick.workflow,
+        url: pick.run.url,
+        conclusion: pick.conclusion,
+        at: pick.run.at,
+      },
       weak: detection.weak,
     }
   }
