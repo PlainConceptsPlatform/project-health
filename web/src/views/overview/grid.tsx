@@ -62,7 +62,13 @@ function ProjectCard({ p, month }: { p: ProjectSummary; month: string | null }) 
 
         <CardContent className="space-y-5">
           {p.status === 'planned' ? (
-            <Unavailable reason="On the roadmap. Nothing is collected yet, because there is nothing to measure." />
+            <Unavailable
+              reason={
+                p.months.length > 0
+                  ? 'On the roadmap and not deployed yet, so delivery is not measured. Its Engineering scorecard is collected from the repository.'
+                  : 'On the roadmap. Nothing is collected until its repository exists.'
+              }
+            />
           ) : !p.hasData ? (
             <Unavailable
               reason={
