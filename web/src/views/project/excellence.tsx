@@ -401,9 +401,15 @@ function DuplicationHotspots({
   )
 }
 
+const LG_COLS: Record<number, string> = {
+  4: 'lg:grid-cols-4',
+  5: 'lg:grid-cols-5',
+  6: 'lg:grid-cols-6',
+}
+
 /**
- * Proxies for generated noise: copy-pasted blocks, swallowed exceptions, dead code and comment
- * density. Shown for information; it feeds no scorecard practice.
+ * Proxies for generated noise: copy-pasted blocks, swallowed exceptions, dead code, comment slop
+ * and comment density. Shown for information; it feeds no scorecard practice.
  */
 function HygieneSection({
   excellence,
@@ -419,14 +425,14 @@ function HygieneSection({
       {({ latest, samples }) => {
         const p = history?.previous?.kpis
         const m = history?.previous?.month
-        const { global, deadCode, gate, thresholds } = latest
+        const { global, deadCode, gate, thresholds, commentSlop } = latest
         const trends = duplicationTrends(history?.hygiene ?? [])
         const debt = gate ? duplicationDebtTrend(history?.hygiene ?? []) : []
         const scopes = Object.entries(latest.scopes).sort(([a], [b]) => a.localeCompare(b))
         return (
           <div className="space-y-6">
             <div
-              className={`grid grid-cols-2 gap-5 rounded-md border bg-muted/30 p-4 sm:grid-cols-3 ${gate ? 'lg:grid-cols-5' : 'lg:grid-cols-4'}`}
+              className={`grid grid-cols-2 gap-5 rounded-md border bg-muted/30 p-4 sm:grid-cols-3 ${LG_COLS[4 + (gate ? 1 : 0) + (commentSlop ? 1 : 0)]}`}
             >
               <Stat
                 label="Duplication"
@@ -465,6 +471,19 @@ function HygieneSection({
                 value={global.commentDensity === null ? 'n/a' : global.commentDensity.toFixed(2)}
                 hint="comment lines per code line"
               />
+              {commentSlop ? (
+                <Stat
+                  label="Comment slop"
+                  explain="commentSlop"
+                  value={commentSlop.findings}
+                  tone={(commentSlop.gate?.violations ?? 0) > 0 ? 'bad' : undefined}
+                  hint={
+                    commentSlop.gate
+                      ? `${commentSlop.gate.baselineFindings} baselined, gated in CI`
+                      : 'report-only'
+                  }
+                />
+              ) : null}
               {gate ? (
                 <DuplicationDebtStat gate={gate} previous={p?.duplicationDebt} month={m} />
               ) : null}

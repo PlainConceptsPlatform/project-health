@@ -142,7 +142,7 @@ The zip holds a single `<facet>.json`:
 | `mutation` | `engineering-excellence-mutation` | weekly | covered and full mutation score per scope and module, against floors |
 | `security` | `engineering-excellence-security` | every push to main | Trivy vulnerabilities, misconfigurations and secrets by severity, Semgrep counts, scanner job results |
 | `sbom` | `engineering-excellence-sbom` | every push to main | component count by ecosystem, licence mix, components without a licence |
-| `hygiene` | `engineering-excellence-hygiene` | every push to main | duplicated lines and rate per scope and module, the worst duplicated files, swallowed exceptions (unjustified and justified), dead-code warnings and whether they are gated, comment density, and optionally the repository's duplication `gate` (baselined files and lines, files over their baseline, entries that improved) |
+| `hygiene` | `engineering-excellence-hygiene` | every push to main | duplicated lines and rate per scope and module, the worst duplicated files, swallowed exceptions (unjustified and justified), dead-code warnings and whether they are gated, comment density, optionally the repository's duplication `gate` (baselined files and lines, files over their baseline, entries that improved), and optionally `commentSlop` (deterministic comment-slop findings by rule and scope, with its own per-file baseline `gate`) |
 
 Every file is an envelope:
 
@@ -203,7 +203,7 @@ joining coverage, mutation and complexity, the worst CRAP methods, security coun
 the SBOM's ecosystems and licences. When the complexity facet carries a `gate`, a Complexity debt tile
 shows its baselined backlog (lower is better) with a trend line; without one the tile is hidden. A
 Hygiene block shows duplication per scope with its trend, swallowed exceptions, the dead-code gate,
-comment density and the most duplicated files; when the hygiene facet carries a `gate`, a Duplication
+comment density, comment slop when the facet carries it, and the most duplicated files; when the hygiene facet carries a `gate`, a Duplication
 debt tile does the same for its baselined lines. Hygiene is informational: no scorecard practice
 reads it. With OTLP configured, the month's latest coverage, mutation
 score, CRAP count, critical and high vulnerabilities and SBOM size are exported as `engineering.*`
@@ -222,8 +222,8 @@ Each practice is decided by one of two sources, and the page says which:
 - **Facet**: when the repository publishes the engineering excellence facets above, their verdicts
   decide coverage, mutation, complexity, the Trivy and Semgrep gates, the SBOM and code hygiene.
   Code hygiene (practice 11, the AI-slop proxies) passes when the duplication gate has no
-  violations, no exception is swallowed without a justification and dead code is gated or absent;
-  a hygiene facet without a `gate` is report-only. It counts towards the score and the gates,
+  violations, no exception is swallowed without a justification, dead code is gated or absent and,
+  when the facet carries `commentSlop`, its gate has no violations; a hygiene facet without a `gate` is report-only. It counts towards the score and the gates,
   not towards the N1 to N3 levels.
 - **Detected**: otherwise the collector reads `.github/workflows/*.yml` at the default branch and
   finds the tools in `uses:` and `run:` lines. A step is report-only when it carries

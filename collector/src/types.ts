@@ -448,6 +448,22 @@ export interface HygieneGate {
   fixed: number
 }
 
+/**
+ * Deterministic comment-slop findings (banners, untracked TODOs, doc comments that restate the
+ * member name, commented-out code). The gate is per file against a baseline, like duplication.
+ */
+export interface CommentSlop {
+  findings: number
+  byRule: Record<string, number>
+  byScope: Record<string, number>
+  gate: {
+    baselinedFiles: number
+    baselineFindings: number
+    violations: number
+    fixed: number
+  } | null
+}
+
 export interface HygieneData {
   thresholds: { minLines: number; minTokens: number }
   scopes: Record<
@@ -458,6 +474,8 @@ export interface HygieneData {
   deadCode: { gated: boolean; warnings: number }
   hotspots?: HygieneHotspot[]
   gate: HygieneGate | null
+  /** Absent when the repository runs no comment-slop rules. */
+  commentSlop?: CommentSlop
 }
 
 export interface FacetDataMap {

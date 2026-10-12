@@ -280,7 +280,8 @@ export function hygieneVerdict(data: HygieneData): PracticeResultState {
   const duplication = data.gate?.violations ?? 0
   const swallowed = data.global.swallowedExceptions ?? 0
   const dead = data.deadCode.gated ? 0 : data.deadCode.warnings
-  return duplication + swallowed + dead === 0 ? 'passing' : 'failing'
+  const comments = data.commentSlop?.gate?.violations ?? 0
+  return duplication + swallowed + dead + comments === 0 ? 'passing' : 'failing'
 }
 
 /**

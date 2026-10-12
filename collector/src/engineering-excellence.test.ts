@@ -235,6 +235,24 @@ describe('readFacet', () => {
     const unscanned = fixture('hygiene')
     ;(unscanned.data.global as Record<string, unknown>).swallowedExceptions = null
     expect(readHygiene(unscanned).ok).toBe(true)
+
+    const withComments = fixture('hygiene')
+    ;(withComments.data as Record<string, unknown>).commentSlop = {
+      findings: 3,
+      byRule: { banner: 2, 'untracked-todo': 1 },
+      byScope: { api: 3 },
+      gate: { baselinedFiles: 1, baselineFindings: 3, violations: 0, fixed: 0 },
+    }
+    expect(readHygiene(withComments).ok).toBe(true)
+
+    const commentsHalfGated = fixture('hygiene')
+    ;(commentsHalfGated.data as Record<string, unknown>).commentSlop = {
+      findings: 3,
+      byRule: {},
+      byScope: {},
+      gate: { baselinedFiles: 1, violations: 0, fixed: 0 },
+    }
+    expect(readHygiene(commentsHalfGated)).toMatchObject({ ok: false, kind: 'mismatch' })
   })
 
   it('rejects a hygiene facet that breaks the contract', () => {
