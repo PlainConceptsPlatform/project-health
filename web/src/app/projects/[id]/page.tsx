@@ -2,6 +2,7 @@ import {
   readExcellenceHistory,
   readIndex,
   readLatestReport,
+  readReport,
   readScorecardTypeLabels,
   readTrend,
 } from '@/shared/lib/data'
@@ -29,6 +30,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     )
   }
   const shown = `${report.period.year}-${String(report.period.month).padStart(2, '0')}`
+  const newest = entry.latest && entry.latest !== shown ? readReport(id, entry.latest) : null
   return (
     <ProjectView
       report={report}
@@ -36,6 +38,11 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
       trend={readTrend(id)}
       excellence={readExcellenceHistory(id, shown)}
       typeLabels={readScorecardTypeLabels()}
+      engineering={
+        newest && entry.latest
+          ? { report: newest, excellence: readExcellenceHistory(id, entry.latest) }
+          : undefined
+      }
     />
   )
 }

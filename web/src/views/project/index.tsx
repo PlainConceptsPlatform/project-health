@@ -453,14 +453,24 @@ export function ProjectView({
   trend,
   excellence,
   typeLabels = {},
+  engineering,
 }: {
   report: MonthlyReport
   months: string[]
   trend: TrendPoint[]
   excellence?: ExcellenceHistory
   typeLabels?: Record<string, string>
+  /**
+   * The scorecard and engineering excellence describe the repository as it is now, not the month
+   * the delivery cards fall back to. The default project page passes the newest collected month
+   * here so a project whose last release was months ago still shows today's gates.
+   */
+  engineering?: { report: MonthlyReport; excellence?: ExcellenceHistory }
 }) {
   const current = monthKey(report)
+  const engineeringReport = engineering?.report ?? report
+  const engineeringExcellence = engineering ? engineering.excellence : excellence
+  const engineeringMonth = monthKey(engineeringReport)
 
   return (
     <div className="space-y-6">
@@ -545,7 +555,14 @@ export function ProjectView({
         )}
       </Metric>
 
-      <ScorecardPanel report={report} typeLabels={typeLabels} />
+      {engineeringMonth !== current ? (
+        <p className="text-sm text-muted-foreground">
+          Engineering scorecard and excellence show {monthName(engineeringMonth)}, the newest
+          collected month; delivery shows {monthName(current)}, the latest month with releases.
+        </p>
+      ) : null}
+
+      <ScorecardPanel report={engineeringReport} typeLabels={typeLabels} />
 
       <DeliveryPanel report={report} />
 
@@ -555,7 +572,7 @@ export function ProjectView({
         </Panel>
       ) : null}
 
-      <ExcellencePanel report={report} history={excellence} />
+      <ExcellencePanel report={engineeringReport} history={engineeringExcellence} />
 
       <AgentsPanel report={report} />
       <PeoplePanel report={report} />
