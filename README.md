@@ -243,6 +243,13 @@ Each practice is decided by one of two sources, and the page says which:
   standard. Tests & coverage lists plain test runners this way (`dotnet test`, `npm test`, `pytest`,
   `go test` and others): tests that run without a coverage tool are yellow, never green. When a weak
   and a strong tool are both found, the strong one decides, and a coverage facet counts as strong.
+  Spec (Gherkin) also reads repository content, because a Reqnroll or SpecFlow suite runs through
+  a plain `dotnet test <project>` line that names no BDD tool. One git trees call lists the
+  `*.feature` files and the nearest project file above them (`*.csproj`, `package.json`, `pom.xml`
+  and the like). The practice is detected as "Gherkin (.feature files)" when a step runs a test
+  command that reaches that project: it names its directory or project file, or runs the solution
+  or the whole tree containing it (`npm test` and friends only from the package's own directory).
+  Its result is that job's, as for any other tool. Feature files that no workflow runs are yellow.
 
 Workflows are read as they are today, so a backfilled month pairs today's gates with that month's
 run results and commits. A result older than 14 days counts as stale.

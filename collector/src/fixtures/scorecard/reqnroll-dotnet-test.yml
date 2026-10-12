@@ -1,0 +1,36 @@
+name: quality
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  tests:
+    name: Tests + coverage (unit, acceptance)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: dotnet build App.sln -c Release
+
+      - name: Unit tests + coverage
+        run: |
+          set -euo pipefail
+          for project in App.Core.UnitTests App.Sync.UnitTests; do
+            dotnet test "tests/$project/$project.csproj" -c Release --no-build \
+              --collect:"XPlat Code Coverage" --results-directory "TestResults/$project"
+          done
+
+      # The suite runs through a plain dotnet test line that names no BDD tool.
+      - name: Acceptance tests + coverage
+        run: >-
+          dotnet test tests/App.AcceptanceTests/App.AcceptanceTests.csproj -c Release --no-build
+          --collect:"XPlat Code Coverage" --results-directory TestResults/App.AcceptanceTests
+
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-tests
+          path: TestResults/**/coverage.cobertura.xml
