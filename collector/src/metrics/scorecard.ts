@@ -77,7 +77,14 @@ export function applicability(
   }
   if (practice.optIn) {
     const optedIn = (project.scorecard as Record<string, unknown> | undefined)?.[practice.id]
-    if (optedIn !== true) {
+    const typeDefault = config.types[type]?.applicable?.includes(practice.id) ?? false
+    if (typeDefault && optedIn === false) {
+      return {
+        applicable: false,
+        reason: `Opted out with scorecard.${practice.id}: false in projects.json.`,
+      }
+    }
+    if (!typeDefault && optedIn !== true) {
       return {
         applicable: false,
         reason: `Only expected when required; opt in with scorecard.${practice.id} in projects.json.`,

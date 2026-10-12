@@ -72,7 +72,10 @@ export interface ProjectConfig {
   /** Decides which scorecard practices apply. Absent means other, where every practice applies. */
   type?: ProjectType
   scorecard?: {
-    /** Performance testing is only expected when a project says it needs it. */
+    /**
+     * Performance testing is only expected when a project says it needs it, or its type expects
+     * it by default. false opts out of a type default.
+     */
     performance?: boolean
     /** Practice ids that do not apply to this project, on top of its type's defaults. */
     notApplicable?: string[]
@@ -80,7 +83,16 @@ export interface ProjectConfig {
   notes?: string
 }
 
-export const PROJECT_TYPES = ['back-front', 'mobile', 'data', 'ml', 'library', 'other'] as const
+export const PROJECT_TYPES = [
+  'back-front',
+  'mobile',
+  'data',
+  'ml',
+  'library',
+  'browser-extension',
+  'static-site',
+  'other',
+] as const
 export type ProjectType = (typeof PROJECT_TYPES)[number]
 
 export interface Release {

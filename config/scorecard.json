@@ -127,8 +127,15 @@
       "phase": "test-env",
       "mode": "threshold",
       "optIn": true,
-      "description": "Load tests against the test environment hold response times within budget. Only when the project requires it.",
-      "tools": [{ "name": "k6", "pattern": "\\bk6\\b" }, { "name": "JMeter", "pattern": "jmeter" }]
+      "description": "Load tests or Lighthouse budgets against the test environment hold response times within budget. Only when the project requires it.",
+      "tools": [
+        { "name": "k6", "pattern": "\\bk6\\b" },
+        { "name": "JMeter", "pattern": "jmeter" },
+        {
+          "name": "Lighthouse CI",
+          "pattern": "@lhci/cli|\\blhci\\s+(autorun|assert)\\b|lighthouse-ci"
+        }
+      ]
     }
   ],
   "types": {
@@ -137,6 +144,12 @@
     "data": { "label": "Data", "notApplicable": ["mutation", "dast"] },
     "ml": { "label": "ML", "notApplicable": ["spec", "mutation", "dast"] },
     "library": { "label": "Library", "notApplicable": ["dast"] },
+    "browser-extension": { "label": "Browser extension", "notApplicable": ["dast"] },
+    "static-site": {
+      "label": "Static site",
+      "notApplicable": ["spec", "mutation", "complexity"],
+      "applicable": ["performance"]
+    },
     "other": { "label": "Other", "notApplicable": [] }
   },
   "aiUsage": {

@@ -46,6 +46,8 @@ const FALLBACK_TYPE_LABELS: Record<string, string> = {
   data: 'Data',
   ml: 'ML',
   library: 'Library',
+  'browser-extension': 'Browser extension',
+  'static-site': 'Static site',
   other: 'Other',
 }
 

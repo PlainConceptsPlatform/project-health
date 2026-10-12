@@ -355,7 +355,15 @@ export type EngineeringExcellence = {
 }
 
 /** Mirrors the collector's scorecard types; see collector/src/types.ts for the rules behind them. */
-export type ProjectType = 'back-front' | 'mobile' | 'data' | 'ml' | 'library' | 'other'
+export type ProjectType =
+  | 'back-front'
+  | 'mobile'
+  | 'data'
+  | 'ml'
+  | 'library'
+  | 'browser-extension'
+  | 'static-site'
+  | 'other'
 export type PracticePhase = 'build' | 'test-env'
 export type StandardMode = 'blocking' | 'threshold' | 'policy'
 export type DetectedMode = 'blocking' | 'report-only'

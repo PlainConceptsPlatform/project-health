@@ -44,7 +44,7 @@ import type {
   ProjectConfig,
   Rag,
 } from './types.ts'
-import { ok, skip } from './types.ts'
+import { PROJECT_TYPES, ok, skip } from './types.ts'
 
 /**
  * The scorecard is a chain of heuristics and rules, and each one can quietly paint a project the
@@ -171,6 +171,24 @@ describe('detectTools', () => {
     ])
     expect(detect('deploy.yml').get('performance')?.tools).toEqual(['k6'])
   })
+
+  it('detects Lighthouse CI as a performance tool, blocking unless marked report-only', () => {
+    const lighthouse = (step: string) =>
+      summarizeDetections(
+        detectTools('w.yml', `jobs:\n  perf:\n    steps:\n${step}`, [practice('performance')]),
+      ).get('performance')
+    for (const step of [
+      '      - run: npx @lhci/cli@0.14.x autorun\n',
+      '      - run: lhci autorun --upload.target=temporary-public-storage\n',
+      '      - uses: treosh/lighthouse-ci-action@v12\n',
+    ]) {
+      expect(lighthouse(step)).toMatchObject({ tools: ['Lighthouse CI'], mode: 'blocking' })
+    }
+    expect(lighthouse('      - run: lhci autorun\n        continue-on-error: true\n')?.mode).toBe(
+      'report-only',
+    )
+    expect(lighthouse('      - run: npm run lighthouse\n')).toBeUndefined()
+  })
 })
 
 describe('ratePractice', () => {
@@ -240,6 +258,35 @@ describe('applicability', () => {
   it('applies performance only when opted in, and honours a per-project exclusion', () => {
     expect(applies('performance', { scorecard: { performance: true } })).toBe(true)
     expect(applies('sbom', { scorecard: { notApplicable: ['sbom'] } })).toBe(false)
+  })
+
+  it('applies every build practice to a browser extension, but not DAST or performance', () => {
+    const build = config.practices.filter((p) => p.phase === 'build').map((p) => p.id)
+    for (const id of build) expect(applies(id, { type: 'browser-extension' })).toBe(true)
+    expect(applies('dast', { type: 'browser-extension' })).toBe(false)
+    expect(applies('performance', { type: 'browser-extension' })).toBe(false)
+  })
+
+  it('expects performance and DAST of a static site, but not spec, mutation or complexity', () => {
+    const site = { type: 'static-site' } as const
+    expect(applies('performance', site)).toBe(true)
+    expect(applies('dast', site)).toBe(true)
+    expect(applies('spec', site)).toBe(false)
+    expect(applies('mutation', site)).toBe(false)
+    expect(applies('complexity', site)).toBe(false)
+    expect(applies('secrets', site)).toBe(true)
+  })
+
+  it('lets a static site opt out of its default performance practice', () => {
+    const optedOut = applicability(
+      practice('performance'),
+      project({ type: 'static-site', scorecard: { performance: false } }),
+      config,
+    )
+    expect(optedOut).toEqual({
+      applicable: false,
+      reason: 'Opted out with scorecard.performance: false in projects.json.',
+    })
   })
 
   it('drops a practice disabled in config for every project', () => {
@@ -941,5 +988,27 @@ ${extra}`
       source: 'none',
       tools: [],
     })
+  })
+})
+
+describe('project types', () => {
+  const schema = JSON.parse(
+    readFileSync(join(import.meta.dirname, '..', '..', 'schema', 'projects.schema.json'), 'utf8'),
+  ) as { properties: { projects: { items: { properties: { type: { enum: string[] } } } } } }
+  const schemaTypes = schema.properties.projects.items.properties.type.enum
+
+  it('accepts browser-extension and static-site in projects.json', () => {
+    expect(schemaTypes).toContain('browser-extension')
+    expect(schemaTypes).toContain('static-site')
+  })
+
+  it('keeps the schema, the collector and config/scorecard.json on the same types', () => {
+    expect([...schemaTypes].sort()).toEqual([...PROJECT_TYPES].sort())
+    expect(Object.keys(config.types).sort()).toEqual([...PROJECT_TYPES].sort())
+  })
+
+  it('labels the new types', () => {
+    expect(config.types['browser-extension'].label).toBe('Browser extension')
+    expect(config.types['static-site'].label).toBe('Static site')
   })
 })
