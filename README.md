@@ -212,7 +212,7 @@ gauges.
 ## Engineering scorecard
 
 A portfolio view of which engineering practices guard each project, read every collection from the
-default branch. The ten practices, their standard mode (Blocking, Threshold or Policy), the tool
+default branch. The eleven practices, their standard mode (Blocking, Threshold or Policy), the tool
 patterns that detect them and which project types they apply to live in `config/scorecard.json`.
 `config/` is the file a platform mirror overrides, so practices (complexity included) can be
 disabled or extended there without touching code.
@@ -220,7 +220,11 @@ disabled or extended there without touching code.
 Each practice is decided by one of two sources, and the page says which:
 
 - **Facet**: when the repository publishes the engineering excellence facets above, their verdicts
-  decide coverage, mutation, complexity, the Trivy and Semgrep gates and the SBOM.
+  decide coverage, mutation, complexity, the Trivy and Semgrep gates, the SBOM and code hygiene.
+  Code hygiene (practice 11, the AI-slop proxies) passes when the duplication gate has no
+  violations, no exception is swallowed without a justification and dead code is gated or absent;
+  a hygiene facet without a `gate` is report-only. It counts towards the score and the build
+  gates, not towards the N1 to N3 levels.
 - **Detected**: otherwise the collector reads `.github/workflows/*.yml` at the default branch and
   finds the tools in `uses:` and `run:` lines. A step is report-only when it carries
   `continue-on-error: true`, `exit-code: "0"` or `|| true` (Trivy also needs an explicit non-zero

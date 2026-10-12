@@ -361,7 +361,7 @@ describe('engineeringScore and gateCounts', () => {
         spec: 'yellow',
         sbom: 'yellow',
       },
-      ['dast', 'performance'],
+      ['dast', 'performance', 'hygiene'],
     )
     expect(engineeringScore(practices)).toBe(63)
     expect(gateCounts(practices)).toEqual({ present: 6, applicable: 8 })
@@ -369,7 +369,7 @@ describe('engineeringScore and gateCounts', () => {
 
   it('counts only build gates in the gates column', () => {
     const practices = results({ dast: 'green' }, ['performance'])
-    expect(gateCounts(practices)).toEqual({ present: 0, applicable: 8 })
+    expect(gateCounts(practices)).toEqual({ present: 0, applicable: 9 })
   })
 
   it('has no score when nothing applies', () => {
@@ -600,6 +600,71 @@ describe('facetEvidence', () => {
     expect(facetEvidence('vulnerabilities', ee, 'o/r')?.mode).toBe('blocking')
   })
 
+  const hygiene = (
+    patch: {
+      violations?: number
+      swallowed?: number | null
+      dead?: number
+      gated?: boolean
+      gate?: boolean
+    } = {},
+  ) => {
+    const ee = excellence()
+    const summary = {
+      files: 10,
+      lines: 1000,
+      duplicatedLines: 40,
+      duplicationRate: 0.04,
+      codeLines: 800,
+      commentLines: 80,
+      commentDensity: 0.1,
+      swallowedExceptions: patch.swallowed === undefined ? 0 : patch.swallowed,
+      justifiedSwallows: 1,
+    }
+    ee.hygiene = series(
+      {
+        thresholds: { minLines: 10, minTokens: 70 },
+        scopes: {},
+        global: summary,
+        deadCode: { gated: patch.gated ?? true, warnings: patch.dead ?? 0 },
+        hotspots: [],
+        gate:
+          patch.gate === false
+            ? null
+            : {
+                baselinedFiles: 5,
+                baselineLines: 200,
+                violations: patch.violations ?? 0,
+                fixed: 0,
+              },
+      },
+      '2026-10-15T00:00:00Z',
+    )
+    return facetEvidence('hygiene', ee, 'o/r')
+  }
+
+  it('passes hygiene when the duplication gate holds and nothing is swallowed or dead', () => {
+    expect(hygiene()).toMatchObject({
+      result: 'passing',
+      mode: 'blocking',
+      tools: ['hygiene facet'],
+    })
+    // A producer that ran no empty-catch scanner reports null, which is not a finding.
+    expect(hygiene({ swallowed: null })?.result).toBe('passing')
+    // Dead code the build already fails on cannot be outstanding.
+    expect(hygiene({ dead: 3, gated: true })?.result).toBe('passing')
+  })
+
+  it('fails hygiene on a new clone, a swallowed exception or ungated dead code', () => {
+    expect(hygiene({ violations: 1 })?.result).toBe('failing')
+    expect(hygiene({ swallowed: 2 })?.result).toBe('failing')
+    expect(hygiene({ dead: 1, gated: false })?.result).toBe('failing')
+  })
+
+  it('treats hygiene measured without a duplication gate as report-only', () => {
+    expect(hygiene({ gate: false })).toMatchObject({ mode: 'report-only', result: 'passing' })
+  })
+
   it('treats complexity measured without a gate as report-only', () => {
     const noGate = excellence()
     if (noGate.complexity.available) noGate.complexity.data.latest.gate = null
@@ -692,6 +757,7 @@ describe('collectScorecard', () => {
       complexity: 'green',
       dast: 'red',
       performance: 'grey',
+      hygiene: 'red',
     })
     expect(card.practices.find((p) => p.id === 'mutation')?.lastRun?.workflow).toBe(
       '.github/workflows/deploy.yml',
@@ -700,7 +766,7 @@ describe('collectScorecard', () => {
     expect(card.practices.every((p) => p.source !== 'facet')).toBe(true)
     // Spec is failing, so N2 is out of reach.
     expect(card.level).toBe(1)
-    expect(card.gates).toEqual({ present: 7, applicable: 8 })
+    expect(card.gates).toEqual({ present: 7, applicable: 9 })
   })
 
   it('lets facets decide the result while workflows still name the tools', async () => {
