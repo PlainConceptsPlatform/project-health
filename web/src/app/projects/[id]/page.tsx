@@ -1,4 +1,10 @@
-import { readExcellenceHistory, readIndex, readLatestReport, readTrend } from '@/shared/lib/data'
+import {
+  readExcellenceHistory,
+  readIndex,
+  readLatestReport,
+  readScorecardTypeLabels,
+  readTrend,
+} from '@/shared/lib/data'
 import { Unavailable } from '@/shared/ui'
 import { ProjectView } from '@/views/project'
 
@@ -29,6 +35,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
       months={entry.months}
       trend={readTrend(id)}
       excellence={readExcellenceHistory(id, shown)}
+      typeLabels={readScorecardTypeLabels()}
     />
   )
 }

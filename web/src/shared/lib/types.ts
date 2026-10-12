@@ -141,6 +141,8 @@ export interface MonthlyReport {
   placement: MetricBlock<Placement>
   /** Absent when the project has not opted in, and in files written before it existed. */
   engineeringExcellence?: EngineeringExcellence
+  /** Absent in files written before the scorecard existed. */
+  scorecard?: MetricBlock<Scorecard>
   warnings: Warning[]
 }
 
@@ -299,4 +301,57 @@ export interface FacetSeries<T> {
 
 export type EngineeringExcellence = {
   [F in Facet]: MetricBlock<FacetSeries<FacetDataMap[F]>>
+}
+
+/** Mirrors the collector's scorecard types; see collector/src/types.ts for the rules behind them. */
+export type ProjectType = 'back-front' | 'mobile' | 'data' | 'ml' | 'library' | 'other'
+export type PracticePhase = 'build' | 'test-env'
+export type StandardMode = 'blocking' | 'threshold' | 'policy'
+export type DetectedMode = 'blocking' | 'report-only'
+export type Rag = 'green' | 'yellow' | 'red' | 'grey'
+export type PracticeSource = 'facet' | 'detected' | 'none'
+
+export interface PracticeResult {
+  id: string
+  number: number
+  name: string
+  phase: PracticePhase
+  standardMode: StandardMode
+  description: string
+  applicable: boolean
+  rag: Rag
+  reason: string
+  source: PracticeSource
+  tools: string[]
+  mode: DetectedMode | null
+  result: 'passing' | 'failing' | 'unknown' | null
+  resultAt: string | null
+  lastRun: { workflow: string; url: string; conclusion: string | null; at: string } | null
+}
+
+export interface AiUsage {
+  level: number
+  share: number
+  aiCommits: number
+  totalCommits: number
+  byAssistant: Record<string, number>
+}
+
+export interface ScorecardAlert {
+  code: 'HIGH_AI_LOW_ENGINEERING' | 'ENGINEERING_DECLINING'
+  severity: 'red' | 'amber'
+  message: string
+}
+
+export interface Scorecard {
+  projectType: ProjectType
+  defaultBranch: string | null
+  facetsPublished: boolean
+  workflowsScanned: number
+  practices: PracticeResult[]
+  level: number
+  score: number | null
+  gates: { present: number; applicable: number }
+  aiUsage: MetricBlock<AiUsage>
+  alerts: ScorecardAlert[]
 }

@@ -28,6 +28,7 @@ import {
   TokensByKind,
 } from '@/shared/ui/charts'
 import { ExcellencePanel } from './excellence'
+import { ScorecardPanel } from './scorecard'
 
 export interface TrendPoint {
   month: string
@@ -449,11 +450,13 @@ export function ProjectView({
   months,
   trend,
   excellence,
+  typeLabels = {},
 }: {
   report: MonthlyReport
   months: string[]
   trend: TrendPoint[]
   excellence?: ExcellenceHistory
+  typeLabels?: Record<string, string>
 }) {
   const current = monthKey(report)
 
@@ -539,6 +542,8 @@ export function ProjectView({
           </Panel>
         )}
       </Metric>
+
+      <ScorecardPanel report={report} typeLabels={typeLabels} />
 
       <DeliveryPanel report={report} />
 

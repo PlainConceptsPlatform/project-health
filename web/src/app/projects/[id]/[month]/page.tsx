@@ -3,6 +3,7 @@ import {
   readExcellenceHistory,
   readIndex,
   readReport,
+  readScorecardTypeLabels,
   readTrend,
 } from '@/shared/lib/data'
 import { Unavailable } from '@/shared/ui'
@@ -43,6 +44,7 @@ export default async function Page({ params }: { params: Promise<{ id: string; m
       months={entry.months}
       trend={readTrend(id)}
       excellence={readExcellenceHistory(id, shown)}
+      typeLabels={readScorecardTypeLabels()}
     />
   )
 }

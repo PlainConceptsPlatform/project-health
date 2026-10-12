@@ -1,6 +1,13 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { collectableProjects, isExampleConfig, loadDora, loadProjects, repoRoot } from './config.ts'
+import {
+  collectableProjects,
+  isExampleConfig,
+  loadDora,
+  loadProjects,
+  loadScorecardConfig,
+  repoRoot,
+} from './config.ts'
 import { discover } from './discover.ts'
 import { get } from './github.ts'
 import { collectAgents } from './metrics/agents.ts'
@@ -13,6 +20,7 @@ import {
 import { collectLeadTime } from './metrics/leadtime.ts'
 import { fetchReleaseHistory, withinWindow } from './metrics/releases.ts'
 import { collectRework } from './metrics/rework.ts'
+import { collectScorecard } from './metrics/scorecard.ts'
 import { exportToOtlp, otlpConfigured } from './otel.ts'
 import { placeProject } from './profile.ts'
 import {
@@ -20,8 +28,10 @@ import {
   type AgentSummary,
   type Contributors,
   type EngineeringExcellence,
+  type MetricBlock,
   type MonthlyReport,
   type ProjectConfig,
+  type Scorecard,
   type Warning,
   skip,
 } from './types.ts'
@@ -177,6 +187,23 @@ function previousExcellence(projectId: string, month: string): EngineeringExcell
   return previousReport(projectId, month)?.engineeringExcellence ?? null
 }
 
+/**
+ * Scores of the months before this one inside the declining-alert window, oldest first. Reports
+ * are written oldest first during a backfill, so the earlier months are already on disk.
+ */
+function previousScores(projectId: string, period: Period, months: number): (number | null)[] {
+  const scores: (number | null)[] = []
+  for (let back = months - 1; back >= 1; back -= 1) {
+    const date = new Date(Date.UTC(period.year, period.month - 1 - back, 1))
+    const prior = previousReport(
+      projectId,
+      label(periodFor(date.getUTCFullYear(), date.getUTCMonth() + 1)),
+    )
+    scores.push(prior?.scorecard?.available ? prior.scorecard.data.score : null)
+  }
+  return scores
+}
+
 async function collectProject(project: ProjectConfig, period: Period): Promise<MonthlyReport> {
   const warnings: Warning[] = []
   const dora = loadDora()
@@ -255,6 +282,21 @@ async function collectProject(project: ProjectConfig, period: Period): Promise<M
     engineeringExcellence = excellence.block
   }
 
+  const scorecardConfig = loadScorecardConfig()
+  const scorecard = await attempt<MetricBlock<Scorecard>>(
+    'engineering scorecard',
+    warnings,
+    () =>
+      collectScorecard(
+        project,
+        scorecardConfig,
+        period,
+        engineeringExcellence,
+        previousScores(project.id, period, scorecardConfig.alerts.decliningMonths),
+      ),
+    (reason) => skip(reason),
+  )
+
   const placement = placeProject(dora, project, frequency.block, leadTime, rework)
 
   if (frequency.block.available && frequency.block.data.count < dora.minimumSampleSize) {
@@ -289,6 +331,7 @@ async function collectProject(project: ProjectConfig, period: Period): Promise<M
     contributors,
     placement,
     ...(engineeringExcellence ? { engineeringExcellence } : {}),
+    scorecard,
     warnings: applySeverity(warnings),
   }
 }

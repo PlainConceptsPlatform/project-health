@@ -212,6 +212,47 @@ shows its baselined backlog (lower is better) with a trend line; without one the
 score, CRAP count, critical and high vulnerabilities and SBOM size are exported as `engineering.*`
 gauges.
 
+## Engineering scorecard
+
+A portfolio view of which engineering practices guard each project, read every collection from the
+default branch. The ten practices, their standard mode (Blocking, Threshold or Policy), the tool
+patterns that detect them and which project types they apply to live in `config/scorecard.json`.
+`config/` is the file a platform mirror overrides, so practices (complexity included) can be
+disabled or extended there without touching code.
+
+Each practice is decided by one of two sources, and the page says which:
+
+- **Facet**: when the repository publishes the engineering excellence facets above, their verdicts
+  decide coverage, mutation, complexity, the Trivy and Semgrep gates and the SBOM.
+- **Detected**: otherwise the collector reads `.github/workflows/*.yml` at the default branch and
+  finds the tools in `uses:` and `run:` lines. A step is report-only when it carries
+  `continue-on-error: true`, `exit-code: "0"` or `|| true` (Trivy also needs an explicit non-zero
+  exit code, because it exits 0 by default). Pass or fail is the conclusion of that job in the
+  latest completed run of the workflow, read through the caller when the workflow is reusable.
+
+Workflows are read as they are today, so a backfilled month pairs today's gates with that month's
+run results and commits. A result older than 14 days counts as stale.
+
+| Colour | Means |
+| --- | --- |
+| Green | present in its standard mode and passing, or its threshold met |
+| Yellow | present but weaker than standard (report-only), threshold not met, or unknown or stale |
+| Red | applicable but absent, or a Blocking gate failing on the default branch |
+| Grey | not applicable to this project |
+
+The **level** is cumulative and counts only green gates: N1 needs secrets, vulnerabilities and SAST
+green with tests present; N2 adds tests and coverage, spec and SBOM; N3 adds mutation, DAST and
+complexity where they apply. The **score** is (green + half of yellow) over applicable, 0 to 100.
+**AI usage** (1 to 5) is the share of the month's non-merge default branch commits with an assistant
+Co-authored-by trailer or an agent bot author; dependency and Actions bots are excluded.
+
+Two alerts read both axes: *High AI usage, low engineering* (AI 4 or more at N1 or below) and
+*Engineering declining* (the score 10 or more points under the best of the two previous months).
+
+A project sets its `type` (`back-front`, `mobile`, `data`, `ml`, `library`, `other`) in
+`projects.json`; without one every practice applies. `scorecard.performance: true` opts in to load
+testing and `scorecard.notApplicable` drops further practices for that project.
+
 ## Setting it up the first time
 
 Use this repository as a template, then:
@@ -286,10 +327,11 @@ If you swap in your own palette, validate it rather than eyeballing it.
 ## Architecture
 
 ```
-collector/        TypeScript. Reads the API, writes data/, 48 tests
+collector/        TypeScript. Reads the API, writes data/
 web/              Next.js static export, Tailwind v4, shadcn/ui
 schema/           JSON Schema for projects.json and the engineering excellence facets
 config/dora.json  band edges and the seven profiles
+config/scorecard.json  scorecard practices, detection patterns, project types and alerts
 ```
 
 Data layout is one folder per project, one file per month. Monthly files are permanent, which matters because GitHub expires workflow artifacts after

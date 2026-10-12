@@ -1,0 +1,11 @@
+name: Reusable CI
+
+on:
+  workflow_call:
+
+jobs:
+  mutation:
+    name: Mutation tests
+    runs-on: ubuntu-latest
+    steps:
+      - run: dotnet stryker --break-at 70

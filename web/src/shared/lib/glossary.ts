@@ -67,6 +67,21 @@ export const GLOSSARY = {
 
   sbomComponents:
     'Every third party component in the software bill of materials, across all ecosystems. More components mean more surface to keep patched; the licence mix says what obligations ship with them.',
+
+  engineeringLevel:
+    'A cumulative level where only green gates count. N1: secrets, vulnerability and SAST gates green and tests present. N2: N1 plus tests and coverage, Gherkin specs and the SBOM green. N3: N2 plus mutation, DAST and complexity green where they apply. Anything less is N0.',
+
+  engineeringScore:
+    'Green practices plus half the yellow ones, over every practice that applies, from 0 to 100. Not-applicable practices are left out rather than counted against the project.',
+
+  gates:
+    'Build gates in place, green or yellow, out of the build gates that apply to this project type. A gate that runs report-only still counts as present here; its colour says it is weaker than standard.',
+
+  aiUsage:
+    "The share of this month's default branch commits that are AI-assisted: a Co-authored-by trailer naming an assistant, or a commit by an agent bot. Dependency and Actions bots are not counted. Under 10% is 1, under 25% is 2, under 50% is 3, under 75% is 4, anything above is 5.",
+
+  scorecardSource:
+    'Facet means the repository published an engineering excellence facet and its verdict decided the colour. Detected means the tool was found in a workflow on the default branch, and the latest run of that workflow decided it.',
 } as const
 
 export type GlossaryKey = keyof typeof GLOSSARY
