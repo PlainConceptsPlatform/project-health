@@ -136,6 +136,8 @@
               "data",
               "ml",
               "library",
+              "browser-extension",
+              "static-site",
               "other"
             ],
             "description": "What kind of project this is, which decides the engineering scorecard practices that apply by default (see types in config/scorecard.json). Absent means other, where every practice applies."
@@ -148,7 +150,7 @@
               "performance": {
                 "type": "boolean",
                 "default": false,
-                "description": "Performance testing (k6, JMeter) is only expected when required. true makes it applicable."
+                "description": "Performance testing (k6, JMeter, Lighthouse CI) is only expected when required. true makes it applicable; false drops it for a type that expects it by default, such as static-site."
               },
               "notApplicable": {
                 "type": "array",

@@ -270,9 +270,10 @@ Co-authored-by trailer or an agent bot author; dependency and Actions bots are e
 Two alerts read both axes: *High AI usage, low engineering* (AI 4 or more at N1 or below) and
 *Engineering declining* (the score 10 or more points under the best of the two previous months).
 
-A project sets its `type` (`back-front`, `mobile`, `data`, `ml`, `library`, `other`) in
-`projects.json`; without one every practice applies. `scorecard.performance: true` opts in to load
-testing and `scorecard.notApplicable` drops further practices for that project.
+A project sets its `type` (`back-front`, `mobile`, `data`, `ml`, `library`, `browser-extension`,
+`static-site`, `other`) in `projects.json`; without one every practice applies. `scorecard.performance: true`
+opts in to performance testing (k6, JMeter, Lighthouse CI), which a `static-site` expects by default
+(`false` opts out), and `scorecard.notApplicable` drops further practices for that project.
 
 ## Setting it up the first time
 

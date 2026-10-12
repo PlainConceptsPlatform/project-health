@@ -115,7 +115,15 @@ export interface PracticeDefinition {
 export interface ScorecardConfig {
   staleDays: number
   practices: PracticeDefinition[]
-  types: Record<ProjectType, { label: string; notApplicable: string[] }>
+  types: Record<
+    ProjectType,
+    {
+      label: string
+      notApplicable: string[]
+      /** Opt-in practice ids this type expects by default; scorecard.<id>: false opts out. */
+      applicable?: string[]
+    }
+  >
   aiUsage: {
     /** Upper bounds of levels 1 to 4 as shares; anything at or above the last is level 5. */
     buckets: number[]
