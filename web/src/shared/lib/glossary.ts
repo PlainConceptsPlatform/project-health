@@ -65,6 +65,21 @@ export const GLOSSARY = {
   complexityDebt:
     'Methods over the complexity or CRAP limit that the repository has accepted into a baseline rather than fix at once. Its gate blocks any new one, so this count should only fall. New violations and justified exemptions are shown underneath.',
 
+  duplication:
+    'The share of source lines that sit inside a copy-pasted block, as found by a clone detector with the minimum size shown. Both copies count. Tests, generated code and migrations are left out. Some duplication is harmless; a rising share usually means helpers were copied rather than reused.',
+
+  swallowedExceptions:
+    'Empty catch blocks, which hide a failure instead of handling it. Justified ones carry an inline reason, such as a best-effort cleanup, and are counted separately. "n/a" means the scanner produced no result, not zero.',
+
+  deadCode:
+    'Unused private members, locals and parameters. When the repository makes them build errors the count is held at zero by its CI, which is what "gated" means.',
+
+  commentDensity:
+    'Comment-only lines per line of code. It is a rough, line-based measure, so it is shown for its trend only: a sudden jump can mean comments that restate the code.',
+
+  duplicationDebt:
+    'Duplicated lines the repository has accepted into a baseline rather than remove at once. Its gate fails a change that adds a clone or grows a baselined file, so this count should only fall.',
+
   sbomComponents:
     'Every third party component in the software bill of materials, across all ecosystems. More components mean more surface to keep patched; the licence mix says what obligations ship with them.',
 

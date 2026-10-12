@@ -1,0 +1,118 @@
+{
+  "schemaVersion": 1,
+  "facet": "hygiene",
+  "repo": "your-org/checkout",
+  "ref": "refs/heads/main",
+  "commitSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "runId": 1001,
+  "runAttempt": 1,
+  "generatedAt": "2026-10-11T23:03:56.611Z",
+  "data": {
+    "thresholds": {
+      "minLines": 10,
+      "minTokens": 70
+    },
+    "scopes": {
+      "api": {
+        "files": 3,
+        "lines": 600,
+        "duplicatedLines": 60,
+        "duplicationRate": 0.1,
+        "codeLines": 480,
+        "commentLines": 24,
+        "commentDensity": 0.05,
+        "swallowedExceptions": 0,
+        "justifiedSwallows": 2,
+        "deadCodeWarnings": 0,
+        "modules": {
+          "Checkout.Application": {
+            "files": 2,
+            "lines": 400,
+            "duplicatedLines": 60,
+            "duplicationRate": 0.15,
+            "codeLines": 320,
+            "commentLines": 16,
+            "commentDensity": 0.05,
+            "swallowedExceptions": 0,
+            "justifiedSwallows": 2
+          },
+          "Checkout.Domain": {
+            "files": 1,
+            "lines": 200,
+            "duplicatedLines": 0,
+            "duplicationRate": 0,
+            "codeLines": 160,
+            "commentLines": 8,
+            "commentDensity": 0.05,
+            "swallowedExceptions": 0,
+            "justifiedSwallows": 0
+          }
+        }
+      },
+      "web": {
+        "files": 2,
+        "lines": 400,
+        "duplicatedLines": 20,
+        "duplicationRate": 0.05,
+        "codeLines": 360,
+        "commentLines": 9,
+        "commentDensity": 0.025,
+        "swallowedExceptions": 1,
+        "justifiedSwallows": 1,
+        "deadCodeWarnings": 0,
+        "modules": {
+          "pages": {
+            "files": 2,
+            "lines": 400,
+            "duplicatedLines": 20,
+            "duplicationRate": 0.05,
+            "codeLines": 360,
+            "commentLines": 9,
+            "commentDensity": 0.025,
+            "swallowedExceptions": 1,
+            "justifiedSwallows": 1
+          }
+        }
+      }
+    },
+    "global": {
+      "files": 5,
+      "lines": 1000,
+      "duplicatedLines": 80,
+      "duplicationRate": 0.08,
+      "codeLines": 840,
+      "commentLines": 33,
+      "commentDensity": 0.0393,
+      "swallowedExceptions": 1,
+      "justifiedSwallows": 3
+    },
+    "deadCode": {
+      "gated": true,
+      "warnings": 0
+    },
+    "hotspots": [
+      {
+        "scope": "api",
+        "module": "Checkout.Application",
+        "file": "apps/api/src/Checkout.Application/Orders/OrderMapper.cs",
+        "duplicatedLines": 40,
+        "lines": 200,
+        "duplicationRate": 0.2
+      },
+      {
+        "scope": "web",
+        "module": "pages",
+        "file": "apps/web/src/pages/Cart.tsx",
+        "duplicatedLines": 20,
+        "lines": 250,
+        "duplicationRate": 0.08
+      }
+    ],
+    "gate": {
+      "baselinedFiles": 2,
+      "baselineLines": 60,
+      "violations": 0,
+      "fixed": 1
+    }
+  }
+}

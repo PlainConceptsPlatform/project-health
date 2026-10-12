@@ -6,6 +6,7 @@ import type {
   CoverageData,
   DataIndex,
   FacetSample,
+  HygieneData,
   MonthlyReport,
   MutationData,
 } from './types'
@@ -157,6 +158,7 @@ export interface ExcellenceHistory {
   coverage: FacetSample<CoverageData>[]
   mutation: FacetSample<MutationData>[]
   complexity: FacetSample<ComplexityData>[]
+  hygiene: FacetSample<HygieneData>[]
   /** The month before the one shown, for deltas. null when it has no facets. */
   previous: { month: string; kpis: ExcellenceKpis } | null
 }
@@ -171,6 +173,7 @@ export function readExcellenceHistory(projectId: string, month: string): Excelle
     coverage: [],
     mutation: [],
     complexity: [],
+    hygiene: [],
     previous: null,
   }
   if (!entry) return history
@@ -184,6 +187,7 @@ export function readExcellenceHistory(projectId: string, month: string): Excelle
     if (excellence.complexity.available) {
       history.complexity.push(...excellence.complexity.data.samples)
     }
+    if (excellence.hygiene?.available) history.hygiene.push(...excellence.hygiene.data.samples)
   }
 
   const before = months.filter((m) => m < month).at(-1)

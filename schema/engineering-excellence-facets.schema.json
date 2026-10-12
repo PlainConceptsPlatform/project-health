@@ -34,7 +34,7 @@
         },
         "facet": {
           "type": "string",
-          "enum": ["coverage", "complexity", "mutation", "security", "sbom"]
+          "enum": ["coverage", "complexity", "mutation", "security", "sbom", "hygiene"]
         },
         "repo": {
           "type": ["string", "null"]
@@ -457,6 +457,222 @@
         },
         "sha256": {
           "type": "string"
+        }
+      }
+    },
+    "hygiene": {
+      "type": "object",
+      "description": "AI-slop proxies (Atlas #1942): duplication, swallowed exceptions, dead code and comment density, per scope (api, web) and module. Scope 'api' is apps/api/src, 'web' apps/web/src; tests, generated code and migrations are excluded.",
+      "required": ["thresholds", "scopes", "global", "deadCode", "hotspots", "gate"],
+      "additionalProperties": false,
+      "properties": {
+        "thresholds": {
+          "type": "object",
+          "description": "The jscpd clone minimums: a clone must reach both.",
+          "required": ["minLines", "minTokens"],
+          "additionalProperties": false,
+          "properties": {
+            "minLines": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "minTokens": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "scopes": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/hygieneScope"
+          }
+        },
+        "global": {
+          "$ref": "#/$defs/hygieneSummary"
+        },
+        "deadCode": {
+          "type": "object",
+          "required": ["gated", "warnings"],
+          "additionalProperties": false,
+          "properties": {
+            "gated": {
+              "type": "boolean",
+              "description": "True when dead code fails the build, so warnings stays 0."
+            },
+            "warnings": {
+              "$ref": "#/$defs/count"
+            }
+          }
+        },
+        "hotspots": {
+          "type": "array",
+          "description": "Files with the most duplicated lines, worst first, at most 20.",
+          "items": {
+            "type": "object",
+            "required": ["scope", "module", "file", "duplicatedLines", "lines", "duplicationRate"],
+            "additionalProperties": false,
+            "properties": {
+              "scope": {
+                "type": "string"
+              },
+              "module": {
+                "type": "string"
+              },
+              "file": {
+                "type": "string"
+              },
+              "duplicatedLines": {
+                "$ref": "#/$defs/count"
+              },
+              "lines": {
+                "$ref": "#/$defs/count"
+              },
+              "duplicationRate": {
+                "$ref": "#/$defs/rate"
+              }
+            }
+          }
+        },
+        "gate": {
+          "type": ["object", "null"],
+          "description": "Blocking duplication gate as evaluated on this commit: files in the baseline, their recorded duplicated lines, files over their baseline (or new clones), and baseline entries that improved. Null when the repo runs no gate.",
+          "required": ["baselinedFiles", "baselineLines", "violations", "fixed"],
+          "additionalProperties": false,
+          "properties": {
+            "baselinedFiles": {
+              "$ref": "#/$defs/count"
+            },
+            "baselineLines": {
+              "$ref": "#/$defs/count"
+            },
+            "violations": {
+              "$ref": "#/$defs/count"
+            },
+            "fixed": {
+              "$ref": "#/$defs/count"
+            }
+          }
+        }
+      }
+    },
+    "hygieneScope": {
+      "type": "object",
+      "required": [
+        "files",
+        "lines",
+        "duplicatedLines",
+        "duplicationRate",
+        "codeLines",
+        "commentLines",
+        "commentDensity",
+        "swallowedExceptions",
+        "justifiedSwallows",
+        "deadCodeWarnings",
+        "modules"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "files": {
+          "$ref": "#/$defs/count"
+        },
+        "lines": {
+          "$ref": "#/$defs/count",
+          "description": "Physical lines of the scanned files."
+        },
+        "duplicatedLines": {
+          "$ref": "#/$defs/count",
+          "description": "Lines inside at least one jscpd clone, each line counted once per file; both fragments of a clone count."
+        },
+        "duplicationRate": {
+          "$ref": "#/$defs/rate",
+          "description": "duplicatedLines / lines."
+        },
+        "codeLines": {
+          "$ref": "#/$defs/count",
+          "description": "Non-blank lines that hold code."
+        },
+        "commentLines": {
+          "$ref": "#/$defs/count",
+          "description": "Lines that hold only a comment."
+        },
+        "commentDensity": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "description": "commentLines / codeLines. Report-only: a line-based approximation for a trend, never a gate."
+        },
+        "swallowedExceptions": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "description": "Unjustified empty catch blocks (Semgrep hygiene rules). Null when no Semgrep result was available. Blocking in Atlas, so normally 0 on main."
+        },
+        "justifiedSwallows": {
+          "$ref": "#/$defs/count",
+          "description": "Empty catch blocks kept with a `nosemgrep: <hygiene rule> — <reason>` justification."
+        },
+        "deadCodeWarnings": {
+          "$ref": "#/$defs/count",
+          "description": "Dead-code diagnostics left in the scope (.NET IDE0051/IDE0052, TS noUnusedLocals/noUnusedParameters). 0 while they are build errors."
+        },
+        "modules": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/hygieneSummary"
+          }
+        }
+      }
+    },
+    "hygieneSummary": {
+      "type": "object",
+      "required": [
+        "files",
+        "lines",
+        "duplicatedLines",
+        "duplicationRate",
+        "codeLines",
+        "commentLines",
+        "commentDensity",
+        "swallowedExceptions",
+        "justifiedSwallows"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "files": {
+          "$ref": "#/$defs/count"
+        },
+        "lines": {
+          "$ref": "#/$defs/count",
+          "description": "Physical lines of the scanned files."
+        },
+        "duplicatedLines": {
+          "$ref": "#/$defs/count",
+          "description": "Lines inside at least one jscpd clone, each line counted once per file; both fragments of a clone count."
+        },
+        "duplicationRate": {
+          "$ref": "#/$defs/rate",
+          "description": "duplicatedLines / lines."
+        },
+        "codeLines": {
+          "$ref": "#/$defs/count",
+          "description": "Non-blank lines that hold code."
+        },
+        "commentLines": {
+          "$ref": "#/$defs/count",
+          "description": "Lines that hold only a comment."
+        },
+        "commentDensity": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "description": "commentLines / codeLines. Report-only: a line-based approximation for a trend, never a gate."
+        },
+        "swallowedExceptions": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "description": "Unjustified empty catch blocks (Semgrep hygiene rules). Null when no Semgrep result was available. Blocking in Atlas, so normally 0 on main."
+        },
+        "justifiedSwallows": {
+          "$ref": "#/$defs/count",
+          "description": "Empty catch blocks kept with a `nosemgrep: <hygiene rule> — <reason>` justification."
         }
       }
     }

@@ -2295,6 +2295,604 @@
         },
         "latestGeneratedAt": "2026-07-26T14:30:00.000Z"
       }
+    },
+    "hygiene": {
+      "available": true,
+      "data": {
+        "samples": [
+          {
+            "commitSha": "da68eef70553659abb11455b4b4f0244548f279b",
+            "runId": 905040,
+            "runAttempt": 1,
+            "artifactId": 6101,
+            "generatedAt": "2026-07-02T14:30:00.000Z",
+            "data": {
+              "thresholds": {
+                "minLines": 10,
+                "minTokens": 70
+              },
+              "scopes": {
+                "api": {
+                  "files": 134,
+                  "lines": 14700,
+                  "duplicatedLines": 879,
+                  "duplicationRate": 0.0598,
+                  "codeLines": 12054,
+                  "commentLines": 774,
+                  "commentDensity": 0.0642,
+                  "swallowedExceptions": 0,
+                  "justifiedSwallows": 3,
+                  "deadCodeWarnings": 0
+                },
+                "web": {
+                  "files": 89,
+                  "lines": 10400,
+                  "duplicatedLines": 474,
+                  "duplicationRate": 0.0456,
+                  "codeLines": 8528,
+                  "commentLines": 221,
+                  "commentDensity": 0.0259,
+                  "swallowedExceptions": 1,
+                  "justifiedSwallows": 4,
+                  "deadCodeWarnings": 0
+                }
+              },
+              "global": {
+                "files": 223,
+                "lines": 25100,
+                "duplicatedLines": 1353,
+                "duplicationRate": 0.0539,
+                "codeLines": 20582,
+                "commentLines": 995,
+                "commentDensity": 0.0483,
+                "swallowedExceptions": 1,
+                "justifiedSwallows": 7
+              },
+              "deadCode": {
+                "gated": true,
+                "warnings": 0
+              },
+              "gate": {
+                "baselinedFiles": 38,
+                "baselineLines": 1353,
+                "violations": 0,
+                "fixed": 1
+              }
+            }
+          },
+          {
+            "commitSha": "e9cca057e15e53575950c6fad14af127cecadbc4",
+            "runId": 905041,
+            "runAttempt": 1,
+            "artifactId": 6102,
+            "generatedAt": "2026-07-06T14:30:00.000Z",
+            "data": {
+              "thresholds": {
+                "minLines": 10,
+                "minTokens": 70
+              },
+              "scopes": {
+                "api": {
+                  "files": 134,
+                  "lines": 14700,
+                  "duplicatedLines": 870,
+                  "duplicationRate": 0.0592,
+                  "codeLines": 12054,
+                  "commentLines": 774,
+                  "commentDensity": 0.0642,
+                  "swallowedExceptions": 0,
+                  "justifiedSwallows": 3,
+                  "deadCodeWarnings": 0
+                },
+                "web": {
+                  "files": 89,
+                  "lines": 10400,
+                  "duplicatedLines": 470,
+                  "duplicationRate": 0.0452,
+                  "codeLines": 8528,
+                  "commentLines": 221,
+                  "commentDensity": 0.0259,
+                  "swallowedExceptions": 1,
+                  "justifiedSwallows": 4,
+                  "deadCodeWarnings": 0
+                }
+              },
+              "global": {
+                "files": 223,
+                "lines": 25100,
+                "duplicatedLines": 1340,
+                "duplicationRate": 0.0534,
+                "codeLines": 20582,
+                "commentLines": 995,
+                "commentDensity": 0.0483,
+                "swallowedExceptions": 1,
+                "justifiedSwallows": 7
+              },
+              "deadCode": {
+                "gated": true,
+                "warnings": 0
+              },
+              "gate": {
+                "baselinedFiles": 38,
+                "baselineLines": 1340,
+                "violations": 0,
+                "fixed": 0
+              }
+            }
+          },
+          {
+            "commitSha": "236cfd128d470f804420145c293472fba354b7cd",
+            "runId": 905042,
+            "runAttempt": 1,
+            "artifactId": 6103,
+            "generatedAt": "2026-07-10T14:30:00.000Z",
+            "data": {
+              "thresholds": {
+                "minLines": 10,
+                "minTokens": 70
+              },
+              "scopes": {
+                "api": {
+                  "files": 134,
+                  "lines": 14700,
+                  "duplicatedLines": 860,
+                  "duplicationRate": 0.0585,
+                  "codeLines": 12054,
+                  "commentLines": 774,
+                  "commentDensity": 0.0642,
+                  "swallowedExceptions": 0,
+                  "justifiedSwallows": 3,
+                  "deadCodeWarnings": 0
+                },
+                "web": {
+                  "files": 89,
+                  "lines": 10400,
+                  "duplicatedLines": 464,
+                  "duplicationRate": 0.0446,
+                  "codeLines": 8528,
+                  "commentLines": 221,
+                  "commentDensity": 0.0259,
+                  "swallowedExceptions": 1,
+                  "justifiedSwallows": 4,
+                  "deadCodeWarnings": 0
+                }
+              },
+              "global": {
+                "files": 223,
+                "lines": 25100,
+                "duplicatedLines": 1324,
+                "duplicationRate": 0.0527,
+                "codeLines": 20582,
+                "commentLines": 995,
+                "commentDensity": 0.0483,
+                "swallowedExceptions": 1,
+                "justifiedSwallows": 7
+              },
+              "deadCode": {
+                "gated": true,
+                "warnings": 0
+              },
+              "gate": {
+                "baselinedFiles": 37,
+                "baselineLines": 1324,
+                "violations": 0,
+                "fixed": 2
+              }
+            }
+          },
+          {
+            "commitSha": "6b973c6b8542c3414bca24781265c54deae1f8cc",
+            "runId": 905043,
+            "runAttempt": 1,
+            "artifactId": 6104,
+            "generatedAt": "2026-07-14T14:30:00.000Z",
+            "data": {
+              "thresholds": {
+                "minLines": 10,
+                "minTokens": 70
+              },
+              "scopes": {
+                "api": {
+                  "files": 134,
+                  "lines": 14700,
+                  "duplicatedLines": 851,
+                  "duplicationRate": 0.0579,
+                  "codeLines": 12054,
+                  "commentLines": 774,
+                  "commentDensity": 0.0642,
+                  "swallowedExceptions": 0,
+                  "justifiedSwallows": 3,
+                  "deadCodeWarnings": 0
+                },
+                "web": {
+                  "files": 89,
+                  "lines": 10400,
+                  "duplicatedLines": 459,
+                  "duplicationRate": 0.0441,
+                  "codeLines": 8528,
+                  "commentLines": 221,
+                  "commentDensity": 0.0259,
+                  "swallowedExceptions": 1,
+                  "justifiedSwallows": 4,
+                  "deadCodeWarnings": 0
+                }
+              },
+              "global": {
+                "files": 223,
+                "lines": 25100,
+                "duplicatedLines": 1310,
+                "duplicationRate": 0.0522,
+                "codeLines": 20582,
+                "commentLines": 995,
+                "commentDensity": 0.0483,
+                "swallowedExceptions": 1,
+                "justifiedSwallows": 7
+              },
+              "deadCode": {
+                "gated": true,
+                "warnings": 0
+              },
+              "gate": {
+                "baselinedFiles": 37,
+                "baselineLines": 1310,
+                "violations": 0,
+                "fixed": 0
+              }
+            }
+          },
+          {
+            "commitSha": "1d4c97ce3df6e95694fb444cb14404233d378b5d",
+            "runId": 905044,
+            "runAttempt": 1,
+            "artifactId": 6105,
+            "generatedAt": "2026-07-18T14:30:00.000Z",
+            "data": {
+              "thresholds": {
+                "minLines": 10,
+                "minTokens": 70
+              },
+              "scopes": {
+                "api": {
+                  "files": 134,
+                  "lines": 14700,
+                  "duplicatedLines": 842,
+                  "duplicationRate": 0.0573,
+                  "codeLines": 12054,
+                  "commentLines": 774,
+                  "commentDensity": 0.0642,
+                  "swallowedExceptions": 0,
+                  "justifiedSwallows": 3,
+                  "deadCodeWarnings": 0
+                },
+                "web": {
+                  "files": 89,
+                  "lines": 10400,
+                  "duplicatedLines": 454,
+                  "duplicationRate": 0.0437,
+                  "codeLines": 8528,
+                  "commentLines": 221,
+                  "commentDensity": 0.0259,
+                  "swallowedExceptions": 1,
+                  "justifiedSwallows": 4,
+                  "deadCodeWarnings": 0
+                }
+              },
+              "global": {
+                "files": 223,
+                "lines": 25100,
+                "duplicatedLines": 1296,
+                "duplicationRate": 0.0516,
+                "codeLines": 20582,
+                "commentLines": 995,
+                "commentDensity": 0.0483,
+                "swallowedExceptions": 1,
+                "justifiedSwallows": 7
+              },
+              "deadCode": {
+                "gated": true,
+                "warnings": 0
+              },
+              "gate": {
+                "baselinedFiles": 36,
+                "baselineLines": 1296,
+                "violations": 0,
+                "fixed": 1
+              }
+            }
+          },
+          {
+            "commitSha": "9fd9edfd159792b0dc32b280340c932fce6c7a40",
+            "runId": 905045,
+            "runAttempt": 1,
+            "artifactId": 6106,
+            "generatedAt": "2026-07-22T14:30:00.000Z",
+            "data": {
+              "thresholds": {
+                "minLines": 10,
+                "minTokens": 70
+              },
+              "scopes": {
+                "api": {
+                  "files": 134,
+                  "lines": 14700,
+                  "duplicatedLines": 832,
+                  "duplicationRate": 0.0566,
+                  "codeLines": 12054,
+                  "commentLines": 774,
+                  "commentDensity": 0.0642,
+                  "swallowedExceptions": 0,
+                  "justifiedSwallows": 3,
+                  "deadCodeWarnings": 0
+                },
+                "web": {
+                  "files": 89,
+                  "lines": 10400,
+                  "duplicatedLines": 448,
+                  "duplicationRate": 0.0431,
+                  "codeLines": 8528,
+                  "commentLines": 221,
+                  "commentDensity": 0.0259,
+                  "swallowedExceptions": 1,
+                  "justifiedSwallows": 4,
+                  "deadCodeWarnings": 0
+                }
+              },
+              "global": {
+                "files": 223,
+                "lines": 25100,
+                "duplicatedLines": 1280,
+                "duplicationRate": 0.051,
+                "codeLines": 20582,
+                "commentLines": 995,
+                "commentDensity": 0.0483,
+                "swallowedExceptions": 1,
+                "justifiedSwallows": 7
+              },
+              "deadCode": {
+                "gated": true,
+                "warnings": 0
+              },
+              "gate": {
+                "baselinedFiles": 36,
+                "baselineLines": 1280,
+                "violations": 0,
+                "fixed": 2
+              }
+            }
+          },
+          {
+            "commitSha": "cc4b46d5ce8a9ea56fc9626fd79c0f1a4fc4aa83",
+            "runId": 905046,
+            "runAttempt": 1,
+            "artifactId": 6107,
+            "generatedAt": "2026-07-26T14:30:00.000Z",
+            "data": {
+              "thresholds": {
+                "minLines": 10,
+                "minTokens": 70
+              },
+              "scopes": {
+                "api": {
+                  "files": 134,
+                  "lines": 14700,
+                  "duplicatedLines": 824,
+                  "duplicationRate": 0.0561,
+                  "codeLines": 12054,
+                  "commentLines": 774,
+                  "commentDensity": 0.0642,
+                  "swallowedExceptions": 0,
+                  "justifiedSwallows": 3,
+                  "deadCodeWarnings": 0
+                },
+                "web": {
+                  "files": 89,
+                  "lines": 10400,
+                  "duplicatedLines": 444,
+                  "duplicationRate": 0.0427,
+                  "codeLines": 8528,
+                  "commentLines": 221,
+                  "commentDensity": 0.0259,
+                  "swallowedExceptions": 1,
+                  "justifiedSwallows": 4,
+                  "deadCodeWarnings": 0
+                }
+              },
+              "global": {
+                "files": 223,
+                "lines": 25100,
+                "duplicatedLines": 1268,
+                "duplicationRate": 0.0505,
+                "codeLines": 20582,
+                "commentLines": 995,
+                "commentDensity": 0.0483,
+                "swallowedExceptions": 1,
+                "justifiedSwallows": 7
+              },
+              "deadCode": {
+                "gated": true,
+                "warnings": 0
+              },
+              "gate": {
+                "baselinedFiles": 36,
+                "baselineLines": 1268,
+                "violations": 0,
+                "fixed": 1
+              }
+            }
+          }
+        ],
+        "latest": {
+          "thresholds": {
+            "minLines": 10,
+            "minTokens": 70
+          },
+          "scopes": {
+            "api": {
+              "files": 134,
+              "lines": 14700,
+              "duplicatedLines": 824,
+              "duplicationRate": 0.0561,
+              "codeLines": 12054,
+              "commentLines": 774,
+              "commentDensity": 0.0642,
+              "swallowedExceptions": 0,
+              "justifiedSwallows": 3,
+              "deadCodeWarnings": 0,
+              "modules": {
+                "Checkout.Api": {
+                  "files": 22,
+                  "lines": 2100,
+                  "duplicatedLines": 84,
+                  "duplicationRate": 0.04,
+                  "codeLines": 1722,
+                  "commentLines": 69,
+                  "commentDensity": 0.0401,
+                  "swallowedExceptions": 0,
+                  "justifiedSwallows": 1
+                },
+                "Checkout.Application": {
+                  "files": 64,
+                  "lines": 7400,
+                  "duplicatedLines": 531,
+                  "duplicationRate": 0.0718,
+                  "codeLines": 6068,
+                  "commentLines": 364,
+                  "commentDensity": 0.06,
+                  "swallowedExceptions": 0,
+                  "justifiedSwallows": 2
+                },
+                "Checkout.Domain": {
+                  "files": 48,
+                  "lines": 5200,
+                  "duplicatedLines": 209,
+                  "duplicationRate": 0.0402,
+                  "codeLines": 4264,
+                  "commentLines": 341,
+                  "commentDensity": 0.08,
+                  "swallowedExceptions": 0,
+                  "justifiedSwallows": 0
+                }
+              }
+            },
+            "web": {
+              "files": 89,
+              "lines": 10400,
+              "duplicatedLines": 444,
+              "duplicationRate": 0.0427,
+              "codeLines": 8528,
+              "commentLines": 221,
+              "commentDensity": 0.0259,
+              "swallowedExceptions": 1,
+              "justifiedSwallows": 4,
+              "deadCodeWarnings": 0,
+              "modules": {
+                "components": {
+                  "files": 58,
+                  "lines": 6100,
+                  "duplicatedLines": 244,
+                  "duplicationRate": 0.04,
+                  "codeLines": 5002,
+                  "commentLines": 150,
+                  "commentDensity": 0.03,
+                  "swallowedExceptions": 0,
+                  "justifiedSwallows": 3
+                },
+                "pages": {
+                  "files": 31,
+                  "lines": 4300,
+                  "duplicatedLines": 200,
+                  "duplicationRate": 0.0465,
+                  "codeLines": 3526,
+                  "commentLines": 71,
+                  "commentDensity": 0.0201,
+                  "swallowedExceptions": 1,
+                  "justifiedSwallows": 1
+                }
+              }
+            }
+          },
+          "global": {
+            "files": 223,
+            "lines": 25100,
+            "duplicatedLines": 1268,
+            "duplicationRate": 0.0505,
+            "codeLines": 20582,
+            "commentLines": 995,
+            "commentDensity": 0.0483,
+            "swallowedExceptions": 1,
+            "justifiedSwallows": 7
+          },
+          "deadCode": {
+            "gated": true,
+            "warnings": 0
+          },
+          "hotspots": [
+            {
+              "scope": "api",
+              "module": "Checkout.Application",
+              "file": "src/Checkout.Application/Cart/CartService.cs",
+              "duplicatedLines": 157,
+              "lines": 620,
+              "duplicationRate": 0.2532
+            },
+            {
+              "scope": "api",
+              "module": "Checkout.Application",
+              "file": "src/Checkout.Application/Payments/PaymentsService.cs",
+              "duplicatedLines": 124,
+              "lines": 540,
+              "duplicationRate": 0.2296
+            },
+            {
+              "scope": "web",
+              "module": "pages",
+              "file": "src/web/pages/CheckoutPage.tsx",
+              "duplicatedLines": 103,
+              "lines": 460,
+              "duplicationRate": 0.2239
+            },
+            {
+              "scope": "api",
+              "module": "Checkout.Domain",
+              "file": "src/Checkout.Domain/Pricing/PriceRules.cs",
+              "duplicatedLines": 84,
+              "lines": 410,
+              "duplicationRate": 0.2049
+            },
+            {
+              "scope": "web",
+              "module": "components",
+              "file": "src/web/components/AddressForm.tsx",
+              "duplicatedLines": 77,
+              "lines": 380,
+              "duplicationRate": 0.2026
+            },
+            {
+              "scope": "web",
+              "module": "components",
+              "file": "src/web/components/PaymentForm.tsx",
+              "duplicatedLines": 73,
+              "lines": 350,
+              "duplicationRate": 0.2086
+            },
+            {
+              "scope": "api",
+              "module": "Checkout.Api",
+              "file": "src/Checkout.Api/Endpoints/CartEndpoints.cs",
+              "duplicatedLines": 45,
+              "lines": 300,
+              "duplicationRate": 0.15
+            }
+          ],
+          "gate": {
+            "baselinedFiles": 36,
+            "baselineLines": 1268,
+            "violations": 0,
+            "fixed": 1
+          }
+        },
+        "latestGeneratedAt": "2026-07-26T14:30:00.000Z"
+      }
     }
   },
   "scorecard": {

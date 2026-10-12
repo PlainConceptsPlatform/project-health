@@ -4,6 +4,8 @@ import type {
   EngineeringExcellence,
   FacetSample,
   Hotspot,
+  HygieneData,
+  HygieneHotspot,
   MutationData,
 } from './types'
 
@@ -16,6 +18,10 @@ export interface ExcellenceKpis {
   components: number | null
   /** Baselined complexity violations still in the code. null when the repository runs no gate. */
   complexityDebt: number | null
+  /** Duplicated share of all scanned lines. null when hygiene was not collected. */
+  duplication: number | null
+  /** Duplicated lines accepted into the baseline. null when the repository runs no gate. */
+  duplicationDebt: number | null
 }
 
 export function kpisOf(excellence: EngineeringExcellence | undefined | null): ExcellenceKpis {
@@ -24,6 +30,7 @@ export function kpisOf(excellence: EngineeringExcellence | undefined | null): Ex
   const complexity = excellence?.complexity
   const security = excellence?.security
   const sbom = excellence?.sbom
+  const hygiene = excellence?.hygiene
   const trivy = security?.available ? security.data.latest.trivy : null
   return {
     coverage: coverage?.available ? coverage.data.latest.global.lineRate : null,
@@ -32,6 +39,8 @@ export function kpisOf(excellence: EngineeringExcellence | undefined | null): Ex
     criticalHigh: trivy ? trivy.vuln.CRITICAL + trivy.vuln.HIGH : null,
     components: sbom?.available ? sbom.data.latest.components : null,
     complexityDebt: complexity?.available ? (complexity.data.latest.gate?.baselined ?? null) : null,
+    duplication: hygiene?.available ? hygiene.data.latest.global.duplicationRate : null,
+    duplicationDebt: hygiene?.available ? (hygiene.data.latest.gate?.baselineLines ?? null) : null,
   }
 }
 
@@ -141,3 +150,31 @@ export const debtTrend = (
   samples: FacetSample<ComplexityData>[],
 ): { at: string; value: number }[] =>
   samples.flatMap((s) => (s.data.gate ? [{ at: s.generatedAt, value: s.data.gate.baselined }] : []))
+
+/** Duplication rate per scope across every hygiene sample, in percent. Hygiene has no floor. */
+export function duplicationTrends(samples: FacetSample<HygieneData>[]): ScopeTrend[] {
+  const byScope = new Map<string, ScopeTrend>()
+  for (const sample of samples) {
+    for (const [scope, data] of Object.entries(sample.data.scopes)) {
+      const trend = byScope.get(scope) ?? { scope, floor: null, points: [] }
+      if (data.duplicationRate !== null) {
+        trend.points.push({ at: sample.generatedAt, value: pct(data.duplicationRate) })
+      }
+      byScope.set(scope, trend)
+    }
+  }
+  return [...byScope.values()].sort((a, b) => a.scope.localeCompare(b.scope))
+}
+
+/** The duplication baseline per hygiene sample. Samples without a gate are left out. */
+export const duplicationDebtTrend = (
+  samples: FacetSample<HygieneData>[],
+): { at: string; value: number }[] =>
+  samples.flatMap((s) =>
+    s.data.gate ? [{ at: s.generatedAt, value: s.data.gate.baselineLines }] : [],
+  )
+
+export const topDuplication = (hygiene: HygieneData, limit = 10): HygieneHotspot[] =>
+  [...(hygiene.hotspots ?? [])]
+    .sort((a, b) => b.duplicatedLines - a.duplicatedLines || a.file.localeCompare(b.file))
+    .slice(0, limit)

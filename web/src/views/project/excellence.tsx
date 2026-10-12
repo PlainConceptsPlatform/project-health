@@ -2,15 +2,19 @@ import type { ExcellenceHistory } from '@/shared/lib/data'
 import {
   type ExcellenceKpis,
   debtTrend,
+  duplicationDebtTrend,
+  duplicationTrends,
   kpisOf,
   moduleRows,
   scopeTrends,
+  topDuplication,
   topHotspots,
 } from '@/shared/lib/excellence'
 import { monthName, percent } from '@/shared/lib/format'
 import type {
   ComplexityGate,
   EngineeringExcellence,
+  HygieneData,
   MonthlyReport,
   Severities,
 } from '@/shared/lib/types'
@@ -84,6 +88,28 @@ function DebtStat({
       value={debt}
       tone={change.grew ? 'bad' : undefined}
       hint={[change.text, detail].filter(Boolean).join(' · ') || 'baselined methods'}
+    />
+  )
+}
+
+function DuplicationDebtStat({
+  gate,
+  previous,
+  month,
+}: {
+  gate: NonNullable<HygieneData['gate']>
+  previous: number | null | undefined
+  month?: string
+}) {
+  const change = debtDelta(gate.baselineLines, previous, month)
+  const detail = `${gate.baselinedFiles} files, ${gate.violations} over, ${gate.fixed} improved`
+  return (
+    <Stat
+      label="Duplication debt"
+      explain="duplicationDebt"
+      value={gate.baselineLines}
+      tone={change.grew ? 'bad' : undefined}
+      hint={[change.text, detail].filter(Boolean).join(' · ')}
     />
   )
 }
@@ -332,10 +358,174 @@ function SbomSection({ excellence }: { excellence: EngineeringExcellence }) {
   )
 }
 
+const count = (v: number | null) => (v === null ? 'n/a' : v)
+
+function DuplicationHotspots({
+  hygiene,
+  sha,
+  repo,
+}: {
+  hygiene: HygieneData
+  sha: string | null | undefined
+  repo: string
+}) {
+  const hotspots = topDuplication(hygiene)
+  if (hotspots.length === 0) {
+    return <Unavailable reason="No file holds a clone above the detector's minimum size." />
+  }
+  return (
+    <DataTable head={['File', 'Module', 'Duplicated', 'Lines', 'Share']}>
+      {hotspots.map((h) => (
+        <TableRow key={h.file}>
+          <TableCell>
+            {sha ? (
+              <a
+                href={`https://github.com/${repo}/blob/${sha}/${h.file}`}
+                className="font-mono text-xs hover:underline"
+              >
+                {h.file}
+              </a>
+            ) : (
+              <span className="font-mono text-xs">{h.file}</span>
+            )}
+          </TableCell>
+          <TableCell className="text-muted-foreground">
+            {h.scope} / {h.module}
+          </TableCell>
+          <TableCell className="tabular-nums">{h.duplicatedLines}</TableCell>
+          <TableCell className="tabular-nums">{h.lines}</TableCell>
+          <TableCell className="tabular-nums">{rate(h.duplicationRate)}</TableCell>
+        </TableRow>
+      ))}
+    </DataTable>
+  )
+}
+
+/**
+ * Proxies for generated noise: copy-pasted blocks, swallowed exceptions, dead code and comment
+ * density. Shown for information; it feeds no scorecard practice.
+ */
+function HygieneSection({
+  excellence,
+  history,
+  repo,
+}: {
+  excellence: EngineeringExcellence
+  history: ExcellenceHistory | undefined
+  repo: string
+}) {
+  return (
+    <Metric block={excellence.hygiene}>
+      {({ latest, samples }) => {
+        const p = history?.previous?.kpis
+        const m = history?.previous?.month
+        const { global, deadCode, gate, thresholds } = latest
+        const trends = duplicationTrends(history?.hygiene ?? [])
+        const debt = gate ? duplicationDebtTrend(history?.hygiene ?? []) : []
+        const scopes = Object.entries(latest.scopes).sort(([a], [b]) => a.localeCompare(b))
+        return (
+          <div className="space-y-6">
+            <div
+              className={`grid grid-cols-2 gap-5 rounded-md border bg-muted/30 p-4 sm:grid-cols-3 ${gate ? 'lg:grid-cols-5' : 'lg:grid-cols-4'}`}
+            >
+              <Stat
+                label="Duplication"
+                explain="duplication"
+                value={rate(global.duplicationRate)}
+                hint={
+                  delta(global.duplicationRate, p?.duplication, 'rate', m) ??
+                  `clones of ${thresholds.minLines}+ lines`
+                }
+              />
+              <Stat
+                label="Swallowed exceptions"
+                explain="swallowedExceptions"
+                value={count(global.swallowedExceptions)}
+                tone={
+                  global.swallowedExceptions !== null && global.swallowedExceptions > 0
+                    ? 'bad'
+                    : undefined
+                }
+                hint={`${global.justifiedSwallows} justified, not counted`}
+              />
+              <div>
+                <Stat
+                  label="Dead code"
+                  explain="deadCode"
+                  value={deadCode.warnings}
+                  tone={deadCode.warnings > 0 ? 'bad' : undefined}
+                />
+                <Badge variant={deadCode.gated ? 'secondary' : 'outline'} className="mt-1">
+                  {deadCode.gated ? 'gated in CI' : 'not gated'}
+                </Badge>
+              </div>
+              <Stat
+                label="Comment density"
+                explain="commentDensity"
+                value={global.commentDensity === null ? 'n/a' : global.commentDensity.toFixed(2)}
+                hint="comment lines per code line"
+              />
+              {gate ? (
+                <DuplicationDebtStat gate={gate} previous={p?.duplicationDebt} month={m} />
+              ) : null}
+            </div>
+
+            <DataTable
+              head={[
+                'Scope',
+                'Files',
+                'Duplication',
+                'Swallowed',
+                'Justified',
+                'Dead code',
+                'Comments',
+              ]}
+            >
+              {scopes.map(([scope, s]) => (
+                <TableRow key={scope}>
+                  <TableCell className="font-medium">{scope}</TableCell>
+                  <TableCell className="tabular-nums">{s.files}</TableCell>
+                  <TableCell className="tabular-nums">
+                    {rate(s.duplicationRate)}
+                    <span className="text-muted-foreground"> · {s.duplicatedLines} lines</span>
+                  </TableCell>
+                  <TableCell className="tabular-nums">{count(s.swallowedExceptions)}</TableCell>
+                  <TableCell className="tabular-nums">{s.justifiedSwallows}</TableCell>
+                  <TableCell className="tabular-nums">{s.deadCodeWarnings}</TableCell>
+                  <TableCell className="tabular-nums">
+                    {s.commentDensity === null ? 'n/a' : s.commentDensity.toFixed(2)}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </DataTable>
+
+            <div className="grid gap-6 lg:grid-cols-2">
+              <Trends title="Duplication by scope" trends={trends} />
+              {debt.length > 1 ? (
+                <div>
+                  <p className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">
+                    Duplication debt
+                  </p>
+                  <ScopeTrend label="Baselined lines" points={debt} floor={null} unit="count" />
+                </div>
+              ) : null}
+            </div>
+
+            <div>
+              <p className="mb-2 text-sm font-medium">Duplication hotspots</p>
+              <DuplicationHotspots hygiene={latest} sha={samples.at(-1)?.commitSha} repo={repo} />
+            </div>
+          </div>
+        )
+      }}
+    </Metric>
+  )
+}
+
 /**
  * Numbers the repository's own CI produces about its code: coverage, mutation score, complexity,
- * scanner findings and the SBOM. Each facet is shown as of the newest sample in the month, and the
- * trends run across every month collected so far.
+ * scanner findings, the SBOM and code hygiene. Each facet is shown as of the newest sample in the
+ * month, and the trends run across every month collected so far.
  */
 export function ExcellencePanel({
   report,
@@ -401,6 +591,11 @@ export function ExcellencePanel({
             <p className="mb-2 text-sm font-medium">Software bill of materials</p>
             <SbomSection excellence={excellence} />
           </div>
+        </div>
+
+        <div>
+          <p className="mb-2 text-sm font-medium">Hygiene</p>
+          <HygieneSection excellence={excellence} history={history} repo={report.repo} />
         </div>
       </div>
     </Panel>
