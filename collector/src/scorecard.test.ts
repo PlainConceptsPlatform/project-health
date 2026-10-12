@@ -10,6 +10,12 @@ import {
   summarizeAiUsage,
 } from './metrics/ai-usage.ts'
 import {
+  GHERKIN_NOT_RUN,
+  GHERKIN_TOOL,
+  detectGherkinRuns,
+  featureSuites,
+} from './metrics/gherkin-detection.ts'
+import {
   type PracticeEvidence,
   type RunWithJobs,
   type ScorecardSource,
@@ -764,6 +770,147 @@ jobs:
       rag: 'green',
       source: 'facet',
       tools: ['dotnet test', 'coverage facet'],
+    })
+  })
+})
+
+describe('Gherkin suites from repository content', () => {
+  // The layout of a .NET repository whose Reqnroll suite runs through plain dotnet test.
+  const reqnrollTree = [
+    'App.sln',
+    'src/App.Core/App.Core.csproj',
+    'tests/App.Core.UnitTests/App.Core.UnitTests.csproj',
+    'tests/App.AcceptanceTests/App.AcceptanceTests.csproj',
+    'tests/App.AcceptanceTests/Features/Sync.feature',
+    'tests/App.AcceptanceTests/Features/Routing.feature',
+    'tests/App.AcceptanceTests/Steps/SyncSteps.cs',
+  ]
+  const suites = featureSuites(reqnrollTree)
+
+  const step = (run: string, extra = '') => `jobs:
+  test:
+    name: Tests
+    steps:
+      - uses: actions/checkout@v4
+      - run: ${run}
+${extra}`
+
+  it('groups feature files under the nearest project file', () => {
+    expect(suites).toEqual([
+      {
+        root: 'tests/App.AcceptanceTests',
+        projectFile: 'tests/App.AcceptanceTests/App.AcceptanceTests.csproj',
+        featureDirs: ['tests/App.AcceptanceTests/Features'],
+      },
+    ])
+  })
+
+  it('detects a folded dotnet test line that targets the suite project, blocking', () => {
+    const hits = detectGherkinRuns('q.yml', workflow('reqnroll-dotnet-test.yml'), suites)
+    // Only the acceptance step: the unit test loop and the build step do not reach the suite.
+    expect(hits).toEqual([
+      {
+        practice: 'spec',
+        tool: GHERKIN_TOOL,
+        workflow: 'q.yml',
+        job: 'tests',
+        jobName: 'Tests + coverage (unit, acceptance)',
+        mode: 'blocking',
+        weak: false,
+      },
+    ])
+    // Tool-name detection alone misses it, which is the gap this closes.
+    expect(detectTools('q.yml', workflow('reqnroll-dotnet-test.yml'), [practice('spec')])).toEqual(
+      [],
+    )
+  })
+
+  it.each([
+    ['the solution', 'dotnet test App.sln -c Release'],
+    ['the whole tree', 'dotnet test --no-build'],
+    ['the project directory', 'dotnet test ./tests/App.AcceptanceTests'],
+  ])('counts a dotnet test that runs %s', (_, run) => {
+    expect(detectGherkinRuns('w.yml', step(run), suites)).toHaveLength(1)
+  })
+
+  it.each([
+    ['another project', 'dotnet test tests/App.Core.UnitTests/App.Core.UnitTests.csproj'],
+    ['a build, not a test', 'dotnet build App.sln'],
+    ['a test run inside another directory', 'dotnet test', '        working-directory: src'],
+  ])('does not count %s', (_, run, extra = '') => {
+    expect(detectGherkinRuns('w.yml', step(run, extra), suites)).toEqual([])
+  })
+
+  it('reads a report-only step as report-only', () => {
+    const run = 'dotnet test App.sln || true'
+    expect(detectGherkinRuns('w.yml', step(run), suites)[0]?.mode).toBe('report-only')
+  })
+
+  it('reaches a JavaScript suite only from its own package root', () => {
+    const web = featureSuites(['package.json', 'web/package.json', 'web/features/cart.feature'])
+    expect(web.map((s) => s.root)).toEqual(['web'])
+    expect(detectGherkinRuns('w.yml', step('npm test'), web)).toEqual([])
+    expect(
+      detectGherkinRuns('w.yml', step('npm test', '        working-directory: web'), web),
+    ).toHaveLength(1)
+    expect(detectGherkinRuns('w.yml', step('cd web && npm test'), web)).toHaveLength(1)
+  })
+
+  const collectWith = async (tree: string[] | null, text: string) => {
+    const block = await collectScorecard(
+      project({ type: 'library' }),
+      config,
+      { from: new Date('2026-10-01T00:00:00Z'), to: new Date('2026-11-01T00:00:00Z') },
+      undefined,
+      [],
+      {
+        defaultBranch: async () => 'main',
+        workflows: async () => [{ path: '.github/workflows/quality.yml', text }],
+        latestRun: async () => ({
+          id: 9,
+          url: 'https://github.com/o/r/actions/runs/9',
+          conclusion: 'failure',
+          at: '2026-10-18T00:00:00Z',
+          jobs: [{ name: 'Tests + coverage (unit, acceptance)', conclusion: 'success' }],
+        }),
+        commits: async () => [],
+        files: async () => tree,
+      },
+      NOW,
+    )
+    if (!block.available) throw new Error(block.reason)
+    return block.data.practices.find((p) => p.id === 'spec')
+  }
+
+  it('rates a Reqnroll suite run by dotnet test green from its own job', async () => {
+    expect(await collectWith(reqnrollTree, workflow('reqnroll-dotnet-test.yml'))).toMatchObject({
+      rag: 'green',
+      source: 'detected',
+      tools: [GHERKIN_TOOL],
+      mode: 'blocking',
+      result: 'passing',
+      lastRun: { workflow: '.github/workflows/quality.yml', conclusion: 'success' },
+    })
+  })
+
+  it('rates feature files that no workflow runs yellow, not red', async () => {
+    const buildOnly = 'jobs:\n  build:\n    steps:\n      - run: dotnet build App.sln\n'
+    expect(await collectWith(reqnrollTree, buildOnly)).toMatchObject({
+      rag: 'yellow',
+      reason: GHERKIN_NOT_RUN,
+      tools: [GHERKIN_TOOL],
+      lastRun: null,
+    })
+  })
+
+  it.each([
+    ['has no feature files', reqnrollTree.filter((p) => !p.endsWith('.feature'))],
+    ['cannot be read', null],
+  ])('leaves spec absent when the repository %s', async (_, tree) => {
+    expect(await collectWith(tree, workflow('reqnroll-dotnet-test.yml'))).toMatchObject({
+      rag: 'red',
+      source: 'none',
+      tools: [],
     })
   })
 })

@@ -21,6 +21,13 @@ import {
 } from '../types.ts'
 import { type CommitLike, summarizeAiUsage } from './ai-usage.ts'
 import {
+  GHERKIN_NOT_RUN,
+  GHERKIN_TOOL,
+  SPEC_PRACTICE,
+  detectGherkinRuns,
+  featureSuites,
+} from './gherkin-detection.ts'
+import {
   type PracticeDetection,
   callersOf,
   detectTools,
@@ -40,6 +47,8 @@ export interface PracticeEvidence {
   lastRun: LastRun | null
   /** Found only through tools below the practice's standard, so it can be yellow at best. */
   weak?: boolean
+  /** Why the practice is there but not running, which holds it at yellow whatever else is known. */
+  shortfall?: string
 }
 
 export const projectTypeOf = (project: ProjectConfig): ProjectType =>
@@ -99,6 +108,8 @@ export function ratePractice(
         'Expected but absent: no workflow on the default branch runs it and no facet reports it.',
     }
   }
+
+  if (evidence.shortfall) return { rag: 'yellow', reason: evidence.shortfall }
 
   const expectsBlocking = practice.mode === 'blocking' || practice.mode === 'threshold'
   if (
@@ -433,6 +444,11 @@ export interface ScorecardSource {
   /** The newest completed run of a workflow on the branch created before `before`. */
   latestRun: (workflow: string, branch: string, before: Date) => Promise<RunWithJobs | null>
   commits: (branch: string, from: Date, to: Date) => Promise<CommitLike[]>
+  /**
+   * Every file path on the branch, or null when the tree cannot be read. When absent, repository
+   * content is not consulted and detection reads workflows only.
+   */
+  files?: (branch: string) => Promise<string[] | null>
 }
 
 export interface RunWithJobs {
@@ -451,6 +467,7 @@ interface ContentEntry {
 
 /** Workflow files change rarely, so a backfill reads them once per repository rather than per month. */
 const workflowCache = new Map<string, Promise<WorkflowFile[]>>()
+const treeCache = new Map<string, Promise<string[] | null>>()
 
 export const githubScorecardSource = (repo: string): ScorecardSource => ({
   defaultBranch: async () =>
@@ -482,6 +499,24 @@ export const githubScorecardSource = (repo: string): ScorecardSource => ({
       return read.filter((f): f is WorkflowFile => f !== null)
     })()
     workflowCache.set(key, load)
+    return load
+  },
+
+  files: (branch) => {
+    const key = `${repo}@${branch}`
+    const cached = treeCache.get(key)
+    if (cached) return cached
+    const load = (async () => {
+      const ref = branch.split('/').map(encodeURIComponent).join('/')
+      const tree = await get<{ tree: { path: string; type: string }[]; truncated: boolean }>(
+        `/repos/${repo}/git/trees/${ref}?recursive=1`,
+      )
+      if (!tree) return null
+      // A truncated tree is still a true sample: feature files found in it are real, and missing
+      // ones only mean less is detected, never that a suite is reported that does not exist.
+      return tree.tree.filter((entry) => entry.type === 'blob').map((entry) => entry.path)
+    })()
+    treeCache.set(key, load)
     return load
   },
 
@@ -575,6 +610,16 @@ export async function detectedEvidence(
   }
 }
 
+/** A tree that cannot be read leaves detection to the workflows, as it was before. */
+async function repositoryFiles(source: ScorecardSource, branch: string): Promise<string[]> {
+  if (!source.files) return []
+  try {
+    return (await source.files(branch)) ?? []
+  } catch {
+    return []
+  }
+}
+
 /**
  * Collects one month's scorecard: workflow detection and run results, AI usage from commits, and
  * the facets already collected for the month.
@@ -597,12 +642,27 @@ export async function collectScorecard(
   const files = await source.workflows(branch)
   const enabled = config.practices.filter((p) => p.enabled !== false)
   const hits = files.flatMap((file) => detectTools(file.path, file.text, enabled))
+  const suites = enabled.some((p) => p.id === SPEC_PRACTICE)
+    ? featureSuites(await repositoryFiles(source, branch))
+    : []
+  hits.push(...files.flatMap((file) => detectGherkinRuns(file.path, file.text, suites)))
   const detections = summarizeDetections(hits)
 
   const reference = new Date(Math.min(now.getTime(), period.to.getTime()))
   const detected = new Map<string, PracticeEvidence>()
   for (const [practice, detection] of detections) {
     detected.set(practice, await detectedEvidence(detection, files, branch, period.to, source))
+  }
+  if (suites.length > 0 && !detected.has(SPEC_PRACTICE)) {
+    detected.set(SPEC_PRACTICE, {
+      source: 'detected',
+      tools: [GHERKIN_TOOL],
+      mode: null,
+      result: 'unknown',
+      resultAt: null,
+      lastRun: null,
+      shortfall: GHERKIN_NOT_RUN,
+    })
   }
 
   let aiUsage: MetricBlock<AiUsage>
