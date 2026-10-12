@@ -21,6 +21,7 @@ import {
   type ScorecardSource,
   applicability,
   collectScorecard,
+  detectedEvidence,
   engineeringLevel,
   engineeringScore,
   facetEvidence,
@@ -1010,5 +1011,81 @@ describe('project types', () => {
   it('labels the new types', () => {
     expect(config.types['browser-extension'].label).toBe('Browser extension')
     expect(config.types['static-site'].label).toBe('Static site')
+  })
+})
+
+describe('detectedEvidence', () => {
+  const ci = '.github/workflows/app-ci.yml'
+  const cd = '.github/workflows/app-deploy.yml'
+  const files = [
+    { path: ci, text: 'on:\n  schedule:\n  workflow_call:\njobs:\n  api:\n    name: API\n' },
+    { path: cd, text: 'jobs:\n  ci:\n    uses: ./.github/workflows/app-ci.yml\n' },
+  ]
+  const detection = {
+    tools: ['Gherkin (.feature files)'],
+    mode: 'blocking' as const,
+    workflow: ci,
+    job: 'api',
+    jobName: 'API',
+    weak: false,
+  }
+  const run = (id: number, at: string, job: string | null): RunWithJobs => ({
+    id,
+    url: `https://github.com/o/r/actions/runs/${id}`,
+    conclusion: 'success',
+    at,
+    jobs: [{ name: id === 1 ? 'API' : 'ci / API', conclusion: job }],
+  })
+  const source = (runs: Record<string, RunWithJobs>): ScorecardSource => ({
+    defaultBranch: async () => 'main',
+    workflows: async () => files,
+    latestRun: async (w) => runs[w] ?? null,
+    commits: async () => [],
+  })
+  const before = new Date('2026-11-01T00:00:00Z')
+
+  it('reads the caller when the reusable workflow its own newest run skipped the job', async () => {
+    // Numa: a weekly schedule of app-ci skips the API job, while CD runs it on main and passes.
+    const evidence = await detectedEvidence(
+      detection,
+      files,
+      'main',
+      before,
+      source({
+        [ci]: run(1, '2026-10-12T06:00:00Z', 'skipped'),
+        [cd]: run(2, '2026-10-11T22:00:00Z', 'success'),
+      }),
+    )
+
+    expect(evidence.result).toBe('passing')
+    expect(evidence.lastRun?.workflow).toBe(cd)
+  })
+
+  it('prefers the newest decisive run when both have one', async () => {
+    const evidence = await detectedEvidence(
+      detection,
+      files,
+      'main',
+      before,
+      source({
+        [ci]: run(1, '2026-10-12T06:00:00Z', 'failure'),
+        [cd]: run(2, '2026-10-11T22:00:00Z', 'success'),
+      }),
+    )
+
+    expect(evidence.result).toBe('failing')
+    expect(evidence.lastRun?.workflow).toBe(ci)
+  })
+
+  it('stays unknown when no run decided anything', async () => {
+    const evidence = await detectedEvidence(
+      detection,
+      files,
+      'main',
+      before,
+      source({ [ci]: run(1, '2026-10-12T06:00:00Z', 'skipped') }),
+    )
+
+    expect(evidence.result).toBe('unknown')
   })
 })
