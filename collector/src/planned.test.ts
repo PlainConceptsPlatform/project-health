@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import type { ScorecardConfig } from './config.ts'
+import { unavailableExcellence } from './metrics/engineering-excellence.ts'
 import type { ScorecardSource } from './metrics/scorecard.ts'
 import {
   PLANNED_REASON,
@@ -94,6 +95,10 @@ describe('collectPlannedProject', () => {
       previousScores: [],
       source,
       now: NOW,
+      excellence: async () => ({
+        block: unavailableExcellence('No facet artifacts yet.'),
+        warnings: [],
+      }),
     })
 
     const unavailable = { available: false, reason: PLANNED_REASON }
@@ -103,8 +108,50 @@ describe('collectPlannedProject', () => {
     expect(report.agents).toEqual(unavailable)
     expect(report.contributors).toEqual(unavailable)
     expect(report.placement).toEqual(unavailable)
-    expect(Object.values(report.engineeringExcellence ?? {})).toEqual(Array(6).fill(unavailable))
     expect(report.warnings).toEqual([])
+  })
+
+  it('reads engineering excellence facets, since CI publishes them before any deploy', async () => {
+    const facets = unavailableExcellence('No facet artifacts yet.')
+    let reads = 0
+    const report = await collectPlannedProject({
+      project: planned({ engineeringExcellence: { enabled: true } }),
+      period,
+      config,
+      previousScores: [],
+      source,
+      now: NOW,
+      excellence: async () => {
+        reads += 1
+        return { block: facets, warnings: [] }
+      },
+    })
+
+    expect(reads).toBe(1)
+    expect(report.engineeringExcellence).toBe(facets)
+    expect(Object.values(report.engineeringExcellence ?? {})).not.toContainEqual({
+      available: false,
+      reason: PLANNED_REASON,
+    })
+  })
+
+  it('records a facet read that throws as a warning, not a failed report', async () => {
+    const report = await collectPlannedProject({
+      project: planned({ engineeringExcellence: { enabled: true } }),
+      period,
+      config,
+      previousScores: [],
+      source,
+      now: NOW,
+      excellence: async () => {
+        throw new Error('artifacts API down')
+      },
+    })
+
+    expect(report.warnings.map((w) => w.message)).toContain(
+      'engineering excellence could not be collected: artifacts API down',
+    )
+    expect(report.scorecard?.available).toBe(true)
   })
 
   it('turns a scorecard that throws into an unavailable block and a warning rather than a crash', async () => {

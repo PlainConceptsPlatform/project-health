@@ -1,6 +1,9 @@
 import type { ScorecardConfig } from './config.ts'
 import { get } from './github.ts'
-import { unavailableExcellence } from './metrics/engineering-excellence.ts'
+import {
+  collectEngineeringExcellence,
+  unavailableExcellence,
+} from './metrics/engineering-excellence.ts'
 import {
   type ScorecardSource,
   collectScorecard,
@@ -17,8 +20,9 @@ import {
 } from './types.ts'
 
 /**
- * A planned project is not deployed, so delivery, agents, contributors and facets would only ever
- * read as empty. Saying why keeps an empty block from looking like a broken collection.
+ * A planned project is not deployed, so delivery, agents and contributors would only ever read as
+ * empty. Saying why keeps an empty block from looking like a broken collection. Engineering
+ * Excellence facets are different: CI publishes them from main, deployed or not.
  */
 export const PLANNED_REASON = 'Planned project: not deployed yet.'
 
@@ -58,23 +62,43 @@ export interface PlannedInput {
   previousScores: (number | null)[]
   source?: ScorecardSource
   now?: Date
+  /** Reads the facets; injected so tests need no GitHub. Defaults to the real collector. */
+  excellence?: () => Promise<{ block: EngineeringExcellence; warnings: Warning[] }>
 }
 
 /**
- * One month's report for a planned project: the Engineering scorecard and its AI usage are read
- * from the repository as for any project, and every block that needs a deployed product is
- * unavailable rather than zero, so nothing suggests the project ships.
+ * One month's report for a planned project: the Engineering scorecard, its AI usage and any
+ * Engineering Excellence facets are read as for any project, and every block that needs a deployed
+ * product is unavailable rather than zero, so nothing suggests the project ships.
  */
 export async function collectPlannedProject(input: PlannedInput): Promise<MonthlyReport> {
   const { project, period, config, previousScores } = input
   const now = input.now ?? new Date()
 
-  const engineeringExcellence: EngineeringExcellence | undefined = project.engineeringExcellence
-    ?.enabled
-    ? unavailableExcellence(PLANNED_REASON)
-    : undefined
-
   const warnings: Warning[] = []
+  let engineeringExcellence: EngineeringExcellence | undefined
+  if (project.engineeringExcellence?.enabled) {
+    const read =
+      input.excellence ??
+      (() => collectEngineeringExcellence(project, period.from, period.to, null))
+    try {
+      const excellence = await read()
+      warnings.push(...excellence.warnings)
+      engineeringExcellence = excellence.block
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      warnings.push({
+        code: 'COLLECTION_ERROR',
+        severity: 'warn',
+        message: `engineering excellence could not be collected: ${message}`,
+        context: { metric: 'engineering excellence' },
+      })
+      engineeringExcellence = unavailableExcellence(
+        `engineering excellence could not be collected. ${message}`,
+      )
+    }
+  }
+
   let scorecard: MetricBlock<Scorecard>
   try {
     scorecard = await collectScorecard(

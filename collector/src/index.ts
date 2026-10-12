@@ -486,6 +486,13 @@ async function main(): Promise<void> {
         const report = await collectPlannedProject({
           project,
           period,
+          excellence: () =>
+            collectEngineeringExcellence(
+              project,
+              period.from,
+              period.to,
+              previousExcellence(project.id, label(period)),
+            ),
           config: scorecardConfig,
           previousScores: previousScores(
             project.id,
