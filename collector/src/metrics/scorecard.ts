@@ -5,6 +5,7 @@ import {
   type DetectedMode,
   type EngineeringExcellence,
   type FacetSeries,
+  type HygieneData,
   type LastRun,
   type MetricBlock,
   PROJECT_TYPES,
@@ -269,6 +270,17 @@ const jobResult = (jobs: SecurityData['jobs'], pattern: RegExp): PracticeResultS
 }
 
 /**
+ * A swallowed-exception count of null means the producer ran no scanner, which is not a finding.
+ * Dead code only counts when the build does not already fail on it.
+ */
+export function hygieneVerdict(data: HygieneData): PracticeResultState {
+  const duplication = data.gate?.violations ?? 0
+  const swallowed = data.global.swallowedExceptions ?? 0
+  const dead = data.deadCode.gated ? 0 : data.deadCode.warnings
+  return duplication + swallowed + dead === 0 ? 'passing' : 'failing'
+}
+
+/**
  * Evidence from the engineering excellence facets, when the repository publishes them. Facets are
  * the stronger source, because they carry the gate's own verdict rather than a guess from YAML.
  */
@@ -367,6 +379,13 @@ export function facetEvidence(
       )
     case 'sbom':
       return evidence(excellence.sbom, 'SBOM facet', () => 'passing')
+    case 'hygiene': {
+      const gate = excellence.hygiene.available ? excellence.hygiene.data.latest.gate : null
+      // Duplication measured without a gate is reported, not held.
+      return gate
+        ? evidence(excellence.hygiene, 'hygiene facet', hygieneVerdict, 'blocking')
+        : evidence(excellence.hygiene, 'hygiene facet', () => 'passing', 'report-only')
+    }
     default:
       return null
   }

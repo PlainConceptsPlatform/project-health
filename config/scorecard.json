@@ -112,6 +112,15 @@
       ]
     },
     {
+      "id": "hygiene",
+      "number": 11,
+      "name": "Code hygiene (AI slop)",
+      "phase": "build",
+      "mode": "threshold",
+      "description": "Duplicated code, swallowed exceptions and dead code are measured on every build and held by a gate.",
+      "tools": [{ "name": "jscpd", "pattern": "\\bjscpd\\b" }]
+    },
+    {
       "id": "dast",
       "number": 9,
       "name": "DAST",
