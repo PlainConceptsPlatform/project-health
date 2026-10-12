@@ -40,19 +40,6 @@ and, for repositories that opt in, **engineering excellence facets** their own C
 mutation score, complexity, scanner findings, the SBOM and code hygiene. See
 [Engineering excellence facets](#engineering-excellence-facets).
 
-## Team profiles
-
-The 2025 DORA report replaced Elite/High/Medium/Low with seven team profiles from cluster analysis,
-built on three axes: throughput, stability, and team well being.
-
-Well being is measured by asking people, so it cannot come from a repository. This places a project on
-two axes and reports the *set* of profiles consistent with that, rather than inventing a single label.
-Do not try to infer well being from commit timestamps or weekend activity: it is weak evidence, and
-measuring people that way costs more trust than the metric is worth.
-
-The band edges in `config/dora.json` are directional reference lines, not official thresholds. DORA
-re-derives its clusters from each year's survey, so there are no fixed cutoffs to copy.
-
 ## Adding a project
 
 This is the whole job. Everything else has a sensible default.
