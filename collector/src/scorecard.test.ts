@@ -650,3 +650,120 @@ describe('collectScorecard', () => {
     expect(card.alerts.map((a) => a.code)).toEqual(['HIGH_AI_LOW_ENGINEERING'])
   })
 })
+
+describe('weak tools', () => {
+  const ci = (testStep: string) => `name: CI
+jobs:
+  test:
+    name: Tests
+    steps:
+      - uses: actions/checkout@v4
+      - run: ${testStep}
+  security:
+    name: Security
+    steps:
+      - uses: trufflesecurity/trufflehog@v3.82.0
+      - uses: aquasecurity/trivy-action@0.28.0
+        with:
+          exit-code: '1'
+      - run: semgrep scan --config auto --error
+`
+  const testsOf = (text: string, path = '.github/workflows/ci.yml') =>
+    summarizeDetections(detectTools(path, text, [practice('tests')])).get('tests')
+
+  it.each([
+    ['dotnet test', 'dotnet test Janus.sln -c Release'],
+    ['npm test', 'npm run test'],
+    ['pnpm test', 'pnpm test'],
+    ['yarn test', 'yarn test --ci'],
+    ['Vitest', 'npx vitest run'],
+    ['Jest', 'npx jest'],
+    ['pytest', 'python -m pytest tests/'],
+    ['go test', 'go test ./...'],
+    ['Maven', 'mvn -B -ntp verify'],
+    ['Gradle', './gradlew test'],
+    ['cargo test', 'cargo test --workspace'],
+  ])('detects %s as a weak tests tool', (tool, step) => {
+    expect(testsOf(ci(step))).toMatchObject({ tools: [tool], weak: true })
+  })
+
+  it('names a step strong when it runs the tests with a coverage tool', () => {
+    expect(testsOf(ci('dotnet test --collect:"XPlat Code Coverage"'))).toMatchObject({
+      tools: ['coverlet'],
+      weak: false,
+    })
+  })
+
+  it('lets a strong hit in another workflow decide the job whose run is read', () => {
+    const hits = [
+      ...detectTools('.github/workflows/a.yml', ci('dotnet test'), [practice('tests')]),
+      ...detectTools('.github/workflows/b.yml', ci('npx vitest run --coverage'), [
+        practice('tests'),
+      ]),
+    ]
+    expect(summarizeDetections(hits).get('tests')).toMatchObject({
+      tools: ['dotnet test', '--coverage'],
+      workflow: '.github/workflows/b.yml',
+      weak: false,
+    })
+  })
+
+  it('rates weak-only evidence yellow even when blocking and passing, but red when failing', () => {
+    const weak = rate('tests', evidence({ tools: ['dotnet test'], weak: true }))
+    expect(weak.rag).toBe('yellow')
+    expect(weak.reason).toContain('dotnet test')
+    expect(rate('tests', evidence({ weak: true, result: 'failing' })).rag).toBe('red')
+  })
+
+  const collectWith = async (testStep: string, ee?: EngineeringExcellence) => {
+    const block = await collectScorecard(
+      project({ type: 'library' }),
+      config,
+      { from: new Date('2026-10-01T00:00:00Z'), to: new Date('2026-11-01T00:00:00Z') },
+      ee,
+      [],
+      {
+        defaultBranch: async () => 'main',
+        workflows: async () => [{ path: '.github/workflows/ci.yml', text: ci(testStep) }],
+        latestRun: async () => ({
+          id: 7,
+          url: 'https://github.com/o/r/actions/runs/7',
+          conclusion: 'success',
+          at: '2026-10-18T00:00:00Z',
+          jobs: [
+            { name: 'Tests', conclusion: 'success' },
+            { name: 'Security', conclusion: 'success' },
+          ],
+        }),
+        commits: async () => [],
+      },
+      NOW,
+    )
+    if (!block.available) throw new Error(block.reason)
+    return block.data
+  }
+
+  it('counts plain test runs as present for N1 but not green for N2', async () => {
+    const card = await collectWith('dotnet test')
+    const tests = card.practices.find((p) => p.id === 'tests')
+    expect(tests).toMatchObject({ rag: 'yellow', source: 'detected', tools: ['dotnet test'] })
+    expect(card.level).toBe(1)
+  })
+
+  it('rates tests with a coverage tool green, the strong path', async () => {
+    const card = await collectWith('dotnet test --collect:"XPlat Code Coverage"')
+    expect(card.practices.find((p) => p.id === 'tests')).toMatchObject({
+      rag: 'green',
+      tools: ['coverlet'],
+    })
+  })
+
+  it('lets a passing coverage facet lift weak detection to green', async () => {
+    const card = await collectWith('dotnet test', excellence())
+    expect(card.practices.find((p) => p.id === 'tests')).toMatchObject({
+      rag: 'green',
+      source: 'facet',
+      tools: ['dotnet test', 'coverage facet'],
+    })
+  })
+})

@@ -38,6 +38,8 @@ export interface PracticeEvidence {
   result: PracticeResultState
   resultAt: string | null
   lastRun: LastRun | null
+  /** Found only through tools below the practice's standard, so it can be yellow at best. */
+  weak?: boolean
 }
 
 export const projectTypeOf = (project: ProjectConfig): ProjectType =>
@@ -122,6 +124,12 @@ export function ratePractice(
     return {
       rag: 'yellow',
       reason: 'Present, but no completed run on the default branch to judge it by.',
+    }
+  }
+  if (evidence.weak) {
+    return {
+      rag: 'yellow',
+      reason: `Present through ${evidence.tools.join(', ')} only, which falls short of the standard: ${practice.description}`,
     }
   }
   if (evidence.resultAt) {
@@ -323,7 +331,10 @@ export function facetEvidence(
   }
 }
 
-/** Facet evidence wins on result; workflow detection still names the tools and the mode. */
+/**
+ * Facet evidence wins on result; workflow detection still names the tools and the mode. A facet
+ * reports the gate itself, so the merged evidence is never weak.
+ */
 export function mergeEvidence(
   facet: PracticeEvidence | null,
   detected: PracticeEvidence | null,
@@ -334,6 +345,7 @@ export function mergeEvidence(
     ...facet,
     tools: [...new Set([...detected.tools, ...facet.tools])],
     mode: facet.mode ?? detected.mode,
+    weak: false,
   }
 }
 
@@ -549,6 +561,7 @@ export async function detectedEvidence(
       result: stateOf(conclusion),
       resultAt: run.at,
       lastRun: { workflow, url: run.url, conclusion, at: run.at },
+      weak: detection.weak,
     }
   }
   return {
@@ -558,6 +571,7 @@ export async function detectedEvidence(
     result: 'unknown',
     resultAt: null,
     lastRun: null,
+    weak: detection.weak,
   }
 }
 

@@ -151,6 +151,7 @@ export interface ToolHit {
   job: string
   jobName: string | null
   mode: DetectedMode
+  weak: boolean
 }
 
 /**
@@ -182,6 +183,7 @@ export function detectTools(
           job: job.key,
           jobName: job.name,
           mode: inferMode(unit, job.reportOnly, tool.blockingWhen),
+          weak: tool.weak === true,
         })
       }
     }
@@ -197,9 +199,15 @@ export interface PracticeDetection {
   workflow: string
   job: string
   jobName: string | null
+  /** True when every hit came from a weak tool. One strong hit anywhere makes it false. */
+  weak: boolean
 }
 
-/** Folds the hits for each practice into one detection, preferring a blocking occurrence. */
+/**
+ * Folds the hits for each practice into one detection. A strong tool wins over a weak one, and
+ * then a blocking occurrence over a report-only one, so the job that decides pass or fail is the
+ * one that runs the practice to standard.
+ */
 export function summarizeDetections(hits: ToolHit[]): Map<string, PracticeDetection> {
   const byPractice = new Map<string, PracticeDetection>()
   for (const hit of hits) {
@@ -211,16 +219,20 @@ export function summarizeDetections(hits: ToolHit[]): Map<string, PracticeDetect
         workflow: hit.workflow,
         job: hit.job,
         jobName: hit.jobName,
+        weak: hit.weak,
       })
       continue
     }
     if (!current.tools.includes(hit.tool)) current.tools.push(hit.tool)
-    if (current.mode === 'report-only' && hit.mode === 'blocking') {
+    const stronger = current.weak && !hit.weak
+    const sameStrength = current.weak === hit.weak
+    if (stronger || (sameStrength && current.mode === 'report-only' && hit.mode === 'blocking')) {
       Object.assign(current, {
         mode: hit.mode,
         workflow: hit.workflow,
         job: hit.job,
         jobName: hit.jobName,
+        weak: hit.weak,
       })
     }
   }

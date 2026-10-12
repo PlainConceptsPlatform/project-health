@@ -90,6 +90,12 @@ export interface ToolPattern {
    * default. The step only counts as blocking when this also matches.
    */
   blockingWhen?: string
+  /**
+   * Evidence that the practice is there, but below its standard: a plain test run where the
+   * standard also asks for a coverage gate. A practice found only through weak tools is yellow,
+   * never green. List weak tools after the strong ones, so a step that has both is named strong.
+   */
+  weak?: boolean
 }
 
 export interface PracticeDefinition {
