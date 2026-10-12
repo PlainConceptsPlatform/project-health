@@ -36,18 +36,6 @@ export const GLOSSARY = {
   measured:
     'How many runs actually reported token usage. When this is below the run count, the token totals are a lower bound rather than a complete figure.',
 
-  teamProfile:
-    'The 2025 DORA report groups teams into seven profiles rather than ranking them. A profile is built from three things: throughput, stability, and how the team is doing. GitHub can measure the first two, so more than one profile usually remains possible.',
-
-  throughput:
-    'How much finished work reaches production and how quickly, combining release frequency with lead time. The lower of the two decides the band.',
-
-  stability:
-    'How often releases go wrong. It stays unknown unless a label marks releases that were genuine reactions to a production problem, because a broad bug label would make a well maintained project look unstable.',
-
-  wellbeing:
-    'How the team itself is doing: burnout, friction, satisfaction. It is measured by asking people, so it cannot be derived from a repository and always reads unknown here.',
-
   percentiles:
     'p50 is the middle value, p75 and p90 are the slower tail. The tail usually matters more than the middle, because that is where the frustrating cases live.',
 

@@ -504,57 +504,6 @@ export function ProjectView({
         </div>
       </div>
 
-      <Metric block={report.placement}>
-        {(d) => (
-          <Panel
-            title={
-              <span className="inline-flex items-center">
-                Team profile
-                <InfoTip term="teamProfile" />
-              </span>
-            }
-            description={d.note}
-          >
-            <div className="space-y-4">
-              <div className="grid grid-cols-3 gap-4">
-                <Stat label="Throughput" explain="throughput" value={d.throughput} />
-                <Stat
-                  label="Stability"
-                  explain="stability"
-                  value={d.stability}
-                  tone={d.stability === 'unknown' ? 'muted' : undefined}
-                />
-                <Stat
-                  label="Well being"
-                  explain="wellbeing"
-                  value="unknown"
-                  tone="muted"
-                  hint="needs a survey"
-                />
-              </div>
-              {d.candidateProfiles.length > 0 ? (
-                <div className="space-y-1.5">
-                  {d.exact === false ? (
-                    <p className="text-xs text-muted-foreground">Closest archetypes</p>
-                  ) : null}
-                  <div className="flex flex-wrap gap-1.5">
-                    {d.candidateProfiles.map((profile) => (
-                      <Badge key={profile.id} variant="outline">
-                        {profile.name}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                  No archetype is close to this combination of throughput and stability.
-                </p>
-              )}
-            </div>
-          </Panel>
-        )}
-      </Metric>
-
       {engineeringMonth !== current ? (
         <p className="text-sm text-muted-foreground">
           Engineering scorecard and excellence show {monthName(engineeringMonth)}, the newest

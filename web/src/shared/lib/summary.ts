@@ -33,15 +33,11 @@ export interface ProjectSummary {
   agentSeconds: number | null
   agentMeasured: number | null
 
-  profiles: { id: string; name: string }[]
-  profileExact: boolean
-
   reasons: {
     frequency?: string
     leadTime?: string
     rework?: string
     agents?: string
-    placement?: string
   }
 }
 
@@ -74,8 +70,6 @@ export function summarise(
     agentTokens: null,
     agentSeconds: null,
     agentMeasured: null,
-    profiles: [],
-    profileExact: true,
     reasons: {},
   }
 
@@ -119,14 +113,11 @@ export function summarise(
     agentTokens: agents?.tokens ?? null,
     agentSeconds: agents?.seconds ?? null,
     agentMeasured: agents?.measured ?? null,
-    profiles: report.placement.available ? report.placement.data.candidateProfiles : [],
-    profileExact: report.placement.available ? report.placement.data.exact !== false : true,
     reasons: {
       frequency: reasonOf(frequency),
       leadTime: reasonOf(leadTime),
       rework: reasonOf(rework),
       agents: reasonOf(report.agents),
-      placement: reasonOf(report.placement),
     },
   }
 }

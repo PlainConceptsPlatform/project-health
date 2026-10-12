@@ -159,23 +159,6 @@ function ProjectCard({ p, month }: { p: ProjectSummary; month: string | null }) 
                 )}
               </div>
 
-              {p.profiles.length > 0 ? (
-                <div className="border-t pt-4">
-                  <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                    Team profile (2025 DORA)
-                    {p.profileExact ? '' : ', closest'}
-                    <InfoTip term="teamProfile" />
-                  </p>
-                  <div className="mt-2 flex flex-wrap gap-1.5">
-                    {p.profiles.map((profile) => (
-                      <Badge key={profile.id} variant="outline">
-                        {profile.name}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
-
               <p className="text-xs text-muted-foreground">
                 {p.months.length} month{p.months.length === 1 ? '' : 's'} collected · view detail
               </p>
