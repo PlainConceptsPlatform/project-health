@@ -367,9 +367,9 @@ describe('engineeringScore and gateCounts', () => {
     expect(gateCounts(practices)).toEqual({ present: 6, applicable: 8 })
   })
 
-  it('counts only build gates in the gates column', () => {
+  it('counts gates of every phase, test environment included', () => {
     const practices = results({ dast: 'green' }, ['performance'])
-    expect(gateCounts(practices)).toEqual({ present: 0, applicable: 9 })
+    expect(gateCounts(practices)).toEqual({ present: 1, applicable: 10 })
   })
 
   it('has no score when nothing applies', () => {
@@ -766,7 +766,8 @@ describe('collectScorecard', () => {
     expect(card.practices.every((p) => p.source !== 'facet')).toBe(true)
     // Spec is failing, so N2 is out of reach.
     expect(card.level).toBe(1)
-    expect(card.gates).toEqual({ present: 7, applicable: 9 })
+    // DAST is red and now counts: the test environment is a phase like any other.
+    expect(card.gates).toEqual({ present: 7, applicable: 10 })
   })
 
   it('lets facets decide the result while workflows still name the tools', async () => {

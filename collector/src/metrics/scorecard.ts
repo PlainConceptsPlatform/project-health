@@ -208,12 +208,15 @@ export function engineeringScore(practices: PracticeResult[]): number | null {
   return Math.round(((green + 0.5 * yellow) / applicable.length) * 100)
 }
 
-/** Build phase gates in place, green or yellow, out of those that apply. */
+/**
+ * Gates in place, green or yellow, out of those that apply, in every phase: leaving out the test
+ * environment hid a red DAST or Performance behind a full count.
+ */
 export function gateCounts(practices: PracticeResult[]): { present: number; applicable: number } {
-  const build = practices.filter((p) => p.phase === 'build' && p.applicable)
+  const applicable = practices.filter((p) => p.applicable)
   return {
-    present: build.filter((p) => p.rag === 'green' || p.rag === 'yellow').length,
-    applicable: build.length,
+    present: applicable.filter((p) => p.rag === 'green' || p.rag === 'yellow').length,
+    applicable: applicable.length,
   }
 }
 

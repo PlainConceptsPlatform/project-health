@@ -292,7 +292,7 @@ export interface Scorecard {
   level: number
   /** 0 to 100, null when nothing applies. */
   score: number | null
-  /** Build phase gates that are present (green or yellow) out of those that apply. */
+  /** Gates of every phase that are present (green or yellow) out of those that apply. */
   gates: { present: number; applicable: number }
   aiUsage: MetricBlock<AiUsage>
   alerts: ScorecardAlert[]
