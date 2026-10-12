@@ -21,11 +21,11 @@ export const MODE_LABEL: Record<StandardMode, string> = {
   policy: 'Policy',
 }
 
-/** Blocking red, threshold amber, policy blue, tinted so the label stays the readable part. */
-export const MODE_CLASS: Record<StandardMode, string> = {
-  blocking: 'border-destructive/40 bg-destructive/10 text-destructive',
-  threshold: 'border-warning/60 bg-warning/15 text-foreground',
-  policy: 'border-info/50 bg-info/10 text-foreground',
+/** What each mode means, for the legend and the icon tooltips. */
+export const MODE_DESCRIPTION: Record<StandardMode, string> = {
+  blocking: 'A failure stops the merge or the deploy.',
+  threshold: 'Measured against a floor that has to hold.',
+  policy: 'Produced and kept as evidence, with no pass or fail.',
 }
 
 export const LEVEL_CLASS = [

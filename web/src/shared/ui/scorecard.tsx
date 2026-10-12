@@ -1,26 +1,97 @@
-import { LEVEL_CLASS, MODE_CLASS, MODE_LABEL, RAG_DOT, RAG_LABEL } from '../lib/scorecard'
+import { GaugeIcon, LockIcon, type LucideIcon, ScrollTextIcon } from 'lucide-react'
+import { LEVEL_CLASS, MODE_DESCRIPTION, MODE_LABEL, RAG_DOT, RAG_LABEL } from '../lib/scorecard'
 import type { AiUsage, MetricBlock, Rag, ScorecardAlert, StandardMode } from '../lib/types'
 import { cn } from '../lib/utils'
 import { Badge } from './badge'
+import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip'
 
 export function RagDot({ rag, label = true }: { rag: Rag; label?: boolean }) {
   return (
     <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
       <span aria-hidden className={cn('size-2.5 shrink-0 rounded-full', RAG_DOT[rag])} />
-      {label ? (
-        <span className="text-sm">{RAG_LABEL[rag]}</span>
-      ) : (
-        <span className="sr-only">{RAG_LABEL[rag]}</span>
-      )}
+      {label ? <span>{RAG_LABEL[rag]}</span> : <span className="sr-only">{RAG_LABEL[rag]}</span>}
     </span>
   )
 }
 
-export function ModeBadge({ mode }: { mode: StandardMode }) {
+const MODE_ICON: Record<StandardMode, LucideIcon> = {
+  blocking: LockIcon,
+  threshold: GaugeIcon,
+  policy: ScrollTextIcon,
+}
+
+/**
+ * How a practice is enforced, in a neutral colour: the mode is a fact about the gate, and a red
+ * badge on every blocking row read as a failure.
+ */
+export function ModeIcon({ mode }: { mode: StandardMode }) {
+  const Icon = MODE_ICON[mode]
   return (
-    <Badge variant="outline" className={MODE_CLASS[mode]}>
-      {MODE_LABEL[mode]}
-    </Badge>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          aria-label={MODE_LABEL[mode]}
+          className="inline-flex text-muted-foreground transition hover:text-foreground focus-visible:text-foreground focus-visible:outline-none"
+        >
+          <Icon className="size-4" aria-hidden="true" />
+        </button>
+      </TooltipTrigger>
+      <TooltipContent className="max-w-xs text-pretty">
+        <span className="font-medium">{MODE_LABEL[mode]}.</span> {MODE_DESCRIPTION[mode]}
+      </TooltipContent>
+    </Tooltip>
+  )
+}
+
+/** The status colour alone; its label and reason sit in the tooltip and the accessible name. */
+export function StatusDot({ rag, reason }: { rag: Rag; reason: string }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          aria-label={`${RAG_LABEL[rag]}. ${reason}`}
+          className="inline-flex rounded-full p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <span aria-hidden className={cn('size-3 shrink-0 rounded-full', RAG_DOT[rag])} />
+        </button>
+      </TooltipTrigger>
+      <TooltipContent className="max-w-xs text-pretty">
+        <span className="font-medium">{RAG_LABEL[rag]}.</span> {reason}
+      </TooltipContent>
+    </Tooltip>
+  )
+}
+
+export function ScorecardLegend() {
+  const modes = Object.keys(MODE_ICON) as StandardMode[]
+  const rags = Object.keys(RAG_DOT) as Rag[]
+  return (
+    <div className="flex flex-wrap gap-x-6 gap-y-2 text-xs text-muted-foreground">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+        <span className="font-medium text-foreground">Mode</span>
+        {modes.map((mode) => {
+          const Icon = MODE_ICON[mode]
+          return (
+            <span
+              key={mode}
+              className="inline-flex items-center gap-1"
+              title={MODE_DESCRIPTION[mode]}
+            >
+              <Icon className="size-3.5" aria-hidden="true" />
+              {MODE_LABEL[mode]}
+            </span>
+          )
+        })}
+      </div>
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+        <span className="font-medium text-foreground">Status</span>
+        {rags.map((rag) => (
+          <RagDot key={rag} rag={rag} />
+        ))}
+      </div>
+    </div>
   )
 }
 
