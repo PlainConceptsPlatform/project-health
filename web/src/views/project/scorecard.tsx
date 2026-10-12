@@ -80,7 +80,7 @@ function Summary({ card, typeLabels }: { card: Scorecard; typeLabels: Record<str
         hint="0 to 100"
       />
       <Stat
-        label="Build gates"
+        label="Gates"
         explain="gates"
         value={`${card.gates.present}/${card.gates.applicable}`}
         hint="present / applicable"

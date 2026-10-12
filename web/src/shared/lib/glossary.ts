@@ -78,7 +78,7 @@ export const GLOSSARY = {
     'Green practices plus half the yellow ones, over every practice that applies, from 0 to 100. Not-applicable practices are left out rather than counted against the project.',
 
   gates:
-    'Build gates in place, green or yellow, out of the build gates that apply to this project type. A gate that runs report-only still counts as present here; its colour says it is weaker than standard.',
+    'Gates in place, green or yellow, out of the gates that apply to this project, on every build and after deploying to the test environment. A gate that runs report-only still counts as present here; its colour says it is weaker than standard.',
 
   aiUsage:
     "The share of this month's default branch commits that are AI-assisted: a Co-authored-by trailer naming an assistant, or a commit by an agent bot. Dependency and Actions bots are not counted. Under 10% is 1, under 25% is 2, under 50% is 3, under 75% is 4, anything above is 5.",

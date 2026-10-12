@@ -87,7 +87,7 @@ export function ScorecardTable({
       </DataTable>
       <p className="text-xs text-muted-foreground">
         AI usage is the share of default branch commits that are AI-assisted, from 1 to 5
-        <InfoTip term="aiUsage" />. Gates counts the build gates present, green or yellow, out of
+        <InfoTip term="aiUsage" />. Gates counts the gates present, green or yellow, in every phase, out of
         those that apply
         <InfoTip term="gates" />. The trend is the engineering score from 0 to 100
         <InfoTip term="engineeringScore" />.

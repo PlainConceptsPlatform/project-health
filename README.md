@@ -223,8 +223,8 @@ Each practice is decided by one of two sources, and the page says which:
   decide coverage, mutation, complexity, the Trivy and Semgrep gates, the SBOM and code hygiene.
   Code hygiene (practice 11, the AI-slop proxies) passes when the duplication gate has no
   violations, no exception is swallowed without a justification and dead code is gated or absent;
-  a hygiene facet without a `gate` is report-only. It counts towards the score and the build
-  gates, not towards the N1 to N3 levels.
+  a hygiene facet without a `gate` is report-only. It counts towards the score and the gates,
+  not towards the N1 to N3 levels.
 - **Detected**: otherwise the collector reads `.github/workflows/*.yml` at the default branch and
   finds the tools in `uses:` and `run:` lines. A step is report-only when it carries
   `continue-on-error: true`, `exit-code: "0"` or `|| true` (Trivy also needs an explicit non-zero
@@ -255,6 +255,8 @@ run results and commits. A result older than 14 days counts as stale.
 The **level** is cumulative and counts only green gates: N1 needs secrets, vulnerabilities and SAST
 green with tests present (yellow is enough, so a plain test run counts); N2 adds tests and coverage, spec and SBOM; N3 adds mutation, DAST and
 complexity where they apply. The **score** is (green + half of yellow) over applicable, 0 to 100.
+**Gates** is the practices present (green or yellow) over those that apply, in every phase, so a
+red DAST or Performance shows in the count.
 **AI usage** (1 to 5) is the share of the month's non-merge default branch commits with an assistant
 Co-authored-by trailer or an agent bot author; dependency and Actions bots are excluded.
 
