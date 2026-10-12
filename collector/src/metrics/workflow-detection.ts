@@ -201,7 +201,29 @@ export interface PracticeDetection {
   jobName: string | null
   /** True when every hit came from a weak tool. One strong hit anywhere makes it false. */
   weak: boolean
+  /**
+   * Every place the practice was found. A practice often lives in more than one workflow (a
+   * weekly DAST scan and a post-deploy one); the result is read from whichever of the strongest
+   * locations ran most recently, not only from the one that happened to be found first.
+   */
+  locations?: DetectionLocation[]
 }
+
+export interface DetectionLocation {
+  workflow: string
+  job: string
+  jobName: string | null
+  mode: DetectedMode
+  weak: boolean
+}
+
+const location = (hit: ToolHit): DetectionLocation => ({
+  workflow: hit.workflow,
+  job: hit.job,
+  jobName: hit.jobName,
+  mode: hit.mode,
+  weak: hit.weak,
+})
 
 /**
  * Folds the hits for each practice into one detection. A strong tool wins over a weak one, and
@@ -220,8 +242,13 @@ export function summarizeDetections(hits: ToolHit[]): Map<string, PracticeDetect
         job: hit.job,
         jobName: hit.jobName,
         weak: hit.weak,
+        locations: [location(hit)],
       })
       continue
+    }
+    current.locations ??= []
+    if (!current.locations.some((l) => l.workflow === hit.workflow && l.job === hit.job)) {
+      current.locations.push(location(hit))
     }
     if (!current.tools.includes(hit.tool)) current.tools.push(hit.tool)
     const stronger = current.weak && !hit.weak

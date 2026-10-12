@@ -1088,4 +1088,54 @@ describe('detectedEvidence', () => {
 
     expect(evidence.result).toBe('unknown')
   })
+
+  it('reads every location of a practice, so a never-run post-deploy scan does not hide the weekly one', async () => {
+    // Compass: ZAP lives in cd.yml (post-deploy, no environment yet, never ran) and security.yml.
+    const weekly = '.github/workflows/security.yml'
+    const deploy = '.github/workflows/cd.yml'
+    const zap = {
+      tools: ['OWASP ZAP'],
+      mode: 'blocking' as const,
+      workflow: deploy,
+      job: 'dast',
+      jobName: 'DAST',
+      weak: false,
+      locations: [
+        { workflow: deploy, job: 'dast', jobName: 'DAST', mode: 'blocking' as const, weak: false },
+        {
+          workflow: weekly,
+          job: 'dast',
+          jobName: 'DAST (OWASP ZAP)',
+          mode: 'blocking' as const,
+          weak: false,
+        },
+        {
+          workflow: weekly,
+          job: 'zap-report',
+          jobName: 'ZAP report',
+          mode: 'report-only' as const,
+          weak: false,
+        },
+      ],
+    }
+    const evidence = await detectedEvidence(zap, [], 'main', before, {
+      ...source({}),
+      latestRun: async (w) =>
+        w === weekly
+          ? {
+              id: 9,
+              url: 'https://github.com/o/r/actions/runs/9',
+              conclusion: 'success',
+              at: '2026-10-12T10:00:00Z',
+              jobs: [
+                { name: 'DAST (OWASP ZAP)', conclusion: 'success' },
+                { name: 'ZAP report', conclusion: 'failure' },
+              ],
+            }
+          : null,
+    })
+
+    expect(evidence.result).toBe('passing')
+    expect(evidence.lastRun?.workflow).toBe(weekly)
+  })
 })

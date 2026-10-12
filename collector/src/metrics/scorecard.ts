@@ -614,19 +614,30 @@ export async function detectedEvidence(
   before: Date,
   source: ScorecardSource,
 ): Promise<PracticeEvidence> {
-  const candidates = [detection.workflow, ...callersOf(detection.workflow, files)]
+  // Only locations as strong as the summary count: a report-only or weak copy of a tool must not
+  // speak for the blocking one.
+  const strongest = (detection.locations ?? []).filter(
+    (l) => l.weak === detection.weak && l.mode === detection.mode,
+  )
+  const locations = strongest.length > 0 ? strongest : [detection]
   type Seen = { workflow: string; run: RunWithJobs; conclusion: string | null }
   const seen: Seen[] = []
-  for (const workflow of candidates) {
-    let run: RunWithJobs | null = null
-    try {
-      run = await source.latestRun(workflow, branch, before)
-    } catch {
-      run = null
+  const read = new Set<string>()
+  for (const location of locations) {
+    for (const workflow of [location.workflow, ...callersOf(location.workflow, files)]) {
+      const key = `${workflow}::${location.jobName ?? location.job}`
+      if (read.has(key)) continue
+      read.add(key)
+      let run: RunWithJobs | null = null
+      try {
+        run = await source.latestRun(workflow, branch, before)
+      } catch {
+        run = null
+      }
+      if (!run) continue
+      const job = matchJob(run.jobs, location.jobName ?? location.job)
+      seen.push({ workflow, run, conclusion: job ? job.conclusion : run.conclusion })
     }
-    if (!run) continue
-    const job = matchJob(run.jobs, detection.jobName ?? detection.job)
-    seen.push({ workflow, run, conclusion: job ? job.conclusion : run.conclusion })
   }
   const newest = (list: Seen[]) =>
     [...list].sort((a, b) => Date.parse(b.run.at) - Date.parse(a.run.at))[0]
