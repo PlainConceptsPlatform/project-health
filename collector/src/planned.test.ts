@@ -103,7 +103,7 @@ describe('collectPlannedProject', () => {
     expect(report.agents).toEqual(unavailable)
     expect(report.contributors).toEqual(unavailable)
     expect(report.placement).toEqual(unavailable)
-    expect(Object.values(report.engineeringExcellence ?? {})).toEqual(Array(5).fill(unavailable))
+    expect(Object.values(report.engineeringExcellence ?? {})).toEqual(Array(6).fill(unavailable))
     expect(report.warnings).toEqual([])
   })
 

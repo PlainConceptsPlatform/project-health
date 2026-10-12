@@ -37,7 +37,7 @@ was planned or shipped in reaction to something, which a person can state when t
 
 It also collects what the DORA report does not: **agent cost in tokens and time**, per kind of work,
 and, for repositories that opt in, **engineering excellence facets** their own CI reports: coverage,
-mutation score, complexity, scanner findings and the SBOM. See
+mutation score, complexity, scanner findings, the SBOM and code hygiene. See
 [Engineering excellence facets](#engineering-excellence-facets).
 
 ## Team profiles
@@ -155,6 +155,7 @@ The zip holds a single `<facet>.json`:
 | `mutation` | `engineering-excellence-mutation` | weekly | covered and full mutation score per scope and module, against floors |
 | `security` | `engineering-excellence-security` | every push to main | Trivy vulnerabilities, misconfigurations and secrets by severity, Semgrep counts, scanner job results |
 | `sbom` | `engineering-excellence-sbom` | every push to main | component count by ecosystem, licence mix, components without a licence |
+| `hygiene` | `engineering-excellence-hygiene` | every push to main | duplicated lines and rate per scope and module, the worst duplicated files, swallowed exceptions (unjustified and justified), dead-code warnings and whether they are gated, comment density, and optionally the repository's duplication `gate` (baselined files and lines, files over their baseline, entries that improved) |
 
 Every file is an envelope:
 
@@ -213,7 +214,11 @@ project page then shows an Engineering excellence section: headline numbers with
 the previous month, coverage and mutation trends per scope against their floors, a per-module table
 joining coverage, mutation and complexity, the worst CRAP methods, security counts by severity and
 the SBOM's ecosystems and licences. When the complexity facet carries a `gate`, a Complexity debt tile
-shows its baselined backlog (lower is better) with a trend line; without one the tile is hidden. With OTLP configured, the month's latest coverage, mutation
+shows its baselined backlog (lower is better) with a trend line; without one the tile is hidden. A
+Hygiene block shows duplication per scope with its trend, swallowed exceptions, the dead-code gate,
+comment density and the most duplicated files; when the hygiene facet carries a `gate`, a Duplication
+debt tile does the same for its baselined lines. Hygiene is informational: no scorecard practice
+reads it. With OTLP configured, the month's latest coverage, mutation
 score, CRAP count, critical and high vulnerabilities and SBOM size are exported as `engineering.*`
 gauges.
 

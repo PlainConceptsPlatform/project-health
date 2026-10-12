@@ -261,6 +261,11 @@ export function summarize<F extends Facet>(facet: F, data: FacetDataMap[F]): Fac
       const { hotspots: _hotspots, ...d } = data as FacetDataMap['complexity']
       return { ...d, scopes: withoutModules(d.scopes) } as FacetDataMap[F]
     }
+    case 'hygiene': {
+      // Like complexity, the gate stays: its baselined lines are the duplication backlog.
+      const { hotspots: _hotspots, ...d } = data as FacetDataMap['hygiene']
+      return { ...d, scopes: withoutModules(d.scopes) } as FacetDataMap[F]
+    }
     case 'sbom': {
       const { licenses: _licenses, ...d } = data as FacetDataMap['sbom']
       return d as FacetDataMap[F]
@@ -436,10 +441,10 @@ async function collectFacet<F extends Facet>(
  * Reads the engineering excellence facets the repository's own CI uploads.
  *
  * Unlike every other metric, these numbers are produced by the repository rather than derived from
- * the GitHub API: coverage, complexity, mutation score, scanner findings and SBOM shape. The
- * collector only finds, checks and keeps them. Each facet is independent, because their cadences
- * differ (mutation testing typically runs weekly, the rest on every push to main) and a repository
- * may produce only some of them.
+ * the GitHub API: coverage, complexity, mutation score, scanner findings, SBOM shape and code
+ * hygiene. The collector only finds, checks and keeps them. Each facet is independent, because
+ * their cadences differ (mutation testing typically runs weekly, the rest on every push to main)
+ * and a repository may produce only some of them.
  */
 export async function collectEngineeringExcellence(
   project: ProjectConfig,
@@ -466,6 +471,7 @@ export async function collectEngineeringExcellence(
     mutation: await collect('mutation'),
     security: await collect('security'),
     sbom: await collect('sbom'),
+    hygiene: await collect('hygiene'),
   }
   return { block, warnings }
 }

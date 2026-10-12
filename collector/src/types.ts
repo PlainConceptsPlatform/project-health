@@ -286,7 +286,7 @@ export interface Scorecard {
   alerts: ScorecardAlert[]
 }
 
-export const FACETS = ['coverage', 'complexity', 'mutation', 'security', 'sbom'] as const
+export const FACETS = ['coverage', 'complexity', 'mutation', 'security', 'sbom', 'hygiene'] as const
 export type Facet = (typeof FACETS)[number]
 
 export interface LineStats {
@@ -401,12 +401,60 @@ export interface SbomData {
   sha256: string
 }
 
+export interface HygieneSummary {
+  files: number
+  lines: number
+  duplicatedLines: number
+  /** duplicatedLines / lines. */
+  duplicationRate: number | null
+  codeLines: number
+  commentLines: number
+  /** commentLines / codeLines. A line-based approximation, so a trend and never a gate. */
+  commentDensity: number | null
+  /** Unjustified empty catch blocks. null when the producer had no scanner result, not zero. */
+  swallowedExceptions: number | null
+  justifiedSwallows: number
+}
+
+export interface HygieneHotspot {
+  scope: string
+  module: string
+  file: string
+  duplicatedLines: number
+  lines: number
+  duplicationRate: number | null
+}
+
+/**
+ * The repository's blocking duplication gate as evaluated on this commit. baselineLines is the
+ * duplicated code accepted into the baseline, so like the complexity backlog it should only go down.
+ */
+export interface HygieneGate {
+  baselinedFiles: number
+  baselineLines: number
+  violations: number
+  fixed: number
+}
+
+export interface HygieneData {
+  thresholds: { minLines: number; minTokens: number }
+  scopes: Record<
+    string,
+    HygieneSummary & { deadCodeWarnings: number; modules?: Record<string, HygieneSummary> }
+  >
+  global: HygieneSummary
+  deadCode: { gated: boolean; warnings: number }
+  hotspots?: HygieneHotspot[]
+  gate: HygieneGate | null
+}
+
 export interface FacetDataMap {
   coverage: CoverageData
   complexity: ComplexityData
   mutation: MutationData
   security: SecurityData
   sbom: SbomData
+  hygiene: HygieneData
 }
 
 export interface FacetSample<T> {

@@ -16,13 +16,15 @@ import type {
   EngineeringExcellence,
   FacetSample,
   FacetSeries,
+  HygieneData,
   ProjectConfig,
 } from './types.ts'
 
 /**
  * The facets are produced by the measured repository, not derived from the API, so the risks are in
  * finding the right artifact and in keeping what was read once. Each test names the mistake it
- * prevents. Fixtures are trimmed copies of real facet output.
+ * prevents. Fixtures are trimmed copies of real facet output, except hygiene.json, which is a small
+ * synthetic facet whose totals add up so a reader can check them by hand.
  */
 
 const REPO = 'your-org/checkout'
@@ -213,6 +215,51 @@ describe('readFacet', () => {
     if (!read.ok) expect(read.reason).toContain("missing 'baselined'")
   })
 
+  const readHygiene = (doc: unknown) =>
+    readFacet({ 'hygiene.json': strToU8(JSON.stringify(doc)) }, 'hygiene', REPO, 'main')
+
+  it('accepts a hygiene facet, with or without a duplication gate and a Semgrep result', () => {
+    const accepted = readHygiene(fixture('hygiene'))
+    expect(accepted.ok).toBe(true)
+    if (accepted.ok) {
+      expect(accepted.envelope.data.global.duplicationRate).toBe(0.08)
+      expect(accepted.envelope.data.scopes.web?.swallowedExceptions).toBe(1)
+      expect(accepted.envelope.data.gate?.baselineLines).toBe(60)
+    }
+
+    const ungated = fixture('hygiene')
+    ungated.data.gate = null
+    expect(readHygiene(ungated).ok).toBe(true)
+
+    // No Semgrep result means the count is unknown, which the contract spells null, not 0.
+    const unscanned = fixture('hygiene')
+    ;(unscanned.data.global as Record<string, unknown>).swallowedExceptions = null
+    expect(readHygiene(unscanned).ok).toBe(true)
+  })
+
+  it('rejects a hygiene facet that breaks the contract', () => {
+    const asPercent = fixture('hygiene')
+    ;(asPercent.data.global as Record<string, unknown>).duplicationRate = 8
+    const percentRead = readHygiene(asPercent)
+    expect(percentRead).toMatchObject({ ok: false, kind: 'mismatch' })
+    if (!percentRead.ok) expect(percentRead.reason).toContain('$.data.global.duplicationRate')
+
+    const noBacklog = fixture('hygiene')
+    noBacklog.data.gate = { baselinedFiles: 2, violations: 0, fixed: 1 }
+    const gateRead = readHygiene(noBacklog)
+    expect(gateRead).toMatchObject({ ok: false, kind: 'mismatch' })
+    if (!gateRead.ok) expect(gateRead.reason).toContain("missing 'baselineLines'")
+
+    // deadCodeWarnings belongs to a scope; a module summary carrying it is a producer bug.
+    const misplaced = fixture('hygiene')
+    const api = (misplaced.data.scopes as Record<string, { modules: Record<string, object> }>).api
+    if (api)
+      api.modules['Checkout.Domain'] = { ...api.modules['Checkout.Domain'], deadCodeWarnings: 0 }
+    const misplacedRead = readHygiene(misplaced)
+    expect(misplacedRead).toMatchObject({ ok: false, kind: 'mismatch' })
+    if (!misplacedRead.ok) expect(misplacedRead.reason).toContain("unexpected 'deadCodeWarnings'")
+  })
+
   it('reports a missing file as missing, not as a mismatch', () => {
     expect(readFacet({ 'other.json': strToU8('{}') }, 'coverage', REPO, 'main')).toMatchObject({
       ok: false,
@@ -298,6 +345,33 @@ describe('mergeSamples', () => {
     expect(merged?.latest.hotspots?.length).toBeGreaterThan(0)
   })
 
+  it('keeps the hygiene gate and scope totals on every sample, detail only on the latest', () => {
+    const data = fixture('hygiene').data as unknown as HygieneData
+    const gate = { baselinedFiles: 2, baselineLines: 60, violations: 0, fixed: 1 }
+    const sample = (n: number, baselineLines: number): FacetSample<HygieneData> => ({
+      commitSha: `c${n}`,
+      runId: n,
+      runAttempt: 1,
+      artifactId: n,
+      generatedAt: `2026-10-0${n}T00:00:00Z`,
+      data: { ...data, gate: { ...gate, baselineLines } },
+    })
+    const merged = mergeSamples('hygiene', null, [sample(1, 60), sample(2, 48)])
+
+    expect(merged?.samples.map((s) => s.data.gate?.baselineLines)).toEqual([60, 48])
+    expect(merged?.samples.map((s) => s.data.scopes.api?.duplicationRate)).toEqual([0.1, 0.1])
+    expect(merged?.samples[0]?.data.hotspots).toBeUndefined()
+    expect(merged?.samples[0]?.data.scopes.api?.modules).toBeUndefined()
+    expect(merged?.latest.hotspots?.map((h) => h.file)).toEqual([
+      'apps/api/src/Checkout.Application/Orders/OrderMapper.cs',
+      'apps/web/src/pages/Cart.tsx',
+    ])
+    expect(Object.keys(merged?.latest.scopes.api?.modules ?? {})).toEqual([
+      'Checkout.Application',
+      'Checkout.Domain',
+    ])
+  })
+
   it('reuses the stored latest detail when nothing newer arrived', () => {
     const stored = mergeSamples('coverage', null, [
       coverageSample({ artifactId: 5, generatedAt: '2026-10-09T00:00:00Z' }),
@@ -352,7 +426,7 @@ describe('collectEngineeringExcellence', () => {
     expect(block.sbom).toMatchObject({ available: false })
     expect(
       warnings.filter((w) => w.code === 'ENGINEERING_EXCELLENCE_ARTIFACT_MISSING'),
-    ).toHaveLength(4)
+    ).toHaveLength(5)
   })
 
   it('warns on a schema mismatch and keeps the stored samples instead of the bad one', async () => {

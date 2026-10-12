@@ -488,6 +488,7 @@ const excellence = (): EngineeringExcellence => ({
     '2026-10-15T00:00:00Z',
   ),
   sbom: skip('No sbom artifact this month.'),
+  hygiene: skip('No hygiene artifact this month.'),
 })
 
 describe('facetEvidence', () => {
