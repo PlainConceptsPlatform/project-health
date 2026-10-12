@@ -28,7 +28,18 @@
         { "name": "coverage-v8", "pattern": "coverage-v8" },
         { "name": "--coverage", "pattern": "--coverage\\b" },
         { "name": "JaCoCo", "pattern": "jacoco" },
-        { "name": "pytest-cov", "pattern": "pytest-cov|pytest[^\\n]*--cov\\b" }
+        { "name": "pytest-cov", "pattern": "pytest-cov|pytest[^\\n]*--cov\\b" },
+        { "name": "dotnet test", "pattern": "\\bdotnet\\s+test\\b", "weak": true },
+        { "name": "npm test", "pattern": "\\bnpm\\s+(run\\s+)?test\\b", "weak": true },
+        { "name": "pnpm test", "pattern": "\\bpnpm\\s+(run\\s+)?test\\b", "weak": true },
+        { "name": "yarn test", "pattern": "\\byarn\\s+test\\b", "weak": true },
+        { "name": "Vitest", "pattern": "\\bvitest\\b", "weak": true },
+        { "name": "Jest", "pattern": "\\bjest\\b", "weak": true },
+        { "name": "pytest", "pattern": "\\bpytest\\b", "weak": true },
+        { "name": "go test", "pattern": "\\bgo\\s+test\\b", "weak": true },
+        { "name": "Maven", "pattern": "\\bmvnw?(\\s+-\\S+)*\\s+(verify|test)\\b", "weak": true },
+        { "name": "Gradle", "pattern": "\\bgradlew?\\s+test\\b", "weak": true },
+        { "name": "cargo test", "pattern": "\\bcargo\\s+test\\b", "weak": true }
       ]
     },
     {

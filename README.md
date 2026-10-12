@@ -239,6 +239,10 @@ Each practice is decided by one of two sources, and the page says which:
   `continue-on-error: true`, `exit-code: "0"` or `|| true` (Trivy also needs an explicit non-zero
   exit code, because it exits 0 by default). Pass or fail is the conclusion of that job in the
   latest completed run of the workflow, read through the caller when the workflow is reusable.
+  A tool marked `"weak": true` in `config/scorecard.json` shows the practice is there but below its
+  standard. Tests & coverage lists plain test runners this way (`dotnet test`, `npm test`, `pytest`,
+  `go test` and others): tests that run without a coverage tool are yellow, never green. When a weak
+  and a strong tool are both found, the strong one decides, and a coverage facet counts as strong.
 
 Workflows are read as they are today, so a backfilled month pairs today's gates with that month's
 run results and commits. A result older than 14 days counts as stale.
@@ -246,12 +250,12 @@ run results and commits. A result older than 14 days counts as stale.
 | Colour | Means |
 | --- | --- |
 | Green | present in its standard mode and passing, or its threshold met |
-| Yellow | present but weaker than standard (report-only), threshold not met, or unknown or stale |
+| Yellow | present but weaker than standard (report-only, or found only through weak tools), threshold not met, or unknown or stale |
 | Red | applicable but absent, or a Blocking gate failing on the default branch |
 | Grey | not applicable to this project |
 
 The **level** is cumulative and counts only green gates: N1 needs secrets, vulnerabilities and SAST
-green with tests present; N2 adds tests and coverage, spec and SBOM; N3 adds mutation, DAST and
+green with tests present (yellow is enough, so a plain test run counts); N2 adds tests and coverage, spec and SBOM; N3 adds mutation, DAST and
 complexity where they apply. The **score** is (green + half of yellow) over applicable, 0 to 100.
 **AI usage** (1 to 5) is the share of the month's non-merge default branch commits with an assistant
 Co-authored-by trailer or an agent bot author; dependency and Actions bots are excluded.
