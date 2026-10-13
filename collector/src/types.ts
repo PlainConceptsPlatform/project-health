@@ -21,6 +21,8 @@ export type WarningCode =
   | 'SMALL_SAMPLE'
   | 'ENGINEERING_EXCELLENCE_ARTIFACT_MISSING'
   | 'ENGINEERING_EXCELLENCE_SCHEMA_MISMATCH'
+  | 'ROADMAP_PERMISSION_MISSING'
+  | 'LABEL_SET_BY_WORKFLOW'
 
 export type WarningSeverity = 'info' | 'warn'
 
@@ -68,6 +70,17 @@ export interface ProjectConfig {
     branch?: string
     /** Artifact name prefix; the facet name is appended. Defaults to engineering-excellence-. */
     artifactPrefix?: string
+  }
+  /**
+   * Opt in to reading every issue's timeline, so the site can show who had each issue at each
+   * moment. Only meaningful where agents and people hand issues over with labels.
+   */
+  roadmap?: {
+    enabled: boolean
+    /** Label names, when a repository does not use the defaults in metrics/roadmap.ts. */
+    labels?: Partial<RoadmapLabels>
+    /** Branch the evidence workflow commits screenshots to. Defaults to evidence. */
+    evidenceBranch?: string
   }
   /** Decides which scorecard practices apply. Absent means other, where every practice applies. */
   type?: ProjectType
@@ -246,7 +259,130 @@ export interface MonthlyReport {
   scorecard?: MetricBlock<Scorecard>
   /** Absent in files written before it existed. */
   environment?: MetricBlock<FinalEnvironment>
+  /** Absent when the project has not opted in, and in files written before it existed. */
+  roadmap?: MetricBlock<Roadmap>
   warnings: Warning[]
+}
+
+export interface RoadmapLabels {
+  /** Present while an agent is working on the issue. */
+  working: string
+  /** Present while the issue waits for a person: a question, a review, a stalled run. */
+  waiting: string[]
+  /** The subset of waiting that means an agent run gave up. Each application is one stall. */
+  stalled: string
+  /** Present while the issue's pull request waits for the merge gate. */
+  merge: string
+  /** Labels that ask an agent to act. An issue that never carried one was worked by hand. */
+  triggers: string[]
+}
+
+/**
+ * Who had an issue at a moment. agent: an agent was working. person: it waited for a person.
+ * merge: its pull request waited to merge. queued: nobody had it. manual: it never went through
+ * an agent, so a person had it the whole time.
+ */
+export type JourneyState = 'agent' | 'person' | 'queued' | 'merge' | 'manual'
+
+export interface JourneySegment {
+  state: JourneyState
+  /** Minutes from the issue's creation. */
+  from: number
+  to: number
+}
+
+export interface JourneyMark {
+  /** Minutes from the issue's creation. */
+  at: number
+  kind: 'stalled' | 'failed-run'
+}
+
+export type JourneyEventKind =
+  | 'opened'
+  | 'requested'
+  | 'agent-started'
+  | 'agent-stopped'
+  | 'estimated'
+  | 'review'
+  | 'stalled'
+  | 'failed-run'
+  | 'pr-linked'
+  | 'merged'
+  | 'closed'
+  | 'reopened'
+
+export interface JourneyEvent {
+  at: string
+  kind: JourneyEventKind
+  actor: string | null
+  /** The label, pull request number or estimate the event is about. */
+  detail: string | null
+}
+
+export interface LinkedPullRequest {
+  number: number
+  title: string
+  author: string | null
+  byAgent: boolean
+  /** True when its body closes this issue, rather than only mentioning it. */
+  closes: boolean
+  createdAt: string
+  mergedAt: string | null
+  mergedBy: string | null
+  additions: number
+  deletions: number
+  changedFiles: number
+  /** The merge gate's verdict, when the repository runs one. */
+  mergeGate: string | null
+}
+
+export interface EvidenceWaypoint {
+  n: number
+  capture: string
+  expect: string | null
+  reached: boolean
+  /** Absolute URL of the screenshot, null when the waypoint produced none. */
+  image: string | null
+}
+
+/** Screenshots the evidence workflow replayed from a merged pull request's verification plan. */
+export interface JourneyEvidence {
+  pullRequest: number
+  url: string
+  waypoints: EvidenceWaypoint[]
+  /** Set when nothing could be captured, for example because the app never answered. */
+  note: string | null
+}
+
+export type IssueSource = 'person' | 'app-error' | 'audit' | 'nightly' | 'automation'
+
+export type JourneyOutcome = 'open' | 'merged' | 'auto-merged' | 'merged-by-hand' | 'closed'
+
+export interface IssueJourney {
+  number: number
+  title: string
+  author: string | null
+  source: IssueSource
+  createdAt: string
+  closedAt: string | null
+  /** Lets a later collection reuse a closed issue that has not changed. */
+  updatedAt: string
+  outcome: JourneyOutcome
+  /** Story points from an sp-N label, null when the issue carries none. */
+  estimate: number | null
+  segments: JourneySegment[]
+  marks: JourneyMark[]
+  events: JourneyEvent[]
+  pullRequests: LinkedPullRequest[]
+  evidence: JourneyEvidence | null
+  /** Agent runs whose title names this issue, joined from the agents block. */
+  agent: { runs: number; inputTokens: number; outputTokens: number; seconds: number }
+}
+
+export interface Roadmap {
+  /** The moment open issues are measured up to: the end of the period, or the collection. */
+  asOf: string
+  issues: IssueJourney[]
 }
 
 export type PracticePhase = 'build' | 'test-env'

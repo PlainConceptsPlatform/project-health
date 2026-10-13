@@ -73,6 +73,8 @@ export async function discover(repo: string): Promise<void> {
     production && productionCount > 0 ? 'production' : staging ? 'pre-production' : 'planned'
 
   const router = workflows.find((w) => w.path.includes('work-router'))
+  // Agents hand issues over with these labels; without them the roadmap has nothing to read.
+  const handover = ['bot-working', 'pr-pending'].filter((l) => labels.includes(l))
 
   const entry = {
     id: repo.split('/')[1]?.toLowerCase(),
@@ -86,6 +88,7 @@ export async function discover(repo: string): Promise<void> {
     reworkLabel: labels.includes('hotfix') ? 'hotfix' : labels.includes('bug') ? 'bug' : 'bug',
     reworkLabelPrecision: labels.includes('hotfix') ? 'incident' : 'broad',
     agents: { enabled: Boolean(router), workflow: router ? router.path : null },
+    ...(handover.length > 0 ? { roadmap: { enabled: true } } : {}),
     notes: '',
   }
 
@@ -104,6 +107,13 @@ export async function discover(repo: string): Promise<void> {
     }`,
   )
   console.log(`  agents            ${router ? router.path : 'no router workflow found'}`)
+  console.log(
+    `  roadmap           ${
+      handover.length > 0
+        ? `labels ${handover.join(', ')} found, issue journeys collected`
+        : 'no bot-working or pr-pending label, not collected'
+    }`,
+  )
   console.log(`  status            ${status}`)
   console.log('\nPaste into projects.json:\n')
   console.log(`${JSON.stringify(entry, null, 2)}\n`)

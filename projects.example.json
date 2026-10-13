@@ -24,6 +24,9 @@
       "engineeringExcellence": {
         "enabled": true
       },
+      "roadmap": {
+        "enabled": true
+      },
       "scorecard": {
         "performance": true
       },

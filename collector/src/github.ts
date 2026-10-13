@@ -164,6 +164,51 @@ export interface Issue {
   closed_at: string | null
   labels: { name: string }[]
   pull_request?: unknown
+  updated_at?: string
+  body?: string | null
+  user?: Actor | null
+}
+
+export interface Actor {
+  login: string
+  type?: string
+}
+
+/** One entry of /issues/{n}/timeline. Only the fields the roadmap reads. */
+export interface TimelineEvent {
+  event: string
+  created_at?: string
+  actor?: Actor | null
+  /** Set on commented events instead of actor. */
+  user?: Actor | null
+  body?: string | null
+  label?: { name: string }
+  source?: {
+    issue?: {
+      number: number
+      pull_request?: { merged_at?: string | null } | null
+      repository?: { full_name: string }
+    }
+  }
+}
+
+export interface PullRequestDetail {
+  number: number
+  title: string
+  body: string | null
+  user: Actor | null
+  created_at: string
+  merged_at: string | null
+  merged_by: Actor | null
+  additions: number
+  deletions: number
+  changed_files: number
+}
+
+export interface IssueComment {
+  body?: string | null
+  user?: Actor | null
+  created_at: string
 }
 
 export interface PullRequest {
