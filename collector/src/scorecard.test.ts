@@ -318,33 +318,33 @@ const results = (
     lastRun: null,
   }))
 
-const N1 = { secrets: 'green', vulnerabilities: 'green', sast: 'green', tests: 'yellow' } as const
-const N2 = { ...N1, tests: 'green', spec: 'green', sbom: 'green' } as const
-const N3 = { ...N2, mutation: 'green', dast: 'green', complexity: 'green' } as const
+const L1 = { secrets: 'green', vulnerabilities: 'green', sast: 'green', tests: 'yellow' } as const
+const L2 = { ...L1, tests: 'green', spec: 'green', sbom: 'green' } as const
+const L3 = { ...L2, mutation: 'green', dast: 'green', complexity: 'green' } as const
 
 describe('engineeringLevel', () => {
-  it('is N0 when a security gate is only yellow', () => {
-    expect(engineeringLevel(results({ ...N1, sast: 'yellow' }))).toBe(0)
+  it('is L0 when a security gate is only yellow', () => {
+    expect(engineeringLevel(results({ ...L1, sast: 'yellow' }))).toBe(0)
   })
 
-  it('is N0 when tests are absent, even with every security gate green', () => {
-    expect(engineeringLevel(results({ ...N1, tests: 'red' }))).toBe(0)
+  it('is L0 when tests are absent, even with every security gate green', () => {
+    expect(engineeringLevel(results({ ...L1, tests: 'red' }))).toBe(0)
   })
 
-  it('counts present-but-yellow tests for N1 and needs them green for N2', () => {
-    expect(engineeringLevel(results(N1))).toBe(1)
-    expect(engineeringLevel(results({ ...N2, tests: 'yellow' }))).toBe(1)
-    expect(engineeringLevel(results(N2))).toBe(2)
+  it('counts present-but-yellow tests for L1 and needs them green for L2', () => {
+    expect(engineeringLevel(results(L1))).toBe(1)
+    expect(engineeringLevel(results({ ...L2, tests: 'yellow' }))).toBe(1)
+    expect(engineeringLevel(results(L2))).toBe(2)
   })
 
-  it('needs mutation, DAST and complexity green for N3', () => {
-    expect(engineeringLevel(results({ ...N3, complexity: 'yellow' }))).toBe(2)
-    expect(engineeringLevel(results(N3))).toBe(3)
+  it('needs mutation, DAST and complexity green for L3', () => {
+    expect(engineeringLevel(results({ ...L3, complexity: 'yellow' }))).toBe(2)
+    expect(engineeringLevel(results(L3))).toBe(3)
   })
 
   it('does not let a not-applicable gate hold a project back', () => {
-    // An ML project has no spec, mutation or DAST; requiring them would cap it at N1 forever.
-    const { spec: _s, mutation: _m, dast: _d, ...rest } = N3
+    // An ML project has no spec, mutation or DAST; requiring them would cap it at L1 forever.
+    const { spec: _s, mutation: _m, dast: _d, ...rest } = L3
     expect(engineeringLevel(results(rest, ['spec', 'mutation', 'dast']))).toBe(3)
   })
 })
@@ -468,7 +468,7 @@ describe('scorecardAlerts', () => {
   const alerts = (input: Parameters<typeof scorecardAlerts>[0]) =>
     scorecardAlerts(input, config.alerts).map((a) => a.code)
 
-  it('raises high AI usage with low engineering at AI 4 and level N1, not at N2 or AI 3', () => {
+  it('raises high AI usage with low engineering at AI 4 and level L1, not at L2 or AI 3', () => {
     const base = { score: 50, previousScores: [] }
     expect(alerts({ ...base, level: 1, aiUsage: usage(4) })).toEqual(['HIGH_AI_LOW_ENGINEERING'])
     expect(alerts({ ...base, level: 0, aiUsage: usage(5) })).toEqual(['HIGH_AI_LOW_ENGINEERING'])
@@ -786,7 +786,7 @@ describe('collectScorecard', () => {
     )
     expect(card.facetsPublished).toBe(false)
     expect(card.practices.every((p) => p.source !== 'facet')).toBe(true)
-    // Spec is failing, so N2 is out of reach.
+    // Spec is failing, so L2 is out of reach.
     expect(card.level).toBe(1)
     // DAST is red and now counts: the test environment is a phase like any other.
     expect(card.gates).toEqual({ present: 7, applicable: 10 })
@@ -915,7 +915,7 @@ jobs:
     return block.data
   }
 
-  it('counts plain test runs as present for N1 but not green for N2', async () => {
+  it('counts plain test runs as present for L1 but not green for L2', async () => {
     const card = await collectWith('dotnet test')
     const tests = card.practices.find((p) => p.id === 'tests')
     expect(tests).toMatchObject({ rag: 'yellow', source: 'detected', tools: ['dotnet test'] })

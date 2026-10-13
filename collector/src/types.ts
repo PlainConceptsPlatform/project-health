@@ -309,7 +309,7 @@ export interface Scorecard {
   facetsPublished: boolean
   workflowsScanned: number
   practices: PracticeResult[]
-  /** 0 to 3, N0 to N3. */
+  /** 0 to 3, L0 to L3. */
   level: number
   /** 0 to 100, null when nothing applies. */
   score: number | null

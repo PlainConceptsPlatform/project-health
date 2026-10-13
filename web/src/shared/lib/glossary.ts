@@ -78,7 +78,7 @@ export const GLOSSARY = {
     'The furthest environment the application has deployed to successfully. Each deployment environment is matched to the Azure resource group it deploys to (infra/<env>.env or the AZURE_RG / AZURE_RESOURCE_GROUP variable), and the group name says PRO or PRE. Without a resource group, the environment name decides. Not deployed means no deployment has ever succeeded.',
 
   engineeringLevel:
-    'A cumulative level where only green gates count. N1: secrets, vulnerability and SAST gates green and tests present. N2: N1 plus tests and coverage, Gherkin specs and the SBOM green. N3: N2 plus mutation, DAST and complexity green where they apply. Anything less is N0.',
+    'A cumulative level where only green gates count. L1: secrets, vulnerability and SAST gates green and tests present. L2: L1 plus tests and coverage, Gherkin specs and the SBOM green. L3: L2 plus mutation, DAST and complexity green where they apply. Anything less is L0.',
 
   engineeringScore:
     'Green practices plus half the yellow ones, over every practice that applies, from 0 to 100. Not-applicable practices are left out rather than counted against the project.',
