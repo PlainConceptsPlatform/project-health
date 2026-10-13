@@ -91,6 +91,18 @@ export const GLOSSARY = {
 
   scorecardSource:
     'Facet means the repository published an engineering excellence facet and its verdict decided the colour. Detected means the tool was found in a workflow on the default branch, and the latest run of that workflow decided it.',
+
+  roadmapAgentShare:
+    'Of all the time the issues on this page were open, the share an agent was actually working on one. The rest is waiting: for a person, for a merge, or for nobody in particular. Wall clock, so nights and weekends count.',
+
+  roadmapOpenedToMerged:
+    'From opening an issue to merging the pull request that closed it, wall clock. The middle value of the issues merged in the period, so one slow issue does not move it much.',
+
+  roadmapStalls:
+    'How many times an agent run gave up and handed the issue to a person (the stalled label), plus attempts the workflow reported as ended early and retried.',
+
+  roadmapWaiting:
+    'Open issues whose latest state is waiting for a person: a question from the agent, a review, or a stalled run.',
 } as const
 
 export type GlossaryKey = keyof typeof GLOSSARY

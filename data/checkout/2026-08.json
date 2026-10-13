@@ -3201,11 +3201,1339 @@
       "alerts": []
     }
   },
+  "roadmap": {
+    "available": true,
+    "data": {
+      "asOf": "2026-08-31T03:15:00Z",
+      "issues": [
+        {
+          "number": 402,
+          "title": "Address form loses the postcode on back",
+          "author": "jon",
+          "source": "person",
+          "createdAt": "2026-08-24T16:30:00Z",
+          "closedAt": "2026-08-24T21:10:00Z",
+          "updatedAt": "2026-08-24T21:10:00Z",
+          "outcome": "merged-by-hand",
+          "estimate": null,
+          "segments": [
+            {
+              "state": "manual",
+              "from": 0,
+              "to": 280
+            }
+          ],
+          "marks": [],
+          "events": [
+            {
+              "at": "2026-08-24T16:30:00Z",
+              "kind": "opened",
+              "actor": "jon",
+              "detail": null
+            },
+            {
+              "at": "2026-08-24T21:00:00Z",
+              "kind": "pr-linked",
+              "actor": "jon",
+              "detail": "405"
+            },
+            {
+              "at": "2026-08-24T21:10:00Z",
+              "kind": "merged",
+              "actor": "jon",
+              "detail": "405"
+            },
+            {
+              "at": "2026-08-24T21:10:00Z",
+              "kind": "closed",
+              "actor": "jon",
+              "detail": null
+            }
+          ],
+          "pullRequests": [
+            {
+              "number": 405,
+              "title": "Address form loses the postcode on back",
+              "author": "jon",
+              "byAgent": false,
+              "closes": true,
+              "createdAt": "2026-08-24T21:00:00Z",
+              "mergedAt": "2026-08-24T21:10:00Z",
+              "mergedBy": "jon",
+              "additions": 40,
+              "deletions": 6,
+              "changedFiles": 2,
+              "mergeGate": null
+            }
+          ],
+          "evidence": null,
+          "agent": {
+            "runs": 0,
+            "inputTokens": 0,
+            "outputTokens": 0,
+            "seconds": 0
+          }
+        },
+        {
+          "number": 303,
+          "title": "Totals round differently in the basket and the receipt",
+          "author": "maria",
+          "source": "person",
+          "createdAt": "2026-08-25T08:20:00Z",
+          "closedAt": "2026-08-25T14:05:00Z",
+          "updatedAt": "2026-08-25T14:05:00Z",
+          "outcome": "merged",
+          "estimate": 2,
+          "segments": [
+            {
+              "state": "queued",
+              "from": 0,
+              "to": 4
+            },
+            {
+              "state": "agent",
+              "from": 4,
+              "to": 13
+            },
+            {
+              "state": "queued",
+              "from": 13,
+              "to": 43
+            },
+            {
+              "state": "agent",
+              "from": 43,
+              "to": 70
+            },
+            {
+              "state": "person",
+              "from": 70,
+              "to": 210
+            },
+            {
+              "state": "agent",
+              "from": 210,
+              "to": 232
+            },
+            {
+              "state": "person",
+              "from": 232,
+              "to": 296
+            },
+            {
+              "state": "agent",
+              "from": 296,
+              "to": 327
+            },
+            {
+              "state": "merge",
+              "from": 327,
+              "to": 345
+            }
+          ],
+          "marks": [
+            {
+              "at": 70,
+              "kind": "stalled"
+            },
+            {
+              "at": 232,
+              "kind": "stalled"
+            },
+            {
+              "at": 306,
+              "kind": "failed-run"
+            }
+          ],
+          "events": [
+            {
+              "at": "2026-08-25T08:20:00Z",
+              "kind": "opened",
+              "actor": "maria",
+              "detail": null
+            },
+            {
+              "at": "2026-08-25T08:20:00Z",
+              "kind": "requested",
+              "actor": "maria",
+              "detail": "refine"
+            },
+            {
+              "at": "2026-08-25T08:24:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-25T08:33:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-25T08:33:00Z",
+              "kind": "estimated",
+              "actor": "example-bot[bot]",
+              "detail": "sp-2"
+            },
+            {
+              "at": "2026-08-25T09:03:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-25T09:30:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-25T09:30:00Z",
+              "kind": "stalled",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-25T11:50:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-25T12:12:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-25T12:12:00Z",
+              "kind": "stalled",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-25T13:16:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-25T13:26:00Z",
+              "kind": "failed-run",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-25T13:47:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-25T13:47:00Z",
+              "kind": "pr-linked",
+              "actor": "example-bot[bot]",
+              "detail": "406"
+            },
+            {
+              "at": "2026-08-25T14:05:00Z",
+              "kind": "merged",
+              "actor": "maria",
+              "detail": "406"
+            },
+            {
+              "at": "2026-08-25T14:05:00Z",
+              "kind": "closed",
+              "actor": "maria",
+              "detail": null
+            }
+          ],
+          "pullRequests": [
+            {
+              "number": 406,
+              "title": "Totals round differently in the basket and the receipt",
+              "author": "example-bot[bot]",
+              "byAgent": true,
+              "closes": true,
+              "createdAt": "2026-08-25T13:47:00Z",
+              "mergedAt": "2026-08-25T14:05:00Z",
+              "mergedBy": "maria",
+              "additions": 95,
+              "deletions": 31,
+              "changedFiles": 4,
+              "mergeGate": null
+            }
+          ],
+          "evidence": null,
+          "agent": {
+            "runs": 1,
+            "inputTokens": 120000,
+            "outputTokens": 480,
+            "seconds": 519
+          }
+        },
+        {
+          "number": 343,
+          "title": "Show Apple Pay and Google Pay on the payment step",
+          "author": "maria",
+          "source": "person",
+          "createdAt": "2026-08-26T09:10:00Z",
+          "closedAt": "2026-08-26T11:30:00Z",
+          "updatedAt": "2026-08-26T11:30:00Z",
+          "outcome": "auto-merged",
+          "estimate": 5,
+          "segments": [
+            {
+              "state": "queued",
+              "from": 0,
+              "to": 3
+            },
+            {
+              "state": "agent",
+              "from": 3,
+              "to": 17
+            },
+            {
+              "state": "queued",
+              "from": 17,
+              "to": 23
+            },
+            {
+              "state": "agent",
+              "from": 23,
+              "to": 42
+            },
+            {
+              "state": "queued",
+              "from": 42,
+              "to": 77
+            },
+            {
+              "state": "agent",
+              "from": 77,
+              "to": 118
+            },
+            {
+              "state": "merge",
+              "from": 118,
+              "to": 140
+            }
+          ],
+          "marks": [],
+          "events": [
+            {
+              "at": "2026-08-26T09:10:00Z",
+              "kind": "opened",
+              "actor": "maria",
+              "detail": null
+            },
+            {
+              "at": "2026-08-26T09:10:00Z",
+              "kind": "requested",
+              "actor": "maria",
+              "detail": "refine"
+            },
+            {
+              "at": "2026-08-26T09:13:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-26T09:27:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-26T09:27:00Z",
+              "kind": "estimated",
+              "actor": "example-bot[bot]",
+              "detail": "sp-5"
+            },
+            {
+              "at": "2026-08-26T09:33:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-26T09:52:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-26T10:27:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-26T11:08:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-26T11:08:00Z",
+              "kind": "pr-linked",
+              "actor": "example-bot[bot]",
+              "detail": "410"
+            },
+            {
+              "at": "2026-08-26T11:30:00Z",
+              "kind": "merged",
+              "actor": "example-bot[bot]",
+              "detail": "410"
+            },
+            {
+              "at": "2026-08-26T11:30:00Z",
+              "kind": "closed",
+              "actor": "example-bot[bot]",
+              "detail": null
+            }
+          ],
+          "pullRequests": [
+            {
+              "number": 410,
+              "title": "Show Apple Pay and Google Pay on the payment step",
+              "author": "example-bot[bot]",
+              "byAgent": true,
+              "closes": true,
+              "createdAt": "2026-08-26T11:08:00Z",
+              "mergedAt": "2026-08-26T11:30:00Z",
+              "mergedBy": "example-bot[bot]",
+              "additions": 612,
+              "deletions": 40,
+              "changedFiles": 14,
+              "mergeGate": "auto-merge"
+            }
+          ],
+          "evidence": {
+            "pullRequest": 410,
+            "url": "https://github.com/your-org/checkout/tree/evidence/pr-410",
+            "waypoints": [
+              {
+                "n": 1,
+                "capture": "payment step",
+                "expect": "Wallet buttons above the card form",
+                "reached": true,
+                "image": "/example-evidence/checkout-wallets.svg"
+              },
+              {
+                "n": 2,
+                "capture": "receipt",
+                "expect": "Order confirmed with the wallet named",
+                "reached": true,
+                "image": "/example-evidence/checkout-receipt.svg"
+              }
+            ],
+            "note": null
+          },
+          "agent": {
+            "runs": 1,
+            "inputTokens": 3500000,
+            "outputTokens": 14000,
+            "seconds": 811
+          }
+        },
+        {
+          "number": 401,
+          "title": "Explain why a card was declined",
+          "author": "jon",
+          "source": "person",
+          "createdAt": "2026-08-26T11:40:00Z",
+          "closedAt": "2026-08-26T14:50:00Z",
+          "updatedAt": "2026-08-26T14:50:00Z",
+          "outcome": "merged",
+          "estimate": 3,
+          "segments": [
+            {
+              "state": "queued",
+              "from": 0,
+              "to": 2
+            },
+            {
+              "state": "agent",
+              "from": 2,
+              "to": 14
+            },
+            {
+              "state": "person",
+              "from": 14,
+              "to": 109
+            },
+            {
+              "state": "agent",
+              "from": 109,
+              "to": 142
+            },
+            {
+              "state": "merge",
+              "from": 142,
+              "to": 190
+            }
+          ],
+          "marks": [],
+          "events": [
+            {
+              "at": "2026-08-26T11:40:00Z",
+              "kind": "opened",
+              "actor": "jon",
+              "detail": null
+            },
+            {
+              "at": "2026-08-26T11:40:00Z",
+              "kind": "requested",
+              "actor": "jon",
+              "detail": "refine"
+            },
+            {
+              "at": "2026-08-26T11:42:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-26T11:54:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-26T11:54:00Z",
+              "kind": "review",
+              "actor": "example-bot[bot]",
+              "detail": "review"
+            },
+            {
+              "at": "2026-08-26T11:54:00Z",
+              "kind": "estimated",
+              "actor": "example-bot[bot]",
+              "detail": "sp-3"
+            },
+            {
+              "at": "2026-08-26T13:29:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-26T14:02:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-26T14:02:00Z",
+              "kind": "pr-linked",
+              "actor": "example-bot[bot]",
+              "detail": "411"
+            },
+            {
+              "at": "2026-08-26T14:50:00Z",
+              "kind": "merged",
+              "actor": "jon",
+              "detail": "411"
+            },
+            {
+              "at": "2026-08-26T14:50:00Z",
+              "kind": "closed",
+              "actor": "jon",
+              "detail": null
+            }
+          ],
+          "pullRequests": [
+            {
+              "number": 411,
+              "title": "Explain why a card was declined",
+              "author": "example-bot[bot]",
+              "byAgent": true,
+              "closes": true,
+              "createdAt": "2026-08-26T14:02:00Z",
+              "mergedAt": "2026-08-26T14:50:00Z",
+              "mergedBy": "jon",
+              "additions": 188,
+              "deletions": 12,
+              "changedFiles": 6,
+              "mergeGate": null
+            }
+          ],
+          "evidence": {
+            "pullRequest": 411,
+            "url": "https://github.com/your-org/checkout/tree/evidence/pr-411",
+            "waypoints": [
+              {
+                "n": 1,
+                "capture": "declined card",
+                "expect": "A plain reason and what to try next",
+                "reached": true,
+                "image": "/example-evidence/checkout-error.svg"
+              }
+            ],
+            "note": null
+          },
+          "agent": {
+            "runs": 0,
+            "inputTokens": 0,
+            "outputTokens": 0,
+            "seconds": 0
+          }
+        },
+        {
+          "number": 100,
+          "title": "Save the basket when the session expires",
+          "author": "li",
+          "source": "person",
+          "createdAt": "2026-08-27T14:05:00Z",
+          "closedAt": "2026-08-28T01:45:00Z",
+          "updatedAt": "2026-08-28T01:45:00Z",
+          "outcome": "merged",
+          "estimate": 3,
+          "segments": [
+            {
+              "state": "queued",
+              "from": 0,
+              "to": 2
+            },
+            {
+              "state": "agent",
+              "from": 2,
+              "to": 18
+            },
+            {
+              "state": "queued",
+              "from": 18,
+              "to": 62
+            },
+            {
+              "state": "agent",
+              "from": 62,
+              "to": 100
+            },
+            {
+              "state": "merge",
+              "from": 100,
+              "to": 700
+            }
+          ],
+          "marks": [],
+          "events": [
+            {
+              "at": "2026-08-27T14:05:00Z",
+              "kind": "opened",
+              "actor": "li",
+              "detail": null
+            },
+            {
+              "at": "2026-08-27T14:05:00Z",
+              "kind": "requested",
+              "actor": "li",
+              "detail": "refine"
+            },
+            {
+              "at": "2026-08-27T14:07:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-27T14:23:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-27T14:23:00Z",
+              "kind": "estimated",
+              "actor": "example-bot[bot]",
+              "detail": "sp-3"
+            },
+            {
+              "at": "2026-08-27T15:07:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-27T15:45:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-27T15:45:00Z",
+              "kind": "pr-linked",
+              "actor": "example-bot[bot]",
+              "detail": "412"
+            },
+            {
+              "at": "2026-08-28T01:45:00Z",
+              "kind": "merged",
+              "actor": "li",
+              "detail": "412"
+            },
+            {
+              "at": "2026-08-28T01:45:00Z",
+              "kind": "closed",
+              "actor": "li",
+              "detail": null
+            }
+          ],
+          "pullRequests": [
+            {
+              "number": 412,
+              "title": "Save the basket when the session expires",
+              "author": "example-bot[bot]",
+              "byAgent": true,
+              "closes": true,
+              "createdAt": "2026-08-27T15:45:00Z",
+              "mergedAt": "2026-08-28T01:45:00Z",
+              "mergedBy": "li",
+              "additions": 240,
+              "deletions": 18,
+              "changedFiles": 9,
+              "mergeGate": null
+            }
+          ],
+          "evidence": null,
+          "agent": {
+            "runs": 1,
+            "inputTokens": 900000,
+            "outputTokens": 3600,
+            "seconds": 975
+          }
+        },
+        {
+          "number": 408,
+          "title": "Nightly E2E is failing",
+          "author": "github-actions[bot]",
+          "source": "nightly",
+          "createdAt": "2026-08-28T03:05:00Z",
+          "closedAt": "2026-08-28T04:09:00Z",
+          "updatedAt": "2026-08-28T04:09:00Z",
+          "outcome": "auto-merged",
+          "estimate": null,
+          "segments": [
+            {
+              "state": "queued",
+              "from": 0,
+              "to": 8
+            },
+            {
+              "state": "agent",
+              "from": 8,
+              "to": 29
+            },
+            {
+              "state": "merge",
+              "from": 29,
+              "to": 64
+            }
+          ],
+          "marks": [],
+          "events": [
+            {
+              "at": "2026-08-28T03:05:00Z",
+              "kind": "opened",
+              "actor": "github-actions[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-28T03:05:00Z",
+              "kind": "requested",
+              "actor": "github-actions[bot]",
+              "detail": "refine"
+            },
+            {
+              "at": "2026-08-28T03:13:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-28T03:34:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-28T03:34:00Z",
+              "kind": "pr-linked",
+              "actor": "example-bot[bot]",
+              "detail": "413"
+            },
+            {
+              "at": "2026-08-28T04:09:00Z",
+              "kind": "merged",
+              "actor": "example-bot[bot]",
+              "detail": "413"
+            },
+            {
+              "at": "2026-08-28T04:09:00Z",
+              "kind": "closed",
+              "actor": "example-bot[bot]",
+              "detail": null
+            }
+          ],
+          "pullRequests": [
+            {
+              "number": 413,
+              "title": "Nightly E2E is failing",
+              "author": "example-bot[bot]",
+              "byAgent": true,
+              "closes": true,
+              "createdAt": "2026-08-28T03:34:00Z",
+              "mergedAt": "2026-08-28T04:09:00Z",
+              "mergedBy": "example-bot[bot]",
+              "additions": 12,
+              "deletions": 4,
+              "changedFiles": 1,
+              "mergeGate": "auto-merge"
+            }
+          ],
+          "evidence": null,
+          "agent": {
+            "runs": 0,
+            "inputTokens": 0,
+            "outputTokens": 0,
+            "seconds": 0
+          }
+        },
+        {
+          "number": 289,
+          "title": "Retry the payment provider on a timeout",
+          "author": "maria",
+          "source": "person",
+          "createdAt": "2026-08-28T09:00:00Z",
+          "closedAt": "2026-08-28T13:55:00Z",
+          "updatedAt": "2026-08-28T13:55:00Z",
+          "outcome": "auto-merged",
+          "estimate": 2,
+          "segments": [
+            {
+              "state": "queued",
+              "from": 0,
+              "to": 1
+            },
+            {
+              "state": "agent",
+              "from": 1,
+              "to": 18
+            },
+            {
+              "state": "person",
+              "from": 18,
+              "to": 248
+            },
+            {
+              "state": "queued",
+              "from": 248,
+              "to": 260
+            },
+            {
+              "state": "agent",
+              "from": 260,
+              "to": 286
+            },
+            {
+              "state": "merge",
+              "from": 286,
+              "to": 295
+            }
+          ],
+          "marks": [],
+          "events": [
+            {
+              "at": "2026-08-28T09:00:00Z",
+              "kind": "opened",
+              "actor": "maria",
+              "detail": null
+            },
+            {
+              "at": "2026-08-28T09:00:00Z",
+              "kind": "requested",
+              "actor": "maria",
+              "detail": "refine"
+            },
+            {
+              "at": "2026-08-28T09:01:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-28T09:18:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-28T09:18:00Z",
+              "kind": "review",
+              "actor": "example-bot[bot]",
+              "detail": "review"
+            },
+            {
+              "at": "2026-08-28T09:18:00Z",
+              "kind": "estimated",
+              "actor": "example-bot[bot]",
+              "detail": "sp-2"
+            },
+            {
+              "at": "2026-08-28T13:20:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-28T13:46:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-28T13:46:00Z",
+              "kind": "pr-linked",
+              "actor": "example-bot[bot]",
+              "detail": "414"
+            },
+            {
+              "at": "2026-08-28T13:55:00Z",
+              "kind": "merged",
+              "actor": "example-bot[bot]",
+              "detail": "414"
+            },
+            {
+              "at": "2026-08-28T13:55:00Z",
+              "kind": "closed",
+              "actor": "example-bot[bot]",
+              "detail": null
+            }
+          ],
+          "pullRequests": [
+            {
+              "number": 414,
+              "title": "Retry the payment provider on a timeout",
+              "author": "example-bot[bot]",
+              "byAgent": true,
+              "closes": true,
+              "createdAt": "2026-08-28T13:46:00Z",
+              "mergedAt": "2026-08-28T13:55:00Z",
+              "mergedBy": "example-bot[bot]",
+              "additions": 130,
+              "deletions": 22,
+              "changedFiles": 5,
+              "mergeGate": "auto-merge"
+            }
+          ],
+          "evidence": null,
+          "agent": {
+            "runs": 1,
+            "inputTokens": 900000,
+            "outputTokens": 3600,
+            "seconds": 990
+          }
+        },
+        {
+          "number": 404,
+          "title": "Audit: 2026-08-29",
+          "author": "github-actions[bot]",
+          "source": "audit",
+          "createdAt": "2026-08-29T02:10:00Z",
+          "closedAt": "2026-08-29T21:56:00Z",
+          "updatedAt": "2026-08-29T21:56:00Z",
+          "outcome": "closed",
+          "estimate": null,
+          "segments": [
+            {
+              "state": "queued",
+              "from": 0,
+              "to": 6
+            },
+            {
+              "state": "person",
+              "from": 6,
+              "to": 1186
+            }
+          ],
+          "marks": [],
+          "events": [
+            {
+              "at": "2026-08-29T02:10:00Z",
+              "kind": "opened",
+              "actor": "github-actions[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-29T02:10:00Z",
+              "kind": "requested",
+              "actor": "github-actions[bot]",
+              "detail": "refine"
+            },
+            {
+              "at": "2026-08-29T02:16:00Z",
+              "kind": "review",
+              "actor": "example-bot[bot]",
+              "detail": "review"
+            },
+            {
+              "at": "2026-08-29T21:56:00Z",
+              "kind": "closed",
+              "actor": "maria",
+              "detail": null
+            }
+          ],
+          "pullRequests": [],
+          "evidence": null,
+          "agent": {
+            "runs": 0,
+            "inputTokens": 0,
+            "outputTokens": 0,
+            "seconds": 0
+          }
+        },
+        {
+          "number": 403,
+          "title": "PaymentTimeoutException in checkout-pro-app",
+          "author": "github-actions[bot]",
+          "source": "app-error",
+          "createdAt": "2026-08-29T02:15:00Z",
+          "closedAt": "2026-08-29T09:05:00Z",
+          "updatedAt": "2026-08-29T09:05:00Z",
+          "outcome": "auto-merged",
+          "estimate": null,
+          "segments": [
+            {
+              "state": "queued",
+              "from": 0,
+              "to": 255
+            },
+            {
+              "state": "agent",
+              "from": 255,
+              "to": 266
+            },
+            {
+              "state": "person",
+              "from": 266,
+              "to": 356
+            },
+            {
+              "state": "agent",
+              "from": 356,
+              "to": 380
+            },
+            {
+              "state": "merge",
+              "from": 380,
+              "to": 410
+            }
+          ],
+          "marks": [],
+          "events": [
+            {
+              "at": "2026-08-29T02:15:00Z",
+              "kind": "opened",
+              "actor": "github-actions[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-29T02:15:00Z",
+              "kind": "requested",
+              "actor": "github-actions[bot]",
+              "detail": "refine"
+            },
+            {
+              "at": "2026-08-29T06:30:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-29T06:41:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-29T06:41:00Z",
+              "kind": "review",
+              "actor": "example-bot[bot]",
+              "detail": "review"
+            },
+            {
+              "at": "2026-08-29T08:11:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-29T08:35:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-29T08:35:00Z",
+              "kind": "pr-linked",
+              "actor": "example-bot[bot]",
+              "detail": "415"
+            },
+            {
+              "at": "2026-08-29T09:05:00Z",
+              "kind": "merged",
+              "actor": "example-bot[bot]",
+              "detail": "415"
+            },
+            {
+              "at": "2026-08-29T09:05:00Z",
+              "kind": "closed",
+              "actor": "example-bot[bot]",
+              "detail": null
+            }
+          ],
+          "pullRequests": [
+            {
+              "number": 415,
+              "title": "PaymentTimeoutException in checkout-pro-app",
+              "author": "example-bot[bot]",
+              "byAgent": true,
+              "closes": true,
+              "createdAt": "2026-08-29T08:35:00Z",
+              "mergedAt": "2026-08-29T09:05:00Z",
+              "mergedBy": "example-bot[bot]",
+              "additions": 52,
+              "deletions": 8,
+              "changedFiles": 3,
+              "mergeGate": "auto-merge"
+            }
+          ],
+          "evidence": null,
+          "agent": {
+            "runs": 0,
+            "inputTokens": 0,
+            "outputTokens": 0,
+            "seconds": 0
+          }
+        },
+        {
+          "number": 405,
+          "title": "Coupon field accepts expired codes",
+          "author": "li",
+          "source": "person",
+          "createdAt": "2026-08-30T10:00:00Z",
+          "closedAt": "2026-08-30T11:49:00Z",
+          "updatedAt": "2026-08-30T11:49:00Z",
+          "outcome": "auto-merged",
+          "estimate": 1,
+          "segments": [
+            {
+              "state": "queued",
+              "from": 0,
+              "to": 2
+            },
+            {
+              "state": "agent",
+              "from": 2,
+              "to": 12
+            },
+            {
+              "state": "queued",
+              "from": 12,
+              "to": 17
+            },
+            {
+              "state": "agent",
+              "from": 17,
+              "to": 39
+            },
+            {
+              "state": "merge",
+              "from": 39,
+              "to": 109
+            }
+          ],
+          "marks": [],
+          "events": [
+            {
+              "at": "2026-08-30T10:00:00Z",
+              "kind": "opened",
+              "actor": "li",
+              "detail": null
+            },
+            {
+              "at": "2026-08-30T10:00:00Z",
+              "kind": "requested",
+              "actor": "li",
+              "detail": "refine"
+            },
+            {
+              "at": "2026-08-30T10:02:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-30T10:12:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-30T10:12:00Z",
+              "kind": "estimated",
+              "actor": "example-bot[bot]",
+              "detail": "sp-1"
+            },
+            {
+              "at": "2026-08-30T10:17:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-30T10:39:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-30T10:39:00Z",
+              "kind": "pr-linked",
+              "actor": "example-bot[bot]",
+              "detail": "416"
+            },
+            {
+              "at": "2026-08-30T11:49:00Z",
+              "kind": "merged",
+              "actor": "example-bot[bot]",
+              "detail": "416"
+            },
+            {
+              "at": "2026-08-30T11:49:00Z",
+              "kind": "closed",
+              "actor": "example-bot[bot]",
+              "detail": null
+            }
+          ],
+          "pullRequests": [
+            {
+              "number": 416,
+              "title": "Coupon field accepts expired codes",
+              "author": "example-bot[bot]",
+              "byAgent": true,
+              "closes": true,
+              "createdAt": "2026-08-30T10:39:00Z",
+              "mergedAt": "2026-08-30T11:49:00Z",
+              "mergedBy": "example-bot[bot]",
+              "additions": 64,
+              "deletions": 5,
+              "changedFiles": 2,
+              "mergeGate": "auto-merge"
+            }
+          ],
+          "evidence": null,
+          "agent": {
+            "runs": 0,
+            "inputTokens": 0,
+            "outputTokens": 0,
+            "seconds": 0
+          }
+        },
+        {
+          "number": 406,
+          "title": "Show delivery dates per item",
+          "author": "maria",
+          "source": "person",
+          "createdAt": "2026-08-30T12:30:00Z",
+          "closedAt": null,
+          "updatedAt": "2026-08-30T12:30:00Z",
+          "outcome": "open",
+          "estimate": 5,
+          "segments": [
+            {
+              "state": "queued",
+              "from": 0,
+              "to": 3
+            },
+            {
+              "state": "agent",
+              "from": 3,
+              "to": 18
+            },
+            {
+              "state": "person",
+              "from": 18,
+              "to": 885
+            }
+          ],
+          "marks": [],
+          "events": [
+            {
+              "at": "2026-08-30T12:30:00Z",
+              "kind": "opened",
+              "actor": "maria",
+              "detail": null
+            },
+            {
+              "at": "2026-08-30T12:30:00Z",
+              "kind": "requested",
+              "actor": "maria",
+              "detail": "refine"
+            },
+            {
+              "at": "2026-08-30T12:33:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-30T12:48:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-30T12:48:00Z",
+              "kind": "review",
+              "actor": "example-bot[bot]",
+              "detail": "review"
+            },
+            {
+              "at": "2026-08-30T12:48:00Z",
+              "kind": "estimated",
+              "actor": "example-bot[bot]",
+              "detail": "sp-5"
+            }
+          ],
+          "pullRequests": [],
+          "evidence": null,
+          "agent": {
+            "runs": 0,
+            "inputTokens": 0,
+            "outputTokens": 0,
+            "seconds": 0
+          }
+        }
+      ]
+    }
+  },
   "warnings": [
     {
       "code": "USAGE_ARTIFACT_MISSING",
       "severity": "warn",
       "message": "6 of 19 agent run(s) had no readable usage artifact. Artifacts expire, and a run still in progress has not uploaded one."
+    },
+    {
+      "code": "LABEL_SET_BY_WORKFLOW",
+      "message": "#403 sat for over an hour after a workflow set an agent label. Labels a workflow sets with its own token start no other workflow, so a person had to set the label again.",
+      "context": {
+        "issues": 1
+      },
+      "severity": "warn"
     }
   ]
 }
