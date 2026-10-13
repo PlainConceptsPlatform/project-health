@@ -1,6 +1,9 @@
 'use client'
 
 import {
+  DELTA_DAYS,
+  DELTA_TITLE,
+  type DeltaBasis,
   ENV_LABEL,
   FILTERS,
   type PortfolioAlert,
@@ -175,12 +178,12 @@ function AiUsage({ row }: { row: PortfolioRow }) {
 const gatesBar = (pct: number) =>
   pct >= 80 ? 'bg-primary' : pct >= 50 ? 'bg-warning' : 'bg-destructive'
 
-function Delta({ delta }: { delta: number | null }) {
+function Delta({ delta, basis }: { delta: number | null; basis: DeltaBasis }) {
   if (delta === null) return <span className="text-sm text-muted-foreground">n/a</span>
   const label = delta > 0 ? `+${delta}` : delta < 0 ? `−${Math.abs(delta)}` : '0'
   return (
     <span
-      title="Score change over about 30 days: this month's score against last month's"
+      title={DELTA_TITLE[basis]}
       className={cn(
         'w-8 text-sm font-semibold tabular-nums',
         delta < 0 ? 'text-destructive' : delta === 0 ? 'text-muted-foreground' : 'text-foreground',
@@ -203,7 +206,7 @@ function openRow(e: React.MouseEvent<HTMLTableRowElement>, href: string) {
   else window.location.assign(href)
 }
 
-const COLUMNS = ['Project', 'Engineering', 'Gates', 'AI usage', 'Last 30 days', '']
+const COLUMNS = ['Project', 'Engineering', 'Gates', 'AI usage', `Last ${DELTA_DAYS} days`, '']
 
 function ScorecardRows({
   rows,
@@ -332,7 +335,7 @@ function ScorecardRows({
                           label={`${row.name} engineering score, last 6 months`}
                           tone={row.delta !== null && row.delta < 0 ? 'down' : 'default'}
                         />
-                        <Delta delta={row.delta} />
+                        <Delta delta={row.delta} basis={row.deltaBasis} />
                       </div>
                     </td>
                   </>

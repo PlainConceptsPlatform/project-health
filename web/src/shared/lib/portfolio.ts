@@ -20,28 +20,54 @@ export interface PortfolioAlert {
 
 export interface PortfolioRow extends ScorecardRow {
   env: PortfolioEnv
-  /** Score now minus last month's score (about 30 days); null when either is missing. */
+  /** Score now minus the score DELTA_DAYS earlier; null when either is missing. */
   delta: number | null
+  /** What the delta compares: a day DELTA_DAYS back, or last month while the daily history is short. */
+  deltaBasis: DeltaBasis
   risk: Risk
   alert: PortfolioAlert | null
   gatesPct: number | null
 }
 
-/**
- * The trend delta looks back about 30 days. Scores are stored once per month (the newest
- * collection of each month), so it compares this month's score with last month's.
- */
-export const DELTA_MONTHS = 1
+export const DELTA_DAYS = 30
+
+export type DeltaBasis = 'days' | 'month'
+
+export const DELTA_TITLE: Record<DeltaBasis, string> = {
+  days: `Score change over the last ${DELTA_DAYS} days`,
+  month: `Score change against last month: the daily history is not ${DELTA_DAYS} days old yet`,
+}
 
 export function envOf(row: ScorecardRow): PortfolioEnv {
   const final = row.environment?.available ? row.environment.data.final : null
   return final === 'PRO' ? 'pro' : final === 'PRE' ? 'pre' : 'none'
 }
 
-export function deltaOf(trend: ScorecardRow['trend']): number | null {
-  const last = trend.at(-1)?.score ?? null
-  const before = trend.at(-1 - DELTA_MONTHS)?.score ?? null
-  return last === null || before === null ? null : last - before
+const DAY_MS = 86_400_000
+
+/**
+ * Score now minus the score DELTA_DAYS earlier, from the daily history: the newest point against
+ * the newest point at least DELTA_DAYS older. Until the history reaches that far back, it falls
+ * back to this month's score against last month's, and says so in the basis.
+ */
+export function deltaOf(row: Pick<ScorecardRow, 'trend' | 'daily'>): {
+  delta: number | null
+  deltaBasis: DeltaBasis
+} {
+  const now = row.daily.at(-1)
+  if (now && now.score !== null) {
+    const cutoff = new Date(Date.parse(now.date) - DELTA_DAYS * DAY_MS).toISOString().slice(0, 10)
+    const before = row.daily.findLast((d) => d.date <= cutoff)
+    if (before) {
+      return {
+        delta: before.score === null ? null : now.score - before.score,
+        deltaBasis: 'days',
+      }
+    }
+  }
+  const last = row.trend.at(-1)?.score ?? null
+  const prior = row.trend.at(-2)?.score ?? null
+  return { delta: last === null || prior === null ? null : last - prior, deltaBasis: 'month' }
 }
 
 const gatesText = (row: ScorecardRow) =>
@@ -54,7 +80,12 @@ const gatesText = (row: ScorecardRow) =>
  * the product is live with almost no gates; production at L1, the collector's high-AI-low-engineering
  * alert and a falling score need attention.
  */
-export function riskOf(row: ScorecardRow, env: PortfolioEnv, delta: number | null) {
+export function riskOf(
+  row: ScorecardRow,
+  env: PortfolioEnv,
+  delta: number | null,
+  basis: DeltaBasis = 'days',
+) {
   const card = row.card
   if (!card) return { risk: 2 as Risk, alert: null }
   if (env === 'pro' && card.level === 0) {
@@ -85,7 +116,10 @@ export function riskOf(row: ScorecardRow, env: PortfolioEnv, delta: number | nul
       risk: 1 as Risk,
       alert: {
         text: 'Engineering declining',
-        detail: `${delta} points in 30 days`,
+        detail:
+          basis === 'days'
+            ? `${delta} points in ${DELTA_DAYS} days`
+            : `${delta} points since last month`,
         severity: 'amber' as const,
       },
     }
@@ -96,13 +130,14 @@ export function riskOf(row: ScorecardRow, env: PortfolioEnv, delta: number | nul
 export function portfolioRows(rows: ScorecardRow[]): PortfolioRow[] {
   return rows.map((row) => {
     const env = envOf(row)
-    const delta = deltaOf(row.trend)
+    const { delta, deltaBasis } = deltaOf(row)
     const gates = row.card?.gates
     return {
       ...row,
       env,
       delta,
-      ...riskOf(row, env, delta),
+      deltaBasis,
+      ...riskOf(row, env, delta, deltaBasis),
       gatesPct:
         gates && gates.applicable > 0 ? Math.round((gates.present / gates.applicable) * 100) : null,
     }
