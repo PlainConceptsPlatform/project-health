@@ -293,9 +293,13 @@ issue. The housekeeping digest (`<!-- housekeeping-digest -->`) is not work and 
 `app-error`, `Audit:` and nightly issues are kept and labelled by where they came from.
 
 When a merged pull request has evidence, the screenshots the evidence workflow replayed from its
-verification plan are shown with the issue. They are read from `pr-<number>/manifest.json` on the
-`evidence` branch and linked rather than copied, so they load for anyone signed in to GitHub with
-access to the repository.
+verification plan are shown with the issue. From `@plainconceptsplatform/workflows` 1.2.0 the
+workflow keeps them beside each plan, in an `evidence/` folder on the default branch, and embeds a
+manifest in its pull request comment (`<!-- agentic-evidence-manifest ... -->`); the collector reads
+that comment, which it already reads for the merge gate verdict. Pull requests merged before 1.2.0
+fall back to `pr-<number>/manifest.json` on the old `evidence` branch while it exists. Images are
+linked rather than copied, so they load for anyone signed in to GitHub with access to the
+repository.
 
 Opt in per project, overriding label names only where a repository uses others:
 

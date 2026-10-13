@@ -209,6 +209,7 @@ export interface IssueComment {
   body?: string | null
   user?: Actor | null
   created_at: string
+  html_url?: string
 }
 
 export interface PullRequest {

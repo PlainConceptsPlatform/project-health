@@ -640,7 +640,7 @@ function Evidence({ issue }: { issue: IssueJourney }) {
   const evidence = issue.evidence
   const mergedPr = issue.pullRequests.filter((p) => p.mergedAt).at(-1)
 
-  if (!evidence || evidence.waypoints.length === 0) {
+  if (!evidence || evidence.waypoints.every((w) => w.image === null)) {
     const reason = evidence?.note
       ? evidence.note
       : !mergedPr

@@ -231,7 +231,78 @@ export function mergeGateOf(comments: IssueComment[]): string | null {
   return gate?.body?.match(MERGE_GATE_VERDICT)?.[1]?.toLowerCase() ?? null
 }
 
-/** The manifest the evidence workflow commits next to the screenshots. */
+const EVIDENCE_MARKER = '<!-- agentic-evidence -->'
+const EMBEDDED_MANIFEST = /<!-- agentic-evidence-manifest\n([\s\S]*?)\n-->/
+
+/**
+ * The manifest the evidence workflow embeds in its pull request comment from version 1.2.0, when
+ * the screenshots are kept beside each plan on the default branch. Files are repository-relative
+ * and base is where they were committed, or null when nothing could be archived.
+ */
+export interface EmbeddedEvidence {
+  version?: number
+  base?: string | null
+  app?: { started?: boolean; url?: string }
+  plans?: {
+    change?: string
+    status?: string
+    reason?: string
+    waypoints?: {
+      n: number
+      capture: string
+      expect?: string | null
+      reached?: boolean
+      file?: string | null
+    }[]
+  }[]
+}
+
+/** Evidence from the workflow's comment on the pull request, or null when it has none. */
+export function evidenceFromComments(
+  comments: IssueComment[],
+  repo: string,
+  pullRequest: number,
+): JourneyEvidence | null {
+  const comment = comments.filter((c) => c.body?.includes(EVIDENCE_MARKER)).at(-1)
+  const json = comment?.body?.match(EMBEDDED_MANIFEST)?.[1]
+  if (!comment || !json) return null
+  let manifest: EmbeddedEvidence
+  try {
+    manifest = JSON.parse(json) as EmbeddedEvidence
+  } catch {
+    return null
+  }
+  const base = manifest.base ?? null
+  const waypoints: EvidenceWaypoint[] = (manifest.plans ?? []).flatMap((plan) =>
+    (plan.waypoints ?? []).map((w) => ({
+      plan: plan.change ?? null,
+      n: w.n,
+      capture: w.capture,
+      expect: w.expect ?? null,
+      reached: w.reached !== false,
+      image: base && w.file ? `${base}/${w.file}` : null,
+    })),
+  )
+  const reasons = (manifest.plans ?? [])
+    .filter((p) => p.status && p.status !== 'captured')
+    .map((p) => p.reason || p.status)
+  const note =
+    manifest.app?.started === false
+      ? `The app did not answer${manifest.app.url ? ` at ${manifest.app.url}` : ''}, so nothing was captured.`
+      : waypoints.length > 0 && waypoints.every((w) => w.image === null)
+        ? 'The screenshots were not archived beside their plans. The pull request comment says why.'
+        : waypoints.length === 0 && reasons.length > 0
+          ? reasons.join('; ')
+          : null
+  return {
+    pullRequest,
+    url: comment.html_url ?? `https://github.com/${repo}/pull/${pullRequest}`,
+    waypoints,
+    note,
+  }
+}
+
+/** The manifest the evidence workflow committed to the orphan evidence branch before 1.2.0. */
 export interface EvidenceManifest {
   version?: number
   app?: { started?: boolean; url?: string }
@@ -348,7 +419,7 @@ async function linkedPullRequests(
   repo: string,
   issue: Issue,
   timeline: TimelineEvent[],
-): Promise<LinkedPullRequest[]> {
+): Promise<{ linked: LinkedPullRequest[]; evidence: Map<number, JourneyEvidence> }> {
   const numbers = [
     ...new Set(
       timeline
@@ -366,9 +437,14 @@ async function linkedPullRequests(
 
   const prs = await Promise.all(numbers.map((n) => source.pullRequest(n)))
   const linked: LinkedPullRequest[] = []
+  const evidence = new Map<number, JourneyEvidence>()
   for (const pr of prs) {
     if (!pr) continue
+    // The merge gate and the evidence workflow both answer on a merged pull request, so one read
+    // of its comments serves both.
     const comments = pr.merged_at ? await source.comments(pr.number) : []
+    const found = evidenceFromComments(comments, repo, pr.number)
+    if (found) evidence.set(pr.number, found)
     linked.push({
       number: pr.number,
       title: pr.title,
@@ -384,7 +460,21 @@ async function linkedPullRequests(
       mergeGate: mergeGateOf(comments),
     })
   }
-  return linked.sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt))
+  return {
+    linked: linked.sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt)),
+    evidence,
+  }
+}
+
+/** The evidence branch an older workflow version wrote to, for pull requests merged before 1.2.0. */
+async function branchEvidence(
+  source: RoadmapSource,
+  project: ProjectConfig,
+  pullRequest: number,
+): Promise<JourneyEvidence | null> {
+  const branch = project.roadmap?.evidenceBranch ?? 'evidence'
+  const manifest = await source.evidence(pullRequest, branch)
+  return manifest ? evidenceOf(manifest, project.repo, pullRequest, branch) : null
 }
 
 /** One issue's journey from its timeline, linked pull requests and evidence. */
@@ -398,14 +488,20 @@ async function journeyOf(
   runs: AgentRun[],
 ): Promise<{ journey: IssueJourney; untriggered: boolean }> {
   const timeline = await source.timeline(issue.number)
-  const pullRequests = await linkedPullRequests(source, project.repo, issue, timeline)
+  const { linked: pullRequests, evidence: commented } = await linkedPullRequests(
+    source,
+    project.repo,
+    issue,
+    timeline,
+  )
   const closedAt = issue.state === 'open' ? null : issue.closed_at
   const issueEnd = closedAt ? Math.min(Date.parse(closedAt), end) : end
   const { segments, marks } = segmentsOf(issue.created_at, issueEnd, timeline, config)
 
-  const branch = project.roadmap?.evidenceBranch ?? 'evidence'
   const merged = pullRequests.filter((pr) => pr.mergedAt).at(-1)
-  const manifest = merged ? await source.evidence(merged.number, branch) : null
+  const evidence = merged
+    ? (commented.get(merged.number) ?? (await branchEvidence(source, project, merged.number)))
+    : null
 
   const estimate = issue.labels
     .map((l) => l.name.match(ESTIMATE)?.[1])
@@ -426,8 +522,7 @@ async function journeyOf(
       marks,
       events: eventsOf(issue, timeline, pullRequests, config),
       pullRequests,
-      evidence:
-        merged && manifest ? evidenceOf(manifest, project.repo, merged.number, branch) : null,
+      evidence,
       agent: agentOf(runs, issue.number),
     },
     untriggered: untriggered(timeline, config, issueEnd),
@@ -436,8 +531,9 @@ async function journeyOf(
 
 /**
  * The evidence workflow runs after a merge and comments on the pull request, not the issue, so a
- * stored issue does not change when its screenshots arrive. One contents call per merged issue
- * without evidence, or with evidence stored before plans were recorded, picks them up.
+ * stored issue does not change when its screenshots arrive. A merged issue without evidence, or
+ * with evidence read from the old evidence branch, which goes away once its pull requests are
+ * replayed, reads the pull request's comments again: one call each, until the comment answers.
  */
 async function laterEvidence(
   source: RoadmapSource,
@@ -445,12 +541,16 @@ async function laterEvidence(
   journey: IssueJourney,
 ): Promise<JourneyEvidence | null> {
   const current = journey.evidence
-  if (current && current.waypoints.every((w) => w.plan !== undefined)) return current
+  const fromBranch = current?.url.includes('/tree/') ?? false
+  if (current && !fromBranch && current.waypoints.every((w) => w.plan !== undefined)) return current
   const merged = journey.pullRequests.filter((pr) => pr.mergedAt).at(-1)
   if (!merged) return current
-  const branch = project.roadmap?.evidenceBranch ?? 'evidence'
-  const manifest = await source.evidence(merged.number, branch)
-  return manifest ? evidenceOf(manifest, project.repo, merged.number, branch) : current
+  const commented = evidenceFromComments(
+    await source.comments(merged.number),
+    project.repo,
+    merged.number,
+  )
+  return commented ?? (await branchEvidence(source, project, merged.number)) ?? current
 }
 
 /**

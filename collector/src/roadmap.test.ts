@@ -5,6 +5,7 @@ import {
   type RoadmapSource,
   classifySource,
   collectRoadmap,
+  evidenceFromComments,
   evidenceOf,
   mergeGateOf,
   outcomeOf,
@@ -249,6 +250,96 @@ describe('evidenceOf', () => {
   })
 })
 
+const embedded = (manifest: object): string =>
+  `<!-- agentic-evidence -->
+## Visual evidence
+
+<!-- agentic-evidence-manifest
+${JSON.stringify(manifest)}
+-->
+`
+
+describe('evidenceFromComments', () => {
+  const plan = 'openspec/changes/archive/2026-10-04-chat-home'
+  it('reads the manifest the workflow embeds in its comment, beside each plan', () => {
+    const evidence = evidenceFromComments(
+      [
+        { body: 'unrelated', created_at: t(0) },
+        {
+          body: embedded({
+            version: 2,
+            base: 'https://github.com/acme/app/raw/abc',
+            plans: [
+              {
+                change: 'chat-home',
+                status: 'captured',
+                waypoints: [
+                  {
+                    n: 1,
+                    capture: 'home',
+                    expect: 'renders',
+                    reached: true,
+                    file: `${plan}/evidence/01-home.jpg`,
+                  },
+                  { n: 2, capture: 'save', reached: false, file: null },
+                ],
+              },
+            ],
+          }),
+          created_at: t(1),
+          html_url: 'https://github.com/acme/app/pull/219#issuecomment-1',
+        },
+      ],
+      'acme/app',
+      219,
+    )
+    expect(evidence?.url).toBe('https://github.com/acme/app/pull/219#issuecomment-1')
+    expect(evidence?.waypoints).toEqual([
+      {
+        plan: 'chat-home',
+        n: 1,
+        capture: 'home',
+        expect: 'renders',
+        reached: true,
+        image: `https://github.com/acme/app/raw/abc/${plan}/evidence/01-home.jpg`,
+      },
+      { plan: 'chat-home', n: 2, capture: 'save', expect: null, reached: false, image: null },
+    ])
+    expect(evidence?.note).toBeNull()
+  })
+
+  it('says so when nothing was archived, and ignores a comment without a manifest', () => {
+    const unarchived = evidenceFromComments(
+      [
+        {
+          body: embedded({
+            version: 2,
+            base: null,
+            plans: [
+              {
+                change: 'x',
+                status: 'captured',
+                waypoints: [{ n: 1, capture: 'home', file: null }],
+              },
+            ],
+          }),
+          created_at: t(0),
+        },
+      ],
+      'acme/app',
+      5,
+    )
+    expect(unarchived?.note).toContain('not archived')
+    expect(
+      evidenceFromComments(
+        [{ body: '<!-- agentic-evidence -->\nold', created_at: t(0) }],
+        'acme/app',
+        5,
+      ),
+    ).toBeNull()
+  })
+})
+
 describe('mergeGateOf', () => {
   it('reads the verdict from the merge gate comment only', () => {
     expect(
@@ -410,6 +501,36 @@ describe('collectRoadmap', () => {
     expect(evidence?.waypoints.map((w) => w.image)).toEqual([
       'https://github.com/acme/app/raw/evidence/pr-219/1.jpg',
     ])
+  })
+
+  it('takes the evidence from the pull request comment before the old evidence branch', async () => {
+    const source: RoadmapSource = {
+      ...fakeSource([issue()], { 212: [linked(100, 219), closed(104)] }, { 219: detail(219) }),
+      comments: async () => [
+        {
+          body: embedded({
+            version: 2,
+            base: 'https://github.com/acme/app/raw/abc',
+            plans: [
+              {
+                change: 'c',
+                status: 'captured',
+                waypoints: [{ n: 1, capture: 'home', file: 'p/evidence/01.jpg' }],
+              },
+            ],
+          }),
+          created_at: t(110),
+        },
+      ],
+      evidence: async () => {
+        throw new Error('the branch must not be read when the comment answers')
+      },
+    }
+    const { block } = await collectRoadmap(project, source, window, [], null)
+    const evidence = block.available ? block.data.issues[0]?.evidence : null
+    expect(evidence?.waypoints[0]?.image).toBe(
+      'https://github.com/acme/app/raw/abc/p/evidence/01.jpg',
+    )
   })
 
   it('skips the block with a warning when pull requests cannot be read', async () => {
