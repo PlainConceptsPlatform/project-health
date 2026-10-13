@@ -11,6 +11,7 @@ export function Sparkline({
   width = 104,
   height = 28,
   label,
+  tone = 'default',
   className,
 }: {
   points: { month: string; score: number | null }[]
@@ -18,8 +19,11 @@ export function Sparkline({
   width?: number
   height?: number
   label: string
+  /** 'down' draws a falling trend in the destructive colour. */
+  tone?: 'default' | 'down'
   className?: string
 }) {
+  const stroke = tone === 'down' ? 'var(--color-destructive)' : 'var(--color-chart-1)'
   const pad = 3
   const step = points.length > 1 ? (width - pad * 2) / (points.length - 1) : 0
   const x = (i: number) => (points.length > 1 ? pad + i * step : width / 2)
@@ -64,14 +68,14 @@ export function Sparkline({
           key={d}
           d={d}
           fill="none"
-          stroke="var(--color-chart-1)"
+          stroke={stroke}
           strokeWidth={1.75}
           strokeLinecap="round"
           strokeLinejoin="round"
         />
       ))}
       {last && last.score !== null ? (
-        <circle cx={x(lastIndex)} cy={y(last.score)} r={2.5} fill="var(--color-chart-1)" />
+        <circle cx={x(lastIndex)} cy={y(last.score)} r={2.5} fill={stroke} />
       ) : null}
     </svg>
   )

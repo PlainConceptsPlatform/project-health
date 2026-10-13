@@ -1,10 +1,9 @@
+import { portfolioRows } from '@/shared/lib/portfolio'
 import { scorecardRows } from '@/shared/lib/scorecard'
 import { type ProjectSummary, summarise } from '@/shared/lib/summary'
 import type { DataIndex, MonthlyReport } from '@/shared/lib/types'
 import { Unavailable } from '@/shared/ui'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
-import { ProjectGrid } from './grid'
-import { ScorecardTable } from './scorecard-table'
+import { Portfolio } from './portfolio'
 
 export function OverviewView({
   index,
@@ -39,29 +38,11 @@ export function OverviewView({
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Projects</h1>
-        <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
-          The engineering scorecard shows which practices guard each project and how much of its
-          code is AI-assisted. Delivery shows three of the five DORA metrics. Change fail rate and
-          failed deployment recovery time need to know that a release caused a problem in
-          production, which GitHub does not record, so they are not shown rather than estimated.
-        </p>
-      </div>
-
-      <Tabs defaultValue="scorecard">
-        <TabsList>
-          <TabsTrigger value="scorecard">Engineering scorecard</TabsTrigger>
-          <TabsTrigger value="delivery">Delivery</TabsTrigger>
-        </TabsList>
-        <TabsContent value="scorecard">
-          <ScorecardTable rows={scorecardRows(index, months)} typeLabels={typeLabels} />
-        </TabsContent>
-        <TabsContent value="delivery">
-          <ProjectGrid projects={projects} byMonth={byMonth} />
-        </TabsContent>
-      </Tabs>
-    </div>
+    <Portfolio
+      rows={portfolioRows(scorecardRows(index, months))}
+      typeLabels={typeLabels}
+      projects={projects}
+      byMonth={byMonth}
+    />
   )
 }
