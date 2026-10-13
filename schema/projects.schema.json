@@ -47,9 +47,10 @@
           "status": {
             "enum": [
               "production",
-              "pre-production"
+              "pre-production",
+              "planned"
             ],
-            "description": "pre-production means the project has no production environment yet, so production metrics are skipped rather than reported as zero."
+            "description": "pre-production means the project has no production environment yet, so production metrics are skipped rather than reported as zero. planned means the repository may not exist yet: only its engineering scorecard is collected, once it does."
           },
           "environments": {
             "type": "object",
@@ -126,6 +127,70 @@
                 "type": "string",
                 "default": "engineering-excellence-",
                 "description": "Artifact name prefix. The facet name is appended, so the default reads engineering-excellence-coverage and so on."
+              }
+            }
+          },
+          "roadmap": {
+            "type": "object",
+            "required": [
+              "enabled"
+            ],
+            "additionalProperties": false,
+            "description": "Reads every issue's timeline so the site shows who had each issue at each moment: an agent, a person, the merge gate, or nobody. Needs the token to read pull requests. Meant for repositories where agents and people hand issues over with labels.",
+            "properties": {
+              "enabled": {
+                "type": "boolean"
+              },
+              "labels": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "Label names, only where they differ from the defaults.",
+                "properties": {
+                  "working": {
+                    "type": "string",
+                    "default": "bot-working",
+                    "description": "Present while an agent works on the issue."
+                  },
+                  "waiting": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": [
+                      "review",
+                      "stalled",
+                      "owner-review"
+                    ],
+                    "description": "Present while the issue waits for a person."
+                  },
+                  "stalled": {
+                    "type": "string",
+                    "default": "stalled",
+                    "description": "The waiting label that means an agent run gave up. Each application counts as one stall."
+                  },
+                  "merge": {
+                    "type": "string",
+                    "default": "pr-pending",
+                    "description": "Present while the issue's pull request waits for the merge gate."
+                  },
+                  "triggers": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": [
+                      "triage",
+                      "refine",
+                      "implement"
+                    ],
+                    "description": "Labels that ask an agent to act. An issue that never carried one was worked by hand."
+                  }
+                }
+              },
+              "evidenceBranch": {
+                "type": "string",
+                "default": "evidence",
+                "description": "Branch the evidence workflow commits screenshots and their manifest to, one pr-<number> folder per pull request."
               }
             }
           },

@@ -15,6 +15,7 @@ import { collectEnvironment, githubEnvironmentSource } from './metrics/environme
 import { collectLeadTime } from './metrics/leadtime.ts'
 import { fetchReleaseHistory, withinWindow } from './metrics/releases.ts'
 import { collectRework } from './metrics/rework.ts'
+import { collectRoadmap, githubRoadmapSource } from './metrics/roadmap.ts'
 import { collectScorecard } from './metrics/scorecard.ts'
 import { exportToOtlp, otlpConfigured } from './otel.ts'
 import { collectPlannedProject, partitionPlanned } from './planned.ts'
@@ -27,6 +28,7 @@ import {
   type MetricBlock,
   type MonthlyReport,
   type ProjectConfig,
+  type Roadmap,
   type Scorecard,
   type Warning,
   skip,
@@ -178,6 +180,12 @@ function previousAgentRuns(projectId: string, month: string): AgentRun[] {
   return prior?.agents.available ? prior.agents.data.runs : []
 }
 
+/** Issue journeys already stored for this month, so closed issues are not read again. */
+function previousRoadmap(projectId: string, month: string): Roadmap | null {
+  const prior = previousReport(projectId, month)
+  return prior?.roadmap?.available ? prior.roadmap.data : null
+}
+
 /** Facet samples already stored for this month, kept even after their artifacts expire. */
 function previousExcellence(projectId: string, month: string): EngineeringExcellence | null {
   return previousReport(projectId, month)?.engineeringExcellence ?? null
@@ -258,6 +266,26 @@ async function collectProject(project: ProjectConfig, period: Period): Promise<M
   )
   warnings.push(...agents.warnings)
 
+  let roadmap: MetricBlock<Roadmap> | undefined
+  if (project.roadmap?.enabled) {
+    const runs = agents.block.available ? agents.block.data.runs : []
+    const result = await attempt(
+      'roadmap',
+      warnings,
+      () =>
+        collectRoadmap(
+          project,
+          githubRoadmapSource(project.repo),
+          { from: period.from, to: period.to, now: new Date() },
+          runs,
+          previousRoadmap(project.id, label(period)),
+        ),
+      (reason) => ({ block: skip<Roadmap>(reason), warnings: [] }),
+    )
+    warnings.push(...result.warnings)
+    roadmap = result.block
+  }
+
   const contributors = await attempt(
     'contributors',
     warnings,
@@ -328,6 +356,7 @@ async function collectProject(project: ProjectConfig, period: Period): Promise<M
     placement,
     ...(engineeringExcellence ? { engineeringExcellence } : {}),
     scorecard,
+    ...(roadmap ? { roadmap } : {}),
     warnings: applySeverity(warnings),
   }
 }
@@ -504,8 +533,11 @@ async function main(): Promise<void> {
           ? report.delivery.deploymentFrequency.data.count
           : 0
         const agentRuns = report.agents.available ? report.agents.data.runs.length : 0
+        const issues = report.roadmap?.available
+          ? `, ${report.roadmap.data.issues.length} issue(s)`
+          : ''
         console.log(
-          `  ${project.id} ${label(period)}: ${releases} release(s), ${agentRuns} agent run(s), ${report.warnings.length} warning(s)`,
+          `  ${project.id} ${label(period)}: ${releases} release(s), ${agentRuns} agent run(s)${issues}, ${report.warnings.length} warning(s)`,
         )
       } catch (error) {
         // A project that fails entirely must not stop the ones after it.

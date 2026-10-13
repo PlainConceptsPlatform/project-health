@@ -112,6 +112,9 @@ preflight and names what is missing instead of silently writing empty metrics.
 The same five permissions cover engineering excellence facets: they are read from the repository's
 artifact list, which is Actions read. Preflight checks that endpoint for every project that opts in.
 
+The [roadmap](#roadmap) needs a sixth, **Pull requests** read. Without it the roadmap block reads
+unavailable with a warning naming the permission, and every other metric is collected as before.
+
 ### That is it
 
 A project appears on the dashboard as soon as it is in `projects.json`, before anything is collected,
@@ -267,6 +270,43 @@ A project sets its `type` (`back-front`, `mobile`, `data`, `ml`, `library`, `bro
 `static-site`, `other`) in `projects.json`; without one every practice applies. `scorecard.performance: true`
 opts in to performance testing (k6, JMeter, Lighthouse CI), which a `static-site` expects by default
 (`false` opts out), and `scorecard.notApplicable` drops further practices for that project.
+
+## Roadmap
+
+Where agents and people hand issues over with labels, the labels already record who had each issue
+at every moment. The roadmap reads every issue open during the month, its timeline and the pull
+requests that reference it, and splits its open time into five states:
+
+| State | Read from |
+| --- | --- |
+| Agent working | `bot-working` present |
+| Waiting on a person | `review`, `stalled` or `owner-review` present |
+| PR waiting to merge | `pr-pending` present |
+| Queued | open with none of the above |
+| By hand | the issue never carried an agent label (`triage`, `refine`, `implement` or the two above) |
+
+Each application of `stalled`, and each `<!-- agent-*-attempt -->` comment a workflow leaves when a
+run ended early, is marked on the timeline. The outcome comes from the merged pull request that
+closes the issue: merged by the merge gate, merged by a person, written by hand, or closed without
+one. Estimates come from `sp-N` labels, and agent tokens from the agent runs whose title names the
+issue. The housekeeping digest (`<!-- housekeeping-digest -->`) is not work and is left out;
+`app-error`, `Audit:` and nightly issues are kept and labelled by where they came from.
+
+When a merged pull request has evidence, the screenshots the evidence workflow replayed from its
+verification plan are shown with the issue. They are read from `pr-<number>/manifest.json` on the
+`evidence` branch and linked rather than copied, so they load for anyone signed in to GitHub with
+access to the repository.
+
+Opt in per project, overriding label names only where a repository uses others:
+
+```json
+"roadmap": { "enabled": true }
+```
+
+Times are wall clock: a pull request merged the next morning spends its night waiting to merge. A
+closed issue is not read again once stored, unless it changes. One warning reads both sides of the
+hand-over: a trigger label set with a workflow's own token starts no workflow, so an issue labelled
+that way and left for over an hour is named in the notes.
 
 ## Setting it up the first time
 
