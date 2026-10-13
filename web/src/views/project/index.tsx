@@ -28,7 +28,9 @@ import {
   TokensByKind,
 } from '@/shared/ui/charts'
 import { ExcellencePanel } from './excellence'
+import { RoadmapView } from './roadmap'
 import { ScorecardPanel } from './scorecard'
+import { type ProjectTab, ProjectTabs } from './tabs'
 
 export interface TrendPoint {
   month: string
@@ -472,6 +474,56 @@ export function ProjectView({
   const engineeringExcellence = engineering ? engineering.excellence : excellence
   const engineeringMonth = monthKey(engineeringReport)
 
+  const tabs: ProjectTab[] = [
+    {
+      id: 'engineering',
+      label: 'Engineering',
+      content: (
+        <>
+          <ScorecardPanel report={engineeringReport} typeLabels={typeLabels} />
+          <ExcellencePanel report={engineeringReport} history={engineeringExcellence} />
+        </>
+      ),
+    },
+    {
+      id: 'delivery',
+      label: 'Delivery',
+      content: (
+        <>
+          <DeliveryPanel report={report} />
+          {trend.length > 1 ? (
+            <Panel title="Trend" description="Production releases across the collected months">
+              <MonthlyTrend data={trend} />
+            </Panel>
+          ) : null}
+          <AgentsPanel report={report} />
+          <PeoplePanel report={report} />
+          <ReleasesPanel report={report} />
+        </>
+      ),
+    },
+  ]
+  // Only projects that opted in get the tab; for the rest it would be an empty promise.
+  if (report.roadmap) {
+    const roadmap = report.roadmap
+    tabs.push({
+      id: 'roadmap',
+      label: 'Roadmap',
+      content: roadmap.available ? (
+        <RoadmapView
+          roadmap={roadmap.data}
+          repo={report.repo}
+          from={report.period.from}
+          to={report.period.to}
+        />
+      ) : (
+        <Panel title="Roadmap">
+          <Unavailable reason={roadmap.reason} />
+        </Panel>
+      ),
+    })
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
@@ -511,21 +563,7 @@ export function ProjectView({
         </p>
       ) : null}
 
-      <ScorecardPanel report={engineeringReport} typeLabels={typeLabels} />
-
-      <DeliveryPanel report={report} />
-
-      {trend.length > 1 ? (
-        <Panel title="Trend" description="Production releases across the collected months">
-          <MonthlyTrend data={trend} />
-        </Panel>
-      ) : null}
-
-      <ExcellencePanel report={engineeringReport} history={engineeringExcellence} />
-
-      <AgentsPanel report={report} />
-      <PeoplePanel report={report} />
-      <ReleasesPanel report={report} />
+      <ProjectTabs tabs={tabs} />
 
       {report.warnings.length > 0 ? <NotesPanel report={report} /> : null}
     </div>

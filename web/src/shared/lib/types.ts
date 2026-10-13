@@ -161,6 +161,8 @@ export interface MonthlyReport {
   scorecard?: MetricBlock<Scorecard>
   /** Absent in files written before it existed. */
   environment?: MetricBlock<FinalEnvironment>
+  /** Absent when the project has not opted in, and in files written before it existed. */
+  roadmap?: MetricBlock<Roadmap>
   warnings: Warning[]
 }
 
@@ -444,4 +446,97 @@ export interface Scorecard {
   gates: { present: number; applicable: number }
   aiUsage: MetricBlock<AiUsage>
   alerts: ScorecardAlert[]
+}
+
+/** agent, person, merge or queued from the labels; manual when it never went through an agent. */
+export type JourneyState = 'agent' | 'person' | 'queued' | 'merge' | 'manual'
+
+export interface JourneySegment {
+  state: JourneyState
+  /** Minutes from the issue's creation. */
+  from: number
+  to: number
+}
+
+export interface JourneyMark {
+  at: number
+  kind: 'stalled' | 'failed-run'
+}
+
+export type JourneyEventKind =
+  | 'opened'
+  | 'requested'
+  | 'agent-started'
+  | 'agent-stopped'
+  | 'estimated'
+  | 'review'
+  | 'stalled'
+  | 'failed-run'
+  | 'pr-linked'
+  | 'merged'
+  | 'closed'
+  | 'reopened'
+
+export interface JourneyEvent {
+  at: string
+  kind: JourneyEventKind
+  actor: string | null
+  detail: string | null
+}
+
+export interface LinkedPullRequest {
+  number: number
+  title: string
+  author: string | null
+  byAgent: boolean
+  closes: boolean
+  createdAt: string
+  mergedAt: string | null
+  mergedBy: string | null
+  additions: number
+  deletions: number
+  changedFiles: number
+  mergeGate: string | null
+}
+
+export interface EvidenceWaypoint {
+  n: number
+  capture: string
+  expect: string | null
+  reached: boolean
+  image: string | null
+}
+
+export interface JourneyEvidence {
+  pullRequest: number
+  url: string
+  waypoints: EvidenceWaypoint[]
+  note: string | null
+}
+
+export type IssueSource = 'person' | 'app-error' | 'audit' | 'nightly' | 'automation'
+
+export type JourneyOutcome = 'open' | 'merged' | 'auto-merged' | 'merged-by-hand' | 'closed'
+
+export interface IssueJourney {
+  number: number
+  title: string
+  author: string | null
+  source: IssueSource
+  createdAt: string
+  closedAt: string | null
+  updatedAt: string
+  outcome: JourneyOutcome
+  estimate: number | null
+  segments: JourneySegment[]
+  marks: JourneyMark[]
+  events: JourneyEvent[]
+  pullRequests: LinkedPullRequest[]
+  evidence: JourneyEvidence | null
+  agent: { runs: number; inputTokens: number; outputTokens: number; seconds: number }
+}
+
+export interface Roadmap {
+  asOf: string
+  issues: IssueJourney[]
 }
