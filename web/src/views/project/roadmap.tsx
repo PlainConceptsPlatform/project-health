@@ -654,7 +654,12 @@ function Evidence({ issue }: { issue: IssueJourney }) {
   const shots = evidence.waypoints
   const current = shots[Math.min(index, shots.length - 1)]
   if (!current) return null
-  const failed = current.image === null || broken.has(current.n)
+  const position = Math.min(index, shots.length - 1)
+  const failed = current.image === null || broken.has(position)
+  // A pull request with several verification plans numbers each from 1, so name the plan.
+  const plans = new Set(shots.map((w) => w.plan ?? null)).size > 1
+  const title = (w: (typeof shots)[number]) =>
+    `${plans && w.plan ? `${w.plan} · ` : ''}${w.n}. ${w.capture}`
 
   return (
     <div className="space-y-3">
@@ -677,15 +682,13 @@ function Evidence({ issue }: { issue: IssueJourney }) {
               alt={current.expect ?? current.capture}
               loading="lazy"
               className="aspect-video w-full bg-muted object-contain object-top"
-              onError={() => setBroken((b) => new Set(b).add(current.n))}
+              onError={() => setBroken((b) => new Set(b).add(position))}
             />
           </a>
         )}
         <figcaption className="flex items-start justify-between gap-3 border-t px-3 py-2 text-sm">
           <span>
-            <span className="font-medium">
-              {current.n}. {current.capture}
-            </span>
+            <span className="font-medium">{title(current)}</span>
             {current.expect ? (
               <span className="block text-xs text-muted-foreground">{current.expect}</span>
             ) : null}
@@ -694,7 +697,7 @@ function Evidence({ issue }: { issue: IssueJourney }) {
             ) : null}
           </span>
           <span className="shrink-0 text-xs text-muted-foreground">
-            {Math.min(index, shots.length - 1) + 1} of {shots.length}
+            {position + 1} of {shots.length}
           </span>
         </figcaption>
       </figure>
@@ -702,7 +705,7 @@ function Evidence({ issue }: { issue: IssueJourney }) {
         <div className="flex flex-wrap gap-2">
           {shots.map((w, i) => (
             <button
-              key={w.n}
+              key={`${w.plan ?? ''}-${w.n}-${i}`}
               type="button"
               aria-pressed={i === index}
               onClick={() => setIndex(i)}
@@ -711,20 +714,20 @@ function Evidence({ issue }: { issue: IssueJourney }) {
                 i === index ? 'border-primary' : 'border-transparent hover:border-border',
               )}
             >
-              {w.image && !broken.has(w.n) ? (
+              {w.image && !broken.has(i) ? (
                 <img
                   src={w.image}
                   alt=""
                   loading="lazy"
                   className="aspect-video w-full rounded bg-muted object-cover object-top"
-                  onError={() => setBroken((b) => new Set(b).add(w.n))}
+                  onError={() => setBroken((b) => new Set(b).add(i))}
                 />
               ) : (
                 <span className="flex aspect-video w-full items-center justify-center rounded bg-muted text-muted-foreground">
                   {w.n}
                 </span>
               )}
-              <span className="mt-1 line-clamp-2 block">{w.capture}</span>
+              <span className="mt-1 line-clamp-2 block">{title(w)}</span>
             </button>
           ))}
         </div>

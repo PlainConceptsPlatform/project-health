@@ -337,6 +337,9 @@ export interface LinkedPullRequest {
 }
 
 export interface EvidenceWaypoint {
+  /** The change whose verification plan the waypoint belongs to. A pull request can carry several. */
+  plan: string | null
+  /** Position within its plan, so the same n repeats when a pull request carries several plans. */
   n: number
   capture: string
   expect: string | null

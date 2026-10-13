@@ -500,6 +500,8 @@ export interface LinkedPullRequest {
 }
 
 export interface EvidenceWaypoint {
+  /** Absent in files collected before plans were recorded. */
+  plan?: string | null
   n: number
   capture: string
   expect: string | null

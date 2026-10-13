@@ -236,6 +236,7 @@ export interface EvidenceManifest {
   version?: number
   app?: { started?: boolean; url?: string }
   plans?: {
+    change?: string
     status?: string
     reason?: string
     waypoints?: {
@@ -257,6 +258,7 @@ export function evidenceOf(
   const base = `https://github.com/${repo}/raw/${branch}/pr-${pullRequest}`
   const waypoints: EvidenceWaypoint[] = (manifest.plans ?? []).flatMap((plan) =>
     (plan.waypoints ?? []).map((w) => ({
+      plan: plan.change ?? null,
       n: w.n,
       capture: w.capture,
       expect: w.expect ?? null,
@@ -433,6 +435,25 @@ async function journeyOf(
 }
 
 /**
+ * The evidence workflow runs after a merge and comments on the pull request, not the issue, so a
+ * stored issue does not change when its screenshots arrive. One contents call per merged issue
+ * without evidence, or with evidence stored before plans were recorded, picks them up.
+ */
+async function laterEvidence(
+  source: RoadmapSource,
+  project: ProjectConfig,
+  journey: IssueJourney,
+): Promise<JourneyEvidence | null> {
+  const current = journey.evidence
+  if (current && current.waypoints.every((w) => w.plan !== undefined)) return current
+  const merged = journey.pullRequests.filter((pr) => pr.mergedAt).at(-1)
+  if (!merged) return current
+  const branch = project.roadmap?.evidenceBranch ?? 'evidence'
+  const manifest = await source.evidence(merged.number, branch)
+  return manifest ? evidenceOf(manifest, project.repo, merged.number, branch) : current
+}
+
+/**
  * Every issue open at some point in the period, and who had it at each moment.
  *
  * A closed issue whose stored journey is as recent as the issue itself is reused rather than read
@@ -476,7 +497,11 @@ export async function collectRoadmap(
     if (!issueSource) return null
     const cached = stored.get(issue.number)
     if (cached?.closedAt && issue.state !== 'open' && cached.updatedAt === issue.updated_at) {
-      return { ...cached, agent: agentOf(runs, issue.number) }
+      return {
+        ...cached,
+        evidence: await laterEvidence(source, project, cached),
+        agent: agentOf(runs, issue.number),
+      }
     }
     const { journey, untriggered: stuck } = await journeyOf(
       source,
