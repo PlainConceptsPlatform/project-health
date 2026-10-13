@@ -32,16 +32,22 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
       <body className="min-h-screen bg-background font-sans text-foreground antialiased">
-        <header className="border-b border-primary bg-primary text-primary-foreground">
+        <header className="border-t-[3px] border-b border-t-primary bg-background">
           <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-3 gap-y-2 px-6 py-4">
-            <a href="/" className="text-lg font-semibold tracking-tight">
+            <a
+              href="/"
+              className="inline-flex items-center gap-2 text-lg font-semibold tracking-tight"
+            >
+              <span className="size-2.5 rounded-[2px] bg-primary" aria-hidden="true" />
               Project Health
             </a>
-            <span className="hidden text-sm sm:inline">Delivery and agent metrics from GitHub</span>
+            <span className="hidden text-sm text-muted-foreground sm:inline">
+              Delivery and agent metrics from GitHub
+            </span>
 
             <div className="ml-auto flex items-center gap-2">
               {collectedAt ? (
-                <span className="mr-2 text-sm">
+                <span className="mr-2 text-sm text-muted-foreground">
                   Updated{' '}
                   <time dateTime={collectedAt}>
                     {new Date(collectedAt).toLocaleString('en-GB', {
@@ -61,7 +67,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                 href={repo}
                 aria-label={`Open ${slug} on GitHub`}
                 title={slug}
-                className="inline-flex size-9 items-center justify-center rounded-md border border-primary-foreground/60 text-primary-foreground outline-none transition hover:bg-primary-foreground/10 focus-visible:ring-2 focus-visible:ring-primary-foreground"
+                className="inline-flex size-9 items-center justify-center rounded-md border text-muted-foreground outline-none transition hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <Github className="size-4" aria-hidden="true" />
               </a>
