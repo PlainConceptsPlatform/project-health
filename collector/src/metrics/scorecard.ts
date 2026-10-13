@@ -184,7 +184,7 @@ const isPresent = (practices: PracticeResult[], id: string) => {
   return !p || !p.applicable || p.rag === 'green' || p.rag === 'yellow'
 }
 
-/** N0 to N3, cumulative, where only green gates count towards a level. */
+/** L0 to L3, cumulative, where only green gates count towards a level. */
 export function engineeringLevel(practices: PracticeResult[]): number {
   const n1 =
     isGreen(practices, 'secrets') &&
@@ -245,7 +245,7 @@ export function scorecardAlerts(
     alerts.push({
       code: 'HIGH_AI_LOW_ENGINEERING',
       severity: 'red',
-      message: `High AI usage, low engineering: AI usage is ${input.aiUsage.data.level}/5 while the engineering level is N${input.level}, so AI-assisted change lands without the gates that would catch its mistakes.`,
+      message: `High AI usage, low engineering: AI usage is ${input.aiUsage.data.level}/5 while the engineering level is L${input.level}, so AI-assisted change lands without the gates that would catch its mistakes.`,
     })
   }
 

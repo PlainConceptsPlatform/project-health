@@ -20,15 +20,18 @@ export interface PortfolioAlert {
 
 export interface PortfolioRow extends ScorecardRow {
   env: PortfolioEnv
-  /** Score now minus the score three months earlier; null when either is missing. */
+  /** Score now minus last month's score (about 30 days); null when either is missing. */
   delta: number | null
   risk: Risk
   alert: PortfolioAlert | null
   gatesPct: number | null
 }
 
-/** How far back the trend delta looks, in months. */
-export const DELTA_MONTHS = 3
+/**
+ * The trend delta looks back about 30 days. Scores are stored once per month (the newest
+ * collection of each month), so it compares this month's score with last month's.
+ */
+export const DELTA_MONTHS = 1
 
 export function envOf(row: ScorecardRow): PortfolioEnv {
   const final = row.environment?.available ? row.environment.data.final : null
@@ -47,8 +50,8 @@ const gatesText = (row: ScorecardRow) =>
     : ''
 
 /**
- * The single most pressing reason to look at a project. Production below N1 is critical because
- * the product is live with almost no gates; production at N1, the collector's high-AI-low-engineering
+ * The single most pressing reason to look at a project. Production below L1 is critical because
+ * the product is live with almost no gates; production at L1, the collector's high-AI-low-engineering
  * alert and a falling score need attention.
  */
 export function riskOf(row: ScorecardRow, env: PortfolioEnv, delta: number | null) {
@@ -57,13 +60,13 @@ export function riskOf(row: ScorecardRow, env: PortfolioEnv, delta: number | nul
   if (env === 'pro' && card.level === 0) {
     return {
       risk: 0 as Risk,
-      alert: { text: 'In production below N1', detail: gatesText(row), severity: 'red' as const },
+      alert: { text: 'In production below L1', detail: gatesText(row), severity: 'red' as const },
     }
   }
   if (env === 'pro' && card.level === 1) {
     return {
       risk: 1 as Risk,
-      alert: { text: 'In production at N1', detail: gatesText(row), severity: 'amber' as const },
+      alert: { text: 'In production at L1', detail: gatesText(row), severity: 'amber' as const },
     }
   }
   const highAi = card.alerts.find((a) => a.code === 'HIGH_AI_LOW_ENGINEERING')
@@ -82,7 +85,7 @@ export function riskOf(row: ScorecardRow, env: PortfolioEnv, delta: number | nul
       risk: 1 as Risk,
       alert: {
         text: 'Engineering declining',
-        detail: `${delta} points in ${DELTA_MONTHS} months`,
+        detail: `${delta} points in 30 days`,
         severity: 'amber' as const,
       },
     }

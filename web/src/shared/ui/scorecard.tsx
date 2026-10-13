@@ -98,7 +98,7 @@ export function ScorecardLegend() {
 export function LevelBadge({ level }: { level: number }) {
   return (
     <Badge variant="outline" className={cn('tabular-nums', LEVEL_CLASS[level] ?? LEVEL_CLASS[0])}>
-      N{level}
+      L{level}
     </Badge>
   )
 }

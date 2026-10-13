@@ -180,6 +180,7 @@ function Delta({ delta }: { delta: number | null }) {
   const label = delta > 0 ? `+${delta}` : delta < 0 ? `−${Math.abs(delta)}` : '0'
   return (
     <span
+      title="Score change over about 30 days: this month's score against last month's"
       className={cn(
         'w-8 text-sm font-semibold tabular-nums',
         delta < 0 ? 'text-destructive' : delta === 0 ? 'text-muted-foreground' : 'text-foreground',
@@ -202,7 +203,7 @@ function openRow(e: React.MouseEvent<HTMLTableRowElement>, href: string) {
   else window.location.assign(href)
 }
 
-const COLUMNS = ['Project', 'Engineering', 'Gates', 'AI usage', 'Last 3 months', '']
+const COLUMNS = ['Project', 'Engineering', 'Gates', 'AI usage', 'Last 30 days', '']
 
 function ScorecardRows({
   rows,
@@ -328,7 +329,7 @@ function ScorecardRows({
                         <Sparkline
                           points={row.trend}
                           width={96}
-                          label={`${row.name} engineering score`}
+                          label={`${row.name} engineering score, last 6 months`}
                           tone={row.delta !== null && row.delta < 0 ? 'down' : 'default'}
                         />
                         <Delta delta={row.delta} />
@@ -440,10 +441,10 @@ export function Portfolio({
         <Kpi
           label="Gates passing, average"
           value={kpi.gatesAverage === null ? 'n/a' : `${kpi.gatesAverage}%`}
-          hint={`${kpi.n3} of ${kpi.total} projects at N3`}
+          hint={`${kpi.n3} of ${kpi.total} projects at L3`}
         />
         <Kpi
-          label="In production below N1"
+          label="In production below L1"
           value={kpi.critical}
           hint="live with almost no gates"
           critical={kpi.critical > 0}
@@ -455,7 +456,7 @@ export function Portfolio({
           hint={`across ${kpi.aiCount} projects with data`}
         />
         <Kpi
-          label="Production at N3"
+          label="Production at L3"
           value={kpi.proN3}
           unit={`/ ${kpi.pro}`}
           hint="live projects meeting the full standard"
