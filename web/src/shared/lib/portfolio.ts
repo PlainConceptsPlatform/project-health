@@ -107,7 +107,7 @@ export function portfolioRows(rows: ScorecardRow[]): PortfolioRow[] {
 }
 
 export type PortfolioFilter = 'all' | 'attention' | PortfolioEnv
-export type PortfolioSort = 'risk' | 'engineering' | 'trend' | 'name'
+export type PortfolioSort = 'risk' | 'engineering' | 'gates' | 'trend' | 'name'
 
 export const FILTERS: { key: PortfolioFilter; label: string }[] = [
   { key: 'all', label: 'All' },
@@ -120,6 +120,7 @@ export const FILTERS: { key: PortfolioFilter; label: string }[] = [
 export const SORTS: { key: PortfolioSort; label: string }[] = [
   { key: 'risk', label: 'Risk' },
   { key: 'engineering', label: 'Engineering' },
+  { key: 'gates', label: 'Gates' },
   { key: 'trend', label: 'Trend' },
   { key: 'name', label: 'Name' },
 ]
@@ -136,6 +137,8 @@ export function sortRows(rows: PortfolioRow[], sort: PortfolioSort): PortfolioRo
     if (!a.card !== !b.card) return a.card ? -1 : 1
     if (sort === 'name') return byName(a, b)
     if (sort === 'engineering') return score(b) - score(a) || byName(a, b)
+    // Worst first, like risk: the projects with the fewest gates are the ones to look at.
+    if (sort === 'gates') return (a.gatesPct ?? -1) - (b.gatesPct ?? -1) || byName(a, b)
     if (sort === 'trend') return (a.delta ?? 0) - (b.delta ?? 0) || byName(a, b)
     return a.risk - b.risk || score(a) - score(b) || byName(a, b)
   })
@@ -144,7 +147,8 @@ export function sortRows(rows: PortfolioRow[], sort: PortfolioSort): PortfolioRo
 export function portfolioKpis(rows: PortfolioRow[]) {
   const scored = rows.filter((r) => r.card)
   const ai = scored.flatMap((r) => (r.card?.aiUsage.available ? [r.card.aiUsage.data.level] : []))
-  const deltas = scored.flatMap((r) => (r.delta === null ? [] : [r.delta]))
+  const gates = scored.flatMap((r) => (r.gatesPct === null ? [] : [r.gatesPct]))
+  const live = rows.filter((r) => r.env === 'pro')
   return {
     total: rows.length,
     n3: scored.filter((r) => r.card?.level === 3).length,
@@ -152,8 +156,9 @@ export function portfolioKpis(rows: PortfolioRow[]) {
     attention: rows.filter((r) => r.risk < 2).length,
     aiAverage: ai.length > 0 ? ai.reduce((n, v) => n + v, 0) / ai.length : null,
     aiCount: ai.length,
-    up: deltas.filter((d) => d > 0).length,
-    flat: deltas.filter((d) => d === 0).length,
-    down: deltas.filter((d) => d < 0).length,
+    gatesAverage:
+      gates.length > 0 ? Math.round(gates.reduce((n, v) => n + v, 0) / gates.length) : null,
+    pro: live.length,
+    proN3: live.filter((r) => r.card?.level === 3).length,
   }
 }

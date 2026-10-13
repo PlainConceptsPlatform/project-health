@@ -115,7 +115,32 @@ function AlertPill({ alert }: { alert: PortfolioAlert }) {
   )
 }
 
-function AiSquares({ row }: { row: PortfolioRow }) {
+/** A medium figure over a thin bar: Gates and AI usage share it so they read at the same weight. */
+function Measure({
+  value,
+  of,
+  tone,
+  title,
+  children,
+}: {
+  value: number
+  of: number
+  tone?: string
+  title: string
+  children: React.ReactNode
+}) {
+  return (
+    <div className="flex flex-col gap-1.5" title={title}>
+      <span className={cn('text-sm font-semibold tabular-nums', tone)}>
+        {value}
+        <span className="font-medium text-muted-foreground">/{of}</span>
+      </span>
+      {children}
+    </div>
+  )
+}
+
+function AiUsage({ row }: { row: PortfolioRow }) {
   const usage = row.card?.aiUsage
   if (!usage?.available) {
     return (
@@ -128,18 +153,27 @@ function AiSquares({ row }: { row: PortfolioRow }) {
     )
   }
   const { level, aiCommits, totalCommits, share } = usage.data
-  const title = `AI usage ${level} of 5 · ${aiCommits} of ${totalCommits} commits AI-assisted (${Math.round(share * 100)}%)`
   return (
-    <span className="flex gap-1" title={title} role="img" aria-label={title}>
-      {[0, 1, 2, 3, 4].map((i) => (
-        <span
-          key={i}
-          className={cn('size-2.5 rounded-[2px]', i < level ? 'bg-primary' : 'bg-muted')}
-        />
-      ))}
-    </span>
+    <Measure
+      value={level}
+      of={5}
+      title={`AI usage ${level} of 5 · ${aiCommits} of ${totalCommits} commits AI-assisted (${Math.round(share * 100)}%)`}
+    >
+      <span className="flex gap-[3px]" aria-hidden="true">
+        {[0, 1, 2, 3, 4].map((i) => (
+          <span
+            key={i}
+            className={cn('h-[5px] flex-1 rounded-full', i < level ? 'bg-primary' : 'bg-muted')}
+          />
+        ))}
+      </span>
+    </Measure>
   )
 }
+
+/** Passing share of applicable gates: under half is red, under 80% amber. */
+const gatesBar = (pct: number) =>
+  pct >= 80 ? 'bg-primary' : pct >= 50 ? 'bg-warning' : 'bg-destructive'
 
 function Delta({ delta }: { delta: number | null }) {
   if (delta === null) return <span className="text-sm text-muted-foreground">n/a</span>
@@ -168,7 +202,7 @@ function openRow(e: React.MouseEvent<HTMLTableRowElement>, href: string) {
   else window.location.assign(href)
 }
 
-const COLUMNS = ['Project', 'Environment', 'Engineering', 'Gates', 'AI usage', 'Last 3 months', '']
+const COLUMNS = ['Project', 'Engineering', 'Gates', 'AI usage', 'Last 3 months', '']
 
 function ScorecardRows({
   rows,
@@ -176,7 +210,15 @@ function ScorecardRows({
 }: { rows: PortfolioRow[]; typeLabels: Record<string, string> }) {
   return (
     <div className="overflow-x-auto rounded-xl border">
-      <table className="w-full min-w-[1000px] text-sm">
+      <table className="w-full min-w-[960px] table-fixed text-sm">
+        <colgroup>
+          <col className="w-[22%]" />
+          <col className="w-[26%]" />
+          <col className="w-[16%]" />
+          <col className="w-[16%]" />
+          <col className="w-[150px]" />
+          <col className="w-[56px]" />
+        </colgroup>
         <thead className="bg-muted/50 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           <tr>
             {COLUMNS.map((c) => (
@@ -208,6 +250,21 @@ function ScorecardRows({
                       >
                         {row.name}
                       </a>
+                      <span
+                        className={cn('inline-flex whitespace-nowrap', ENV_CHIP[row.env])}
+                        title={
+                          row.environment?.available
+                            ? row.environment.data.environments
+                                .map(
+                                  (e) =>
+                                    `${e.name}: ${e.tier ?? 'unknown'} (${e.resourceGroup ?? 'from the environment name'})`,
+                                )
+                                .join('\n')
+                            : row.environment?.reason
+                        }
+                      >
+                        {ENV_LABEL[row.env]}
+                      </span>
                       {card && !card.facetsPublished ? (
                         <span
                           title="No facets published: values detected from workflows"
@@ -223,58 +280,48 @@ function ScorecardRows({
                     {row.alert ? <AlertPill alert={row.alert} /> : null}
                   </div>
                 </td>
-                <td className="px-4 py-3.5">
-                  <span
-                    className={cn('inline-flex whitespace-nowrap', ENV_CHIP[row.env])}
-                    title={
-                      row.environment?.available
-                        ? row.environment.data.environments
-                            .map(
-                              (e) =>
-                                `${e.name}: ${e.tier ?? 'unknown'} (${e.resourceGroup ?? 'from the environment name'})`,
-                            )
-                            .join('\n')
-                        : row.environment?.reason
-                    }
-                  >
-                    {ENV_LABEL[row.env]}
-                  </span>
-                </td>
                 {card ? (
                   <>
                     <td className="px-4 py-3.5">
-                      <div className="flex items-center gap-2.5">
-                        <LevelBadge level={card.level} />
-                        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+                      <div className="flex flex-col gap-1.5">
+                        <div className="flex items-center gap-2.5">
+                          <LevelBadge level={card.level} />
+                          <span className="text-xl font-semibold tabular-nums">
+                            {card.score ?? 'n/a'}
+                          </span>
+                        </div>
+                        <div className="h-2 overflow-hidden rounded-full bg-muted">
                           <div
                             className={cn(
-                              'h-1.5 rounded-full',
+                              'h-2 rounded-full',
                               LEVEL_BAR[card.level] ?? LEVEL_BAR[0],
                             )}
                             style={{ width: `${card.score ?? 0}%` }}
                           />
                         </div>
-                        <span className="w-7 text-right tabular-nums">{card.score ?? 'n/a'}</span>
                       </div>
                     </td>
                     <td className="px-4 py-3.5">
-                      <div
-                        className="flex flex-col gap-1.5"
+                      <Measure
+                        value={card.gates.present}
+                        of={card.gates.applicable}
+                        tone={
+                          row.gatesPct !== null && row.gatesPct < 50
+                            ? 'text-destructive'
+                            : undefined
+                        }
                         title={`${card.gates.present} of ${card.gates.applicable} applicable gates pass`}
                       >
-                        <span className="tabular-nums">
-                          {row.gatesPct === null ? 'n/a' : `${row.gatesPct}%`}
-                        </span>
-                        <div className="h-1 overflow-hidden rounded-full bg-muted">
+                        <div className="h-[5px] overflow-hidden rounded-full bg-muted">
                           <div
-                            className="h-1 bg-muted-foreground"
+                            className={cn('h-[5px] rounded-full', gatesBar(row.gatesPct ?? 0))}
                             style={{ width: `${row.gatesPct ?? 0}%` }}
                           />
                         </div>
-                      </div>
+                      </Measure>
                     </td>
                     <td className="px-4 py-3.5">
-                      <AiSquares row={row} />
+                      <AiUsage row={row} />
                     </td>
                     <td className="px-4 py-3.5">
                       <div className="flex items-center gap-2.5">
@@ -391,10 +438,9 @@ export function Portfolio({
 
       <section className="grid grid-cols-[repeat(auto-fit,minmax(210px,1fr))] gap-4">
         <Kpi
-          label="At level N3"
-          value={kpi.n3}
-          unit={`/ ${kpi.total}`}
-          hint="projects meet the full standard"
+          label="Gates passing, average"
+          value={kpi.gatesAverage === null ? 'n/a' : `${kpi.gatesAverage}%`}
+          hint={`${kpi.n3} of ${kpi.total} projects at N3`}
         />
         <Kpi
           label="In production below N1"
@@ -409,10 +455,10 @@ export function Portfolio({
           hint={`across ${kpi.aiCount} projects with data`}
         />
         <Kpi
-          label="Trend, last 3 months"
-          value={kpi.up}
-          unit="improving"
-          hint={`${kpi.flat} flat · ${kpi.down} declining`}
+          label="Production at N3"
+          value={kpi.proN3}
+          unit={`/ ${kpi.pro}`}
+          hint="live projects meeting the full standard"
         />
       </section>
 
