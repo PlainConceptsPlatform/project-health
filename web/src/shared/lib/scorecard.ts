@@ -38,10 +38,13 @@ export const MODE_DESCRIPTION: Record<StandardMode, string> = {
 
 export const LEVEL_CLASS = [
   'border-destructive/40 bg-destructive/10 text-destructive',
-  'border-warning/60 bg-warning/15 text-foreground',
-  'border-info/50 bg-info/10 text-foreground',
-  'border-success/50 bg-success/15 text-foreground',
+  'border-warning/60 bg-warning/15 text-warning-foreground',
+  'border-primary/30 bg-primary/10 text-primary',
+  'border-primary/30 bg-primary/10 text-primary',
 ] as const
+
+/** The score bar beside a level badge, in the badge's colour. */
+export const LEVEL_BAR = ['bg-destructive', 'bg-warning', 'bg-primary/60', 'bg-primary'] as const
 
 export const PHASES = [
   { key: 'build', label: 'Every build' },

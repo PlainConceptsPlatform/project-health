@@ -27,19 +27,17 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={outfit.variable} suppressHydrationWarning>
       <body className="min-h-screen bg-background font-sans text-foreground antialiased">
-        <header className="border-b">
+        <header className="border-b border-primary bg-primary text-primary-foreground">
           <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-3 gap-y-2 px-6 py-4">
             <a href="/" className="text-lg font-semibold tracking-tight">
               Project Health
             </a>
-            <span className="hidden text-sm text-muted-foreground sm:inline">
-              Delivery and agent metrics from GitHub
-            </span>
+            <span className="hidden text-sm sm:inline">Delivery and agent metrics from GitHub</span>
 
             <div className="ml-auto flex items-center gap-4">
               {collectedAt ? (
-                <span className="text-xs text-muted-foreground">
-                  Collected{' '}
+                <span className="text-sm">
+                  Updated{' '}
                   <time dateTime={collectedAt}>
                     {new Date(collectedAt).toLocaleString('en-GB', {
                       day: '2-digit',
@@ -57,7 +55,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               <a
                 href={repo}
                 aria-label={`Open ${slug} on GitHub`}
-                className="inline-flex h-9 items-center gap-2 rounded-md border px-3 text-sm text-muted-foreground outline-none transition hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring"
+                className="inline-flex h-9 items-center gap-2 rounded-md border border-primary-foreground/60 px-3 text-sm text-primary-foreground outline-none transition hover:bg-primary-foreground/10 focus-visible:ring-2 focus-visible:ring-primary-foreground"
               >
                 <Github className="size-4" aria-hidden="true" />
                 <span className="hidden sm:inline">{slug}</span>
