@@ -1,4 +1,12 @@
-import type { DataIndex, MonthlyReport, Rag, Scorecard, StandardMode } from './types'
+import type {
+  DataIndex,
+  FinalEnvironment,
+  MetricBlock,
+  MonthlyReport,
+  Rag,
+  Scorecard,
+  StandardMode,
+} from './types'
 
 /** Words for every colour, so a status never depends on the dot alone. */
 export const RAG_LABEL: Record<Rag, string> = {
@@ -68,6 +76,8 @@ export interface ScorecardRow {
   /** Why there is no card, when there is none. */
   reason: string | null
   trend: { month: string; score: number | null }[]
+  /** From the newest report that measured it; null when no report has. */
+  environment: MetricBlock<FinalEnvironment> | null
 }
 
 const cardOf = (report: MonthlyReport | null | undefined) =>
@@ -104,6 +114,7 @@ export function scorecardRows(
         .filter((r) => !latest || r.month <= latest.month)
         .slice(-TREND_MONTHS)
         .map((r) => ({ month: r.month, score: cardOf(r.report)?.score ?? null })),
+      environment: reports.findLast((r) => r.report?.environment)?.report?.environment ?? null,
     }
   })
 }

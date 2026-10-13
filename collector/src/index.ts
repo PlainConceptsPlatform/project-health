@@ -10,6 +10,7 @@ import {
   collectEngineeringExcellence,
   unavailableExcellence,
 } from './metrics/engineering-excellence.ts'
+import { collectEnvironment, githubEnvironmentSource } from './metrics/environment.ts'
 import { collectLeadTime } from './metrics/leadtime.ts'
 import { fetchReleaseHistory, withinWindow } from './metrics/releases.ts'
 import { collectRework } from './metrics/rework.ts'
@@ -330,6 +331,24 @@ async function collectProject(project: ProjectConfig, period: Period): Promise<M
   }
 }
 
+/**
+ * The furthest environment reached by the end of the period, for delivered and planned projects
+ * alike: a planned project may already deploy to PRE. A failure leaves the block unavailable.
+ */
+async function withEnvironment(
+  report: MonthlyReport,
+  project: ProjectConfig,
+  period: Period,
+): Promise<MonthlyReport> {
+  try {
+    const environment = await collectEnvironment(githubEnvironmentSource(project.repo), period.to)
+    return { ...report, environment }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    return { ...report, environment: skip(`environment could not be collected. ${message}`) }
+  }
+}
+
 function writeIndex(projects: ProjectConfig[]): void {
   const entries = projects.map((project) => {
     const dir = join(dataDir, project.id)
@@ -459,7 +478,7 @@ async function main(): Promise<void> {
 
     for (const period of periods) {
       try {
-        const report = await collectProject(project, period)
+        const report = await withEnvironment(await collectProject(project, period), project, period)
         const file = join(dataDir, project.id, `${label(period)}.json`)
         writeFileSync(file, `${JSON.stringify(report, null, 2)}\n`)
         const releases = report.delivery.deploymentFrequency.available
@@ -499,7 +518,7 @@ async function main(): Promise<void> {
             period,
             scorecardConfig.alerts.decliningMonths,
           ),
-        })
+        }).then((r) => withEnvironment(r, project, period))
         const file = join(dataDir, project.id, `${label(period)}.json`)
         writeFileSync(file, `${JSON.stringify(report, null, 2)}\n`)
         console.log(

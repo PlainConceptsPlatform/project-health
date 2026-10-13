@@ -119,6 +119,22 @@ export interface Contributors {
   deployers: Contributor[]
 }
 
+export type EnvironmentTier = 'PRO' | 'PRE'
+
+export interface DeployedEnvironment {
+  name: string
+  resourceGroup: string | null
+  tier: EnvironmentTier | null
+  source: 'resource-group' | 'environment-name'
+  lastDeployedAt: string
+}
+
+/** The furthest environment the application has reached, read from where it deploys. */
+export interface FinalEnvironment {
+  final: EnvironmentTier | null
+  environments: DeployedEnvironment[]
+}
+
 export interface MonthlyReport {
   schemaVersion: 1
   /** True for the example data shipped with the template, so the site can say the numbers are made up. */
@@ -143,6 +159,8 @@ export interface MonthlyReport {
   engineeringExcellence?: EngineeringExcellence
   /** Absent in files written before the scorecard existed. */
   scorecard?: MetricBlock<Scorecard>
+  /** Absent in files written before it existed. */
+  environment?: MetricBlock<FinalEnvironment>
   warnings: Warning[]
 }
 

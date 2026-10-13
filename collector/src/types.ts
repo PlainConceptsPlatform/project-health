@@ -203,6 +203,25 @@ export interface Contributors {
   deployers: Contributor[]
 }
 
+export type EnvironmentTier = 'PRO' | 'PRE'
+
+/** One deployment environment with at least one successful deployment. */
+export interface DeployedEnvironment {
+  name: string
+  /** The Azure resource group it deploys to, when the repository names one. */
+  resourceGroup: string | null
+  tier: EnvironmentTier | null
+  /** resource-group when the RG name decided the tier, environment-name when there was no RG. */
+  source: 'resource-group' | 'environment-name'
+  lastDeployedAt: string
+}
+
+/** The furthest environment the application has reached, and the evidence for it. */
+export interface FinalEnvironment {
+  final: EnvironmentTier | null
+  environments: DeployedEnvironment[]
+}
+
 export interface MonthlyReport {
   schemaVersion: 1
   project: string
@@ -225,6 +244,8 @@ export interface MonthlyReport {
   engineeringExcellence?: EngineeringExcellence
   /** Absent in files written before the scorecard existed. */
   scorecard?: MetricBlock<Scorecard>
+  /** Absent in files written before it existed. */
+  environment?: MetricBlock<FinalEnvironment>
   warnings: Warning[]
 }
 
