@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { type ExcellenceKpis, kpisOf } from './excellence'
+import type { DailyScore } from './scorecard'
 import type {
   ComplexityData,
   CoverageData,
@@ -83,6 +84,18 @@ export function readIndex(): DataIndex {
         latest: months.at(-1) ?? null,
       }
     }),
+  }
+}
+
+/** One point per collected day, oldest first; empty until the collector has written daily.json. */
+export function readDailyScores(projectId: string): DailyScore[] {
+  try {
+    const raw = JSON.parse(readFileSync(join(dataDir, projectId, 'daily.json'), 'utf8')) as {
+      days?: DailyScore[]
+    }
+    return Array.isArray(raw.days) ? raw.days.map(({ date, score }) => ({ date, score })) : []
+  } catch {
+    return []
   }
 }
 

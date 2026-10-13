@@ -79,8 +79,15 @@ export interface ScorecardRow {
   /** Why there is no card, when there is none. */
   reason: string | null
   trend: { month: string; score: number | null }[]
+  /** Daily scores, oldest first, for deltas over a fixed number of days. */
+  daily: DailyScore[]
   /** From the newest report that measured it; null when no report has. */
   environment: MetricBlock<FinalEnvironment> | null
+}
+
+export interface DailyScore {
+  date: string
+  score: number | null
 }
 
 const cardOf = (report: MonthlyReport | null | undefined) =>
@@ -90,6 +97,7 @@ const cardOf = (report: MonthlyReport | null | undefined) =>
 export function scorecardRows(
   index: DataIndex,
   months: Record<string, Record<string, MonthlyReport | null>>,
+  daily: Record<string, DailyScore[]> = {},
 ): ScorecardRow[] {
   return index.projects.map((entry) => {
     const collected = [...entry.months].sort()
@@ -117,6 +125,7 @@ export function scorecardRows(
         .filter((r) => !latest || r.month <= latest.month)
         .slice(-TREND_MONTHS)
         .map((r) => ({ month: r.month, score: cardOf(r.report)?.score ?? null })),
+      daily: daily[entry.id] ?? [],
       environment: reports.findLast((r) => r.report?.environment)?.report?.environment ?? null,
     }
   })

@@ -3,6 +3,7 @@ import { join } from 'node:path'
 import { isExampleConfig, loadDora, loadProjects, loadScorecardConfig, repoRoot } from './config.ts'
 import { discover } from './discover.ts'
 import { get } from './github.ts'
+import { parseHistory, pointOf, withPoint } from './history.ts'
 import { collectAgents } from './metrics/agents.ts'
 import { collectContributors } from './metrics/contributors.ts'
 import { computeDeploymentFrequency } from './metrics/deployments.ts'
@@ -349,6 +350,23 @@ async function withEnvironment(
   }
 }
 
+/**
+ * Appends today's score to `data/<id>/daily.json`, but only from the month that contains today: a
+ * backfilled month is scored as of its end, not as of today. The monthly files keep the long trend;
+ * this file gives the overview a delta over a fixed number of days.
+ */
+function recordDaily(projectId: string, period: Period, report: MonthlyReport, now: Date): void {
+  if (now < period.from || now > period.to) return
+  const point = pointOf(report, now)
+  if (!point) return
+  const file = join(dataDir, projectId, 'daily.json')
+  const history = withPoint(
+    parseHistory(existsSync(file) ? readFileSync(file, 'utf8') : null),
+    point,
+  )
+  writeFileSync(file, `${JSON.stringify(history, null, 2)}\n`)
+}
+
 function writeIndex(projects: ProjectConfig[]): void {
   const entries = projects.map((project) => {
     const dir = join(dataDir, project.id)
@@ -481,6 +499,7 @@ async function main(): Promise<void> {
         const report = await withEnvironment(await collectProject(project, period), project, period)
         const file = join(dataDir, project.id, `${label(period)}.json`)
         writeFileSync(file, `${JSON.stringify(report, null, 2)}\n`)
+        recordDaily(project.id, period, report, now)
         const releases = report.delivery.deploymentFrequency.available
           ? report.delivery.deploymentFrequency.data.count
           : 0
@@ -521,6 +540,7 @@ async function main(): Promise<void> {
         }).then((r) => withEnvironment(r, project, period))
         const file = join(dataDir, project.id, `${label(period)}.json`)
         writeFileSync(file, `${JSON.stringify(report, null, 2)}\n`)
+        recordDaily(project.id, period, report, now)
         console.log(
           `  ${project.id} ${label(period)}: planned, scorecard ${report.scorecard?.available ? 'collected' : 'unavailable'}`,
         )

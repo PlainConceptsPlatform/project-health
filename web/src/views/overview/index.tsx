@@ -1,5 +1,5 @@
 import { portfolioRows } from '@/shared/lib/portfolio'
-import { scorecardRows } from '@/shared/lib/scorecard'
+import { type DailyScore, scorecardRows } from '@/shared/lib/scorecard'
 import { type ProjectSummary, summarise } from '@/shared/lib/summary'
 import type { DataIndex, MonthlyReport } from '@/shared/lib/types'
 import { Unavailable } from '@/shared/ui'
@@ -9,11 +9,13 @@ export function OverviewView({
   index,
   reports,
   months,
+  daily,
   typeLabels,
 }: {
   index: DataIndex
   reports: Record<string, MonthlyReport | null>
   months: Record<string, Record<string, MonthlyReport | null>>
+  daily: Record<string, DailyScore[]>
   typeLabels: Record<string, string>
 }) {
   if (index.projects.length === 0) {
@@ -39,7 +41,7 @@ export function OverviewView({
 
   return (
     <Portfolio
-      rows={portfolioRows(scorecardRows(index, months))}
+      rows={portfolioRows(scorecardRows(index, months, daily))}
       typeLabels={typeLabels}
       projects={projects}
       byMonth={byMonth}

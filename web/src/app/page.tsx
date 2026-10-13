@@ -1,4 +1,11 @@
-import { readIndex, readLatestReport, readReport, readScorecardTypeLabels } from '@/shared/lib/data'
+import {
+  readDailyScores,
+  readIndex,
+  readLatestReport,
+  readReport,
+  readScorecardTypeLabels,
+} from '@/shared/lib/data'
+import type { DailyScore } from '@/shared/lib/scorecard'
 import type { MonthlyReport } from '@/shared/lib/types'
 import { OverviewView } from '@/views/overview'
 
@@ -10,8 +17,10 @@ export default function Page() {
   // reports, which keeps the payload to a few numbers per project per month.
   const latest: Record<string, MonthlyReport | null> = {}
   const months: Record<string, Record<string, MonthlyReport | null>> = {}
+  const daily: Record<string, DailyScore[]> = {}
   for (const project of index.projects) {
     latest[project.id] = readLatestReport(project.id)
+    daily[project.id] = readDailyScores(project.id)
     for (const month of project.months) {
       months[month] ??= {}
       months[month][project.id] = readReport(project.id, month)
@@ -23,6 +32,7 @@ export default function Page() {
       index={index}
       reports={latest}
       months={months}
+      daily={daily}
       typeLabels={readScorecardTypeLabels()}
     />
   )
