@@ -74,6 +74,9 @@ export const GLOSSARY = {
   sbomComponents:
     'Every third party component in the software bill of materials, across all ecosystems. More components mean more surface to keep patched; the licence mix says what obligations ship with them.',
 
+  finalEnvironment:
+    'The furthest environment the application has deployed to successfully. Each deployment environment is matched to the Azure resource group it deploys to (infra/<env>.env or the AZURE_RG / AZURE_RESOURCE_GROUP variable), and the group name says PRO or PRE. Without a resource group, the environment name decides. Not deployed means no deployment has ever succeeded.',
+
   engineeringLevel:
     'A cumulative level where only green gates count. N1: secrets, vulnerability and SAST gates green and tests present. N2: N1 plus tests and coverage, Gherkin specs and the SBOM green. N3: N2 plus mutation, DAST and complexity green where they apply. Anything less is N0.',
 

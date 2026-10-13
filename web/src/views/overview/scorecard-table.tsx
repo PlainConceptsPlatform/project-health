@@ -1,12 +1,13 @@
 import { monthName } from '@/shared/lib/format'
 import { type ScorecardRow, TREND_MONTHS, typeLabel } from '@/shared/lib/scorecard'
 import { DataTable, InfoTip, TableCell, TableRow } from '@/shared/ui'
-import { AiUsageValue, AlertBadge, LevelBadge } from '@/shared/ui/scorecard'
+import { AiUsageValue, AlertBadge, EnvironmentTag, LevelBadge } from '@/shared/ui/scorecard'
 import { Sparkline } from '@/shared/ui/sparkline'
 
 const HEAD = [
   'Project',
   'Type',
+  'Environment',
   'AI usage',
   'Engineering',
   'Gates',
@@ -49,6 +50,9 @@ export function ScorecardTable({
               <>
                 <TableCell>{typeLabel(row.card.projectType, typeLabels)}</TableCell>
                 <TableCell>
+                  <EnvironmentTag environment={row.environment} />
+                </TableCell>
+                <TableCell>
                   <AiUsageValue usage={row.card.aiUsage} />
                 </TableCell>
                 <TableCell>
@@ -87,10 +91,12 @@ export function ScorecardTable({
       </DataTable>
       <p className="text-xs text-muted-foreground">
         AI usage is the share of default branch commits that are AI-assisted, from 1 to 5
-        <InfoTip term="aiUsage" />. Gates counts the gates present, green or yellow, in every phase, out of
-        those that apply
+        <InfoTip term="aiUsage" />. Gates counts the gates present, green or yellow, in every phase,
+        out of those that apply
         <InfoTip term="gates" />. The trend is the engineering score from 0 to 100
-        <InfoTip term="engineeringScore" />.
+        <InfoTip term="engineeringScore" />. Environment is the furthest one the application has
+        deployed to successfully, PRO or PRE, read from the name of its resource group
+        <InfoTip term="finalEnvironment" />.
       </p>
     </div>
   )
