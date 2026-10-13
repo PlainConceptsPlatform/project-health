@@ -28,10 +28,11 @@ const ALERT_TONE: Record<PortfolioAlert['severity'], string> = {
   amber: 'bg-warning/15 text-warning-foreground',
 }
 
-const ENV_DOT: Record<PortfolioEnv, string> = {
-  pro: 'border-foreground bg-foreground',
-  pre: 'border-muted-foreground bg-background',
-  none: 'border-border bg-border',
+// PRO stands out, PRE is quieter, and no environment is plain text: it is an absence, not a tier.
+const ENV_CHIP: Record<PortfolioEnv, string> = {
+  pro: 'rounded-md border border-transparent bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary',
+  pre: 'rounded-md border border-muted-foreground/40 px-2 py-0.5 text-xs font-semibold text-muted-foreground',
+  none: 'text-sm text-muted-foreground',
 }
 
 function Chip({
@@ -155,6 +156,18 @@ function Delta({ delta }: { delta: number | null }) {
   )
 }
 
+/**
+ * The whole row opens the project. The name and the chevron stay real links, so keyboard and
+ * screen-reader users keep a focusable target and a click on either is left to the browser.
+ * Cmd/Ctrl-click opens a new tab, as it would on a link.
+ */
+function openRow(e: React.MouseEvent<HTMLTableRowElement>, href: string) {
+  if ((e.target as HTMLElement).closest('a, button')) return
+  if (window.getSelection()?.toString()) return
+  if (e.metaKey || e.ctrlKey) window.open(href, '_blank', 'noopener')
+  else window.location.assign(href)
+}
+
 const COLUMNS = ['Project', 'Environment', 'Engineering', 'Gates', 'AI usage', 'Last 3 months', '']
 
 function ScorecardRows({
@@ -177,9 +190,14 @@ function ScorecardRows({
           {rows.map((row) => {
             const card = row.card
             return (
+              // biome-ignore lint/a11y/useKeyWithClickEvents: a mouse shortcut only; the project name link in the row is the keyboard and screen-reader path
               <tr
                 key={row.id}
-                className={cn('border-t align-middle', row.risk === 0 && 'bg-destructive/[0.03]')}
+                onClick={(e) => openRow(e, `/projects/${row.id}/`)}
+                className={cn(
+                  'cursor-pointer border-t align-middle transition-colors hover:bg-muted/60',
+                  row.risk === 0 && 'bg-destructive/[0.03]',
+                )}
               >
                 <td className="px-4 py-3.5">
                   <div className="flex min-w-0 flex-col gap-1">
@@ -207,7 +225,7 @@ function ScorecardRows({
                 </td>
                 <td className="px-4 py-3.5">
                   <span
-                    className="inline-flex items-center gap-2 whitespace-nowrap"
+                    className={cn('inline-flex whitespace-nowrap', ENV_CHIP[row.env])}
                     title={
                       row.environment?.available
                         ? row.environment.data.environments
@@ -219,10 +237,6 @@ function ScorecardRows({
                         : row.environment?.reason
                     }
                   >
-                    <span
-                      className={cn('size-2 rounded-full border', ENV_DOT[row.env])}
-                      aria-hidden="true"
-                    />
                     {ENV_LABEL[row.env]}
                   </span>
                 </td>
