@@ -25,7 +25,7 @@ import { ProjectGrid } from './grid'
 
 const ALERT_TONE: Record<PortfolioAlert['severity'], string> = {
   red: 'bg-destructive/10 text-destructive',
-  amber: 'bg-warning/15 text-warning-foreground',
+  amber: 'bg-warning/15 text-warning-foreground dark:text-warning',
 }
 
 // PRO stands out, PRE is quieter, and no environment is plain text: it is an absence, not a tier.

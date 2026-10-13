@@ -1,6 +1,7 @@
 import { hasSyntheticData, readCollectedAt } from '@/shared/lib/data'
 import { repoSlug, repoUrl } from '@/shared/lib/repo'
 import { TooltipProvider } from '@/shared/ui'
+import { THEME_INIT_SCRIPT, ThemeToggle } from '@/shared/ui/theme-toggle'
 import { Github } from 'lucide-react'
 import type { Metadata } from 'next'
 import { Outfit } from 'next/font/google'
@@ -26,6 +27,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 
   return (
     <html lang="en" className={outfit.variable} suppressHydrationWarning>
+      <head>
+        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: a constant string from theme-toggle.tsx, no user input; it must run before paint */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body className="min-h-screen bg-background font-sans text-foreground antialiased">
         <header className="border-b border-primary bg-primary text-primary-foreground">
           <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-3 gap-y-2 px-6 py-4">
@@ -34,9 +39,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             </a>
             <span className="hidden text-sm sm:inline">Delivery and agent metrics from GitHub</span>
 
-            <div className="ml-auto flex items-center gap-4">
+            <div className="ml-auto flex items-center gap-2">
               {collectedAt ? (
-                <span className="text-sm">
+                <span className="mr-2 text-sm">
                   Updated{' '}
                   <time dateTime={collectedAt}>
                     {new Date(collectedAt).toLocaleString('en-GB', {
@@ -51,14 +56,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                 </span>
               ) : null}
 
-              {/* The slug is hidden on small screens, so the icon carries an accessible name. */}
+              <ThemeToggle />
               <a
                 href={repo}
                 aria-label={`Open ${slug} on GitHub`}
-                className="inline-flex h-9 items-center gap-2 rounded-md border border-primary-foreground/60 px-3 text-sm text-primary-foreground outline-none transition hover:bg-primary-foreground/10 focus-visible:ring-2 focus-visible:ring-primary-foreground"
+                title={slug}
+                className="inline-flex size-9 items-center justify-center rounded-md border border-primary-foreground/60 text-primary-foreground outline-none transition hover:bg-primary-foreground/10 focus-visible:ring-2 focus-visible:ring-primary-foreground"
               >
                 <Github className="size-4" aria-hidden="true" />
-                <span className="hidden sm:inline">{slug}</span>
               </a>
             </div>
           </div>
