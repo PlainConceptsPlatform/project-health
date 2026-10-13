@@ -204,6 +204,7 @@ describe('evidenceOf', () => {
       {
         plans: [
           {
+            change: 'cost-centres',
             status: 'captured',
             waypoints: [
               { n: 1, capture: 'configurator', expect: 'Cost centres listed', file: '01-a.jpg' },
@@ -218,13 +219,21 @@ describe('evidenceOf', () => {
     )
     expect(evidence.waypoints).toEqual([
       {
+        plan: 'cost-centres',
         n: 1,
         capture: 'configurator',
         expect: 'Cost centres listed',
         reached: true,
         image: 'https://github.com/acme/app/raw/evidence/pr-219/01-a.jpg',
       },
-      { n: 2, capture: 'banner', expect: null, reached: false, image: null },
+      {
+        plan: 'cost-centres',
+        n: 2,
+        capture: 'banner',
+        expect: null,
+        reached: false,
+        image: null,
+      },
     ])
     expect(evidence.note).toBeNull()
   })
@@ -374,6 +383,33 @@ describe('collectRoadmap', () => {
       stored as Roadmap,
     )
     expect(calls).toEqual([212])
+  })
+
+  it('picks up evidence that arrived after a stored issue closed', async () => {
+    // The evidence workflow runs after the merge and does not touch the issue, so a stored issue
+    // looked unchanged and never got its screenshots.
+    const timeline = { 212: [linked(100, 219), closed(104)] }
+    const first = await collectRoadmap(
+      project,
+      fakeSource([issue()], timeline, { 219: detail(219) }),
+      window,
+      [],
+      null,
+    )
+    const stored = first.block.available ? first.block.data : null
+    expect(stored?.issues[0]?.evidence).toBeNull()
+
+    const later: RoadmapSource = {
+      ...fakeSource([issue()], {}, {}),
+      evidence: async () => ({
+        plans: [{ change: 'cost-centres', waypoints: [{ n: 1, capture: 'home', file: '1.jpg' }] }],
+      }),
+    }
+    const second = await collectRoadmap(project, later, window, [], stored as Roadmap)
+    const evidence = second.block.available ? second.block.data.issues[0]?.evidence : null
+    expect(evidence?.waypoints.map((w) => w.image)).toEqual([
+      'https://github.com/acme/app/raw/evidence/pr-219/1.jpg',
+    ])
   })
 
   it('skips the block with a warning when pull requests cannot be read', async () => {
