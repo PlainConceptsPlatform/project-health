@@ -38,7 +38,7 @@ export const MODE_DESCRIPTION: Record<StandardMode, string> = {
 
 export const LEVEL_CLASS = [
   'border-destructive/40 bg-destructive/10 text-destructive',
-  'border-warning/60 bg-warning/15 text-warning-foreground',
+  'border-warning/60 bg-warning/15 text-warning-foreground dark:text-warning',
   'border-primary/30 bg-primary/10 text-primary',
   'border-primary/30 bg-primary/10 text-primary',
 ] as const
