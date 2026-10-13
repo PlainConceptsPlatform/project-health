@@ -1,13 +1,6 @@
 import { GaugeIcon, LockIcon, type LucideIcon, ScrollTextIcon } from 'lucide-react'
 import { LEVEL_CLASS, MODE_DESCRIPTION, MODE_LABEL, RAG_DOT, RAG_LABEL } from '../lib/scorecard'
-import type {
-  AiUsage,
-  FinalEnvironment,
-  MetricBlock,
-  Rag,
-  ScorecardAlert,
-  StandardMode,
-} from '../lib/types'
+import type { AiUsage, MetricBlock, Rag, ScorecardAlert, StandardMode } from '../lib/types'
 import { cn } from '../lib/utils'
 import { Badge } from './badge'
 import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip'
@@ -148,46 +141,6 @@ export function AlertBadge({ alert }: { alert: ScorecardAlert }) {
     >
       {alert.code === 'ENGINEERING_DECLINING' ? '▼ ' : null}
       {ALERT_SHORT[alert.code]}
-    </Badge>
-  )
-}
-
-/**
- * The furthest environment the application has reached. PRO is filled and PRE outlined, so the
- * column reads at a glance; the tooltip names the resource group each tier was read from.
- */
-export function EnvironmentTag({
-  environment,
-}: { environment: MetricBlock<FinalEnvironment> | null }) {
-  if (!environment) return <span className="text-xs text-muted-foreground">n/a</span>
-  if (!environment.available) {
-    return (
-      <span className="text-xs text-muted-foreground" title={environment.reason}>
-        Not deployed
-      </span>
-    )
-  }
-  const { final, environments } = environment.data
-  const evidence = environments
-    .map(
-      (e) =>
-        `${e.name}: ${e.tier ?? 'unknown tier'} (${e.resourceGroup ?? 'from the environment name'})`,
-    )
-    .join('\n')
-  if (!final) {
-    return (
-      <span className="text-xs text-muted-foreground" title={evidence}>
-        Unknown
-      </span>
-    )
-  }
-  return (
-    <Badge
-      variant={final === 'PRO' ? 'default' : 'outline'}
-      className="tabular-nums"
-      title={evidence}
-    >
-      {final}
     </Badge>
   )
 }

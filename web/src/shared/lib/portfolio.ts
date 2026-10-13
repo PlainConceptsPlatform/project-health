@@ -4,8 +4,8 @@ import type { ScorecardRow } from './scorecard'
 export type PortfolioEnv = 'pro' | 'pre' | 'none'
 
 export const ENV_LABEL: Record<PortfolioEnv, string> = {
-  pro: 'Production',
-  pre: 'Pre-production',
+  pro: 'PRO',
+  pre: 'PRE',
   none: 'Not deployed',
 }
 
