@@ -210,6 +210,8 @@ export interface IssueComment {
   user?: Actor | null
   created_at: string
   html_url?: string
+  /** The issue or pull request the comment is on, as an API URL ending in its number. */
+  issue_url?: string
 }
 
 export interface PullRequest {

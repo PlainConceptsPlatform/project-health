@@ -402,6 +402,8 @@ export interface RoadmapSource {
   timeline: (issue: number) => Promise<TimelineEvent[]>
   pullRequest: (number: number) => Promise<PullRequestDetail | null>
   comments: (number: number) => Promise<IssueComment[]>
+  /** Comments on any issue or pull request in the repository written or edited since the date. */
+  commentsSince: (since: Date) => Promise<IssueComment[]>
   evidence: (pullRequest: number, branch: string) => Promise<EvidenceManifest | null>
   /** False when the token cannot read pull requests, which the roadmap needs for every outcome. */
   canReadPullRequests: () => Promise<boolean>
@@ -554,6 +556,31 @@ async function laterEvidence(
 }
 
 /**
+ * Evidence comments rewritten since the last collection, by pull request. Replaying a merged pull
+ * request (operation=evidence) edits its comment in place, which changes neither the issue nor
+ * the pull request, so a stored issue would keep the first run's screenshots. One call covers the
+ * whole repository.
+ */
+async function replayedEvidence(
+  source: RoadmapSource,
+  repo: string,
+  since: Date,
+): Promise<Map<number, JourneyEvidence>> {
+  const byPullRequest = new Map<number, IssueComment[]>()
+  for (const comment of await source.commentsSince(since)) {
+    const number = Number(comment.issue_url?.match(/\/issues\/(\d+)$/)?.[1])
+    if (!number || !comment.body?.includes(EVIDENCE_MARKER)) continue
+    byPullRequest.set(number, [...(byPullRequest.get(number) ?? []), comment])
+  }
+  const found = new Map<number, JourneyEvidence>()
+  for (const [number, comments] of byPullRequest) {
+    const evidence = evidenceFromComments(comments, repo, number)
+    if (evidence) found.set(number, evidence)
+  }
+  return found
+}
+
+/**
  * Every issue open at some point in the period, and who had it at each moment.
  *
  * A closed issue whose stored journey is as recent as the issue itself is reused rather than read
@@ -590,6 +617,9 @@ export async function collectRoadmap(
   const unique = [...new Map(candidates.map((i) => [i.number, i])).values()]
 
   const stored = new Map((previous?.issues ?? []).map((j) => [j.number, j]))
+  const replayed = previous
+    ? await replayedEvidence(source, project.repo, new Date(previous.asOf))
+    : new Map<number, JourneyEvidence>()
   const flagged: number[] = []
 
   const journeys = await mapLimit(unique, CONCURRENCY, async (issue) => {
@@ -597,9 +627,11 @@ export async function collectRoadmap(
     if (!issueSource) return null
     const cached = stored.get(issue.number)
     if (cached?.closedAt && issue.state !== 'open' && cached.updatedAt === issue.updated_at) {
+      const merged = cached.pullRequests.filter((pr) => pr.mergedAt).at(-1)
       return {
         ...cached,
-        evidence: await laterEvidence(source, project, cached),
+        evidence:
+          (merged && replayed.get(merged.number)) ?? (await laterEvidence(source, project, cached)),
         agent: agentOf(runs, issue.number),
       }
     }
@@ -653,6 +685,11 @@ export const githubRoadmapSource = (repo: string): RoadmapSource => ({
     paginate<TimelineEvent>(`/repos/${repo}/issues/${issue}/timeline?per_page=100`, 5),
   pullRequest: (n) => get<PullRequestDetail>(`/repos/${repo}/pulls/${n}`),
   comments: (n) => paginate<IssueComment>(`/repos/${repo}/issues/${n}/comments?per_page=100`, 3),
+  commentsSince: (since) =>
+    paginate<IssueComment>(
+      `/repos/${repo}/issues/comments?since=${since.toISOString()}&per_page=100`,
+      10,
+    ),
   evidence: async (pr, branch) => {
     const file = await get<{ content?: string; encoding?: string }>(
       `/repos/${repo}/contents/pr-${pr}/manifest.json?ref=${encodeURIComponent(branch)}`,
