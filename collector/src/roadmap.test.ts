@@ -384,6 +384,7 @@ function fakeSource(
     },
     pullRequest: async (n) => pulls[n] ?? null,
     comments: async () => [],
+    commentsSince: async () => [],
     evidence: async () => null,
     canReadPullRequests: async () => opts.pullsReadable ?? true,
   }
@@ -531,6 +532,68 @@ describe('collectRoadmap', () => {
     expect(evidence?.waypoints[0]?.image).toBe(
       'https://github.com/acme/app/raw/abc/p/evidence/01.jpg',
     )
+  })
+
+  it('takes a replayed evidence comment over the one a stored issue kept', async () => {
+    // operation=evidence edits the comment in place and touches neither the issue nor the pull
+    // request, so the stored issue looked unchanged and kept the first run's screenshots.
+    const comment = (base: string, reached: boolean) => ({
+      body: embedded({
+        version: 2,
+        base,
+        plans: [
+          {
+            change: 'c',
+            status: 'captured',
+            waypoints: [{ n: 1, capture: 'home', file: 'p/evidence/01.jpg', reached }],
+          },
+        ],
+      }),
+      created_at: t(110),
+      issue_url: 'https://api.github.com/repos/acme/app/issues/219',
+    })
+    const first = await collectRoadmap(
+      project,
+      {
+        ...fakeSource([issue()], { 212: [linked(100, 219), closed(104)] }, { 219: detail(219) }),
+        comments: async () => [comment('https://github.com/acme/app/raw/first', false)],
+      },
+      window,
+      [],
+      null,
+    )
+    const stored = first.block.available ? first.block.data : null
+    expect(stored?.issues[0]?.evidence?.waypoints[0]?.reached).toBe(false)
+
+    const since: Date[] = []
+    const second = await collectRoadmap(
+      project,
+      {
+        ...fakeSource([issue()], {}, {}),
+        commentsSince: async (date) => {
+          since.push(date)
+          return [
+            {
+              body: 'an unrelated comment',
+              created_at: t(120),
+              issue_url: 'https://api.github.com/repos/acme/app/issues/212',
+            },
+            comment('https://github.com/acme/app/raw/replayed', true),
+          ]
+        },
+      },
+      window,
+      [],
+      stored as Roadmap,
+    )
+    expect(since.map((d) => d.toISOString())).toEqual([stored?.asOf])
+    const [waypoint] = second.block.available
+      ? (second.block.data.issues[0]?.evidence?.waypoints ?? [])
+      : []
+    expect(waypoint).toMatchObject({
+      reached: true,
+      image: 'https://github.com/acme/app/raw/replayed/p/evidence/01.jpg',
+    })
   })
 
   it('skips the block with a warning when pull requests cannot be read', async () => {
