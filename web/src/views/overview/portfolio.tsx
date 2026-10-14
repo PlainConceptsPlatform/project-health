@@ -1,5 +1,6 @@
 'use client'
 
+import type { AgenticRow } from '@/shared/lib/agentic'
 import {
   DELTA_DAYS,
   DELTA_TITLE,
@@ -24,6 +25,7 @@ import { Sparkline } from '@/shared/ui/sparkline'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 import { AlertTriangleIcon, ChevronRightIcon } from 'lucide-react'
 import { useState } from 'react'
+import { AgenticTable } from './agentic'
 import { ProjectGrid } from './grid'
 
 const ALERT_TONE: Record<PortfolioAlert['severity'], string> = {
@@ -378,11 +380,13 @@ export function Portfolio({
   typeLabels,
   projects,
   byMonth,
+  agentic,
 }: {
   rows: PortfolioRow[]
   typeLabels: Record<string, string>
   projects: ProjectSummary[]
   byMonth: Record<string, ProjectSummary[]>
+  agentic: AgenticRow[]
 }) {
   const [showInfo, setShowInfo] = useState(false)
   const [filter, setFilter] = useState<PortfolioFilter>('all')
@@ -514,6 +518,7 @@ export function Portfolio({
           <TabsList>
             <TabsTrigger value="scorecard">Engineering scorecard</TabsTrigger>
             <TabsTrigger value="delivery">Delivery</TabsTrigger>
+            <TabsTrigger value="agentic">Agentic</TabsTrigger>
           </TabsList>
           {tab === 'scorecard' ? (
             <div className="flex flex-wrap items-center gap-2">
@@ -553,6 +558,9 @@ export function Portfolio({
         </TabsContent>
         <TabsContent value="delivery">
           <ProjectGrid projects={projects} byMonth={byMonth} />
+        </TabsContent>
+        <TabsContent value="agentic">
+          <AgenticTable rows={agentic} />
         </TabsContent>
       </Tabs>
     </div>

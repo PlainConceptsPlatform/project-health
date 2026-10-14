@@ -4,6 +4,7 @@ import { isExampleConfig, loadDora, loadProjects, loadScorecardConfig, repoRoot 
 import { discover } from './discover.ts'
 import { get } from './github.ts'
 import { parseHistory, pointOf, withPoint } from './history.ts'
+import { collectAgentic } from './metrics/agentic.ts'
 import { collectAgents } from './metrics/agents.ts'
 import { collectContributors } from './metrics/contributors.ts'
 import { computeDeploymentFrequency } from './metrics/deployments.ts'
@@ -23,6 +24,7 @@ import { placeProject } from './profile.ts'
 import {
   type AgentRun,
   type AgentSummary,
+  type AgenticAdoption,
   type Contributors,
   type EngineeringExcellence,
   type MetricBlock,
@@ -380,6 +382,22 @@ async function withEnvironment(
 }
 
 /**
+ * Agent tooling adoption, for delivered and planned projects alike: a planned project can already
+ * run agents. A failure leaves the block unavailable rather than failing the report.
+ */
+async function withAgentic(report: MonthlyReport, project: ProjectConfig, period: Period) {
+  try {
+    return { ...report, agentic: await collectAgentic(project.repo, period) }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    return {
+      ...report,
+      agentic: skip<AgenticAdoption>(`adoption could not be collected. ${message}`),
+    }
+  }
+}
+
+/**
  * Appends today's score to `data/<id>/daily.json`, but only from the month that contains today: a
  * backfilled month is scored as of its end, not as of today. The monthly files keep the long trend;
  * this file gives the overview a delta over a fixed number of days.
@@ -525,7 +543,11 @@ async function main(): Promise<void> {
 
     for (const period of periods) {
       try {
-        const report = await withEnvironment(await collectProject(project, period), project, period)
+        const report = await withAgentic(
+          await withEnvironment(await collectProject(project, period), project, period),
+          project,
+          period,
+        )
         const file = join(dataDir, project.id, `${label(period)}.json`)
         writeFileSync(file, `${JSON.stringify(report, null, 2)}\n`)
         recordDaily(project.id, period, report, now)
@@ -569,7 +591,9 @@ async function main(): Promise<void> {
             period,
             scorecardConfig.alerts.decliningMonths,
           ),
-        }).then((r) => withEnvironment(r, project, period))
+        })
+          .then((r) => withEnvironment(r, project, period))
+          .then((r) => withAgentic(r, project, period))
         const file = join(dataDir, project.id, `${label(period)}.json`)
         writeFileSync(file, `${JSON.stringify(report, null, 2)}\n`)
         recordDaily(project.id, period, report, now)

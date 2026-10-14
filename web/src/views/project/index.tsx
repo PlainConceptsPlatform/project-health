@@ -27,6 +27,7 @@ import {
   ReleasesPerDay,
   TokensByKind,
 } from '@/shared/ui/charts'
+import { AdoptionPanel } from './agentic'
 import { ExcellencePanel } from './excellence'
 import { RoadmapView } from './roadmap'
 import { ScorecardPanel } from './scorecard'
@@ -496,13 +497,22 @@ export function ProjectView({
               <MonthlyTrend data={trend} />
             </Panel>
           ) : null}
-          <AgentsPanel report={report} />
           <PeoplePanel report={report} />
           <ReleasesPanel report={report} />
         </>
       ),
     },
   ]
+  tabs.push({
+    id: 'agentic',
+    label: 'Agentic',
+    content: (
+      <>
+        <AdoptionPanel report={engineeringReport} />
+        <AgentsPanel report={report} />
+      </>
+    ),
+  })
   // Only projects that opted in get the tab; for the rest it would be an empty promise.
   if (report.roadmap) {
     const roadmap = report.roadmap
