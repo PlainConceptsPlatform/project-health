@@ -235,6 +235,54 @@ export interface FinalEnvironment {
   environments: DeployedEnvironment[]
 }
 
+/**
+ * standard: the workflows package's router is installed. custom: agent automation exists, but not
+ * through the package (hand-built workflows, or only the harness). none: no agent tooling found.
+ */
+export type AgenticSetup = 'standard' | 'custom' | 'none'
+
+export interface AgenticWorker {
+  name: string
+  present: boolean
+}
+
+/** How far a repository has adopted the platform's agent harness and agentic workflows. */
+export interface AgenticAdoption {
+  defaultBranch: string
+  setup: AgenticSetup
+  harness: {
+    /** harnessVersion from .opencode/harness.json; null when the harness is not installed. */
+    version: string | null
+    /** Newest version on npm when collected; null when the registry could not be read. */
+    latest: string | null
+    /** opencode-onboard, the harness before agent-harness, is installed instead. */
+    legacy: boolean
+    legacyVersion: string | null
+  }
+  workflows: {
+    /** From the "Managed by" header of the installed files, not the package.json pin. */
+    version: string | null
+    latest: string | null
+    router: boolean
+    workers: AgenticWorker[]
+    evidence: boolean
+    /** Workers the package has retired that are still installed. */
+    retired: string[]
+    /** Agent workflows outside the package, listed only when the standard router is absent. */
+    custom: string[]
+  }
+  /** Whether pc-repo-verify records how to start the app; null when the skill is absent. */
+  verifyEnvironment: boolean | null
+  bot: {
+    /** Title prefix that marks the implement worker's pull requests. */
+    prefix: string
+    /** Merged in the period. */
+    merged: number
+    /** Newest merge up to the end of the period. */
+    lastMergedAt: string | null
+  }
+}
+
 export interface MonthlyReport {
   schemaVersion: 1
   project: string
@@ -261,6 +309,8 @@ export interface MonthlyReport {
   environment?: MetricBlock<FinalEnvironment>
   /** Absent when the project has not opted in, and in files written before it existed. */
   roadmap?: MetricBlock<Roadmap>
+  /** Absent in files written before adoption was collected. */
+  agentic?: MetricBlock<AgenticAdoption>
   warnings: Warning[]
 }
 

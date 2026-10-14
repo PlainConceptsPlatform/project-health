@@ -163,7 +163,34 @@ export interface MonthlyReport {
   environment?: MetricBlock<FinalEnvironment>
   /** Absent when the project has not opted in, and in files written before it existed. */
   roadmap?: MetricBlock<Roadmap>
+  /** Absent in files written before it existed. */
+  agentic?: MetricBlock<AgenticAdoption>
   warnings: Warning[]
+}
+
+/** Mirrors the collector's adoption types; see collector/src/types.ts for what each field means. */
+export type AgenticSetup = 'standard' | 'custom' | 'none'
+
+export interface AgenticAdoption {
+  defaultBranch: string
+  setup: AgenticSetup
+  harness: {
+    version: string | null
+    latest: string | null
+    legacy: boolean
+    legacyVersion: string | null
+  }
+  workflows: {
+    version: string | null
+    latest: string | null
+    router: boolean
+    workers: { name: string; present: boolean }[]
+    evidence: boolean
+    retired: string[]
+    custom: string[]
+  }
+  verifyEnvironment: boolean | null
+  bot: { prefix: string; merged: number; lastMergedAt: string | null }
 }
 
 export interface DataIndex {

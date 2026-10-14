@@ -517,5 +517,64 @@
       "severity": "info",
       "message": "Agent collection is off for Billing."
     }
-  ]
+  ],
+  "agentic": {
+    "available": true,
+    "data": {
+      "defaultBranch": "main",
+      "setup": "standard",
+      "harness": {
+        "version": null,
+        "latest": "3.1.0",
+        "legacy": false,
+        "legacyVersion": null
+      },
+      "workflows": {
+        "version": "0.28.11",
+        "latest": "1.2.3",
+        "router": true,
+        "workers": [
+          {
+            "name": "triage",
+            "present": true
+          },
+          {
+            "name": "refine",
+            "present": true
+          },
+          {
+            "name": "implement",
+            "present": true
+          },
+          {
+            "name": "merge-gate",
+            "present": true
+          },
+          {
+            "name": "apply-review",
+            "present": true
+          },
+          {
+            "name": "audit",
+            "present": true
+          },
+          {
+            "name": "release",
+            "present": false
+          }
+        ],
+        "evidence": false,
+        "retired": [
+          "agent-visual-verify"
+        ],
+        "custom": []
+      },
+      "verifyEnvironment": null,
+      "bot": {
+        "prefix": "[bot]",
+        "merged": 0,
+        "lastMergedAt": "2026-07-09T11:40:00Z"
+      }
+    }
+  }
 }

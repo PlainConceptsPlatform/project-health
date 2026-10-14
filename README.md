@@ -312,6 +312,26 @@ closed issue is not read again once stored, unless it changes. One warning reads
 hand-over: a trigger label set with a workflow's own token starts no workflow, so an issue labelled
 that way and left for over an hour is named in the notes.
 
+## Agentic adoption
+
+The **Agentic** tab, on the overview and on each project, shows how far a repository runs agents the
+platform's way. It is read from the default branch on every collection, needs no opt-in and no new
+permission:
+
+| Column | Read from |
+| --- | --- |
+| Agent harness | `harnessVersion` in `.opencode/harness.json`; `.opencode/opencode-onboard.json` is the harness before its rename |
+| Agentic workflows | the `Managed by @plainconceptsplatform/workflows@x.y.z` header of the installed files, never the `package.json` pin |
+| Router and workers | `work-router.yml` and the seven `agent-*.md` workers; a retired worker still installed is named |
+| Evidence | `evidence.yml` |
+| Verify plan | whether `pc-repo-verify` records how to start the app, rather than the defaults it ships with |
+| Bot pull requests | merged pull requests titled `[bot]`, which the implement worker opens |
+
+Both versions are compared with the newest release on npm. A project is *standard, up to date* with
+the router and the harness on the current minor release, *standard, behind* on an older one or
+without the harness, *own setup* when it has agent workflows outside the package, and *no agents*
+otherwise.
+
 ## Setting it up the first time
 
 Use this repository as a template, then:

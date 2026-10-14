@@ -320,5 +320,64 @@
       "severity": "info",
       "message": "Agent collection is off for Mobile."
     }
-  ]
+  ],
+  "agentic": {
+    "available": true,
+    "data": {
+      "defaultBranch": "main",
+      "setup": "custom",
+      "harness": {
+        "version": null,
+        "latest": "3.1.0",
+        "legacy": true,
+        "legacyVersion": "1.6.0"
+      },
+      "workflows": {
+        "version": null,
+        "latest": "1.2.3",
+        "router": false,
+        "workers": [
+          {
+            "name": "triage",
+            "present": false
+          },
+          {
+            "name": "refine",
+            "present": false
+          },
+          {
+            "name": "implement",
+            "present": false
+          },
+          {
+            "name": "merge-gate",
+            "present": false
+          },
+          {
+            "name": "apply-review",
+            "present": false
+          },
+          {
+            "name": "audit",
+            "present": false
+          },
+          {
+            "name": "release",
+            "present": false
+          }
+        ],
+        "evidence": false,
+        "retired": [],
+        "custom": [
+          "implement-ready.md"
+        ]
+      },
+      "verifyEnvironment": null,
+      "bot": {
+        "prefix": "[bot]",
+        "merged": 0,
+        "lastMergedAt": null
+      }
+    }
+  }
 }

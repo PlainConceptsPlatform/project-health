@@ -4535,5 +4535,62 @@
       },
       "severity": "warn"
     }
-  ]
+  ],
+  "agentic": {
+    "available": true,
+    "data": {
+      "defaultBranch": "main",
+      "setup": "standard",
+      "harness": {
+        "version": "3.1.0",
+        "latest": "3.1.0",
+        "legacy": false,
+        "legacyVersion": null
+      },
+      "workflows": {
+        "version": "1.2.3",
+        "latest": "1.2.3",
+        "router": true,
+        "workers": [
+          {
+            "name": "triage",
+            "present": true
+          },
+          {
+            "name": "refine",
+            "present": true
+          },
+          {
+            "name": "implement",
+            "present": true
+          },
+          {
+            "name": "merge-gate",
+            "present": true
+          },
+          {
+            "name": "apply-review",
+            "present": true
+          },
+          {
+            "name": "audit",
+            "present": true
+          },
+          {
+            "name": "release",
+            "present": true
+          }
+        ],
+        "evidence": true,
+        "retired": [],
+        "custom": []
+      },
+      "verifyEnvironment": true,
+      "bot": {
+        "prefix": "[bot]",
+        "merged": 14,
+        "lastMergedAt": "2026-08-28T15:12:00Z"
+      }
+    }
+  }
 }
