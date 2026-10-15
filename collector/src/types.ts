@@ -288,6 +288,17 @@ export interface BotAdditions {
 }
 
 /**
+ * How the period's merged bot pull requests got merged. gate: the merge gate's App merged it.
+ * parked: the gate's last verdict left it for a person, who merged it. person: a person merged it
+ * without the gate parking it, usually before the gate gave a verdict at all.
+ */
+export interface BotOutcomes {
+  gate: number
+  person: number
+  parked: number
+}
+
+/**
  * standard: the workflows package's router is installed. custom: agent automation exists, but not
  * through the package (hand-built workflows, or only the harness). none: no agent tooling found.
  */
@@ -334,6 +345,8 @@ export interface AgenticAdoption {
     lastMergedAt: string | null
     /** Absent in files written before it existed. */
     added?: BotAdditions
+    /** How the period's merged bot pull requests ended. Absent in files written before it existed. */
+    outcomes?: BotOutcomes
   }
 }
 

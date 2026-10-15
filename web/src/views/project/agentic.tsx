@@ -1,4 +1,4 @@
-import { VERDICT_DESCRIPTION, verdictOf } from '@/shared/lib/agentic'
+import { VERDICT_DESCRIPTION, gateShare, verdictOf } from '@/shared/lib/agentic'
 import { addedDensity, percent } from '@/shared/lib/code'
 import { shortDate } from '@/shared/lib/format'
 import type { MonthlyReport } from '@/shared/lib/types'
@@ -84,6 +84,18 @@ export function AdoptionPanel({ report }: { report: MonthlyReport }) {
                     ) : null}
                   </span>
                 </Row>
+                {a.bot.outcomes && gateShare(a.bot.outcomes) !== null ? (
+                  <Row label="Merged by the gate">
+                    <span className="tabular-nums">
+                      {percent(gateShare(a.bot.outcomes))}
+                      <span className="text-muted-foreground">
+                        {' '}
+                        · {a.bot.outcomes.gate} by the gate · {a.bot.outcomes.parked} parked for a
+                        person · {a.bot.outcomes.person} merged by hand
+                      </span>
+                    </span>
+                  </Row>
+                ) : null}
                 {a.bot.added && a.bot.added.pullRequests > 0 ? (
                   <Row label="What those pull requests added">
                     <span className="tabular-nums">

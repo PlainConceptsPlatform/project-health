@@ -1,4 +1,4 @@
-import type { AgenticAdoption, DataIndex, MonthlyReport } from './types'
+import type { AgenticAdoption, BotOutcomes, DataIndex, MonthlyReport } from './types'
 
 /**
  * current: matches the newest release on npm. patch: only a patch behind, which an update picks up
@@ -107,6 +107,13 @@ export function agenticRows(
         (b.adoption?.bot.merged ?? 0) - (a.adoption?.bot.merged ?? 0) ||
         a.name.localeCompare(b.name),
     )
+}
+
+/** Share of the merged bot pull requests the merge gate merged itself; null when there were none. */
+export function gateShare(outcomes: BotOutcomes | undefined): number | null {
+  if (!outcomes) return null
+  const total = outcomes.gate + outcomes.person + outcomes.parked
+  return total > 0 ? outcomes.gate / total : null
 }
 
 /** Projects per verdict, for the summary line above the table. */
