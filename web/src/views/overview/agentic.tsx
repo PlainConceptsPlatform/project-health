@@ -2,8 +2,10 @@ import {
   type AgenticRow,
   type AgenticVerdict,
   VERDICT_LABEL,
+  gateShare,
   verdictCounts,
 } from '@/shared/lib/agentic'
+import { percent } from '@/shared/lib/code'
 import { shortDate } from '@/shared/lib/format'
 import type { AgenticAdoption } from '@/shared/lib/types'
 import { cn } from '@/shared/ui'
@@ -17,6 +19,7 @@ const COLUMNS = [
   'Evidence',
   'Verify plan',
   'Bot pull requests',
+  'Merged by the gate',
 ]
 
 /** The router and the standard workers, or what the repository runs instead. */
@@ -65,6 +68,25 @@ export function BotCell({ adoption, month }: { adoption: AgenticAdoption; month?
   )
 }
 
+/** How the month's bot pull requests got merged: by the gate, or by a person (parked or not). */
+export function GateCell({ adoption }: { adoption: AgenticAdoption }) {
+  const o = adoption.bot.outcomes
+  const share = gateShare(o)
+  if (!o || share === null) {
+    return (
+      <span className="text-sm text-muted-foreground">{o ? 'None merged' : 'Not counted'}</span>
+    )
+  }
+  return (
+    <span className="flex flex-col">
+      <span className="tabular-nums">{percent(share)}</span>
+      <span className="text-xs text-muted-foreground tabular-nums">
+        {o.gate} gate · {o.parked} parked · {o.person} by hand
+      </span>
+    </span>
+  )
+}
+
 const SUMMARY: AgenticVerdict[] = ['aligned', 'behind', 'custom', 'none']
 
 /**
@@ -85,7 +107,7 @@ export function AgenticTable({ rows }: { rows: AgenticRow[] }) {
         ))}
       </p>
       <div className="overflow-x-auto rounded-xl border">
-        <table className="w-full min-w-[960px] text-sm">
+        <table className="w-full min-w-[1080px] text-sm">
           <thead className="bg-muted/50 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             <tr>
               {COLUMNS.map((c) => (
@@ -155,6 +177,9 @@ export function AgenticTable({ rows }: { rows: AgenticRow[] }) {
                       <td className="px-4 py-3.5">
                         <BotCell adoption={a} month={row.month ?? undefined} />
                       </td>
+                      <td className="px-4 py-3.5">
+                        <GateCell adoption={a} />
+                      </td>
                     </>
                   ) : (
                     <td
@@ -173,7 +198,9 @@ export function AgenticTable({ rows }: { rows: AgenticRow[] }) {
       <p className="text-sm text-muted-foreground">
         Versions are the installed ones, read from <code>.opencode/harness.json</code> and the
         workflows' own headers, against the newest on npm. Bot pull requests are the merged ones
-        titled “[bot]”, which the implement worker opens.
+        titled “[bot]”, which the implement worker opens. Merged by the gate is the share of them
+        the merge gate's App merged itself; parked ones got a review verdict and a person merged
+        them, by hand ones a person merged without the gate parking them.
       </p>
     </div>
   )

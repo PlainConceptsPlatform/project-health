@@ -197,7 +197,14 @@ export interface AgenticAdoption {
     merged: number
     lastMergedAt: string | null
     added?: BotAdditions
+    outcomes?: BotOutcomes
   }
+}
+
+export interface BotOutcomes {
+  gate: number
+  person: number
+  parked: number
 }
 
 export interface BotAdditions {

@@ -1,13 +1,19 @@
 import { describe, expect, it } from 'vitest'
 import {
   type AgenticSource,
+  MERGE_GATE_MARKER,
+  botOutcome,
   collectAgentic,
+  countOutcomes,
   customAgentWorkflows,
+  gateVerdict,
   managedVersion,
+  mergedByGate,
   setupOf,
   verifyEnvironmentRecorded,
 } from './metrics/agentic.ts'
 import type { WorkflowFile } from './metrics/scorecard.ts'
+import type { BotOutcomes } from './types.ts'
 
 const PERIOD = { from: new Date('2026-10-01T00:00:00Z'), to: new Date('2026-11-01T00:00:00Z') }
 
@@ -20,6 +26,7 @@ function source(opts: {
   contents?: Record<string, string>
   merged?: number
   lastMergedAt?: string | null
+  outcomes?: BotOutcomes
   branch?: string | null
 }): AgenticSource {
   return {
@@ -30,6 +37,7 @@ function source(opts: {
     botPullRequests: async () => ({
       merged: opts.merged ?? 0,
       lastMergedAt: opts.lastMergedAt ?? null,
+      ...(opts.outcomes ? { outcomes: opts.outcomes } : {}),
     }),
     latest: async (pkg) => (pkg.endsWith('agent-harness') ? '3.1.1' : '1.2.3'),
   }
@@ -100,6 +108,65 @@ describe('verifyEnvironmentRecorded', () => {
   })
 })
 
+describe('gateVerdict', () => {
+  const gate = (verdict: string) => `${MERGE_GATE_MARKER}
+**Verdict:** ${verdict}
+
+Reasons...`
+
+  it('reads the verdict of the last gate comment, ignoring other comments', () => {
+    expect(
+      gateVerdict([gate('owner-review'), 'LGTM', gate('auto-merge'), '**Verdict:** blocked']),
+    ).toBe('auto-merge')
+  })
+
+  it('keeps only the verdict word', () => {
+    expect(gateVerdict([gate('merge (CI concluded success).')])).toBe('merge')
+    expect(gateVerdict([gate('Human-Review')])).toBe('human-review')
+  })
+
+  it('is null when the gate never commented', () => {
+    expect(gateVerdict(['Nice work'])).toBeNull()
+    expect(gateVerdict([])).toBeNull()
+  })
+})
+
+describe('botOutcome', () => {
+  it('recognises the gate Apps however GitHub spells them', () => {
+    expect(mergedByGate('platform-devbox[bot]')).toBe(true)
+    expect(mergedByGate('app/platform-devbox')).toBe(true)
+    expect(mergedByGate('github-actions[bot]')).toBe(true)
+    expect(mergedByGate('dependabot[bot]')).toBe(false)
+    expect(mergedByGate('CKGrafico')).toBe(false)
+    expect(mergedByGate(null)).toBe(false)
+  })
+
+  it('is the gate when its App merged, whatever the verdict', () => {
+    expect(botOutcome('platform-devbox[bot]', 'auto-merge')).toBe('gate')
+    expect(botOutcome('github-actions[bot]', null)).toBe('gate')
+  })
+
+  it('is parked when a person merged after the gate left it for review', () => {
+    expect(botOutcome('CKGrafico', 'owner-review')).toBe('parked')
+    expect(botOutcome('CKGrafico', 'human-review')).toBe('parked')
+    expect(botOutcome('CKGrafico', 'blocked')).toBe('parked')
+  })
+
+  it('is a person when they merged without the gate parking it', () => {
+    expect(botOutcome('CKGrafico', null)).toBe('person')
+    expect(botOutcome('dsrodenas', 'auto-merge')).toBe('person')
+    expect(botOutcome('dsrodenas', 'remediated')).toBe('person')
+  })
+
+  it('counts every outcome', () => {
+    expect(countOutcomes(['gate', 'gate', 'parked', 'person'])).toEqual({
+      gate: 2,
+      person: 1,
+      parked: 1,
+    })
+  })
+})
+
 describe('setupOf', () => {
   const none = { router: false, managed: null, harness: null, legacyHarness: false, custom: [] }
 
@@ -142,6 +209,7 @@ describe('collectAgentic', () => {
         },
         merged: 12,
         lastMergedAt: '2026-10-14T10:00:00Z',
+        outcomes: { gate: 7, person: 3, parked: 2 },
       }),
     )
     expect(block.available).toBe(true)
@@ -161,7 +229,12 @@ describe('collectAgentic', () => {
     expect(d.workflows.retired).toEqual([])
     expect(d.workflows.custom).toEqual([])
     expect(d.verifyEnvironment).toBe(true)
-    expect(d.bot).toEqual({ prefix: '[bot]', merged: 12, lastMergedAt: '2026-10-14T10:00:00Z' })
+    expect(d.bot).toEqual({
+      prefix: '[bot]',
+      merged: 12,
+      lastMergedAt: '2026-10-14T10:00:00Z',
+      outcomes: { gate: 7, person: 3, parked: 2 },
+    })
   })
 
   it('flags an old install that still carries a retired worker and has no harness', async () => {

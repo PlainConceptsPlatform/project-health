@@ -4,6 +4,7 @@ import {
   type AgenticSetup,
   type AgenticWorker,
   type BotAdditions,
+  type BotOutcomes,
   type MetricBlock,
   ok,
   skip,
@@ -111,6 +112,42 @@ export interface BotPullRequests {
   merged: number
   lastMergedAt: string | null
   added?: BotAdditions
+  outcomes?: BotOutcomes
+}
+
+/** The merge gate's comment carries this marker; its last one holds the verdict that stands. */
+export const MERGE_GATE_MARKER = '<!-- agent-merge-gate -->'
+
+/** The Apps the merge gate merges as: the platform's own, or the workflow token. */
+export const GATE_MERGERS = ['platform-devbox', 'github-actions'] as const
+
+/** Verdicts that leave the pull request for a person instead of merging it. */
+export const PARKED_VERDICTS = ['human-review', 'owner-review', 'blocked'] as const
+
+/** The verdict word of the gate's last comment, lowercased; null when the gate never commented. */
+export function gateVerdict(comments: string[]): string | null {
+  const last = comments.filter((body) => body.includes(MERGE_GATE_MARKER)).at(-1)
+  const match = last?.match(/\*\*Verdict:\*\*\s*([A-Za-z-]+)/)
+  return match ? (match[1] as string).toLowerCase() : null
+}
+
+/** REST names an App "platform-devbox[bot]", GraphQL and gh "app/platform-devbox". */
+export function mergedByGate(login: string | null): boolean {
+  if (!login) return false
+  const name = login.replace(/^app\//, '').replace(/\[bot\]$/, '')
+  return (GATE_MERGERS as readonly string[]).includes(name)
+}
+
+/** How one merged bot pull request ended, from who merged it and the gate's last verdict. */
+export function botOutcome(mergedBy: string | null, verdict: string | null): keyof BotOutcomes {
+  if (mergedByGate(mergedBy)) return 'gate'
+  return verdict && (PARKED_VERDICTS as readonly string[]).includes(verdict) ? 'parked' : 'person'
+}
+
+export function countOutcomes(outcomes: (keyof BotOutcomes)[]): BotOutcomes {
+  const counts: BotOutcomes = { gate: 0, person: 0, parked: 0 }
+  for (const outcome of outcomes) counts[outcome] += 1
+  return counts
 }
 
 /** Everything adoption reads from GitHub and npm, behind one seam so tests need no network. */
@@ -275,10 +312,26 @@ export const githubAgenticSource = (repo: string): AgenticSource => {
           paginate<PatchFile>(`/repos/${repo}/pulls/${item.number}/files?per_page=100`, 5),
         ),
       )
+      const outcomes = await Promise.all(
+        inPeriod.map(async (item) => {
+          const [pull, comments] = await Promise.all([
+            get<{ merged_by?: { login?: string } | null }>(`/repos/${repo}/pulls/${item.number}`),
+            paginate<{ body?: string | null }>(
+              `/repos/${repo}/issues/${item.number}/comments?per_page=100`,
+              5,
+            ),
+          ])
+          return botOutcome(
+            pull?.merged_by?.login ?? null,
+            gateVerdict(comments.map((c) => c.body ?? '')),
+          )
+        }),
+      )
       return {
         merged: inPeriod.length,
         lastMergedAt: last ?? null,
         added: { pullRequests: inPeriod.length, ...patchAdditions(patches.flat()) },
+        outcomes: countOutcomes(outcomes),
       }
     },
     latest: latestVersion,
