@@ -332,6 +332,28 @@ the router and the harness on the current minor release, *standard, behind* on a
 without the harness, *own setup* when it has agent workflows outside the package, and *no agents*
 otherwise.
 
+The merged bot pull requests of the month are also read line by line: how much code, comment and
+test each added. That is the number to watch for whether agents add comments the harness asks
+them not to.
+
+## Comments and tests
+
+The **Code** tab on the overview and the **Comments and tests** panel on each project come from
+scanning the default branch's source once a day: one zipball download, no opt-in, no CI changes.
+Only the current month is scanned; past months keep the scan stored while they were current, and
+`daily.json` keeps the trend.
+
+Production code and tests are told apart by path. Vendored and installed code (`components/ui`,
+`.github`, `.opencode`, migrations, files with a generated header) is left out.
+
+| Measure | How |
+| --- | --- |
+| Comments per code line | comment-only lines over code lines; the harness ceiling is 10% |
+| Slop shapes | banners, `#region`, TODO without an issue, docs that only repeat the member name (C# and JSDoc), filler returns, commented-out code, apologetic notes; ported from Atlas |
+| Stories and essays | comment blocks that cite an issue in the past tense, and blocks of five lines or more below the file header; counted, never judged |
+| Tests | test lines per code line, cases per 1,000 lines, Gherkin scenarios |
+| Suspicious tests | no assertion in the body, only checks a mock was called, snapshots, skipped and focused; approximate, since an assertion inside a helper is not seen |
+
 ## Setting it up the first time
 
 Use this repository as a template, then:

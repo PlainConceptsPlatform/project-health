@@ -88,6 +88,8 @@ export interface ScorecardRow {
 export interface DailyScore {
   date: string
   score: number | null
+  commentDensity?: number | null
+  testRatio?: number | null
 }
 
 const cardOf = (report: MonthlyReport | null | undefined) =>

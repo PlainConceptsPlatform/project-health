@@ -235,6 +235,58 @@ export interface FinalEnvironment {
   environments: DeployedEnvironment[]
 }
 
+export interface CodeHotspot {
+  path: string
+  codeLines: number
+  commentLines: number
+  slop: number
+}
+
+/** Comments and tests on the default branch, scanned from its source. */
+export interface Codebase {
+  branch: string
+  sha: string | null
+  files: { source: number; test: number; generated: number }
+  comments: {
+    codeLines: number
+    commentLines: number
+    /** commentLines / codeLines of production code. */
+    density: number | null
+    slop: { findings: number; byRule: Record<string, number> }
+    heuristics: { history: number; essay: number; internalDoc: number }
+  }
+  tests: {
+    files: number
+    lines: number
+    commentLines: number
+    cases: number
+    /** Test lines per production code line. */
+    ratio: number | null
+    casesPerKloc: number | null
+    features: number
+    scenarios: number
+    suspicious: {
+      skipped: number
+      focused: number
+      snapshot: number
+      noAssertion: number
+      mockOnly: number
+    }
+  }
+  /** Production files with the most comment lines. */
+  hotspots: CodeHotspot[]
+}
+
+/** What the merged bot pull requests of the period added, from their diffs. */
+export interface BotAdditions {
+  pullRequests: number
+  codeLines: number
+  commentLines: number
+  testLines: number
+  testCases: number
+  slop: number
+}
+
 /**
  * standard: the workflows package's router is installed. custom: agent automation exists, but not
  * through the package (hand-built workflows, or only the harness). none: no agent tooling found.
@@ -280,6 +332,8 @@ export interface AgenticAdoption {
     merged: number
     /** Newest merge up to the end of the period. */
     lastMergedAt: string | null
+    /** Absent in files written before it existed. */
+    added?: BotAdditions
   }
 }
 
@@ -311,6 +365,8 @@ export interface MonthlyReport {
   roadmap?: MetricBlock<Roadmap>
   /** Absent in files written before adoption was collected. */
   agentic?: MetricBlock<AgenticAdoption>
+  /** Scanned for the current month only; absent in older files. */
+  codebase?: MetricBlock<Codebase>
   warnings: Warning[]
 }
 

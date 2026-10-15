@@ -1,6 +1,7 @@
 'use client'
 
 import type { AgenticRow } from '@/shared/lib/agentic'
+import type { CodeRow } from '@/shared/lib/code'
 import {
   DELTA_DAYS,
   DELTA_TITLE,
@@ -26,6 +27,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 import { AlertTriangleIcon, ChevronRightIcon } from 'lucide-react'
 import { useState } from 'react'
 import { AgenticTable } from './agentic'
+import { CodeTable } from './code'
 import { ProjectGrid } from './grid'
 
 const ALERT_TONE: Record<PortfolioAlert['severity'], string> = {
@@ -381,12 +383,14 @@ export function Portfolio({
   projects,
   byMonth,
   agentic,
+  code,
 }: {
   rows: PortfolioRow[]
   typeLabels: Record<string, string>
   projects: ProjectSummary[]
   byMonth: Record<string, ProjectSummary[]>
   agentic: AgenticRow[]
+  code: CodeRow[]
 }) {
   const [showInfo, setShowInfo] = useState(false)
   const [filter, setFilter] = useState<PortfolioFilter>('all')
@@ -519,6 +523,7 @@ export function Portfolio({
             <TabsTrigger value="scorecard">Engineering scorecard</TabsTrigger>
             <TabsTrigger value="delivery">Delivery</TabsTrigger>
             <TabsTrigger value="agentic">Agentic</TabsTrigger>
+            <TabsTrigger value="code">Code</TabsTrigger>
           </TabsList>
           {tab === 'scorecard' ? (
             <div className="flex flex-wrap items-center gap-2">
@@ -561,6 +566,9 @@ export function Portfolio({
         </TabsContent>
         <TabsContent value="agentic">
           <AgenticTable rows={agentic} />
+        </TabsContent>
+        <TabsContent value="code">
+          <CodeTable rows={code} />
         </TabsContent>
       </Tabs>
     </div>

@@ -165,6 +165,8 @@ export interface MonthlyReport {
   roadmap?: MetricBlock<Roadmap>
   /** Absent in files written before it existed. */
   agentic?: MetricBlock<AgenticAdoption>
+  /** Absent in files written before it existed, and in months that were never current. */
+  codebase?: MetricBlock<Codebase>
   warnings: Warning[]
 }
 
@@ -190,7 +192,59 @@ export interface AgenticAdoption {
     custom: string[]
   }
   verifyEnvironment: boolean | null
-  bot: { prefix: string; merged: number; lastMergedAt: string | null }
+  bot: {
+    prefix: string
+    merged: number
+    lastMergedAt: string | null
+    added?: BotAdditions
+  }
+}
+
+export interface BotAdditions {
+  pullRequests: number
+  codeLines: number
+  commentLines: number
+  testLines: number
+  testCases: number
+  slop: number
+}
+
+export interface CodeHotspot {
+  path: string
+  codeLines: number
+  commentLines: number
+  slop: number
+}
+
+export interface Codebase {
+  branch: string
+  sha: string | null
+  files: { source: number; test: number; generated: number }
+  comments: {
+    codeLines: number
+    commentLines: number
+    density: number | null
+    slop: { findings: number; byRule: Record<string, number> }
+    heuristics: { history: number; essay: number; internalDoc: number }
+  }
+  tests: {
+    files: number
+    lines: number
+    commentLines: number
+    cases: number
+    ratio: number | null
+    casesPerKloc: number | null
+    features: number
+    scenarios: number
+    suspicious: {
+      skipped: number
+      focused: number
+      snapshot: number
+      noAssertion: number
+      mockOnly: number
+    }
+  }
+  hotspots: CodeHotspot[]
 }
 
 export interface DataIndex {

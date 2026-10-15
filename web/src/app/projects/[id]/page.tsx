@@ -1,4 +1,5 @@
 import {
+  readDailyScores,
   readExcellenceHistory,
   readIndex,
   readLatestReport,
@@ -38,6 +39,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
       trend={readTrend(id)}
       excellence={readExcellenceHistory(id, shown)}
       typeLabels={readScorecardTypeLabels()}
+      daily={readDailyScores(id)}
       engineering={
         newest && entry.latest
           ? { report: newest, excellence: readExcellenceHistory(id, entry.latest) }
