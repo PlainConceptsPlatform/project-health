@@ -6,6 +6,7 @@ import { get } from './github.ts'
 import { parseHistory, pointOf, withPoint } from './history.ts'
 import { collectAgentic } from './metrics/agentic.ts'
 import { collectAgents } from './metrics/agents.ts'
+import { collectCodebase } from './metrics/codebase.ts'
 import { collectContributors } from './metrics/contributors.ts'
 import { computeDeploymentFrequency } from './metrics/deployments.ts'
 import {
@@ -25,6 +26,7 @@ import {
   type AgentRun,
   type AgentSummary,
   type AgenticAdoption,
+  type Codebase,
   type Contributors,
   type EngineeringExcellence,
   type MetricBlock,
@@ -397,6 +399,25 @@ async function withAgentic(report: MonthlyReport, project: ProjectConfig, period
   }
 }
 
+// The source is only read as it is today, so a past month keeps the scan stored while it was current.
+async function withCodebase(
+  report: MonthlyReport,
+  project: ProjectConfig,
+  period: Period,
+  now: Date,
+) {
+  if (now < period.from || now > period.to) {
+    const stored = previousReport(project.id, label(period))?.codebase
+    return stored ? { ...report, codebase: stored } : report
+  }
+  try {
+    return { ...report, codebase: await collectCodebase(project.repo) }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    return { ...report, codebase: skip<Codebase>(`source could not be scanned. ${message}`) }
+  }
+}
+
 /**
  * Appends today's score to `data/<id>/daily.json`, but only from the month that contains today: a
  * backfilled month is scored as of its end, not as of today. The monthly files keep the long trend;
@@ -543,10 +564,15 @@ async function main(): Promise<void> {
 
     for (const period of periods) {
       try {
-        const report = await withAgentic(
-          await withEnvironment(await collectProject(project, period), project, period),
+        const report = await withCodebase(
+          await withAgentic(
+            await withEnvironment(await collectProject(project, period), project, period),
+            project,
+            period,
+          ),
           project,
           period,
+          now,
         )
         const file = join(dataDir, project.id, `${label(period)}.json`)
         writeFileSync(file, `${JSON.stringify(report, null, 2)}\n`)
@@ -594,6 +620,7 @@ async function main(): Promise<void> {
         })
           .then((r) => withEnvironment(r, project, period))
           .then((r) => withAgentic(r, project, period))
+          .then((r) => withCodebase(r, project, period, now))
         const file = join(dataDir, project.id, `${label(period)}.json`)
         writeFileSync(file, `${JSON.stringify(report, null, 2)}\n`)
         recordDaily(project.id, period, report, now)

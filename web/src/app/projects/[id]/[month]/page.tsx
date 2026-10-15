@@ -1,5 +1,6 @@
 import {
   currentMonth,
+  readDailyScores,
   readExcellenceHistory,
   readIndex,
   readReport,
@@ -45,6 +46,7 @@ export default async function Page({ params }: { params: Promise<{ id: string; m
       trend={readTrend(id)}
       excellence={readExcellenceHistory(id, shown)}
       typeLabels={readScorecardTypeLabels()}
+      daily={readDailyScores(id)}
     />
   )
 }

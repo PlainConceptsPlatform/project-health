@@ -8,6 +8,7 @@ import {
   shortDate,
   tokens,
 } from '@/shared/lib/format'
+import type { DailyScore } from '@/shared/lib/scorecard'
 import type { MonthlyReport } from '@/shared/lib/types'
 import {
   Badge,
@@ -28,6 +29,7 @@ import {
   TokensByKind,
 } from '@/shared/ui/charts'
 import { AdoptionPanel } from './agentic'
+import { CodePanel } from './code'
 import { ExcellencePanel } from './excellence'
 import { RoadmapView } from './roadmap'
 import { ScorecardPanel } from './scorecard'
@@ -457,6 +459,7 @@ export function ProjectView({
   excellence,
   typeLabels = {},
   engineering,
+  daily,
 }: {
   report: MonthlyReport
   months: string[]
@@ -469,6 +472,7 @@ export function ProjectView({
    * here so a project whose last release was months ago still shows today's gates.
    */
   engineering?: { report: MonthlyReport; excellence?: ExcellenceHistory }
+  daily?: DailyScore[]
 }) {
   const current = monthKey(report)
   const engineeringReport = engineering?.report ?? report
@@ -483,6 +487,7 @@ export function ProjectView({
         <>
           <ScorecardPanel report={engineeringReport} typeLabels={typeLabels} />
           <ExcellencePanel report={engineeringReport} history={engineeringExcellence} />
+          <CodePanel report={engineeringReport} daily={daily} />
         </>
       ),
     },

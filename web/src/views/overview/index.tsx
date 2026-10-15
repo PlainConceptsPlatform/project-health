@@ -1,4 +1,5 @@
 import { agenticRows } from '@/shared/lib/agentic'
+import { codeRows } from '@/shared/lib/code'
 import { portfolioRows } from '@/shared/lib/portfolio'
 import { type DailyScore, scorecardRows } from '@/shared/lib/scorecard'
 import { type ProjectSummary, summarise } from '@/shared/lib/summary'
@@ -47,6 +48,7 @@ export function OverviewView({
       projects={projects}
       byMonth={byMonth}
       agentic={agenticRows(index, months)}
+      code={codeRows(index, months, daily)}
     />
   )
 }

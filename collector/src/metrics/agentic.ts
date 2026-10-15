@@ -1,12 +1,14 @@
-import { get } from '../github.ts'
+import { get, paginate } from '../github.ts'
 import {
   type AgenticAdoption,
   type AgenticSetup,
   type AgenticWorker,
+  type BotAdditions,
   type MetricBlock,
   ok,
   skip,
 } from '../types.ts'
+import { type PatchFile, patchAdditions } from './codebase.ts'
 import { type WorkflowFile, githubScorecardSource } from './scorecard.ts'
 
 export const HARNESS_PACKAGE = '@plainconceptsplatform/agent-harness'
@@ -108,6 +110,7 @@ export const BOT_TITLE_PREFIX = '[bot]'
 export interface BotPullRequests {
   merged: number
   lastMergedAt: string | null
+  added?: BotAdditions
 }
 
 /** Everything adoption reads from GitHub and npm, behind one seam so tests need no network. */
@@ -224,6 +227,7 @@ export function latestVersion(pkg: string): Promise<string | null> {
 }
 
 interface SearchItem {
+  number: number
   title: string
   pull_request?: { merged_at?: string | null }
 }
@@ -266,7 +270,16 @@ export const githubAgenticSource = (repo: string): AgenticSource => {
         .filter((at): at is string => at !== null)
         .sort()
         .at(-1)
-      return { merged: inPeriod.length, lastMergedAt: last ?? null }
+      const patches = await Promise.all(
+        inPeriod.map((item) =>
+          paginate<PatchFile>(`/repos/${repo}/pulls/${item.number}/files?per_page=100`, 5),
+        ),
+      )
+      return {
+        merged: inPeriod.length,
+        lastMergedAt: last ?? null,
+        added: { pullRequests: inPeriod.length, ...patchAdditions(patches.flat()) },
+      }
     },
     latest: latestVersion,
   }

@@ -8,6 +8,8 @@ export interface DailyPoint {
   level: number
   gatesPresent: number
   gatesApplicable: number
+  commentDensity?: number | null
+  testRatio?: number | null
 }
 
 export interface DailyHistory {
@@ -24,12 +26,14 @@ export const emptyHistory = (): DailyHistory => ({ schemaVersion: 1, days: [] })
 export function pointOf(report: MonthlyReport, date: Date): DailyPoint | null {
   if (!report.scorecard?.available) return null
   const card = report.scorecard.data
+  const code = report.codebase?.available ? report.codebase.data : null
   return {
     date: date.toISOString().slice(0, 10),
     score: card.score,
     level: card.level,
     gatesPresent: card.gates.present,
     gatesApplicable: card.gates.applicable,
+    ...(code ? { commentDensity: code.comments.density, testRatio: code.tests.ratio } : {}),
   }
 }
 

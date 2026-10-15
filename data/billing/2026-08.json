@@ -573,8 +573,83 @@
       "bot": {
         "prefix": "[bot]",
         "merged": 0,
-        "lastMergedAt": "2026-07-09T11:40:00Z"
+        "lastMergedAt": "2026-07-09T11:40:00Z",
+        "added": {
+          "pullRequests": 0,
+          "codeLines": 0,
+          "commentLines": 0,
+          "testLines": 0,
+          "testCases": 0,
+          "slop": 0
+        }
       }
+    }
+  },
+  "codebase": {
+    "available": true,
+    "data": {
+      "branch": "main",
+      "sha": "0000000",
+      "files": {
+        "source": 180,
+        "test": 70,
+        "generated": 2
+      },
+      "comments": {
+        "codeLines": 22100,
+        "commentLines": 3889,
+        "density": 0.176,
+        "slop": {
+          "findings": 31,
+          "byRule": {
+            "banner": 15,
+            "region": 0,
+            "untracked-todo": 16,
+            "restating-summary": 0,
+            "restating-jsdoc": 0,
+            "restating-param": 0,
+            "filler-returns": 0,
+            "commented-out-code": 0,
+            "apologetic": 0
+          }
+        },
+        "heuristics": {
+          "history": 9,
+          "essay": 64,
+          "internalDoc": 43
+        }
+      },
+      "tests": {
+        "files": 70,
+        "lines": 19448,
+        "commentLines": 120,
+        "cases": 1310,
+        "ratio": 0.88,
+        "casesPerKloc": 59.2,
+        "features": 2,
+        "scenarios": 9,
+        "suspicious": {
+          "skipped": 1,
+          "focused": 0,
+          "snapshot": 2,
+          "noAssertion": 3,
+          "mockOnly": 5
+        }
+      },
+      "hotspots": [
+        {
+          "path": "src/billing/orders/service.ts",
+          "codeLines": 640,
+          "commentLines": 180,
+          "slop": 1
+        },
+        {
+          "path": "src/billing/api/client.ts",
+          "codeLines": 420,
+          "commentLines": 96,
+          "slop": 0
+        }
+      ]
     }
   }
 }

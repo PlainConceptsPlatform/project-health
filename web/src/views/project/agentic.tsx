@@ -1,4 +1,5 @@
 import { VERDICT_DESCRIPTION, verdictOf } from '@/shared/lib/agentic'
+import { addedDensity, percent } from '@/shared/lib/code'
 import { shortDate } from '@/shared/lib/format'
 import type { MonthlyReport } from '@/shared/lib/types'
 import { Metric, Panel } from '@/shared/ui'
@@ -83,6 +84,14 @@ export function AdoptionPanel({ report }: { report: MonthlyReport }) {
                     ) : null}
                   </span>
                 </Row>
+                {a.bot.added && a.bot.added.pullRequests > 0 ? (
+                  <Row label="What those pull requests added">
+                    <span className="tabular-nums">
+                      +{a.bot.added.codeLines} code · +{a.bot.added.commentLines} comment (
+                      {percent(addedDensity(a.bot.added))}) · +{a.bot.added.testLines} test
+                    </span>
+                  </Row>
+                ) : null}
               </div>
               <div>
                 <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">

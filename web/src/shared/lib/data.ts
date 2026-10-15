@@ -93,7 +93,14 @@ export function readDailyScores(projectId: string): DailyScore[] {
     const raw = JSON.parse(readFileSync(join(dataDir, projectId, 'daily.json'), 'utf8')) as {
       days?: DailyScore[]
     }
-    return Array.isArray(raw.days) ? raw.days.map(({ date, score }) => ({ date, score })) : []
+    return Array.isArray(raw.days)
+      ? raw.days.map(({ date, score, commentDensity, testRatio }) => ({
+          date,
+          score,
+          commentDensity,
+          testRatio,
+        }))
+      : []
   } catch {
     return []
   }
