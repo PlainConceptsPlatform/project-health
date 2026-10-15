@@ -51,6 +51,7 @@ describe('slopFindings', () => {
     expect(rules('#region Helpers\n#endregion')).toEqual(['region', 'region'])
     expect(rules('// TODO fix later')).toEqual(['untracked-todo'])
     expect(rules('// TODO fix later, see #12')).toEqual([])
+    expect(rules("const s = '// TODO later'")).toEqual([])
     expect(rules('// const old = compute();\n// return old;')).toEqual(['commented-out-code'])
     expect(rules('// not sure if this is right')).toEqual(['apologetic'])
   })

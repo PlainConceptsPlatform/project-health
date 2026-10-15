@@ -1,5 +1,7 @@
 // Comment-slop shapes ported from Atlas scripts/lib/comment-slop.mjs (Atlas #1969), plus
-// restating-jsdoc for TypeScript, which the Atlas rules do not cover.
+// restating-jsdoc for TypeScript, which the Atlas rules do not cover. agent-harness ships the
+// same rules as .opencode/scripts/code-rules.mjs, the gate bot pull requests must pass: keep the
+// two in step, or the dashboard and the gate disagree.
 
 export type FileKind = 'source' | 'test' | 'feature'
 
@@ -132,6 +134,19 @@ const TOOL_PRAGMA =
 
 const bodyOf = (trimmed: string) => trimmed.replace(/^\/\/+\s?/, '')
 
+export function trailingComment(line: string): string | null {
+  let quote: string | null = null
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i]
+    if (quote) {
+      if (c === '\\') i += 1
+      else if (c === quote) quote = null
+    } else if (c === "'" || c === '"' || c === '`') quote = c
+    else if (c === '/' && line[i + 1] === '/' && line[i - 1] !== ':') return line.slice(i)
+  }
+  return null
+}
+
 export interface SlopFinding {
   rule: SlopRule
   line: number
@@ -164,7 +179,8 @@ export function slopFindings(text: string): SlopFinding[] {
 
     if (isLineComment && BANNER.test(t)) add('banner', i + 1)
     if (REGION.test(t)) add('region', i + 1)
-    if (TODO.test(t) && !TRACKED.test(t)) add('untracked-todo', i + 1)
+    const comment = trailingComment(t)
+    if (comment && TODO.test(comment) && !TRACKED.test(comment)) add('untracked-todo', i + 1)
     if ((t.startsWith('//') || t.startsWith('*') || t.startsWith('/*')) && APOLOGETIC.test(t)) {
       add('apologetic', i + 1)
     }
