@@ -84,5 +84,12 @@ jobs:
             echo 'No metric changes to commit.'
           else
             git commit -m "chore(data): backfill ${{ inputs.project }} (${{ inputs.months }} month(s))"
-            git push
+            # A merge can land on main during the collection; data/ never conflicts with it.
+            for attempt in 1 2 3; do
+              git pull --rebase --quiet && git push && exit 0
+              git rebase --abort 2>/dev/null || true
+              echo "Push attempt $attempt was rejected; retrying."
+              sleep $((attempt * 10))
+            done
+            exit 1
           fi
