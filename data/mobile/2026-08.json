@@ -454,5 +454,40 @@
         }
       ]
     }
+  },
+  "actions": {
+    "minutes": {
+      "available": true,
+      "data": {
+        "total": 1810,
+        "byOs": {
+          "UBUNTU": 450,
+          "MACOS": 1360
+        },
+        "runs": 108,
+        "timed": 108,
+        "pending": 0,
+        "truncated": false,
+        "measuredAt": "2026-09-01T03:15:00.000Z",
+        "countedBefore": "2026-08-31T21:40:12Z",
+        "countedIds": []
+      }
+    },
+    "storage": {
+      "available": true,
+      "data": {
+        "measuredAt": "2026-08-31T03:15:00.000Z",
+        "cache": {
+          "bytes": 1717986918,
+          "count": 25
+        },
+        "artifacts": {
+          "bytes": 1073741824,
+          "count": 125,
+          "truncated": false
+        },
+        "totalBytes": 2791728742
+      }
+    }
   }
 }

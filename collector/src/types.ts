@@ -380,7 +380,48 @@ export interface MonthlyReport {
   agentic?: MetricBlock<AgenticAdoption>
   /** Scanned for the current month only; absent in older files. */
   codebase?: MetricBlock<Codebase>
+  /** GitHub Actions minutes and storage; absent in files written before it existed. */
+  actions?: ActionsUsage
   warnings: Warning[]
+}
+
+/** Billable runner time and the storage Actions keeps, per repository. See metrics/actions.ts. */
+export interface ActionsUsage {
+  minutes: MetricBlock<ActionsMinutes>
+  storage: MetricBlock<ActionsStorage>
+}
+
+export interface ActionsMinutes {
+  /** Billable minutes of the month's runs, each job rounded up to the minute as GitHub bills it. */
+  total: number
+  /** Billable minutes by runner OS, as the timing endpoint names it: UBUNTU, MACOS, WINDOWS. */
+  byOs: Record<string, number>
+  /** Completed runs created in the month that were read. */
+  runs: number
+  /** Of those, the runs whose timing could be read. The rest add nothing, so the total is a floor. */
+  timed: number
+  /** Runs not counted yet: still in progress, or over this collection's timing budget. */
+  pending: number
+  /** A day listed 1,000 runs, the most the API returns for a date filter, so some were not seen. */
+  truncated: boolean
+  measuredAt: string
+  /**
+   * Incremental state. Every run created before `countedBefore` has been counted; `countedIds` are
+   * the runs at or after it already counted. A later collection times only the runs that are new.
+   */
+  countedBefore: string | null
+  countedIds: number[]
+}
+
+export interface ActionsStorage {
+  /** Storage is read as it is now, not as it was during the month. */
+  measuredAt: string
+  /** Active caches. null when the cache usage endpoint could not be read. */
+  cache: { bytes: number; count: number } | null
+  /** Artifacts that have not expired. null when the artifact list could not be read. */
+  artifacts: { bytes: number; count: number; truncated: boolean } | null
+  /** Cache plus artifact bytes, over whichever of the two could be read. */
+  totalBytes: number
 }
 
 export interface RoadmapLabels {

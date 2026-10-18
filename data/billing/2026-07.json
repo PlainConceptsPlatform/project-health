@@ -460,5 +460,40 @@
       "severity": "info",
       "message": "Agent collection is off for Billing."
     }
-  ]
+  ],
+  "actions": {
+    "minutes": {
+      "available": true,
+      "data": {
+        "total": 1010,
+        "byOs": {
+          "UBUNTU": 950,
+          "WINDOWS": 60
+        },
+        "runs": 162,
+        "timed": 162,
+        "pending": 0,
+        "truncated": false,
+        "measuredAt": "2026-08-01T03:15:00.000Z",
+        "countedBefore": "2026-07-31T21:40:12Z",
+        "countedIds": []
+      }
+    },
+    "storage": {
+      "available": true,
+      "data": {
+        "measuredAt": "2026-07-31T03:15:00.000Z",
+        "cache": {
+          "bytes": 805306368,
+          "count": 13
+        },
+        "artifacts": {
+          "bytes": 161061274,
+          "count": 23,
+          "truncated": false
+        },
+        "totalBytes": 966367642
+      }
+    }
+  }
 }

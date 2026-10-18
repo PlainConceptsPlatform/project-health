@@ -167,7 +167,32 @@ export interface MonthlyReport {
   agentic?: MetricBlock<AgenticAdoption>
   /** Absent in files written before it existed, and in months that were never current. */
   codebase?: MetricBlock<Codebase>
+  /** Absent in files written before it existed. */
+  actions?: ActionsUsage
   warnings: Warning[]
+}
+
+/** Mirrors the collector's Actions usage; see collector/src/types.ts for what each field means. */
+export interface ActionsUsage {
+  minutes: MetricBlock<ActionsMinutes>
+  storage: MetricBlock<ActionsStorage>
+}
+
+export interface ActionsMinutes {
+  total: number
+  byOs: Record<string, number>
+  runs: number
+  timed: number
+  pending: number
+  truncated: boolean
+  measuredAt: string
+}
+
+export interface ActionsStorage {
+  measuredAt: string
+  cache: { bytes: number; count: number } | null
+  artifacts: { bytes: number; count: number; truncated: boolean } | null
+  totalBytes: number
 }
 
 /** Mirrors the collector's adoption types; see collector/src/types.ts for what each field means. */
