@@ -1,3 +1,4 @@
+import { actionsRows } from '@/shared/lib/actions'
 import { agenticRows } from '@/shared/lib/agentic'
 import { codeRows } from '@/shared/lib/code'
 import { portfolioRows } from '@/shared/lib/portfolio'
@@ -49,6 +50,7 @@ export function OverviewView({
       byMonth={byMonth}
       agentic={agenticRows(index, months)}
       code={codeRows(index, months, daily)}
+      actions={actionsRows(index, months)}
     />
   )
 }

@@ -4,6 +4,7 @@ import { isExampleConfig, loadDora, loadProjects, loadScorecardConfig, repoRoot 
 import { discover } from './discover.ts'
 import { get } from './github.ts'
 import { parseHistory, pointOf, withPoint } from './history.ts'
+import { collectActions, githubActionsSource } from './metrics/actions.ts'
 import { collectAgentic } from './metrics/agentic.ts'
 import { collectAgents } from './metrics/agents.ts'
 import { collectCodebase } from './metrics/codebase.ts'
@@ -419,6 +420,25 @@ async function withCodebase(
 }
 
 /**
+ * GitHub Actions minutes and storage, for delivered and planned projects alike: CI runs before
+ * anything is deployed. Each half degrades on its own, so this never fails the report.
+ */
+async function withActions(
+  report: MonthlyReport,
+  project: ProjectConfig,
+  period: Period,
+  now: Date,
+): Promise<MonthlyReport> {
+  const stored = previousReport(project.id, label(period))?.actions ?? null
+  const actions = await collectActions(
+    githubActionsSource(project.repo),
+    { from: period.from, to: period.to, now },
+    stored,
+  )
+  return { ...report, actions }
+}
+
+/**
  * Appends today's score to `data/<id>/daily.json`, but only from the month that contains today: a
  * backfilled month is scored as of its end, not as of today. The monthly files keep the long trend;
  * this file gives the overview a delta over a fixed number of days.
@@ -564,11 +584,16 @@ async function main(): Promise<void> {
 
     for (const period of periods) {
       try {
-        const report = await withCodebase(
-          await withAgentic(
-            await withEnvironment(await collectProject(project, period), project, period),
+        const report = await withActions(
+          await withCodebase(
+            await withAgentic(
+              await withEnvironment(await collectProject(project, period), project, period),
+              project,
+              period,
+            ),
             project,
             period,
+            now,
           ),
           project,
           period,
@@ -621,6 +646,7 @@ async function main(): Promise<void> {
           .then((r) => withEnvironment(r, project, period))
           .then((r) => withAgentic(r, project, period))
           .then((r) => withCodebase(r, project, period, now))
+          .then((r) => withActions(r, project, period, now))
         const file = join(dataDir, project.id, `${label(period)}.json`)
         writeFileSync(file, `${JSON.stringify(report, null, 2)}\n`)
         recordDaily(project.id, period, report, now)

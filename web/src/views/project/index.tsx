@@ -1,3 +1,4 @@
+import type { ActionsEntry } from '@/shared/lib/actions'
 import type { ExcellenceHistory } from '@/shared/lib/data'
 import {
   dateTime,
@@ -28,6 +29,7 @@ import {
   ReleasesPerDay,
   TokensByKind,
 } from '@/shared/ui/charts'
+import { ActionsPanel } from './actions'
 import { AdoptionPanel } from './agentic'
 import { CodePanel } from './code'
 import { ExcellencePanel } from './excellence'
@@ -460,6 +462,7 @@ export function ProjectView({
   typeLabels = {},
   engineering,
   daily,
+  actions = [],
 }: {
   report: MonthlyReport
   months: string[]
@@ -473,6 +476,8 @@ export function ProjectView({
    */
   engineering?: { report: MonthlyReport; excellence?: ExcellenceHistory }
   daily?: DailyScore[]
+  /** Actions usage of each month up to the engineering month, oldest first. */
+  actions?: ActionsEntry[]
 }) {
   const current = monthKey(report)
   const engineeringReport = engineering?.report ?? report
@@ -488,6 +493,7 @@ export function ProjectView({
           <ScorecardPanel report={engineeringReport} typeLabels={typeLabels} />
           <ExcellencePanel report={engineeringReport} history={engineeringExcellence} />
           <CodePanel report={engineeringReport} daily={daily} />
+          <ActionsPanel history={actions} />
         </>
       ),
     },

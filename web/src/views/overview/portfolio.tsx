@@ -1,5 +1,6 @@
 'use client'
 
+import { type ActionsRow, flaggedCount } from '@/shared/lib/actions'
 import type { AgenticRow } from '@/shared/lib/agentic'
 import type { CodeRow } from '@/shared/lib/code'
 import {
@@ -27,6 +28,7 @@ import { Sparkline } from '@/shared/ui/sparkline'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 import { AlertTriangleIcon, ChevronRightIcon } from 'lucide-react'
 import { useState } from 'react'
+import { ActionsTable } from './actions'
 import { AgenticTable } from './agentic'
 import { CodeTable } from './code'
 import { ProjectGrid } from './grid'
@@ -389,6 +391,7 @@ export function Portfolio({
   byMonth,
   agentic,
   code,
+  actions = [],
 }: {
   rows: PortfolioRow[]
   typeLabels: Record<string, string>
@@ -396,6 +399,7 @@ export function Portfolio({
   byMonth: Record<string, ProjectSummary[]>
   agentic: AgenticRow[]
   code: CodeRow[]
+  actions?: ActionsRow[]
 }) {
   const [showInfo, setShowInfo] = useState(false)
   const [filter, setFilter] = useState<PortfolioFilter>('all')
@@ -405,6 +409,7 @@ export function Portfolio({
   const { applications, tooling } = byGroup(rows)
   const kpi = portfolioKpis(applications)
   const toolingKpi = portfolioKpis(tooling)
+  const actionsFlagged = flaggedCount(actions)
   const attention = sortRows(
     rows.filter((r) => r.risk < 2),
     'risk',
@@ -541,6 +546,17 @@ export function Portfolio({
             <TabsTrigger value="delivery">Delivery</TabsTrigger>
             <TabsTrigger value="agentic">Agentic</TabsTrigger>
             <TabsTrigger value="code">Code</TabsTrigger>
+            <TabsTrigger value="actions">
+              Actions
+              {actionsFlagged > 0 ? (
+                <span
+                  title={`${actionsFlagged} project(s) over an Actions threshold`}
+                  className="ml-1.5 rounded-full bg-destructive/10 px-1.5 text-xs font-semibold text-destructive tabular-nums"
+                >
+                  {actionsFlagged}
+                </span>
+              ) : null}
+            </TabsTrigger>
           </TabsList>
           {tab === 'scorecard' ? (
             <div className="flex flex-wrap items-center gap-2">
@@ -620,6 +636,9 @@ export function Portfolio({
         </TabsContent>
         <TabsContent value="code">
           <CodeTable rows={code} />
+        </TabsContent>
+        <TabsContent value="actions">
+          <ActionsTable rows={actions} />
         </TabsContent>
       </Tabs>
     </div>

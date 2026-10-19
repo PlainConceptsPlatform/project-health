@@ -326,5 +326,40 @@
       "severity": "info",
       "message": "Agent collection is off for Mobile."
     }
-  ]
+  ],
+  "actions": {
+    "minutes": {
+      "available": true,
+      "data": {
+        "total": 1720,
+        "byOs": {
+          "UBUNTU": 430,
+          "MACOS": 1290
+        },
+        "runs": 101,
+        "timed": 101,
+        "pending": 0,
+        "truncated": false,
+        "measuredAt": "2026-08-01T03:15:00.000Z",
+        "countedBefore": "2026-07-31T21:40:12Z",
+        "countedIds": []
+      }
+    },
+    "storage": {
+      "available": true,
+      "data": {
+        "measuredAt": "2026-07-31T03:15:00.000Z",
+        "cache": {
+          "bytes": 1610612736,
+          "count": 24
+        },
+        "artifacts": {
+          "bytes": 966367642,
+          "count": 113,
+          "truncated": false
+        },
+        "totalBytes": 2576980378
+      }
+    }
+  }
 }

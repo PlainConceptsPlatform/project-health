@@ -1,5 +1,6 @@
 import {
   currentMonth,
+  readActionsHistory,
   readDailyScores,
   readExcellenceHistory,
   readIndex,
@@ -47,6 +48,7 @@ export default async function Page({ params }: { params: Promise<{ id: string; m
       excellence={readExcellenceHistory(id, shown)}
       typeLabels={readScorecardTypeLabels()}
       daily={readDailyScores(id)}
+      actions={readActionsHistory(id, shown)}
     />
   )
 }

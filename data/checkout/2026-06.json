@@ -3212,5 +3212,39 @@
       "severity": "warn",
       "message": "8 of 19 agent run(s) had no readable usage artifact. Artifacts expire, and a run still in progress has not uploaded one."
     }
-  ]
+  ],
+  "actions": {
+    "minutes": {
+      "available": true,
+      "data": {
+        "total": 2840,
+        "byOs": {
+          "UBUNTU": 2840
+        },
+        "runs": 412,
+        "timed": 412,
+        "pending": 0,
+        "truncated": false,
+        "measuredAt": "2026-07-01T03:15:00.000Z",
+        "countedBefore": "2026-06-30T21:40:12Z",
+        "countedIds": []
+      }
+    },
+    "storage": {
+      "available": true,
+      "data": {
+        "measuredAt": "2026-06-30T03:15:00.000Z",
+        "cache": {
+          "bytes": 3006477107,
+          "count": 42
+        },
+        "artifacts": {
+          "bytes": 322122547,
+          "count": 41,
+          "truncated": false
+        },
+        "totalBytes": 3328599654
+      }
+    }
+  }
 }

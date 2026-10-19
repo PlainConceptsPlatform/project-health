@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { type ActionsEntry, entryOf } from './actions'
 import { type ExcellenceKpis, kpisOf } from './excellence'
 import { type DailyScore, groupOf } from './scorecard'
 import type {
@@ -175,6 +176,16 @@ export function readTrend(projectId: string): {
       },
     ]
   })
+}
+
+/** Actions minutes and storage of every collected month up to and including `month`, oldest first. */
+export function readActionsHistory(projectId: string, month: string): ActionsEntry[] {
+  const entry = readIndex().projects.find((p) => p.id === projectId)
+  if (!entry) return []
+  return entry.months
+    .filter((m) => m <= month)
+    .sort()
+    .flatMap((m) => entryOf(m, readReport(projectId, m)) ?? [])
 }
 
 export interface ExcellenceHistory {

@@ -368,6 +368,30 @@ Production code and tests are told apart by path. Vendored and installed code (`
 | Tests | test lines per code line, cases per 1,000 lines, Gherkin scenarios |
 | Suspicious tests | no assertion in the body, only checks a mock was called, snapshots, skipped and focused; approximate, since an assertion inside a helper is not seen |
 
+## Actions usage
+
+The **Actions** tab on the overview and the **GitHub Actions usage** panel on each project show the
+billable Actions minutes each repository spends and the storage Actions keeps for it, so a project
+filling its cache or burning minutes is seen before GitHub's account limit warning. It is read on
+every collection with the Actions read permission already required, and needs no opt-in.
+
+| Measure | Read from |
+| --- | --- |
+| Minutes | `actions/runs?created=<day>` for each day of the month, then `actions/runs/{id}/timing` for every completed run; each job is rounded up to the minute, as GitHub bills it, and split by runner OS |
+| Cache storage | `actions/cache/usage`: active cache bytes and count |
+| Artifact storage | `actions/artifacts`: the bytes of every artifact that has not expired |
+
+Minutes are counted incrementally: the month file remembers which runs were already timed, so a
+daily collection only times new runs, a run still in progress waits for the next one, and a month
+that was complete when last read is not listed again. At most 1,500 timings are read per project
+and month in one collection; the rest show as pending until the next. Public repositories and
+self-hosted runners are free and read zero. Storage only exists as it is now, so a past month keeps
+the reading stored while it was current.
+
+A project reads red when its storage is over 5 GB, half the 10 GB cache cap, or when its minutes per
+day are more than 50% above the previous month's (ignored below 100 minutes in the previous month).
+Comparing the daily pace keeps a month in progress from reading as a drop.
+
 ## Setting it up the first time
 
 Use this repository as a template, then:

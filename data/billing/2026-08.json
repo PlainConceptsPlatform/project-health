@@ -651,5 +651,40 @@
         }
       ]
     }
+  },
+  "actions": {
+    "minutes": {
+      "available": true,
+      "data": {
+        "total": 980,
+        "byOs": {
+          "UBUNTU": 920,
+          "WINDOWS": 60
+        },
+        "runs": 158,
+        "timed": 158,
+        "pending": 0,
+        "truncated": false,
+        "measuredAt": "2026-09-01T03:15:00.000Z",
+        "countedBefore": "2026-08-31T21:40:12Z",
+        "countedIds": []
+      }
+    },
+    "storage": {
+      "available": true,
+      "data": {
+        "measuredAt": "2026-08-31T03:15:00.000Z",
+        "cache": {
+          "bytes": 858993459,
+          "count": 14
+        },
+        "artifacts": {
+          "bytes": 214748365,
+          "count": 29,
+          "truncated": false
+        },
+        "totalBytes": 1073741824
+      }
+    }
   }
 }
