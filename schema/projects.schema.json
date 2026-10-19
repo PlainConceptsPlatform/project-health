@@ -2,10 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Project Health project list",
   "type": "object",
-  "required": [
-    "organization",
-    "projects"
-  ],
+  "required": ["organization", "projects"],
   "properties": {
     "organization": {
       "type": "string",
@@ -45,33 +42,20 @@
             "description": "Disabled projects are skipped without being removed from the list."
           },
           "status": {
-            "enum": [
-              "production",
-              "pre-production",
-              "planned"
-            ],
+            "enum": ["production", "pre-production", "planned"],
             "description": "pre-production means the project has no production environment yet, so production metrics are skipped rather than reported as zero. planned means the repository may not exist yet: only its engineering scorecard is collected, once it does."
           },
           "environments": {
             "type": "object",
-            "required": [
-              "production",
-              "staging"
-            ],
+            "required": ["production", "staging"],
             "additionalProperties": false,
             "properties": {
               "production": {
-                "type": [
-                  "string",
-                  "null"
-                ],
+                "type": ["string", "null"],
                 "description": "Environment name that counts as production. Names are not standardised across repositories, so this is configuration. null means the project has no production environment, and its production metrics are skipped rather than reported as zero."
               },
               "staging": {
-                "type": [
-                  "string",
-                  "null"
-                ],
+                "type": ["string", "null"],
                 "description": "Environment name that counts as staging."
               }
             }
@@ -82,20 +66,14 @@
           },
           "agents": {
             "type": "object",
-            "required": [
-              "enabled",
-              "workflow"
-            ],
+            "required": ["enabled", "workflow"],
             "additionalProperties": false,
             "properties": {
               "enabled": {
                 "type": "boolean"
               },
               "workflow": {
-                "type": [
-                  "string",
-                  "null"
-                ],
+                "type": ["string", "null"],
                 "description": "Workflow that runs the agents, matched on file path first and display name second. The path is preferred because the display name often differs between repositories while the path does not."
               },
               "ignoreTitlePatterns": {
@@ -109,9 +87,7 @@
           },
           "engineeringExcellence": {
             "type": "object",
-            "required": [
-              "enabled"
-            ],
+            "required": ["enabled"],
             "additionalProperties": false,
             "description": "Reads the engineering excellence facet artifacts (coverage, complexity, mutation, security, sbom) that the repository's own CI uploads. The contract is schema/engineering-excellence-facets.schema.json.",
             "properties": {
@@ -132,9 +108,7 @@
           },
           "roadmap": {
             "type": "object",
-            "required": [
-              "enabled"
-            ],
+            "required": ["enabled"],
             "additionalProperties": false,
             "description": "Reads every issue's timeline so the site shows who had each issue at each moment: an agent, a person, the merge gate, or nobody. Needs the token to read pull requests. Meant for repositories where agents and people hand issues over with labels.",
             "properties": {
@@ -156,11 +130,7 @@
                     "items": {
                       "type": "string"
                     },
-                    "default": [
-                      "review",
-                      "stalled",
-                      "owner-review"
-                    ],
+                    "default": ["review", "stalled", "owner-review"],
                     "description": "Present while the issue waits for a person."
                   },
                   "stalled": {
@@ -178,11 +148,7 @@
                     "items": {
                       "type": "string"
                     },
-                    "default": [
-                      "triage",
-                      "refine",
-                      "implement"
-                    ],
+                    "default": ["triage", "refine", "implement"],
                     "description": "Labels that ask an agent to act. An issue that never carried one was worked by hand."
                   }
                 }
@@ -206,6 +172,10 @@
               "other"
             ],
             "description": "What kind of project this is, which decides the engineering scorecard practices that apply by default (see types in config/scorecard.json). Absent means other, where every practice applies."
+          },
+          "group": {
+            "enum": ["applications", "tooling"],
+            "description": "Which section of the dashboard the project is ranked in. tooling is for libraries, sites and other platform pieces that are not deployed to PRE/PRO: they keep the engineering scorecard and the AI usage alert, while environment based delivery metrics read not applicable and they stay out of the application ranking and averages. Absent means tooling for a library or static-site, and applications for every other type."
           },
           "scorecard": {
             "type": "object",
@@ -234,17 +204,11 @@
             "description": "Label that marks a pull request as an unplanned fix, feeding deployment rework rate. Defaults to hotfix. A broad label such as bug counts planned backlog fixes as rework and overstates the rate."
           },
           "reworkLabelPrecision": {
-            "enum": [
-              "incident",
-              "broad"
-            ],
+            "enum": ["incident", "broad"],
             "description": "Whether reworkLabel means only unplanned production fixes (incident) or any bug fix (broad). A broad marker is collected and displayed but is not used to place the project on the DORA stability axis, because \"released a bug fix\" is not the same as \"reacted to an incident\"."
           },
           "workItemLabel": {
-            "type": [
-              "string",
-              "null"
-            ],
+            "type": ["string", "null"],
             "description": "Label marking an issue as work intended to ship, used for the issue to staging measure and the requesters chart. Conventions differ per repository. null reports the metric as not measured rather than as empty."
           }
         }

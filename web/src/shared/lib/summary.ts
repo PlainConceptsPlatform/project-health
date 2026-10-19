@@ -1,4 +1,4 @@
-import type { MetricBlock, MonthlyReport } from './types'
+import type { MetricBlock, MonthlyReport, ProjectGroup } from './types'
 
 /**
  * A flat, serializable view of one project for the dashboard.
@@ -13,6 +13,8 @@ export interface ProjectSummary {
   name: string
   repo: string
   status: 'production' | 'pre-production' | 'planned'
+  /** Tooling is not deployed to PRE/PRO, so its delivery numbers stay null: not applicable. */
+  group: ProjectGroup
   months: string[]
   month: string | null
   hasData: boolean
@@ -45,7 +47,14 @@ const reasonOf = <T>(block: MetricBlock<T> | undefined): string | undefined =>
   block && !block.available ? block.reason : undefined
 
 export function summarise(
-  entry: { id: string; name: string; repo: string; status: string; months: string[] },
+  entry: {
+    id: string
+    name: string
+    repo: string
+    status: string
+    group: ProjectGroup
+    months: string[]
+  },
   report: MonthlyReport | null,
 ): ProjectSummary {
   const status = (entry.status as ProjectSummary['status']) ?? 'production'
@@ -55,6 +64,7 @@ export function summarise(
     name: entry.name,
     repo: entry.repo,
     status,
+    group: entry.group,
     months: entry.months,
     month: null,
     hasData: false,
@@ -75,10 +85,6 @@ export function summarise(
 
   if (!report) return base
 
-  const frequency = report.delivery.deploymentFrequency
-  const leadTime = report.delivery.leadTime
-  const rework = report.delivery.reworkRate
-
   const agents = report.agents.available
     ? Object.values(report.agents.data.byKind).reduce(
         (acc, kind) => ({
@@ -91,10 +97,28 @@ export function summarise(
       )
     : null
 
-  return {
+  const tracked = {
     ...base,
     month: `${report.period.year}-${String(report.period.month).padStart(2, '0')}`,
     hasData: true,
+    agentRuns: agents?.runs ?? null,
+    agentTokens: agents?.tokens ?? null,
+    agentSeconds: agents?.seconds ?? null,
+    agentMeasured: agents?.measured ?? null,
+  }
+
+  // Left null rather than read, so tooling sorts last on every delivery key instead of ranking
+  // among the applications on whatever its collector happened to find.
+  if (entry.group === 'tooling') {
+    return { ...tracked, reasons: { agents: reasonOf(report.agents) } }
+  }
+
+  const frequency = report.delivery.deploymentFrequency
+  const leadTime = report.delivery.leadTime
+  const rework = report.delivery.reworkRate
+
+  return {
+    ...tracked,
     releases: frequency.available ? frequency.data.count : null,
     perWeek: frequency.available ? frequency.data.perWeek : null,
     partialMonth: frequency.available ? Boolean(frequency.data.partialMonth) : false,
@@ -109,10 +133,6 @@ export function summarise(
     reworkRate: rework.available ? rework.data.rate : null,
     reworkLabel: rework.available ? (rework.data.label ?? null) : null,
     reworkMarked: rework.available && rework.data.confidence !== 'none',
-    agentRuns: agents?.runs ?? null,
-    agentTokens: agents?.tokens ?? null,
-    agentSeconds: agents?.seconds ?? null,
-    agentMeasured: agents?.measured ?? null,
     reasons: {
       frequency: reasonOf(frequency),
       leadTime: reasonOf(leadTime),

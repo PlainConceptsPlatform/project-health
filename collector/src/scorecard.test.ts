@@ -45,7 +45,7 @@ import type {
   ProjectConfig,
   Rag,
 } from './types.ts'
-import { PROJECT_TYPES, ok, skip } from './types.ts'
+import { PROJECT_GROUPS, PROJECT_TYPES, ok, skip } from './types.ts'
 
 /**
  * The scorecard is a chain of heuristics and rules, and each one can quietly paint a project the
@@ -1100,6 +1100,25 @@ describe('project types', () => {
   it('labels the new types', () => {
     expect(config.types['browser-extension'].label).toBe('Browser extension')
     expect(config.types['static-site'].label).toBe('Static site')
+  })
+})
+
+describe('project groups', () => {
+  const schema = JSON.parse(
+    readFileSync(join(import.meta.dirname, '..', '..', 'schema', 'projects.schema.json'), 'utf8'),
+  ) as {
+    properties: {
+      projects: { items: { required: string[]; properties: { group: { enum: string[] } } } }
+    }
+  }
+  const items = schema.properties.projects.items
+
+  it('keeps the schema and the collector on the same groups', () => {
+    expect([...items.properties.group.enum].sort()).toEqual([...PROJECT_GROUPS].sort())
+  })
+
+  it('leaves group optional, so a projects.json written before it existed still validates', () => {
+    expect(items.required).not.toContain('group')
   })
 })
 

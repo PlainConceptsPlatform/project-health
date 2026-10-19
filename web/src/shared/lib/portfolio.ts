@@ -1,12 +1,17 @@
 import type { ScorecardRow } from './scorecard'
+import type { ProjectGroup } from './types'
 
-/** Where an application has got to, from its deployed resource group. */
-export type PortfolioEnv = 'pro' | 'pre' | 'none'
+/**
+ * Where an application has got to, from its deployed resource group. Tooling is never deployed to
+ * PRE/PRO, so it reads na rather than "not deployed", which would look like a gap to close.
+ */
+export type PortfolioEnv = 'pro' | 'pre' | 'none' | 'na'
 
 export const ENV_LABEL: Record<PortfolioEnv, string> = {
   pro: 'PRO',
   pre: 'PRE',
   none: 'Not deployed',
+  na: 'Environment n/a',
 }
 
 /** 0 is critical, 1 needs attention, 2 is fine. Sorting by risk puts the worst first. */
@@ -39,6 +44,7 @@ export const DELTA_TITLE: Record<DeltaBasis, string> = {
 }
 
 export function envOf(row: ScorecardRow): PortfolioEnv {
+  if (row.group === 'tooling') return 'na'
   const final = row.environment?.available ? row.environment.data.final : null
   return final === 'PRO' ? 'pro' : final === 'PRE' ? 'pre' : 'none'
 }
@@ -180,6 +186,17 @@ export function sortRows(rows: PortfolioRow[], sort: PortfolioSort): PortfolioRo
     if (sort === 'trend') return (a.delta ?? 0) - (b.delta ?? 0) || byName(a, b)
     return a.risk - b.risk || score(a) - score(b) || byName(a, b)
   })
+}
+
+/**
+ * Rows split by dashboard section. Tooling is ranked and averaged on its own, so a library without
+ * environments never drags the application numbers down or takes a place in their ranking.
+ */
+export function byGroup<T extends { group: ProjectGroup }>(rows: T[]): Record<ProjectGroup, T[]> {
+  return {
+    applications: rows.filter((r) => r.group === 'applications'),
+    tooling: rows.filter((r) => r.group === 'tooling'),
+  }
 }
 
 export function portfolioKpis(rows: PortfolioRow[]) {

@@ -36,6 +36,7 @@ await exportToOtlp(reports)
 await new Promise((r) => setTimeout(r, 800))
 server.close()
 
+// biome-ignore lint/suspicious/noExplicitAny: a manual check that prints whatever OTLP JSON arrives
 for (const entry of received as { url: string; body: any }[]) {
   console.log(`POST ${entry.url}`)
   const rm = entry.body?.resourceMetrics?.[0]
@@ -46,6 +47,7 @@ for (const entry of received as { url: string; body: any }[]) {
       console.log(`  ${metric.name} [${metric.unit}] points=${pts.length}`)
       if (pts[0]) {
         const attrs = Object.fromEntries(
+          // biome-ignore lint/suspicious/noExplicitAny: OTLP attributes are untyped JSON here
           (pts[0].attributes ?? []).map((a: any) => [
             a.key,
             a.value?.stringValue ?? a.value?.intValue ?? a.value?.doubleValue,

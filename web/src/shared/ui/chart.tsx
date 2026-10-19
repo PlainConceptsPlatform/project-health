@@ -86,6 +86,7 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
 
   return (
     <style
+      // biome-ignore lint/security/noDangerouslySetInnerHtml: CSS variables built from the chart config, never from user input
       dangerouslySetInnerHTML={{
         __html: Object.entries(THEMES)
           .map(
@@ -183,6 +184,7 @@ function ChartTooltipContent({
 
             return (
               <div
+                // biome-ignore lint/suspicious/noArrayIndexKey: tooltip rows are rebuilt on every hover and have no stable id
                 key={index}
                 className={cn(
                   'flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5 [&>svg]:text-muted-foreground',
@@ -281,6 +283,7 @@ function ChartLegendContent({
 
           return (
             <div
+              // biome-ignore lint/suspicious/noArrayIndexKey: legend items are rebuilt with the chart and have no stable id
               key={index}
               className={cn(
                 'flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground',
