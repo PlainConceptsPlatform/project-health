@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { type ActionsEntry, entryOf } from './actions'
 import { type ExcellenceKpis, kpisOf } from './excellence'
-import type { DailyScore } from './scorecard'
+import { type DailyScore, groupOf } from './scorecard'
 import type {
   ComplexityData,
   CoverageData,
@@ -37,6 +37,8 @@ interface ProjectsFile {
     repo: string
     enabled: boolean
     status: string
+    type?: string
+    group?: string
   }[]
 }
 
@@ -81,6 +83,7 @@ export function readIndex(): DataIndex {
         name: project.name,
         repo: project.repo,
         status: project.status,
+        group: groupOf(project),
         months,
         latest: months.at(-1) ?? null,
       }

@@ -3,6 +3,7 @@ import type {
   FinalEnvironment,
   MetricBlock,
   MonthlyReport,
+  ProjectGroup,
   Rag,
   Scorecard,
   StandardMode,
@@ -65,6 +66,26 @@ const FALLBACK_TYPE_LABELS: Record<string, string> = {
 export const typeLabel = (type: string, labels: Record<string, string>) =>
   labels[type] ?? FALLBACK_TYPE_LABELS[type] ?? type
 
+export const GROUP_LABEL: Record<ProjectGroup, string> = {
+  applications: 'Applications',
+  tooling: 'Platform tooling',
+}
+
+/** Types that are not deployed to PRE/PRO, so they default to tooling when no group is set. */
+const TOOLING_TYPES = new Set(['library', 'static-site'])
+
+/**
+ * The section a project is ranked in. An explicit group wins; without one the type decides, so a
+ * projects.json written before groups existed moves its libraries and sites out of the application
+ * ranking with no edit.
+ */
+export const groupOf = (project: { group?: string; type?: string }): ProjectGroup =>
+  project.group === 'applications' || project.group === 'tooling'
+    ? project.group
+    : project.type && TOOLING_TYPES.has(project.type)
+      ? 'tooling'
+      : 'applications'
+
 /** How many months the overview sparkline spans. */
 export const TREND_MONTHS = 6
 
@@ -73,6 +94,7 @@ export interface ScorecardRow {
   name: string
   repo: string
   status: string
+  group: ProjectGroup
   /** The month the row's scorecard is from, the newest one that has a scorecard. */
   month: string | null
   card: Scorecard | null
@@ -120,6 +142,7 @@ export function scorecardRows(
       name: entry.name,
       repo: entry.repo,
       status: entry.status,
+      group: entry.group,
       month: latest?.month ?? null,
       card: cardOf(latest?.report),
       reason: latest ? null : reason,

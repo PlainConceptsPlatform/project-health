@@ -271,6 +271,20 @@ A project sets its `type` (`back-front`, `mobile`, `data`, `ml`, `library`, `bro
 opts in to performance testing (k6, JMeter, Lighthouse CI), which a `static-site` expects by default
 (`false` opts out), and `scorecard.notApplicable` drops further practices for that project.
 
+### Applications and platform tooling
+
+The overview ranks two groups apart: **Applications** and **Platform tooling**. A project sets
+`"group": "applications"` or `"group": "tooling"` in `projects.json`; without one, a `library` or
+`static-site` is tooling and every other type is an application, so an existing `projects.json`
+needs no edit. Each group has its own table and its own averages, and the headline figures above the
+tabs (gates, AI usage, production at L3) count applications only.
+
+Tooling is measured like any other project and keeps the engineering scorecard, its level and score,
+and the *High AI usage, low engineering* and *Engineering declining* alerts. What assumes a PRE/PRO
+environment reads not applicable instead of missing: the environment beside its name, the production
+alerts, and deploy frequency, lead time and rework rate in Delivery, whose delivery sorts list
+tooling after every application. The group only changes how the site ranks a project; the collector reads both alike.
+
 ## Roadmap
 
 Where agents and people hand issues over with labels, the labels already record who had each issue
@@ -486,6 +500,7 @@ the API, every stored month is stamped with when it was collected, and the site 
 
 ```bash
 pnpm --filter @project-health/collector run test
+pnpm --filter @project-health/web run test
 ```
 
 The suite covers the places that were actually wrong during development rather than aiming at a

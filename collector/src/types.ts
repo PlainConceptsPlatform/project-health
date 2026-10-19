@@ -84,6 +84,11 @@ export interface ProjectConfig {
   }
   /** Decides which scorecard practices apply. Absent means other, where every practice applies. */
   type?: ProjectType
+  /**
+   * The dashboard section the project is ranked in. Absent means tooling for a library or
+   * static-site and applications otherwise; the site resolves it, the collector measures both alike.
+   */
+  group?: ProjectGroup
   scorecard?: {
     /**
      * Performance testing is only expected when a project says it needs it, or its type expects
@@ -107,6 +112,9 @@ export const PROJECT_TYPES = [
   'other',
 ] as const
 export type ProjectType = (typeof PROJECT_TYPES)[number]
+
+export const PROJECT_GROUPS = ['applications', 'tooling'] as const
+export type ProjectGroup = (typeof PROJECT_GROUPS)[number]
 
 export interface Release {
   ref: string
