@@ -75,10 +75,26 @@ jobs:
             ${{ inputs.month && format('--month {0}', inputs.month) || '' }} \
             --backfill '${{ inputs.months }}'
 
+      # Installation tokens last an hour and a full collection can run longer, so the token minted
+      # before checkout may have expired by the time the data is pushed. Mint a fresh one for the push.
+      - name: Generate App token for the push
+        id: push-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.BOT_APP_ID }}
+          private-key: ${{ secrets.BOT_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
       - name: Commit collected data
+        env:
+          PUSH_TOKEN: ${{ steps.push-token.outputs.token }}
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
+          # Replace the checkout credentials (an extraheader) with the fresh token; an empty value resets the list.
+          auth="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$PUSH_TOKEN" | base64 -w0)"
+          echo "::add-mask::${auth#AUTHORIZATION: basic }"
+          git_auth() { git -c http.https://github.com/.extraheader= -c "http.https://github.com/.extraheader=$auth" "$@"; }
           git add data
           if git diff --staged --quiet; then
             echo 'No metric changes to commit.'
@@ -86,7 +102,7 @@ jobs:
             git commit -m "chore(data): backfill ${{ inputs.project }} (${{ inputs.months }} month(s))"
             # A merge can land on main during the collection; data/ never conflicts with it.
             for attempt in 1 2 3; do
-              git pull --rebase --quiet && git push && exit 0
+              git_auth pull --rebase --quiet && git_auth push && exit 0
               git rebase --abort 2>/dev/null || true
               echo "Push attempt $attempt was rejected; retrying."
               sleep $((attempt * 10))
