@@ -14,11 +14,12 @@ import {
   type PortfolioRow,
   type PortfolioSort,
   SORTS,
+  byGroup,
   matches,
   portfolioKpis,
   sortRows,
 } from '@/shared/lib/portfolio'
-import { LEVEL_BAR, typeLabel } from '@/shared/lib/scorecard'
+import { GROUP_LABEL, LEVEL_BAR, typeLabel } from '@/shared/lib/scorecard'
 import type { ProjectSummary } from '@/shared/lib/summary'
 import { cn } from '@/shared/ui'
 import { LevelBadge } from '@/shared/ui/scorecard'
@@ -40,7 +41,20 @@ const ENV_CHIP: Record<PortfolioEnv, string> = {
   pro: 'rounded-md border border-transparent bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary',
   pre: 'rounded-md border border-muted-foreground/40 px-2 py-0.5 text-xs font-semibold text-muted-foreground',
   none: 'text-sm text-muted-foreground',
+  na: 'text-sm text-muted-foreground',
 }
+
+const envTitle = (row: PortfolioRow) =>
+  row.env === 'na'
+    ? 'Platform tooling is not deployed to PRE/PRO environments, so the environment does not apply.'
+    : row.environment?.available
+      ? row.environment.data.environments
+          .map(
+            (e) =>
+              `${e.name}: ${e.tier ?? 'unknown'} (${e.resourceGroup ?? 'from the environment name'})`,
+          )
+          .join('\n')
+      : row.environment?.reason
 
 function Chip({
   active,
@@ -260,16 +274,7 @@ function ScorecardRows({
                       </a>
                       <span
                         className={cn('inline-flex whitespace-nowrap', ENV_CHIP[row.env])}
-                        title={
-                          row.environment?.available
-                            ? row.environment.data.environments
-                                .map(
-                                  (e) =>
-                                    `${e.name}: ${e.tier ?? 'unknown'} (${e.resourceGroup ?? 'from the environment name'})`,
-                                )
-                                .join('\n')
-                            : row.environment?.reason
-                        }
+                        title={envTitle(row)}
                       >
                         {ENV_LABEL[row.env]}
                       </span>
@@ -397,13 +402,19 @@ export function Portfolio({
   const [sort, setSort] = useState<PortfolioSort>('risk')
   const [tab, setTab] = useState('scorecard')
 
-  const kpi = portfolioKpis(rows)
+  const { applications, tooling } = byGroup(rows)
+  const kpi = portfolioKpis(applications)
+  const toolingKpi = portfolioKpis(tooling)
   const attention = sortRows(
     rows.filter((r) => r.risk < 2),
     'risk',
   )
   const visible = sortRows(
-    rows.filter((r) => matches(r, filter)),
+    applications.filter((r) => matches(r, filter)),
+    sort,
+  )
+  const visibleTooling = sortRows(
+    tooling.filter((r) => matches(r, filter)),
     sort,
   )
   const counts = Object.fromEntries(
@@ -444,6 +455,12 @@ export function Portfolio({
               recovery time need production incident data, which GitHub does not record, so they are
               not shown rather than estimated.
             </p>
+            <p>
+              Libraries and static sites are platform tooling unless projects.json says otherwise.
+              They are ranked and averaged apart from the applications, keep the engineering
+              scorecard and the AI usage alert, and read not applicable for the environment and the
+              delivery metrics that assume one.
+            </p>
           </div>
         ) : null}
       </section>
@@ -452,7 +469,7 @@ export function Portfolio({
         <Kpi
           label="Gates passing, average"
           value={kpi.gatesAverage === null ? 'n/a' : `${kpi.gatesAverage}%`}
-          hint={`${kpi.n3} of ${kpi.total} projects at L3`}
+          hint={`${kpi.n3} of ${kpi.total} applications at L3`}
         />
         <Kpi
           label="In production below L1"
@@ -464,7 +481,7 @@ export function Portfolio({
           label="AI usage, average"
           value={kpi.aiAverage === null ? 'n/a' : kpi.aiAverage.toFixed(1)}
           unit="/ 5"
-          hint={`across ${kpi.aiCount} projects with data`}
+          hint={`across ${kpi.aiCount} applications with data`}
         />
         <Kpi
           label="Production at L3"
@@ -556,7 +573,41 @@ export function Portfolio({
               </Chip>
             ))}
           </fieldset>
+          {tooling.length > 0 ? (
+            <h2 className="text-base font-semibold">
+              {GROUP_LABEL.applications}{' '}
+              <span className="font-medium text-muted-foreground">({applications.length})</span>
+            </h2>
+          ) : null}
           <ScorecardRows rows={visible} typeLabels={typeLabels} />
+          {tooling.length > 0 ? (
+            <section className="flex flex-col gap-4 pt-3">
+              <div className="flex flex-col gap-1">
+                <h2 className="text-base font-semibold">
+                  {GROUP_LABEL.tooling}{' '}
+                  <span className="font-medium text-muted-foreground">({tooling.length})</span>
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  Libraries, sites and other platform pieces, ranked apart from the applications.
+                  They are not deployed to PRE/PRO, so environment based metrics do not apply.
+                </p>
+              </div>
+              <div className="grid grid-cols-[repeat(auto-fit,minmax(210px,1fr))] gap-4">
+                <Kpi
+                  label="Gates passing, average"
+                  value={toolingKpi.gatesAverage === null ? 'n/a' : `${toolingKpi.gatesAverage}%`}
+                  hint={`${toolingKpi.n3} of ${toolingKpi.total} at L3`}
+                />
+                <Kpi
+                  label="AI usage, average"
+                  value={toolingKpi.aiAverage === null ? 'n/a' : toolingKpi.aiAverage.toFixed(1)}
+                  unit="/ 5"
+                  hint={`across ${toolingKpi.aiCount} with data`}
+                />
+              </div>
+              <ScorecardRows rows={visibleTooling} typeLabels={typeLabels} />
+            </section>
+          ) : null}
           <p className="text-sm text-muted-foreground">
             Hover a value for its counts. Open a project for the gate-by-gate breakdown.
           </p>

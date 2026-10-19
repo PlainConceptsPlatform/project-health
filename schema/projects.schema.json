@@ -173,6 +173,10 @@
             ],
             "description": "What kind of project this is, which decides the engineering scorecard practices that apply by default (see types in config/scorecard.json). Absent means other, where every practice applies."
           },
+          "group": {
+            "enum": ["applications", "tooling"],
+            "description": "Which section of the dashboard the project is ranked in. tooling is for libraries, sites and other platform pieces that are not deployed to PRE/PRO: they keep the engineering scorecard and the AI usage alert, while environment based delivery metrics read not applicable and they stay out of the application ranking and averages. Absent means tooling for a library or static-site, and applications for every other type."
+          },
           "scorecard": {
             "type": "object",
             "additionalProperties": false,

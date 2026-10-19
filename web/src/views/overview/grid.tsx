@@ -79,57 +79,64 @@ function ProjectCard({ p, month }: { p: ProjectSummary; month: string | null }) 
             />
           ) : (
             <>
-              <div className="grid grid-cols-2 gap-5 sm:grid-cols-3">
-                {p.perWeek === null ? (
-                  <Stat
-                    label="Deploy frequency"
-                    explain="deployFrequency"
-                    value="n/a"
-                    tone="muted"
-                    hint="no production"
-                  />
-                ) : (
-                  <Stat
-                    label="Deploy frequency"
-                    explain="deployFrequency"
-                    value={`${p.perWeek}/wk`}
-                    hint={`${p.releases} release${p.releases === 1 ? '' : 's'}${p.partialMonth ? ', month in progress' : ''}`}
-                  />
-                )}
+              {p.group === 'tooling' ? (
+                <p className="text-xs text-muted-foreground">
+                  Platform tooling is not deployed to PRE/PRO, so deploy frequency, lead time and
+                  rework rate do not apply. Its Engineering scorecard is collected as usual.
+                </p>
+              ) : (
+                <div className="grid grid-cols-2 gap-5 sm:grid-cols-3">
+                  {p.perWeek === null ? (
+                    <Stat
+                      label="Deploy frequency"
+                      explain="deployFrequency"
+                      value="n/a"
+                      tone="muted"
+                      hint="no production"
+                    />
+                  ) : (
+                    <Stat
+                      label="Deploy frequency"
+                      explain="deployFrequency"
+                      value={`${p.perWeek}/wk`}
+                      hint={`${p.releases} release${p.releases === 1 ? '' : 's'}${p.partialMonth ? ', month in progress' : ''}`}
+                    />
+                  )}
 
-                <Stat
-                  label="Lead time p50"
-                  explain="leadTime"
-                  value={p.leadTimeP50Hours === null ? 'n/a' : hours(p.leadTimeP50Hours)}
-                  tone={p.leadTimeP50Hours === null ? 'muted' : undefined}
-                  hint={
-                    p.leadTimeP50Hours === null
-                      ? (p.reasons.leadTime ?? 'not measured')
-                      : 'commit to production'
-                  }
-                />
-
-                {p.reworkMarked && p.reworkRate !== null ? (
                   <Stat
-                    label="Rework rate"
-                    explain="reworkRate"
-                    value={percent(p.reworkRate)}
-                    hint={p.reworkLabel ? `via the ${p.reworkLabel} label` : undefined}
-                    tone={p.reworkRate > 0.15 ? 'bad' : undefined}
-                  />
-                ) : (
-                  <Stat
-                    label="Rework rate"
-                    explain="reworkRate"
-                    value="Unmarked"
-                    tone="muted"
+                    label="Lead time p50"
+                    explain="leadTime"
+                    value={p.leadTimeP50Hours === null ? 'n/a' : hours(p.leadTimeP50Hours)}
+                    tone={p.leadTimeP50Hours === null ? 'muted' : undefined}
                     hint={
-                      p.reasons.rework ??
-                      (p.reworkLabel ? `no ${p.reworkLabel} label found` : 'no marker configured')
+                      p.leadTimeP50Hours === null
+                        ? (p.reasons.leadTime ?? 'not measured')
+                        : 'commit to production'
                     }
                   />
-                )}
-              </div>
+
+                  {p.reworkMarked && p.reworkRate !== null ? (
+                    <Stat
+                      label="Rework rate"
+                      explain="reworkRate"
+                      value={percent(p.reworkRate)}
+                      hint={p.reworkLabel ? `via the ${p.reworkLabel} label` : undefined}
+                      tone={p.reworkRate > 0.15 ? 'bad' : undefined}
+                    />
+                  ) : (
+                    <Stat
+                      label="Rework rate"
+                      explain="reworkRate"
+                      value="Unmarked"
+                      tone="muted"
+                      hint={
+                        p.reasons.rework ??
+                        (p.reworkLabel ? `no ${p.reworkLabel} label found` : 'no marker configured')
+                      }
+                    />
+                  )}
+                </div>
+              )}
 
               <div className="border-t pt-4">
                 {p.agentRuns ? (
