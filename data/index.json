@@ -41,9 +41,13 @@
       "id": "ledger",
       "name": "Ledger",
       "repo": "your-org/ledger",
-      "status": "planned",
-      "months": [],
-      "latest": null
+      "status": "production",
+      "months": [
+        "2026-06",
+        "2026-07",
+        "2026-08"
+      ],
+      "latest": "2026-08"
     }
   ]
 }

@@ -361,5 +361,46 @@
         "totalBytes": 2576980378
       }
     }
+  },
+  "environment": {
+    "available": true,
+    "data": {
+      "final": "PRE",
+      "environments": [
+        {
+          "name": "pre",
+          "resourceGroup": "rg-mobile-pre",
+          "tier": "PRE",
+          "source": "resource-group",
+          "lastDeployedAt": "2026-07-25T22:00:00Z"
+        }
+      ]
+    }
+  },
+  "engineeringExcellence": {
+    "coverage": {
+      "available": false,
+      "reason": "No engineering-excellence-coverage artifact was uploaded from main in this period, or every one has expired."
+    },
+    "complexity": {
+      "available": false,
+      "reason": "No engineering-excellence-complexity artifact was uploaded from main in this period, or every one has expired."
+    },
+    "mutation": {
+      "available": false,
+      "reason": "No engineering-excellence-mutation artifact was uploaded from main in this period, or every one has expired."
+    },
+    "security": {
+      "available": false,
+      "reason": "No engineering-excellence-security artifact was uploaded from main in this period, or every one has expired."
+    },
+    "sbom": {
+      "available": false,
+      "reason": "No engineering-excellence-sbom artifact was uploaded from main in this period, or every one has expired."
+    },
+    "hygiene": {
+      "available": false,
+      "reason": "No engineering-excellence-hygiene artifact was uploaded from main in this period, or every one has expired."
+    }
   }
 }
