@@ -1,0 +1,363 @@
+{
+  "schemaVersion": 1,
+  "days": [
+    {
+      "date": "2026-07-15",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8
+    },
+    {
+      "date": "2026-07-16",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8
+    },
+    {
+      "date": "2026-07-17",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8
+    },
+    {
+      "date": "2026-07-18",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8
+    },
+    {
+      "date": "2026-07-19",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8
+    },
+    {
+      "date": "2026-07-20",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8
+    },
+    {
+      "date": "2026-07-21",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8
+    },
+    {
+      "date": "2026-07-22",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8
+    },
+    {
+      "date": "2026-07-23",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8
+    },
+    {
+      "date": "2026-07-24",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8
+    },
+    {
+      "date": "2026-07-25",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8
+    },
+    {
+      "date": "2026-07-26",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8
+    },
+    {
+      "date": "2026-07-27",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8
+    },
+    {
+      "date": "2026-07-28",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8
+    },
+    {
+      "date": "2026-07-29",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8
+    },
+    {
+      "date": "2026-07-30",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8
+    },
+    {
+      "date": "2026-07-31",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8
+    },
+    {
+      "date": "2026-08-01",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8
+    },
+    {
+      "date": "2026-08-02",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8
+    },
+    {
+      "date": "2026-08-03",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8
+    },
+    {
+      "date": "2026-08-04",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8
+    },
+    {
+      "date": "2026-08-05",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8
+    },
+    {
+      "date": "2026-08-06",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8
+    },
+    {
+      "date": "2026-08-07",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8
+    },
+    {
+      "date": "2026-08-08",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8
+    },
+    {
+      "date": "2026-08-09",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8
+    },
+    {
+      "date": "2026-08-10",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8
+    },
+    {
+      "date": "2026-08-11",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8
+    },
+    {
+      "date": "2026-08-12",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8
+    },
+    {
+      "date": "2026-08-13",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8
+    },
+    {
+      "date": "2026-08-14",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8
+    },
+    {
+      "date": "2026-08-15",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8
+    },
+    {
+      "date": "2026-08-16",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8
+    },
+    {
+      "date": "2026-08-17",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8
+    },
+    {
+      "date": "2026-08-18",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8
+    },
+    {
+      "date": "2026-08-19",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8
+    },
+    {
+      "date": "2026-08-20",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8
+    },
+    {
+      "date": "2026-08-21",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8,
+      "commentDensity": 0.078,
+      "testRatio": 0.631
+    },
+    {
+      "date": "2026-08-22",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8,
+      "commentDensity": 0.077,
+      "testRatio": 0.623
+    },
+    {
+      "date": "2026-08-23",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8,
+      "commentDensity": 0.081,
+      "testRatio": 0.629
+    },
+    {
+      "date": "2026-08-24",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8,
+      "commentDensity": 0.077,
+      "testRatio": 0.64
+    },
+    {
+      "date": "2026-08-25",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8,
+      "commentDensity": 0.084,
+      "testRatio": 0.607
+    },
+    {
+      "date": "2026-08-26",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8,
+      "commentDensity": 0.082,
+      "testRatio": 0.632
+    },
+    {
+      "date": "2026-08-27",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8,
+      "commentDensity": 0.085,
+      "testRatio": 0.606
+    },
+    {
+      "date": "2026-08-28",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8,
+      "commentDensity": 0.078,
+      "testRatio": 0.616
+    },
+    {
+      "date": "2026-08-29",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8,
+      "commentDensity": 0.083,
+      "testRatio": 0.62
+    },
+    {
+      "date": "2026-08-30",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8,
+      "commentDensity": 0.084,
+      "testRatio": 0.616
+    },
+    {
+      "date": "2026-08-31",
+      "score": 94,
+      "level": 2,
+      "gatesPresent": 8,
+      "gatesApplicable": 8,
+      "commentDensity": 0.081,
+      "testRatio": 0.603
+    }
+  ]
+}

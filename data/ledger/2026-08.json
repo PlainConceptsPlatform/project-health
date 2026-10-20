@@ -1,0 +1,3472 @@
+{
+  "schemaVersion": 1,
+  "synthetic": true,
+  "project": "ledger",
+  "name": "Ledger",
+  "repo": "your-org/ledger",
+  "status": "production",
+  "period": {
+    "year": 2026,
+    "month": 8,
+    "from": "2026-08-01T00:00:00.000Z",
+    "to": "2026-09-01T00:00:00.000Z"
+  },
+  "generatedAt": "2026-08-31T03:15:00.000Z",
+  "delivery": {
+    "productionEnvironment": null,
+    "stagingEnvironment": null,
+    "deploymentFrequency": {
+      "available": false,
+      "reason": "Ledger has no production environment configured, so deployment frequency is not measured."
+    },
+    "leadTime": {
+      "available": false,
+      "reason": "No production releases in this period. No staging environment configured."
+    },
+    "reworkRate": {
+      "available": false,
+      "reason": "Ledger has no production environment, so rework rate is not measured."
+    }
+  },
+  "agents": {
+    "available": true,
+    "data": {
+      "runs": [
+        {
+          "runId": 54339781152,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-08-30T07:47:20.606Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 62,
+          "executionSeconds": 1092,
+          "usage": {
+            "inputTokens": 2885280,
+            "outputTokens": 12816,
+            "cacheReadTokens": 2481539,
+            "cacheWriteTokens": 0,
+            "ambientContext": 7527,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54339656196,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-08-30T06:34:21.587Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 83,
+          "executionSeconds": 297,
+          "usage": {
+            "inputTokens": 1124477,
+            "outputTokens": 4766,
+            "cacheReadTokens": 921311,
+            "cacheWriteTokens": 0,
+            "ambientContext": 6986,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54339716197,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-08-29T10:01:54.725Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 24,
+          "executionSeconds": 337,
+          "usage": {
+            "inputTokens": 1290838,
+            "outputTokens": 5389,
+            "cacheReadTokens": 1177417,
+            "cacheWriteTokens": 0,
+            "ambientContext": 9158,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54339868799,
+          "workflow": "All Work Router",
+          "kind": "apply-review",
+          "conclusion": "success",
+          "startedAt": "2026-08-28T11:43:14.126Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 75,
+          "executionSeconds": 744,
+          "usage": {
+            "inputTokens": 2468649,
+            "outputTokens": 10630,
+            "cacheReadTokens": 1957450,
+            "cacheWriteTokens": 0,
+            "ambientContext": 6888,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54339985675,
+          "workflow": "All Work Router",
+          "kind": "audit",
+          "conclusion": "success",
+          "startedAt": "2026-08-28T10:54:36.016Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": null,
+          "executionSeconds": 535,
+          "usage": {
+            "inputTokens": 1801867,
+            "outputTokens": 9977,
+            "cacheReadTokens": 1414496,
+            "cacheWriteTokens": 0,
+            "ambientContext": 6837,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54339804153,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-08-28T07:00:02.364Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 76,
+          "executionSeconds": 856,
+          "usage": {
+            "inputTokens": 3993718,
+            "outputTokens": 19945,
+            "cacheReadTokens": 3320540,
+            "cacheWriteTokens": 0,
+            "ambientContext": 8283,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54339931239,
+          "workflow": "All Work Router",
+          "kind": "merge-gate",
+          "conclusion": "success",
+          "startedAt": "2026-08-28T02:00:32.742Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 45,
+          "executionSeconds": 717,
+          "usage": {
+            "inputTokens": 2403208,
+            "outputTokens": 12084,
+            "cacheReadTokens": 2011481,
+            "cacheWriteTokens": 0,
+            "ambientContext": 5062,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54339538586,
+          "workflow": "All Work Router",
+          "kind": "triage",
+          "conclusion": "success",
+          "startedAt": "2026-08-27T18:52:17.283Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 53,
+          "executionSeconds": 155,
+          "usage": {
+            "inputTokens": 516693,
+            "outputTokens": 1716,
+            "cacheReadTokens": 462100,
+            "cacheWriteTokens": 0,
+            "ambientContext": 8313,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54339941521,
+          "workflow": "All Work Router",
+          "kind": "merge-gate",
+          "conclusion": "failure",
+          "startedAt": "2026-08-25T03:55:43.155Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 17,
+          "executionSeconds": 69,
+          "usage": {
+            "inputTokens": 302298,
+            "outputTokens": 1317,
+            "cacheReadTokens": 277333,
+            "cacheWriteTokens": 0,
+            "ambientContext": 6210,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54339686399,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-08-23T16:48:32.414Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 37,
+          "executionSeconds": 554,
+          "usage": {
+            "inputTokens": 2448436,
+            "outputTokens": 9175,
+            "cacheReadTokens": 2191179,
+            "cacheWriteTokens": 0,
+            "ambientContext": 5170,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54339551333,
+          "workflow": "All Work Router",
+          "kind": "triage",
+          "conclusion": "success",
+          "startedAt": "2026-08-22T12:15:46.773Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 66,
+          "executionSeconds": 91,
+          "usage": {
+            "inputTokens": 305215,
+            "outputTokens": 1065,
+            "cacheReadTokens": 240701,
+            "cacheWriteTokens": 0,
+            "ambientContext": 7333,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54339735480,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-08-21T08:48:10.145Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 29,
+          "executionSeconds": 438,
+          "usage": {
+            "inputTokens": 1551677,
+            "outputTokens": 5644,
+            "cacheReadTokens": 1342188,
+            "cacheWriteTokens": 0,
+            "ambientContext": 8490,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54339752187,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-08-19T19:27:58.987Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 18,
+          "executionSeconds": 1466,
+          "usage": {
+            "inputTokens": 5626281,
+            "outputTokens": 27557,
+            "cacheReadTokens": 5021373,
+            "cacheWriteTokens": 0,
+            "ambientContext": 8889,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54339944149,
+          "workflow": "All Work Router",
+          "kind": "merge-gate",
+          "conclusion": "failure",
+          "startedAt": "2026-08-19T08:00:57.078Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 50,
+          "executionSeconds": 2559,
+          "usage": {
+            "inputTokens": 12972061,
+            "outputTokens": 44479,
+            "cacheReadTokens": 10137831,
+            "cacheWriteTokens": 0,
+            "ambientContext": 6838,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54339950354,
+          "workflow": "All Work Router",
+          "kind": "merge-gate",
+          "conclusion": "failure",
+          "startedAt": "2026-08-16T19:12:13.792Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 15,
+          "executionSeconds": 105,
+          "usage": null
+        },
+        {
+          "runId": 54339837058,
+          "workflow": "All Work Router",
+          "kind": "apply-review",
+          "conclusion": "success",
+          "startedAt": "2026-08-16T07:51:00.606Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 59,
+          "executionSeconds": 680,
+          "usage": null
+        },
+        {
+          "runId": 54339832349,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-08-13T17:08:46.639Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 50,
+          "executionSeconds": 1236,
+          "usage": {
+            "inputTokens": 3964975,
+            "outputTokens": 19249,
+            "cacheReadTokens": 3619227,
+            "cacheWriteTokens": 0,
+            "ambientContext": 8440,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54339619725,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "failure",
+          "startedAt": "2026-08-13T10:52:08.873Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 24,
+          "executionSeconds": 1764,
+          "usage": {
+            "inputTokens": 8091036,
+            "outputTokens": 32302,
+            "cacheReadTokens": 7363547,
+            "cacheWriteTokens": 0,
+            "ambientContext": 8806,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54339587616,
+          "workflow": "All Work Router",
+          "kind": "triage",
+          "conclusion": "success",
+          "startedAt": "2026-08-08T10:14:52.967Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 46,
+          "executionSeconds": 146,
+          "usage": {
+            "inputTokens": 356135,
+            "outputTokens": 1367,
+            "cacheReadTokens": 301748,
+            "cacheWriteTokens": 0,
+            "ambientContext": 4993,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54339748800,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "failure",
+          "startedAt": "2026-08-06T23:35:09.494Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 78,
+          "executionSeconds": 34,
+          "usage": {
+            "inputTokens": 114525,
+            "outputTokens": 390,
+            "cacheReadTokens": 92871,
+            "cacheWriteTokens": 0,
+            "ambientContext": 5445,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54339894475,
+          "workflow": "All Work Router",
+          "kind": "merge-gate",
+          "conclusion": "failure",
+          "startedAt": "2026-08-04T12:33:12.979Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 36,
+          "executionSeconds": 1703,
+          "usage": {
+            "inputTokens": 8846979,
+            "outputTokens": 46422,
+            "cacheReadTokens": 8047446,
+            "cacheWriteTokens": 0,
+            "ambientContext": 8478,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54339801181,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-08-03T07:06:44.125Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 30,
+          "executionSeconds": 386,
+          "usage": {
+            "inputTokens": 1935169,
+            "outputTokens": 10104,
+            "cacheReadTokens": 1717939,
+            "cacheWriteTokens": 0,
+            "ambientContext": 8996,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54339761894,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-08-01T23:59:44.873Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 25,
+          "executionSeconds": 1006,
+          "usage": {
+            "inputTokens": 3639414,
+            "outputTokens": 17868,
+            "cacheReadTokens": 2891854,
+            "cacheWriteTokens": 0,
+            "ambientContext": 6905,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54339499141,
+          "workflow": "All Work Router",
+          "kind": "triage",
+          "conclusion": "failure",
+          "startedAt": "2026-08-01T04:38:07.619Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 60,
+          "executionSeconds": 4,
+          "usage": null
+        }
+      ],
+      "byKind": {
+        "triage": {
+          "runs": 4,
+          "runsWithUsage": 3,
+          "successful": 3,
+          "tokens": {
+            "inputTokens": 1178043,
+            "outputTokens": 4148,
+            "cacheReadTokens": 1004549,
+            "cacheWriteTokens": 0,
+            "ambientContext": 20639,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          },
+          "executionSeconds": {
+            "available": true,
+            "data": {
+              "count": 4,
+              "p50": 118.5,
+              "p75": 148.25,
+              "p90": 152.3
+            }
+          },
+          "totalExecutionSeconds": 396
+        },
+        "refine": {
+          "runs": 6,
+          "runsWithUsage": 6,
+          "successful": 4,
+          "tokens": {
+            "inputTokens": 14620989,
+            "outputTokens": 57666,
+            "cacheReadTokens": 13088513,
+            "cacheWriteTokens": 0,
+            "ambientContext": 44055,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          },
+          "executionSeconds": {
+            "available": true,
+            "data": {
+              "count": 6,
+              "p50": 387.5,
+              "p75": 525,
+              "p90": 1159
+            }
+          },
+          "totalExecutionSeconds": 3424
+        },
+        "implement": {
+          "runs": 6,
+          "runsWithUsage": 6,
+          "successful": 6,
+          "tokens": {
+            "inputTokens": 22044837,
+            "outputTokens": 107539,
+            "cacheReadTokens": 19052472,
+            "cacheWriteTokens": 0,
+            "ambientContext": 49040,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          },
+          "executionSeconds": {
+            "available": true,
+            "data": {
+              "count": 6,
+              "p50": 1049,
+              "p75": 1200,
+              "p90": 1351
+            }
+          },
+          "totalExecutionSeconds": 6042
+        },
+        "apply-review": {
+          "runs": 2,
+          "runsWithUsage": 1,
+          "successful": 2,
+          "tokens": {
+            "inputTokens": 2468649,
+            "outputTokens": 10630,
+            "cacheReadTokens": 1957450,
+            "cacheWriteTokens": 0,
+            "ambientContext": 6888,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          },
+          "executionSeconds": {
+            "available": true,
+            "data": {
+              "count": 2,
+              "p50": 712,
+              "p75": 728,
+              "p90": 737.6
+            }
+          },
+          "totalExecutionSeconds": 1424
+        },
+        "merge-gate": {
+          "runs": 5,
+          "runsWithUsage": 4,
+          "successful": 1,
+          "tokens": {
+            "inputTokens": 24524546,
+            "outputTokens": 104302,
+            "cacheReadTokens": 20474091,
+            "cacheWriteTokens": 0,
+            "ambientContext": 26588,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          },
+          "executionSeconds": {
+            "available": true,
+            "data": {
+              "count": 5,
+              "p50": 717,
+              "p75": 1703,
+              "p90": 2216.6
+            }
+          },
+          "totalExecutionSeconds": 5153
+        },
+        "audit": {
+          "runs": 1,
+          "runsWithUsage": 1,
+          "successful": 1,
+          "tokens": {
+            "inputTokens": 1801867,
+            "outputTokens": 9977,
+            "cacheReadTokens": 1414496,
+            "cacheWriteTokens": 0,
+            "ambientContext": 6837,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          },
+          "executionSeconds": {
+            "available": true,
+            "data": {
+              "count": 1,
+              "p50": 535,
+              "p75": 535,
+              "p90": 535
+            }
+          },
+          "totalExecutionSeconds": 535
+        }
+      }
+    }
+  },
+  "contributors": {
+    "available": true,
+    "data": {
+      "requesters": [
+        {
+          "login": "noor",
+          "count": 6,
+          "bot": false
+        },
+        {
+          "login": "priya",
+          "count": 3,
+          "bot": false
+        }
+      ],
+      "deployers": []
+    }
+  },
+  "placement": {
+    "available": false,
+    "reason": "Throughput could not be measured for this period."
+  },
+  "engineeringExcellence": {
+    "coverage": {
+      "available": true,
+      "data": {
+        "samples": [
+          {
+            "commitSha": "d4198da6122dd4ce063ef25b7900769d593b749a",
+            "runId": 905065,
+            "runAttempt": 1,
+            "artifactId": 5065,
+            "generatedAt": "2026-08-02T14:30:00.000Z",
+            "data": {
+              "scopes": {
+                "Ledger.Domain": {
+                  "lineRate": 0.9217,
+                  "branchRate": 0.8717,
+                  "linesCovered": 1106,
+                  "linesValid": 1200,
+                  "floor": 0.85
+                },
+                "Ledger.Application": {
+                  "lineRate": 0.6867,
+                  "branchRate": 0.6367,
+                  "linesCovered": 824,
+                  "linesValid": 1200,
+                  "floor": 0.6
+                },
+                "web": {
+                  "lineRate": 0.5557,
+                  "branchRate": 0.5057,
+                  "linesCovered": 389,
+                  "linesValid": 700,
+                  "floor": 0.45
+                }
+              },
+              "global": {
+                "lineRate": 0.7481,
+                "linesCovered": 2319,
+                "linesValid": 3100
+              },
+              "passed": true
+            }
+          },
+          {
+            "commitSha": "ad5b929dd648d68735a353c45f7ec17acd2f0736",
+            "runId": 905066,
+            "runAttempt": 1,
+            "artifactId": 5066,
+            "generatedAt": "2026-08-06T14:30:00.000Z",
+            "data": {
+              "scopes": {
+                "Ledger.Domain": {
+                  "lineRate": 0.9258,
+                  "branchRate": 0.8758,
+                  "linesCovered": 1111,
+                  "linesValid": 1200,
+                  "floor": 0.85
+                },
+                "Ledger.Application": {
+                  "lineRate": 0.71,
+                  "branchRate": 0.66,
+                  "linesCovered": 852,
+                  "linesValid": 1200,
+                  "floor": 0.6
+                },
+                "web": {
+                  "lineRate": 0.5014,
+                  "branchRate": 0.4514,
+                  "linesCovered": 351,
+                  "linesValid": 700,
+                  "floor": 0.45
+                }
+              },
+              "global": {
+                "lineRate": 0.7465,
+                "linesCovered": 2314,
+                "linesValid": 3100
+              },
+              "passed": true
+            }
+          },
+          {
+            "commitSha": "2ad12996980f1529b50c370f1065097c1ad09331",
+            "runId": 905067,
+            "runAttempt": 1,
+            "artifactId": 5067,
+            "generatedAt": "2026-08-10T14:30:00.000Z",
+            "data": {
+              "scopes": {
+                "Ledger.Domain": {
+                  "lineRate": 0.8542,
+                  "branchRate": 0.8042,
+                  "linesCovered": 1025,
+                  "linesValid": 1200,
+                  "floor": 0.85
+                },
+                "Ledger.Application": {
+                  "lineRate": 0.6858,
+                  "branchRate": 0.6358,
+                  "linesCovered": 823,
+                  "linesValid": 1200,
+                  "floor": 0.6
+                },
+                "web": {
+                  "lineRate": 0.4686,
+                  "branchRate": 0.4186,
+                  "linesCovered": 328,
+                  "linesValid": 700,
+                  "floor": 0.45
+                }
+              },
+              "global": {
+                "lineRate": 0.7019,
+                "linesCovered": 2176,
+                "linesValid": 3100
+              },
+              "passed": true
+            }
+          },
+          {
+            "commitSha": "a2f4fc5999e4fba75e94c204b8c25d55951e4536",
+            "runId": 905068,
+            "runAttempt": 1,
+            "artifactId": 5068,
+            "generatedAt": "2026-08-14T14:30:00.000Z",
+            "data": {
+              "scopes": {
+                "Ledger.Domain": {
+                  "lineRate": 0.9308,
+                  "branchRate": 0.8808,
+                  "linesCovered": 1117,
+                  "linesValid": 1200,
+                  "floor": 0.85
+                },
+                "Ledger.Application": {
+                  "lineRate": 0.645,
+                  "branchRate": 0.595,
+                  "linesCovered": 774,
+                  "linesValid": 1200,
+                  "floor": 0.6
+                },
+                "web": {
+                  "lineRate": 0.5086,
+                  "branchRate": 0.4586,
+                  "linesCovered": 356,
+                  "linesValid": 700,
+                  "floor": 0.45
+                }
+              },
+              "global": {
+                "lineRate": 0.7248,
+                "linesCovered": 2247,
+                "linesValid": 3100
+              },
+              "passed": true
+            }
+          },
+          {
+            "commitSha": "70e891614162a54062dc7592f4cddcbe90509571",
+            "runId": 905069,
+            "runAttempt": 1,
+            "artifactId": 5069,
+            "generatedAt": "2026-08-18T14:30:00.000Z",
+            "data": {
+              "scopes": {
+                "Ledger.Domain": {
+                  "lineRate": 0.9433,
+                  "branchRate": 0.8933,
+                  "linesCovered": 1132,
+                  "linesValid": 1200,
+                  "floor": 0.85
+                },
+                "Ledger.Application": {
+                  "lineRate": 0.6892,
+                  "branchRate": 0.64,
+                  "linesCovered": 827,
+                  "linesValid": 1200,
+                  "floor": 0.6
+                },
+                "web": {
+                  "lineRate": 0.4886,
+                  "branchRate": 0.4386,
+                  "linesCovered": 342,
+                  "linesValid": 700,
+                  "floor": 0.45
+                }
+              },
+              "global": {
+                "lineRate": 0.7426,
+                "linesCovered": 2302,
+                "linesValid": 3100
+              },
+              "passed": true
+            }
+          },
+          {
+            "commitSha": "50f126597e95e9becc504cf5d69c27dfbfd30b18",
+            "runId": 905070,
+            "runAttempt": 1,
+            "artifactId": 5070,
+            "generatedAt": "2026-08-22T14:30:00.000Z",
+            "data": {
+              "scopes": {
+                "Ledger.Domain": {
+                  "lineRate": 0.8992,
+                  "branchRate": 0.8492,
+                  "linesCovered": 1079,
+                  "linesValid": 1200,
+                  "floor": 0.85
+                },
+                "Ledger.Application": {
+                  "lineRate": 0.6092,
+                  "branchRate": 0.5592,
+                  "linesCovered": 731,
+                  "linesValid": 1200,
+                  "floor": 0.6
+                },
+                "web": {
+                  "lineRate": 0.5486,
+                  "branchRate": 0.4986,
+                  "linesCovered": 384,
+                  "linesValid": 700,
+                  "floor": 0.45
+                }
+              },
+              "global": {
+                "lineRate": 0.7077,
+                "linesCovered": 2194,
+                "linesValid": 3100
+              },
+              "passed": true
+            }
+          },
+          {
+            "commitSha": "fc992acd65f8dfceb980546fd0fee47f1f58844e",
+            "runId": 905071,
+            "runAttempt": 1,
+            "artifactId": 5071,
+            "generatedAt": "2026-08-26T14:30:00.000Z",
+            "data": {
+              "scopes": {
+                "Ledger.Domain": {
+                  "lineRate": 0.91,
+                  "branchRate": 0.86,
+                  "linesCovered": 1092,
+                  "linesValid": 1200,
+                  "floor": 0.85
+                },
+                "Ledger.Application": {
+                  "lineRate": 0.6917,
+                  "branchRate": 0.6417,
+                  "linesCovered": 830,
+                  "linesValid": 1200,
+                  "floor": 0.6
+                },
+                "web": {
+                  "lineRate": 0.49,
+                  "branchRate": 0.44,
+                  "linesCovered": 343,
+                  "linesValid": 700,
+                  "floor": 0.45
+                }
+              },
+              "global": {
+                "lineRate": 0.7306,
+                "linesCovered": 2265,
+                "linesValid": 3100
+              },
+              "passed": true
+            }
+          }
+        ],
+        "latest": {
+          "scopes": {
+            "Ledger.Domain": {
+              "lineRate": 0.91,
+              "branchRate": 0.86,
+              "linesCovered": 1092,
+              "linesValid": 1200,
+              "floor": 0.85,
+              "modules": {
+                "Cart": {
+                  "lineRate": 0.9167,
+                  "branchRate": 0.867,
+                  "linesCovered": 275,
+                  "linesValid": 300
+                },
+                "Pricing": {
+                  "lineRate": 0.9075,
+                  "branchRate": 0.8587,
+                  "linesCovered": 363,
+                  "linesValid": 400
+                },
+                "Orders": {
+                  "lineRate": 0.908,
+                  "branchRate": 0.859,
+                  "linesCovered": 454,
+                  "linesValid": 500
+                }
+              }
+            },
+            "Ledger.Application": {
+              "lineRate": 0.6917,
+              "branchRate": 0.6417,
+              "linesCovered": 830,
+              "linesValid": 1200,
+              "floor": 0.6,
+              "modules": {
+                "Cart": {
+                  "lineRate": 0.7233,
+                  "branchRate": 0.6739,
+                  "linesCovered": 217,
+                  "linesValid": 300
+                },
+                "Payments": {
+                  "lineRate": 0.6125,
+                  "branchRate": 0.5628,
+                  "linesCovered": 245,
+                  "linesValid": 400
+                },
+                "Orders": {
+                  "lineRate": 0.736,
+                  "branchRate": 0.6874,
+                  "linesCovered": 368,
+                  "linesValid": 500
+                }
+              }
+            },
+            "web": {
+              "lineRate": 0.49,
+              "branchRate": 0.44,
+              "linesCovered": 343,
+              "linesValid": 700,
+              "floor": 0.45,
+              "modules": {
+                "components": {
+                  "lineRate": 0.45,
+                  "branchRate": 0.4001,
+                  "linesCovered": 135,
+                  "linesValid": 300
+                },
+                "pages": {
+                  "lineRate": 0.52,
+                  "branchRate": 0.4707,
+                  "linesCovered": 208,
+                  "linesValid": 400
+                }
+              }
+            }
+          },
+          "global": {
+            "lineRate": 0.7306,
+            "linesCovered": 2265,
+            "linesValid": 3100
+          },
+          "passed": true
+        },
+        "latestGeneratedAt": "2026-08-26T14:30:00.000Z"
+      }
+    },
+    "complexity": {
+      "available": true,
+      "data": {
+        "samples": [
+          {
+            "commitSha": "5df254eeac3f054bdb81dbd45c6f290eedfa4b97",
+            "runId": 905072,
+            "runAttempt": 1,
+            "artifactId": 5072,
+            "generatedAt": "2026-08-02T14:30:00.000Z",
+            "data": {
+              "thresholds": {
+                "cc": 10,
+                "crap": 30
+              },
+              "scopes": {
+                "Ledger.Domain": {
+                  "methods": 360,
+                  "ccP50": 1,
+                  "ccP90": 3,
+                  "ccMax": 29,
+                  "over10": 9,
+                  "crapOver30": 9
+                },
+                "Ledger.Application": {
+                  "methods": 360,
+                  "ccP50": 1,
+                  "ccP90": 3,
+                  "ccMax": 29,
+                  "over10": 9,
+                  "crapOver30": 9
+                },
+                "web": {
+                  "methods": 240,
+                  "ccP50": 1,
+                  "ccP90": 3,
+                  "ccMax": 26,
+                  "over10": 6,
+                  "crapOver30": 5
+                }
+              },
+              "global": {
+                "methods": 960,
+                "ccP50": 1,
+                "ccP90": 3,
+                "ccMax": 44,
+                "over10": 24,
+                "crapOver30": 23
+              },
+              "gate": {
+                "ccMax": 10,
+                "crapMax": 30,
+                "baselined": 46,
+                "violations": 0,
+                "justified": 2
+              }
+            }
+          },
+          {
+            "commitSha": "d8fb03f717f9f3fc2049d0406b8d6bbbb4157535",
+            "runId": 905073,
+            "runAttempt": 1,
+            "artifactId": 5073,
+            "generatedAt": "2026-08-06T14:30:00.000Z",
+            "data": {
+              "thresholds": {
+                "cc": 10,
+                "crap": 30
+              },
+              "scopes": {
+                "Ledger.Domain": {
+                  "methods": 360,
+                  "ccP50": 1,
+                  "ccP90": 3,
+                  "ccMax": 29,
+                  "over10": 9,
+                  "crapOver30": 9
+                },
+                "Ledger.Application": {
+                  "methods": 360,
+                  "ccP50": 1,
+                  "ccP90": 3,
+                  "ccMax": 29,
+                  "over10": 9,
+                  "crapOver30": 9
+                },
+                "web": {
+                  "methods": 240,
+                  "ccP50": 1,
+                  "ccP90": 3,
+                  "ccMax": 26,
+                  "over10": 6,
+                  "crapOver30": 5
+                }
+              },
+              "global": {
+                "methods": 960,
+                "ccP50": 1,
+                "ccP90": 3,
+                "ccMax": 44,
+                "over10": 24,
+                "crapOver30": 23
+              },
+              "gate": {
+                "ccMax": 10,
+                "crapMax": 30,
+                "baselined": 45,
+                "violations": 0,
+                "justified": 2
+              }
+            }
+          },
+          {
+            "commitSha": "560d078d214685b2b1b363100381b694b8c62968",
+            "runId": 905074,
+            "runAttempt": 1,
+            "artifactId": 5074,
+            "generatedAt": "2026-08-10T14:30:00.000Z",
+            "data": {
+              "thresholds": {
+                "cc": 10,
+                "crap": 30
+              },
+              "scopes": {
+                "Ledger.Domain": {
+                  "methods": 360,
+                  "ccP50": 1,
+                  "ccP90": 3,
+                  "ccMax": 29,
+                  "over10": 9,
+                  "crapOver30": 9
+                },
+                "Ledger.Application": {
+                  "methods": 360,
+                  "ccP50": 1,
+                  "ccP90": 3,
+                  "ccMax": 29,
+                  "over10": 9,
+                  "crapOver30": 9
+                },
+                "web": {
+                  "methods": 240,
+                  "ccP50": 1,
+                  "ccP90": 3,
+                  "ccMax": 26,
+                  "over10": 6,
+                  "crapOver30": 5
+                }
+              },
+              "global": {
+                "methods": 960,
+                "ccP50": 1,
+                "ccP90": 3,
+                "ccMax": 44,
+                "over10": 24,
+                "crapOver30": 23
+              },
+              "gate": {
+                "ccMax": 10,
+                "crapMax": 30,
+                "baselined": 44,
+                "violations": 0,
+                "justified": 2
+              }
+            }
+          },
+          {
+            "commitSha": "a9694a2b6e7e11ac25a06b69aab3571b675c3a07",
+            "runId": 905075,
+            "runAttempt": 1,
+            "artifactId": 5075,
+            "generatedAt": "2026-08-14T14:30:00.000Z",
+            "data": {
+              "thresholds": {
+                "cc": 10,
+                "crap": 30
+              },
+              "scopes": {
+                "Ledger.Domain": {
+                  "methods": 360,
+                  "ccP50": 1,
+                  "ccP90": 3,
+                  "ccMax": 29,
+                  "over10": 9,
+                  "crapOver30": 9
+                },
+                "Ledger.Application": {
+                  "methods": 360,
+                  "ccP50": 1,
+                  "ccP90": 3,
+                  "ccMax": 29,
+                  "over10": 9,
+                  "crapOver30": 9
+                },
+                "web": {
+                  "methods": 240,
+                  "ccP50": 1,
+                  "ccP90": 3,
+                  "ccMax": 26,
+                  "over10": 6,
+                  "crapOver30": 5
+                }
+              },
+              "global": {
+                "methods": 960,
+                "ccP50": 1,
+                "ccP90": 3,
+                "ccMax": 44,
+                "over10": 24,
+                "crapOver30": 23
+              },
+              "gate": {
+                "ccMax": 10,
+                "crapMax": 30,
+                "baselined": 43,
+                "violations": 0,
+                "justified": 2
+              }
+            }
+          },
+          {
+            "commitSha": "c14470c46d2b46d04715bb437dbb986ad988c4eb",
+            "runId": 905076,
+            "runAttempt": 1,
+            "artifactId": 5076,
+            "generatedAt": "2026-08-18T14:30:00.000Z",
+            "data": {
+              "thresholds": {
+                "cc": 10,
+                "crap": 30
+              },
+              "scopes": {
+                "Ledger.Domain": {
+                  "methods": 360,
+                  "ccP50": 1,
+                  "ccP90": 3,
+                  "ccMax": 29,
+                  "over10": 9,
+                  "crapOver30": 9
+                },
+                "Ledger.Application": {
+                  "methods": 360,
+                  "ccP50": 1,
+                  "ccP90": 3,
+                  "ccMax": 29,
+                  "over10": 9,
+                  "crapOver30": 9
+                },
+                "web": {
+                  "methods": 240,
+                  "ccP50": 1,
+                  "ccP90": 3,
+                  "ccMax": 26,
+                  "over10": 6,
+                  "crapOver30": 5
+                }
+              },
+              "global": {
+                "methods": 960,
+                "ccP50": 1,
+                "ccP90": 3,
+                "ccMax": 44,
+                "over10": 24,
+                "crapOver30": 23
+              },
+              "gate": {
+                "ccMax": 10,
+                "crapMax": 30,
+                "baselined": 42,
+                "violations": 0,
+                "justified": 2
+              }
+            }
+          },
+          {
+            "commitSha": "562903977c51285fe74513b34837e4132329af9b",
+            "runId": 905077,
+            "runAttempt": 1,
+            "artifactId": 5077,
+            "generatedAt": "2026-08-22T14:30:00.000Z",
+            "data": {
+              "thresholds": {
+                "cc": 10,
+                "crap": 30
+              },
+              "scopes": {
+                "Ledger.Domain": {
+                  "methods": 360,
+                  "ccP50": 1,
+                  "ccP90": 3,
+                  "ccMax": 29,
+                  "over10": 9,
+                  "crapOver30": 9
+                },
+                "Ledger.Application": {
+                  "methods": 360,
+                  "ccP50": 1,
+                  "ccP90": 3,
+                  "ccMax": 29,
+                  "over10": 9,
+                  "crapOver30": 9
+                },
+                "web": {
+                  "methods": 240,
+                  "ccP50": 1,
+                  "ccP90": 3,
+                  "ccMax": 26,
+                  "over10": 6,
+                  "crapOver30": 5
+                }
+              },
+              "global": {
+                "methods": 960,
+                "ccP50": 1,
+                "ccP90": 3,
+                "ccMax": 44,
+                "over10": 24,
+                "crapOver30": 23
+              },
+              "gate": {
+                "ccMax": 10,
+                "crapMax": 30,
+                "baselined": 41,
+                "violations": 0,
+                "justified": 2
+              }
+            }
+          },
+          {
+            "commitSha": "7a5814d409244b8e1a22ae464cde27c032cd80b4",
+            "runId": 905078,
+            "runAttempt": 1,
+            "artifactId": 5078,
+            "generatedAt": "2026-08-26T14:30:00.000Z",
+            "data": {
+              "thresholds": {
+                "cc": 10,
+                "crap": 30
+              },
+              "scopes": {
+                "Ledger.Domain": {
+                  "methods": 360,
+                  "ccP50": 1,
+                  "ccP90": 3,
+                  "ccMax": 29,
+                  "over10": 9,
+                  "crapOver30": 9
+                },
+                "Ledger.Application": {
+                  "methods": 360,
+                  "ccP50": 1,
+                  "ccP90": 3,
+                  "ccMax": 29,
+                  "over10": 9,
+                  "crapOver30": 9
+                },
+                "web": {
+                  "methods": 240,
+                  "ccP50": 1,
+                  "ccP90": 3,
+                  "ccMax": 26,
+                  "over10": 6,
+                  "crapOver30": 5
+                }
+              },
+              "global": {
+                "methods": 960,
+                "ccP50": 1,
+                "ccP90": 3,
+                "ccMax": 44,
+                "over10": 24,
+                "crapOver30": 23
+              },
+              "gate": {
+                "ccMax": 10,
+                "crapMax": 30,
+                "baselined": 40,
+                "violations": 0,
+                "justified": 2
+              }
+            }
+          }
+        ],
+        "latest": {
+          "thresholds": {
+            "cc": 10,
+            "crap": 30
+          },
+          "scopes": {
+            "Ledger.Domain": {
+              "methods": 360,
+              "ccP50": 1,
+              "ccP90": 3,
+              "ccMax": 29,
+              "over10": 9,
+              "crapOver30": 9,
+              "modules": {
+                "Cart": {
+                  "methods": 120,
+                  "ccP50": 1,
+                  "ccP90": 3,
+                  "ccMax": 23,
+                  "over10": 3,
+                  "crapOver30": 2
+                },
+                "Pricing": {
+                  "methods": 120,
+                  "ccP50": 1,
+                  "ccP90": 3,
+                  "ccMax": 23,
+                  "over10": 3,
+                  "crapOver30": 3
+                },
+                "Orders": {
+                  "methods": 120,
+                  "ccP50": 1,
+                  "ccP90": 3,
+                  "ccMax": 23,
+                  "over10": 3,
+                  "crapOver30": 4
+                }
+              }
+            },
+            "Ledger.Application": {
+              "methods": 360,
+              "ccP50": 1,
+              "ccP90": 3,
+              "ccMax": 29,
+              "over10": 9,
+              "crapOver30": 9,
+              "modules": {
+                "Cart": {
+                  "methods": 120,
+                  "ccP50": 1,
+                  "ccP90": 3,
+                  "ccMax": 23,
+                  "over10": 3,
+                  "crapOver30": 2
+                },
+                "Payments": {
+                  "methods": 120,
+                  "ccP50": 1,
+                  "ccP90": 3,
+                  "ccMax": 23,
+                  "over10": 3,
+                  "crapOver30": 3
+                },
+                "Orders": {
+                  "methods": 120,
+                  "ccP50": 1,
+                  "ccP90": 3,
+                  "ccMax": 23,
+                  "over10": 3,
+                  "crapOver30": 4
+                }
+              }
+            },
+            "web": {
+              "methods": 240,
+              "ccP50": 1,
+              "ccP90": 3,
+              "ccMax": 26,
+              "over10": 6,
+              "crapOver30": 5,
+              "modules": {
+                "components": {
+                  "methods": 120,
+                  "ccP50": 1,
+                  "ccP90": 3,
+                  "ccMax": 23,
+                  "over10": 3,
+                  "crapOver30": 2
+                },
+                "pages": {
+                  "methods": 120,
+                  "ccP50": 1,
+                  "ccP90": 3,
+                  "ccMax": 23,
+                  "over10": 3,
+                  "crapOver30": 3
+                }
+              }
+            }
+          },
+          "global": {
+            "methods": 960,
+            "ccP50": 1,
+            "ccP90": 3,
+            "ccMax": 44,
+            "over10": 24,
+            "crapOver30": 23
+          },
+          "hotspots": [
+            {
+              "scope": "Ledger.Application",
+              "module": "Cart",
+              "file": "src/Ledger.Application/Cart/CartService.cs",
+              "method": "CartService.Handle",
+              "line": 288,
+              "cc": 24,
+              "coverage": 0.3069,
+              "crap": 215.8
+            },
+            {
+              "scope": "Ledger.Domain",
+              "module": "Cart",
+              "file": "src/Ledger.Domain/Cart/CartService.cs",
+              "method": "CartService.Handle",
+              "line": 123,
+              "cc": 19,
+              "coverage": 0.2842,
+              "crap": 151.4
+            },
+            {
+              "scope": "Ledger.Application",
+              "module": "Payments",
+              "file": "src/Ledger.Application/Payments/PaymentsService.cs",
+              "method": "PaymentsService.Handle",
+              "line": 193,
+              "cc": 18,
+              "coverage": 0.2884,
+              "crap": 134.7
+            },
+            {
+              "scope": "web",
+              "module": "pages",
+              "file": "src/web/pages/pagesService.cs",
+              "method": "pagesService.Handle",
+              "line": 290,
+              "cc": 16,
+              "coverage": 0.4434,
+              "crap": 60.1
+            },
+            {
+              "scope": "web",
+              "module": "components",
+              "file": "src/web/components/componentsService.cs",
+              "method": "componentsService.Handle",
+              "line": 204,
+              "cc": 13,
+              "coverage": 0.3491,
+              "crap": 59.6
+            },
+            {
+              "scope": "Ledger.Domain",
+              "module": "Pricing",
+              "file": "src/Ledger.Domain/Pricing/PricingService.cs",
+              "method": "PricingService.Handle",
+              "line": 231,
+              "cc": 12,
+              "coverage": 0.4748,
+              "crap": 32.9
+            }
+          ],
+          "gate": {
+            "ccMax": 10,
+            "crapMax": 30,
+            "baselined": 40,
+            "violations": 0,
+            "justified": 2
+          }
+        },
+        "latestGeneratedAt": "2026-08-26T14:30:00.000Z"
+      }
+    },
+    "mutation": {
+      "available": true,
+      "data": {
+        "samples": [
+          {
+            "commitSha": "f4e07f19aa846fd6ef7ffa29607bd8c89c16ce65",
+            "runId": 905079,
+            "runAttempt": 1,
+            "artifactId": 5079,
+            "generatedAt": "2026-08-04T05:30:00.000Z",
+            "data": {
+              "scopes": {
+                "domain": {
+                  "coveredScore": 0.875,
+                  "fullScore": 0.8468,
+                  "killed": 525,
+                  "timeout": 0,
+                  "survived": 75,
+                  "noCoverage": 20,
+                  "valid": 620,
+                  "floor": 0.8,
+                  "passed": true
+                },
+                "application": {
+                  "coveredScore": 0.7967,
+                  "fullScore": 0.771,
+                  "killed": 478,
+                  "timeout": 0,
+                  "survived": 122,
+                  "noCoverage": 20,
+                  "valid": 620,
+                  "floor": 0.75,
+                  "passed": true
+                },
+                "web": {
+                  "coveredScore": 0.9375,
+                  "fullScore": 0.8929,
+                  "killed": 375,
+                  "timeout": 0,
+                  "survived": 25,
+                  "noCoverage": 20,
+                  "valid": 420,
+                  "floor": 0.85,
+                  "passed": true
+                }
+              },
+              "global": {
+                "coveredScore": 0.8612,
+                "fullScore": 0.8506,
+                "killed": 1378,
+                "timeout": 0,
+                "survived": 222,
+                "noCoverage": 20,
+                "valid": 1620
+              },
+              "passed": true
+            }
+          },
+          {
+            "commitSha": "46c4020367a43cca04acee99865303bec1035395",
+            "runId": 905080,
+            "runAttempt": 1,
+            "artifactId": 5080,
+            "generatedAt": "2026-08-11T05:30:00.000Z",
+            "data": {
+              "scopes": {
+                "domain": {
+                  "coveredScore": 0.8767,
+                  "fullScore": 0.8484,
+                  "killed": 526,
+                  "timeout": 0,
+                  "survived": 74,
+                  "noCoverage": 20,
+                  "valid": 620,
+                  "floor": 0.8,
+                  "passed": true
+                },
+                "application": {
+                  "coveredScore": 0.825,
+                  "fullScore": 0.7984,
+                  "killed": 495,
+                  "timeout": 0,
+                  "survived": 105,
+                  "noCoverage": 20,
+                  "valid": 620,
+                  "floor": 0.75,
+                  "passed": true
+                },
+                "web": {
+                  "coveredScore": 0.9225,
+                  "fullScore": 0.8786,
+                  "killed": 369,
+                  "timeout": 0,
+                  "survived": 31,
+                  "noCoverage": 20,
+                  "valid": 420,
+                  "floor": 0.85,
+                  "passed": true
+                }
+              },
+              "global": {
+                "coveredScore": 0.8688,
+                "fullScore": 0.858,
+                "killed": 1390,
+                "timeout": 0,
+                "survived": 210,
+                "noCoverage": 20,
+                "valid": 1620
+              },
+              "passed": true
+            }
+          },
+          {
+            "commitSha": "94a0ba1e7b82436d520d9a1aaf8eedca667e9d6a",
+            "runId": 905081,
+            "runAttempt": 1,
+            "artifactId": 5081,
+            "generatedAt": "2026-08-18T05:30:00.000Z",
+            "data": {
+              "scopes": {
+                "domain": {
+                  "coveredScore": 0.8667,
+                  "fullScore": 0.8387,
+                  "killed": 520,
+                  "timeout": 0,
+                  "survived": 80,
+                  "noCoverage": 20,
+                  "valid": 620,
+                  "floor": 0.8,
+                  "passed": true
+                },
+                "application": {
+                  "coveredScore": 0.8617,
+                  "fullScore": 0.8339,
+                  "killed": 517,
+                  "timeout": 0,
+                  "survived": 83,
+                  "noCoverage": 20,
+                  "valid": 620,
+                  "floor": 0.75,
+                  "passed": true
+                },
+                "web": {
+                  "coveredScore": 0.89,
+                  "fullScore": 0.8476,
+                  "killed": 356,
+                  "timeout": 0,
+                  "survived": 44,
+                  "noCoverage": 20,
+                  "valid": 420,
+                  "floor": 0.85,
+                  "passed": true
+                }
+              },
+              "global": {
+                "coveredScore": 0.8706,
+                "fullScore": 0.8599,
+                "killed": 1393,
+                "timeout": 0,
+                "survived": 207,
+                "noCoverage": 20,
+                "valid": 1620
+              },
+              "passed": true
+            }
+          },
+          {
+            "commitSha": "38189370dbec769f1e2da21b1318e142adbb9477",
+            "runId": 905082,
+            "runAttempt": 1,
+            "artifactId": 5082,
+            "generatedAt": "2026-08-25T05:30:00.000Z",
+            "data": {
+              "scopes": {
+                "domain": {
+                  "coveredScore": 0.87,
+                  "fullScore": 0.8419,
+                  "killed": 522,
+                  "timeout": 0,
+                  "survived": 78,
+                  "noCoverage": 20,
+                  "valid": 620,
+                  "floor": 0.8,
+                  "passed": true
+                },
+                "application": {
+                  "coveredScore": 0.8517,
+                  "fullScore": 0.8242,
+                  "killed": 511,
+                  "timeout": 0,
+                  "survived": 89,
+                  "noCoverage": 20,
+                  "valid": 620,
+                  "floor": 0.75,
+                  "passed": true
+                },
+                "web": {
+                  "coveredScore": 0.935,
+                  "fullScore": 0.8905,
+                  "killed": 374,
+                  "timeout": 0,
+                  "survived": 26,
+                  "noCoverage": 20,
+                  "valid": 420,
+                  "floor": 0.85,
+                  "passed": true
+                }
+              },
+              "global": {
+                "coveredScore": 0.8794,
+                "fullScore": 0.8685,
+                "killed": 1407,
+                "timeout": 0,
+                "survived": 193,
+                "noCoverage": 20,
+                "valid": 1620
+              },
+              "passed": true
+            }
+          }
+        ],
+        "latest": {
+          "scopes": {
+            "domain": {
+              "coveredScore": 0.87,
+              "fullScore": 0.8419,
+              "killed": 522,
+              "timeout": 0,
+              "survived": 78,
+              "noCoverage": 20,
+              "valid": 620,
+              "floor": 0.8,
+              "passed": true,
+              "modules": {
+                "Cart": {
+                  "coveredScore": 0.84,
+                  "fullScore": 0.7636,
+                  "killed": 168,
+                  "timeout": 0,
+                  "survived": 32,
+                  "noCoverage": 20,
+                  "valid": 220
+                },
+                "Pricing": {
+                  "coveredScore": 0.875,
+                  "fullScore": 0.7955,
+                  "killed": 175,
+                  "timeout": 0,
+                  "survived": 25,
+                  "noCoverage": 20,
+                  "valid": 220
+                },
+                "Orders": {
+                  "coveredScore": 0.895,
+                  "fullScore": 0.8136,
+                  "killed": 179,
+                  "timeout": 0,
+                  "survived": 21,
+                  "noCoverage": 20,
+                  "valid": 220
+                }
+              }
+            },
+            "application": {
+              "coveredScore": 0.8517,
+              "fullScore": 0.8242,
+              "killed": 511,
+              "timeout": 0,
+              "survived": 89,
+              "noCoverage": 20,
+              "valid": 620,
+              "floor": 0.75,
+              "passed": true,
+              "modules": {
+                "Cart": {
+                  "coveredScore": 0.87,
+                  "fullScore": 0.7909,
+                  "killed": 174,
+                  "timeout": 0,
+                  "survived": 26,
+                  "noCoverage": 20,
+                  "valid": 220
+                },
+                "Payments": {
+                  "coveredScore": 0.845,
+                  "fullScore": 0.7682,
+                  "killed": 169,
+                  "timeout": 0,
+                  "survived": 31,
+                  "noCoverage": 20,
+                  "valid": 220
+                },
+                "Orders": {
+                  "coveredScore": 0.84,
+                  "fullScore": 0.7636,
+                  "killed": 168,
+                  "timeout": 0,
+                  "survived": 32,
+                  "noCoverage": 20,
+                  "valid": 220
+                }
+              }
+            },
+            "web": {
+              "coveredScore": 0.935,
+              "fullScore": 0.8905,
+              "killed": 374,
+              "timeout": 0,
+              "survived": 26,
+              "noCoverage": 20,
+              "valid": 420,
+              "floor": 0.85,
+              "passed": true,
+              "modules": {
+                "(root)": {
+                  "coveredScore": 0.95,
+                  "fullScore": 0.8636,
+                  "killed": 190,
+                  "timeout": 0,
+                  "survived": 10,
+                  "noCoverage": 20,
+                  "valid": 220
+                },
+                "lib": {
+                  "coveredScore": 0.92,
+                  "fullScore": 0.8364,
+                  "killed": 184,
+                  "timeout": 0,
+                  "survived": 16,
+                  "noCoverage": 20,
+                  "valid": 220
+                }
+              }
+            }
+          },
+          "global": {
+            "coveredScore": 0.8794,
+            "fullScore": 0.8685,
+            "killed": 1407,
+            "timeout": 0,
+            "survived": 193,
+            "noCoverage": 20,
+            "valid": 1620
+          },
+          "passed": true
+        },
+        "latestGeneratedAt": "2026-08-25T05:30:00.000Z"
+      }
+    },
+    "security": {
+      "available": true,
+      "data": {
+        "samples": [
+          {
+            "commitSha": "3bda0dcb2e882d97dd09f0190807c8b661e1803e",
+            "runId": 905083,
+            "runAttempt": 1,
+            "artifactId": 5083,
+            "generatedAt": "2026-08-02T14:30:00.000Z",
+            "data": {
+              "trivy": {
+                "vuln": {
+                  "CRITICAL": 0,
+                  "HIGH": 1,
+                  "MEDIUM": 6,
+                  "LOW": 9,
+                  "UNKNOWN": 0
+                },
+                "misconfig": {
+                  "CRITICAL": 0,
+                  "HIGH": 1,
+                  "MEDIUM": 2,
+                  "LOW": 4,
+                  "UNKNOWN": 0
+                },
+                "secret": {
+                  "CRITICAL": 0,
+                  "HIGH": 0,
+                  "MEDIUM": 0,
+                  "LOW": 0,
+                  "UNKNOWN": 0
+                },
+                "fixableVulns": 5
+              },
+              "semgrep": {
+                "ERROR": 0,
+                "WARNING": 2,
+                "INFO": 4,
+                "total": 6,
+                "scanErrors": 0
+              },
+              "jobs": {
+                "trivy": "success",
+                "semgrep": "success"
+              },
+              "passed": true
+            }
+          },
+          {
+            "commitSha": "0451d163f54efb46b207c31f669e04c2546278e3",
+            "runId": 905084,
+            "runAttempt": 1,
+            "artifactId": 5084,
+            "generatedAt": "2026-08-06T14:30:00.000Z",
+            "data": {
+              "trivy": {
+                "vuln": {
+                  "CRITICAL": 0,
+                  "HIGH": 1,
+                  "MEDIUM": 6,
+                  "LOW": 9,
+                  "UNKNOWN": 0
+                },
+                "misconfig": {
+                  "CRITICAL": 0,
+                  "HIGH": 1,
+                  "MEDIUM": 2,
+                  "LOW": 4,
+                  "UNKNOWN": 0
+                },
+                "secret": {
+                  "CRITICAL": 0,
+                  "HIGH": 0,
+                  "MEDIUM": 0,
+                  "LOW": 0,
+                  "UNKNOWN": 0
+                },
+                "fixableVulns": 5
+              },
+              "semgrep": {
+                "ERROR": 0,
+                "WARNING": 2,
+                "INFO": 4,
+                "total": 6,
+                "scanErrors": 0
+              },
+              "jobs": {
+                "trivy": "success",
+                "semgrep": "success"
+              },
+              "passed": true
+            }
+          },
+          {
+            "commitSha": "3d5b38dd657299fb7467ec47f2bb0c7a730e0887",
+            "runId": 905085,
+            "runAttempt": 1,
+            "artifactId": 5085,
+            "generatedAt": "2026-08-10T14:30:00.000Z",
+            "data": {
+              "trivy": {
+                "vuln": {
+                  "CRITICAL": 0,
+                  "HIGH": 1,
+                  "MEDIUM": 6,
+                  "LOW": 9,
+                  "UNKNOWN": 0
+                },
+                "misconfig": {
+                  "CRITICAL": 0,
+                  "HIGH": 1,
+                  "MEDIUM": 2,
+                  "LOW": 4,
+                  "UNKNOWN": 0
+                },
+                "secret": {
+                  "CRITICAL": 0,
+                  "HIGH": 0,
+                  "MEDIUM": 0,
+                  "LOW": 0,
+                  "UNKNOWN": 0
+                },
+                "fixableVulns": 5
+              },
+              "semgrep": {
+                "ERROR": 0,
+                "WARNING": 2,
+                "INFO": 4,
+                "total": 6,
+                "scanErrors": 0
+              },
+              "jobs": {
+                "trivy": "success",
+                "semgrep": "success"
+              },
+              "passed": true
+            }
+          },
+          {
+            "commitSha": "b235b7c7cb7fddbd36c550903cadc93f57b5ba5a",
+            "runId": 905086,
+            "runAttempt": 1,
+            "artifactId": 5086,
+            "generatedAt": "2026-08-14T14:30:00.000Z",
+            "data": {
+              "trivy": {
+                "vuln": {
+                  "CRITICAL": 0,
+                  "HIGH": 1,
+                  "MEDIUM": 6,
+                  "LOW": 9,
+                  "UNKNOWN": 0
+                },
+                "misconfig": {
+                  "CRITICAL": 0,
+                  "HIGH": 1,
+                  "MEDIUM": 2,
+                  "LOW": 4,
+                  "UNKNOWN": 0
+                },
+                "secret": {
+                  "CRITICAL": 0,
+                  "HIGH": 0,
+                  "MEDIUM": 0,
+                  "LOW": 0,
+                  "UNKNOWN": 0
+                },
+                "fixableVulns": 5
+              },
+              "semgrep": {
+                "ERROR": 0,
+                "WARNING": 2,
+                "INFO": 4,
+                "total": 6,
+                "scanErrors": 0
+              },
+              "jobs": {
+                "trivy": "success",
+                "semgrep": "success"
+              },
+              "passed": true
+            }
+          },
+          {
+            "commitSha": "22a34d4790ce7ddd9d17c88d813a943d19dc644c",
+            "runId": 905087,
+            "runAttempt": 1,
+            "artifactId": 5087,
+            "generatedAt": "2026-08-18T14:30:00.000Z",
+            "data": {
+              "trivy": {
+                "vuln": {
+                  "CRITICAL": 0,
+                  "HIGH": 1,
+                  "MEDIUM": 6,
+                  "LOW": 9,
+                  "UNKNOWN": 0
+                },
+                "misconfig": {
+                  "CRITICAL": 0,
+                  "HIGH": 1,
+                  "MEDIUM": 2,
+                  "LOW": 4,
+                  "UNKNOWN": 0
+                },
+                "secret": {
+                  "CRITICAL": 0,
+                  "HIGH": 0,
+                  "MEDIUM": 0,
+                  "LOW": 0,
+                  "UNKNOWN": 0
+                },
+                "fixableVulns": 5
+              },
+              "semgrep": {
+                "ERROR": 0,
+                "WARNING": 2,
+                "INFO": 4,
+                "total": 6,
+                "scanErrors": 0
+              },
+              "jobs": {
+                "trivy": "success",
+                "semgrep": "success"
+              },
+              "passed": true
+            }
+          },
+          {
+            "commitSha": "0cbc268f3315d4cb509c924f9471ea4f24e6f6d8",
+            "runId": 905088,
+            "runAttempt": 1,
+            "artifactId": 5088,
+            "generatedAt": "2026-08-22T14:30:00.000Z",
+            "data": {
+              "trivy": {
+                "vuln": {
+                  "CRITICAL": 0,
+                  "HIGH": 1,
+                  "MEDIUM": 6,
+                  "LOW": 9,
+                  "UNKNOWN": 0
+                },
+                "misconfig": {
+                  "CRITICAL": 0,
+                  "HIGH": 1,
+                  "MEDIUM": 2,
+                  "LOW": 4,
+                  "UNKNOWN": 0
+                },
+                "secret": {
+                  "CRITICAL": 0,
+                  "HIGH": 0,
+                  "MEDIUM": 0,
+                  "LOW": 0,
+                  "UNKNOWN": 0
+                },
+                "fixableVulns": 5
+              },
+              "semgrep": {
+                "ERROR": 0,
+                "WARNING": 2,
+                "INFO": 4,
+                "total": 6,
+                "scanErrors": 0
+              },
+              "jobs": {
+                "trivy": "success",
+                "semgrep": "success"
+              },
+              "passed": true
+            }
+          },
+          {
+            "commitSha": "b1b7d27339b84bec8c966799f6980e816098e537",
+            "runId": 905089,
+            "runAttempt": 1,
+            "artifactId": 5089,
+            "generatedAt": "2026-08-26T14:30:00.000Z",
+            "data": {
+              "trivy": {
+                "vuln": {
+                  "CRITICAL": 0,
+                  "HIGH": 1,
+                  "MEDIUM": 6,
+                  "LOW": 9,
+                  "UNKNOWN": 0
+                },
+                "misconfig": {
+                  "CRITICAL": 0,
+                  "HIGH": 1,
+                  "MEDIUM": 2,
+                  "LOW": 4,
+                  "UNKNOWN": 0
+                },
+                "secret": {
+                  "CRITICAL": 0,
+                  "HIGH": 0,
+                  "MEDIUM": 0,
+                  "LOW": 0,
+                  "UNKNOWN": 0
+                },
+                "fixableVulns": 5
+              },
+              "semgrep": {
+                "ERROR": 0,
+                "WARNING": 2,
+                "INFO": 4,
+                "total": 6,
+                "scanErrors": 0
+              },
+              "jobs": {
+                "trivy": "success",
+                "semgrep": "success"
+              },
+              "passed": true
+            }
+          }
+        ],
+        "latest": {
+          "trivy": {
+            "vuln": {
+              "CRITICAL": 0,
+              "HIGH": 1,
+              "MEDIUM": 6,
+              "LOW": 9,
+              "UNKNOWN": 0
+            },
+            "misconfig": {
+              "CRITICAL": 0,
+              "HIGH": 1,
+              "MEDIUM": 2,
+              "LOW": 4,
+              "UNKNOWN": 0
+            },
+            "secret": {
+              "CRITICAL": 0,
+              "HIGH": 0,
+              "MEDIUM": 0,
+              "LOW": 0,
+              "UNKNOWN": 0
+            },
+            "fixableVulns": 5
+          },
+          "semgrep": {
+            "ERROR": 0,
+            "WARNING": 2,
+            "INFO": 4,
+            "total": 6,
+            "scanErrors": 0
+          },
+          "jobs": {
+            "trivy": "success",
+            "semgrep": "success"
+          },
+          "passed": true
+        },
+        "latestGeneratedAt": "2026-08-26T14:30:00.000Z"
+      }
+    },
+    "sbom": {
+      "available": true,
+      "data": {
+        "samples": [
+          {
+            "commitSha": "4d88f54fc04521148dfbeebc10aef5b7e8cc5f03",
+            "runId": 905090,
+            "runAttempt": 1,
+            "artifactId": 5090,
+            "generatedAt": "2026-08-02T14:30:00.000Z",
+            "data": {
+              "format": "CycloneDX",
+              "specVersion": "1.6",
+              "components": 430,
+              "byEcosystem": {
+                "npm": 320,
+                "nuget": 110
+              },
+              "unlicensed": 14,
+              "sha256": "0b4de00c1932e692d71e00a8473bd333d709933f"
+            }
+          },
+          {
+            "commitSha": "624887989f4c0ef135ff0377250c8b645c62ad0f",
+            "runId": 905091,
+            "runAttempt": 1,
+            "artifactId": 5091,
+            "generatedAt": "2026-08-06T14:30:00.000Z",
+            "data": {
+              "format": "CycloneDX",
+              "specVersion": "1.6",
+              "components": 431,
+              "byEcosystem": {
+                "npm": 321,
+                "nuget": 110
+              },
+              "unlicensed": 14,
+              "sha256": "038827457c60566796dbf9cad929ba82600caaaa"
+            }
+          },
+          {
+            "commitSha": "97966bfc4a63eee38b3e253377390f58d1508c0c",
+            "runId": 905092,
+            "runAttempt": 1,
+            "artifactId": 5092,
+            "generatedAt": "2026-08-10T14:30:00.000Z",
+            "data": {
+              "format": "CycloneDX",
+              "specVersion": "1.6",
+              "components": 432,
+              "byEcosystem": {
+                "npm": 322,
+                "nuget": 110
+              },
+              "unlicensed": 14,
+              "sha256": "75826491c9fce2b2329c53d9a52cbab83a01b1b1"
+            }
+          },
+          {
+            "commitSha": "746faeb5cfc7904bde1847116020f17ba2a6a83f",
+            "runId": 905093,
+            "runAttempt": 1,
+            "artifactId": 5093,
+            "generatedAt": "2026-08-14T14:30:00.000Z",
+            "data": {
+              "format": "CycloneDX",
+              "specVersion": "1.6",
+              "components": 434,
+              "byEcosystem": {
+                "npm": 324,
+                "nuget": 110
+              },
+              "unlicensed": 14,
+              "sha256": "4affc8ede4aba22628a81b19de884735635e192a"
+            }
+          },
+          {
+            "commitSha": "e774397baefcdf0f022c0406269c75e20b5b9f18",
+            "runId": 905094,
+            "runAttempt": 1,
+            "artifactId": 5094,
+            "generatedAt": "2026-08-18T14:30:00.000Z",
+            "data": {
+              "format": "CycloneDX",
+              "specVersion": "1.6",
+              "components": 435,
+              "byEcosystem": {
+                "npm": 325,
+                "nuget": 110
+              },
+              "unlicensed": 14,
+              "sha256": "d89c775d0ce44adf78fee54c7cc72d8031cb9c3d"
+            }
+          },
+          {
+            "commitSha": "e23a9f74c71f9936dcaf5173379f7d278ac12d9f",
+            "runId": 905095,
+            "runAttempt": 1,
+            "artifactId": 5095,
+            "generatedAt": "2026-08-22T14:30:00.000Z",
+            "data": {
+              "format": "CycloneDX",
+              "specVersion": "1.6",
+              "components": 437,
+              "byEcosystem": {
+                "npm": 327,
+                "nuget": 110
+              },
+              "unlicensed": 14,
+              "sha256": "9a21abae19ea18e49d5522f73ead649da8a7af5d"
+            }
+          },
+          {
+            "commitSha": "de03efe85afcfbc7b65ed10eed469ab4af2032a1",
+            "runId": 905096,
+            "runAttempt": 1,
+            "artifactId": 5096,
+            "generatedAt": "2026-08-26T14:30:00.000Z",
+            "data": {
+              "format": "CycloneDX",
+              "specVersion": "1.6",
+              "components": 438,
+              "byEcosystem": {
+                "npm": 328,
+                "nuget": 110
+              },
+              "unlicensed": 14,
+              "sha256": "26a522e1440c58f6b57c43e31831fd46d46cde87"
+            }
+          }
+        ],
+        "latest": {
+          "format": "CycloneDX",
+          "specVersion": "1.6",
+          "components": 438,
+          "byEcosystem": {
+            "npm": 328,
+            "nuget": 110
+          },
+          "licenses": {
+            "MIT": 290,
+            "Apache-2.0": 70,
+            "BSD-3-Clause": 24,
+            "ISC": 12
+          },
+          "unlicensed": 14,
+          "sha256": "26a522e1440c58f6b57c43e31831fd46d46cde87"
+        },
+        "latestGeneratedAt": "2026-08-26T14:30:00.000Z"
+      }
+    },
+    "hygiene": {
+      "available": true,
+      "data": {
+        "samples": [
+          {
+            "commitSha": "5df254eeac3f054bdb81dbd45c6f290eedfa4b97",
+            "runId": 905072,
+            "runAttempt": 1,
+            "artifactId": 6201,
+            "generatedAt": "2026-08-02T14:30:00.000Z",
+            "data": {
+              "thresholds": {
+                "minLines": 10,
+                "minTokens": 70
+              },
+              "scopes": {
+                "api": {
+                  "files": 134,
+                  "lines": 14700,
+                  "duplicatedLines": 814,
+                  "duplicationRate": 0.0554,
+                  "codeLines": 12054,
+                  "commentLines": 774,
+                  "commentDensity": 0.0642,
+                  "swallowedExceptions": 0,
+                  "justifiedSwallows": 3,
+                  "deadCodeWarnings": 0
+                },
+                "web": {
+                  "files": 89,
+                  "lines": 10400,
+                  "duplicatedLines": 439,
+                  "duplicationRate": 0.0422,
+                  "codeLines": 8528,
+                  "commentLines": 221,
+                  "commentDensity": 0.0259,
+                  "swallowedExceptions": 1,
+                  "justifiedSwallows": 4,
+                  "deadCodeWarnings": 0
+                }
+              },
+              "global": {
+                "files": 223,
+                "lines": 25100,
+                "duplicatedLines": 1253,
+                "duplicationRate": 0.0499,
+                "codeLines": 20582,
+                "commentLines": 995,
+                "commentDensity": 0.0483,
+                "swallowedExceptions": 1,
+                "justifiedSwallows": 7
+              },
+              "deadCode": {
+                "gated": true,
+                "warnings": 0
+              },
+              "gate": {
+                "baselinedFiles": 35,
+                "baselineLines": 1253,
+                "violations": 0,
+                "fixed": 0
+              }
+            }
+          },
+          {
+            "commitSha": "d8fb03f717f9f3fc2049d0406b8d6bbbb4157535",
+            "runId": 905073,
+            "runAttempt": 1,
+            "artifactId": 6202,
+            "generatedAt": "2026-08-06T14:30:00.000Z",
+            "data": {
+              "thresholds": {
+                "minLines": 10,
+                "minTokens": 70
+              },
+              "scopes": {
+                "api": {
+                  "files": 134,
+                  "lines": 14700,
+                  "duplicatedLines": 805,
+                  "duplicationRate": 0.0548,
+                  "codeLines": 12054,
+                  "commentLines": 774,
+                  "commentDensity": 0.0642,
+                  "swallowedExceptions": 0,
+                  "justifiedSwallows": 3,
+                  "deadCodeWarnings": 0
+                },
+                "web": {
+                  "files": 89,
+                  "lines": 10400,
+                  "duplicatedLines": 434,
+                  "duplicationRate": 0.0417,
+                  "codeLines": 8528,
+                  "commentLines": 221,
+                  "commentDensity": 0.0259,
+                  "swallowedExceptions": 1,
+                  "justifiedSwallows": 4,
+                  "deadCodeWarnings": 0
+                }
+              },
+              "global": {
+                "files": 223,
+                "lines": 25100,
+                "duplicatedLines": 1239,
+                "duplicationRate": 0.0494,
+                "codeLines": 20582,
+                "commentLines": 995,
+                "commentDensity": 0.0483,
+                "swallowedExceptions": 1,
+                "justifiedSwallows": 7
+              },
+              "deadCode": {
+                "gated": true,
+                "warnings": 0
+              },
+              "gate": {
+                "baselinedFiles": 35,
+                "baselineLines": 1239,
+                "violations": 0,
+                "fixed": 2
+              }
+            }
+          },
+          {
+            "commitSha": "560d078d214685b2b1b363100381b694b8c62968",
+            "runId": 905074,
+            "runAttempt": 1,
+            "artifactId": 6203,
+            "generatedAt": "2026-08-10T14:30:00.000Z",
+            "data": {
+              "thresholds": {
+                "minLines": 10,
+                "minTokens": 70
+              },
+              "scopes": {
+                "api": {
+                  "files": 134,
+                  "lines": 14700,
+                  "duplicatedLines": 795,
+                  "duplicationRate": 0.0541,
+                  "codeLines": 12054,
+                  "commentLines": 774,
+                  "commentDensity": 0.0642,
+                  "swallowedExceptions": 0,
+                  "justifiedSwallows": 3,
+                  "deadCodeWarnings": 0
+                },
+                "web": {
+                  "files": 89,
+                  "lines": 10400,
+                  "duplicatedLines": 428,
+                  "duplicationRate": 0.0412,
+                  "codeLines": 8528,
+                  "commentLines": 221,
+                  "commentDensity": 0.0259,
+                  "swallowedExceptions": 1,
+                  "justifiedSwallows": 4,
+                  "deadCodeWarnings": 0
+                }
+              },
+              "global": {
+                "files": 223,
+                "lines": 25100,
+                "duplicatedLines": 1223,
+                "duplicationRate": 0.0487,
+                "codeLines": 20582,
+                "commentLines": 995,
+                "commentDensity": 0.0483,
+                "swallowedExceptions": 1,
+                "justifiedSwallows": 7
+              },
+              "deadCode": {
+                "gated": true,
+                "warnings": 0
+              },
+              "gate": {
+                "baselinedFiles": 34,
+                "baselineLines": 1223,
+                "violations": 0,
+                "fixed": 0
+              }
+            }
+          },
+          {
+            "commitSha": "a9694a2b6e7e11ac25a06b69aab3571b675c3a07",
+            "runId": 905075,
+            "runAttempt": 1,
+            "artifactId": 6204,
+            "generatedAt": "2026-08-14T14:30:00.000Z",
+            "data": {
+              "thresholds": {
+                "minLines": 10,
+                "minTokens": 70
+              },
+              "scopes": {
+                "api": {
+                  "files": 134,
+                  "lines": 14700,
+                  "duplicatedLines": 785,
+                  "duplicationRate": 0.0534,
+                  "codeLines": 12054,
+                  "commentLines": 774,
+                  "commentDensity": 0.0642,
+                  "swallowedExceptions": 0,
+                  "justifiedSwallows": 3,
+                  "deadCodeWarnings": 0
+                },
+                "web": {
+                  "files": 89,
+                  "lines": 10400,
+                  "duplicatedLines": 423,
+                  "duplicationRate": 0.0407,
+                  "codeLines": 8528,
+                  "commentLines": 221,
+                  "commentDensity": 0.0259,
+                  "swallowedExceptions": 1,
+                  "justifiedSwallows": 4,
+                  "deadCodeWarnings": 0
+                }
+              },
+              "global": {
+                "files": 223,
+                "lines": 25100,
+                "duplicatedLines": 1208,
+                "duplicationRate": 0.0481,
+                "codeLines": 20582,
+                "commentLines": 995,
+                "commentDensity": 0.0483,
+                "swallowedExceptions": 1,
+                "justifiedSwallows": 7
+              },
+              "deadCode": {
+                "gated": true,
+                "warnings": 0
+              },
+              "gate": {
+                "baselinedFiles": 34,
+                "baselineLines": 1208,
+                "violations": 0,
+                "fixed": 1
+              }
+            }
+          },
+          {
+            "commitSha": "c14470c46d2b46d04715bb437dbb986ad988c4eb",
+            "runId": 905076,
+            "runAttempt": 1,
+            "artifactId": 6205,
+            "generatedAt": "2026-08-18T14:30:00.000Z",
+            "data": {
+              "thresholds": {
+                "minLines": 10,
+                "minTokens": 70
+              },
+              "scopes": {
+                "api": {
+                  "files": 134,
+                  "lines": 14700,
+                  "duplicatedLines": 776,
+                  "duplicationRate": 0.0528,
+                  "codeLines": 12054,
+                  "commentLines": 774,
+                  "commentDensity": 0.0642,
+                  "swallowedExceptions": 0,
+                  "justifiedSwallows": 3,
+                  "deadCodeWarnings": 0
+                },
+                "web": {
+                  "files": 89,
+                  "lines": 10400,
+                  "duplicatedLines": 419,
+                  "duplicationRate": 0.0403,
+                  "codeLines": 8528,
+                  "commentLines": 221,
+                  "commentDensity": 0.0259,
+                  "swallowedExceptions": 1,
+                  "justifiedSwallows": 4,
+                  "deadCodeWarnings": 0
+                }
+              },
+              "global": {
+                "files": 223,
+                "lines": 25100,
+                "duplicatedLines": 1195,
+                "duplicationRate": 0.0476,
+                "codeLines": 20582,
+                "commentLines": 995,
+                "commentDensity": 0.0483,
+                "swallowedExceptions": 1,
+                "justifiedSwallows": 7
+              },
+              "deadCode": {
+                "gated": true,
+                "warnings": 0
+              },
+              "gate": {
+                "baselinedFiles": 34,
+                "baselineLines": 1195,
+                "violations": 0,
+                "fixed": 2
+              }
+            }
+          },
+          {
+            "commitSha": "562903977c51285fe74513b34837e4132329af9b",
+            "runId": 905077,
+            "runAttempt": 1,
+            "artifactId": 6206,
+            "generatedAt": "2026-08-22T14:30:00.000Z",
+            "data": {
+              "thresholds": {
+                "minLines": 10,
+                "minTokens": 70
+              },
+              "scopes": {
+                "api": {
+                  "files": 134,
+                  "lines": 14700,
+                  "duplicatedLines": 766,
+                  "duplicationRate": 0.0521,
+                  "codeLines": 12054,
+                  "commentLines": 774,
+                  "commentDensity": 0.0642,
+                  "swallowedExceptions": 0,
+                  "justifiedSwallows": 3,
+                  "deadCodeWarnings": 0
+                },
+                "web": {
+                  "files": 89,
+                  "lines": 10400,
+                  "duplicatedLines": 413,
+                  "duplicationRate": 0.0397,
+                  "codeLines": 8528,
+                  "commentLines": 221,
+                  "commentDensity": 0.0259,
+                  "swallowedExceptions": 1,
+                  "justifiedSwallows": 4,
+                  "deadCodeWarnings": 0
+                }
+              },
+              "global": {
+                "files": 223,
+                "lines": 25100,
+                "duplicatedLines": 1179,
+                "duplicationRate": 0.047,
+                "codeLines": 20582,
+                "commentLines": 995,
+                "commentDensity": 0.0483,
+                "swallowedExceptions": 1,
+                "justifiedSwallows": 7
+              },
+              "deadCode": {
+                "gated": true,
+                "warnings": 0
+              },
+              "gate": {
+                "baselinedFiles": 33,
+                "baselineLines": 1179,
+                "violations": 0,
+                "fixed": 1
+              }
+            }
+          },
+          {
+            "commitSha": "7a5814d409244b8e1a22ae464cde27c032cd80b4",
+            "runId": 905078,
+            "runAttempt": 1,
+            "artifactId": 6207,
+            "generatedAt": "2026-08-26T14:30:00.000Z",
+            "data": {
+              "thresholds": {
+                "minLines": 10,
+                "minTokens": 70
+              },
+              "scopes": {
+                "api": {
+                  "files": 134,
+                  "lines": 14700,
+                  "duplicatedLines": 757,
+                  "duplicationRate": 0.0515,
+                  "codeLines": 12054,
+                  "commentLines": 774,
+                  "commentDensity": 0.0642,
+                  "swallowedExceptions": 0,
+                  "justifiedSwallows": 3,
+                  "deadCodeWarnings": 0
+                },
+                "web": {
+                  "files": 89,
+                  "lines": 10400,
+                  "duplicatedLines": 408,
+                  "duplicationRate": 0.0392,
+                  "codeLines": 8528,
+                  "commentLines": 221,
+                  "commentDensity": 0.0259,
+                  "swallowedExceptions": 1,
+                  "justifiedSwallows": 4,
+                  "deadCodeWarnings": 0
+                }
+              },
+              "global": {
+                "files": 223,
+                "lines": 25100,
+                "duplicatedLines": 1165,
+                "duplicationRate": 0.0464,
+                "codeLines": 20582,
+                "commentLines": 995,
+                "commentDensity": 0.0483,
+                "swallowedExceptions": 1,
+                "justifiedSwallows": 7
+              },
+              "deadCode": {
+                "gated": true,
+                "warnings": 0
+              },
+              "gate": {
+                "baselinedFiles": 33,
+                "baselineLines": 1165,
+                "violations": 0,
+                "fixed": 0
+              }
+            }
+          }
+        ],
+        "latest": {
+          "thresholds": {
+            "minLines": 10,
+            "minTokens": 70
+          },
+          "scopes": {
+            "api": {
+              "files": 134,
+              "lines": 14700,
+              "duplicatedLines": 757,
+              "duplicationRate": 0.0515,
+              "codeLines": 12054,
+              "commentLines": 774,
+              "commentDensity": 0.0642,
+              "swallowedExceptions": 0,
+              "justifiedSwallows": 3,
+              "deadCodeWarnings": 0,
+              "modules": {
+                "Ledger.Api": {
+                  "files": 22,
+                  "lines": 2100,
+                  "duplicatedLines": 77,
+                  "duplicationRate": 0.0367,
+                  "codeLines": 1722,
+                  "commentLines": 69,
+                  "commentDensity": 0.0401,
+                  "swallowedExceptions": 0,
+                  "justifiedSwallows": 1
+                },
+                "Ledger.Application": {
+                  "files": 64,
+                  "lines": 7400,
+                  "duplicatedLines": 488,
+                  "duplicationRate": 0.0659,
+                  "codeLines": 6068,
+                  "commentLines": 364,
+                  "commentDensity": 0.06,
+                  "swallowedExceptions": 0,
+                  "justifiedSwallows": 2
+                },
+                "Ledger.Domain": {
+                  "files": 48,
+                  "lines": 5200,
+                  "duplicatedLines": 192,
+                  "duplicationRate": 0.0369,
+                  "codeLines": 4264,
+                  "commentLines": 341,
+                  "commentDensity": 0.08,
+                  "swallowedExceptions": 0,
+                  "justifiedSwallows": 0
+                }
+              }
+            },
+            "web": {
+              "files": 89,
+              "lines": 10400,
+              "duplicatedLines": 408,
+              "duplicationRate": 0.0392,
+              "codeLines": 8528,
+              "commentLines": 221,
+              "commentDensity": 0.0259,
+              "swallowedExceptions": 1,
+              "justifiedSwallows": 4,
+              "deadCodeWarnings": 0,
+              "modules": {
+                "components": {
+                  "files": 58,
+                  "lines": 6100,
+                  "duplicatedLines": 224,
+                  "duplicationRate": 0.0367,
+                  "codeLines": 5002,
+                  "commentLines": 150,
+                  "commentDensity": 0.03,
+                  "swallowedExceptions": 0,
+                  "justifiedSwallows": 3
+                },
+                "pages": {
+                  "files": 31,
+                  "lines": 4300,
+                  "duplicatedLines": 184,
+                  "duplicationRate": 0.0428,
+                  "codeLines": 3526,
+                  "commentLines": 71,
+                  "commentDensity": 0.0201,
+                  "swallowedExceptions": 1,
+                  "justifiedSwallows": 1
+                }
+              }
+            }
+          },
+          "global": {
+            "files": 223,
+            "lines": 25100,
+            "duplicatedLines": 1165,
+            "duplicationRate": 0.0464,
+            "codeLines": 20582,
+            "commentLines": 995,
+            "commentDensity": 0.0483,
+            "swallowedExceptions": 1,
+            "justifiedSwallows": 7
+          },
+          "deadCode": {
+            "gated": true,
+            "warnings": 0
+          },
+          "hotspots": [
+            {
+              "scope": "api",
+              "module": "Ledger.Application",
+              "file": "src/Ledger.Application/Cart/CartService.cs",
+              "duplicatedLines": 144,
+              "lines": 620,
+              "duplicationRate": 0.2323
+            },
+            {
+              "scope": "api",
+              "module": "Ledger.Application",
+              "file": "src/Ledger.Application/Payments/PaymentsService.cs",
+              "duplicatedLines": 114,
+              "lines": 540,
+              "duplicationRate": 0.2111
+            },
+            {
+              "scope": "web",
+              "module": "pages",
+              "file": "src/web/pages/LedgerPage.tsx",
+              "duplicatedLines": 94,
+              "lines": 460,
+              "duplicationRate": 0.2043
+            },
+            {
+              "scope": "api",
+              "module": "Ledger.Domain",
+              "file": "src/Ledger.Domain/Pricing/PriceRules.cs",
+              "duplicatedLines": 77,
+              "lines": 410,
+              "duplicationRate": 0.1878
+            },
+            {
+              "scope": "web",
+              "module": "components",
+              "file": "src/web/components/AddressForm.tsx",
+              "duplicatedLines": 70,
+              "lines": 380,
+              "duplicationRate": 0.1842
+            },
+            {
+              "scope": "web",
+              "module": "components",
+              "file": "src/web/components/PaymentForm.tsx",
+              "duplicatedLines": 67,
+              "lines": 350,
+              "duplicationRate": 0.1914
+            },
+            {
+              "scope": "api",
+              "module": "Ledger.Api",
+              "file": "src/Ledger.Api/Endpoints/CartEndpoints.cs",
+              "duplicatedLines": 42,
+              "lines": 300,
+              "duplicationRate": 0.14
+            }
+          ],
+          "gate": {
+            "baselinedFiles": 33,
+            "baselineLines": 1165,
+            "violations": 0,
+            "fixed": 0
+          }
+        },
+        "latestGeneratedAt": "2026-08-26T14:30:00.000Z"
+      }
+    }
+  },
+  "scorecard": {
+    "available": true,
+    "data": {
+      "projectType": "library",
+      "defaultBranch": "main",
+      "facetsPublished": true,
+      "workflowsScanned": 6,
+      "practices": [
+        {
+          "id": "spec",
+          "number": 1,
+          "name": "Spec (Gherkin)",
+          "phase": "build",
+          "standardMode": "blocking",
+          "description": "Acceptance behaviour is written as Gherkin scenarios and executed on every build.",
+          "applicable": true,
+          "rag": "green",
+          "reason": "Present, blocking and passing.",
+          "source": "detected",
+          "tools": [
+            "playwright-bdd"
+          ],
+          "mode": "blocking",
+          "result": "passing",
+          "resultAt": "2026-08-29T03:15:00.000Z",
+          "lastRun": {
+            "workflow": ".github/workflows/ci.yml",
+            "url": "https://github.com/your-org/ledger/actions/runs/9240",
+            "conclusion": "success",
+            "at": "2026-08-29T03:15:00.000Z"
+          }
+        },
+        {
+          "id": "tests",
+          "number": 2,
+          "name": "Tests & coverage",
+          "phase": "build",
+          "standardMode": "blocking",
+          "description": "API and web tests run on every build with a minimum coverage per module.",
+          "applicable": true,
+          "rag": "green",
+          "reason": "Present, blocking and passing.",
+          "source": "facet",
+          "tools": [
+            "coverlet",
+            "coverage-v8",
+            "coverage facet"
+          ],
+          "mode": "blocking",
+          "result": "passing",
+          "resultAt": "2026-08-26T14:30:00.000Z",
+          "lastRun": {
+            "workflow": "engineering-excellence facet",
+            "url": "https://github.com/your-org/ledger/actions/runs/905071",
+            "conclusion": "success",
+            "at": "2026-08-26T14:30:00.000Z"
+          }
+        },
+        {
+          "id": "mutation",
+          "number": 3,
+          "name": "Mutation score",
+          "phase": "build",
+          "standardMode": "threshold",
+          "description": "Mutation testing proves the tests assert, held above a minimum score.",
+          "applicable": true,
+          "rag": "green",
+          "reason": "Present and threshold met.",
+          "source": "facet",
+          "tools": [
+            "Stryker",
+            "mutation facet"
+          ],
+          "mode": "blocking",
+          "result": "passing",
+          "resultAt": "2026-08-25T05:30:00.000Z",
+          "lastRun": {
+            "workflow": "engineering-excellence facet",
+            "url": "https://github.com/your-org/ledger/actions/runs/905082",
+            "conclusion": "success",
+            "at": "2026-08-25T05:30:00.000Z"
+          }
+        },
+        {
+          "id": "secrets",
+          "number": 4,
+          "name": "Secrets",
+          "phase": "build",
+          "standardMode": "blocking",
+          "description": "Committed credentials fail the build.",
+          "applicable": true,
+          "rag": "green",
+          "reason": "Present, blocking and passing.",
+          "source": "detected",
+          "tools": [
+            "TruffleHog"
+          ],
+          "mode": "blocking",
+          "result": "passing",
+          "resultAt": "2026-08-29T03:15:00.000Z",
+          "lastRun": {
+            "workflow": ".github/workflows/ci.yml",
+            "url": "https://github.com/your-org/ledger/actions/runs/9261",
+            "conclusion": "success",
+            "at": "2026-08-29T03:15:00.000Z"
+          }
+        },
+        {
+          "id": "vulnerabilities",
+          "number": 5,
+          "name": "Vulnerabilities (deps & IaC)",
+          "phase": "build",
+          "standardMode": "blocking",
+          "description": "Dependencies and infrastructure as code are scanned; critical and high findings block.",
+          "applicable": true,
+          "rag": "green",
+          "reason": "Present, blocking and passing.",
+          "source": "facet",
+          "tools": [
+            "Trivy",
+            "Trivy (facet)"
+          ],
+          "mode": "blocking",
+          "result": "passing",
+          "resultAt": "2026-08-26T14:30:00.000Z",
+          "lastRun": {
+            "workflow": "engineering-excellence facet",
+            "url": "https://github.com/your-org/ledger/actions/runs/905089",
+            "conclusion": "success",
+            "at": "2026-08-26T14:30:00.000Z"
+          }
+        },
+        {
+          "id": "sast",
+          "number": 6,
+          "name": "Insecure patterns (SAST)",
+          "phase": "build",
+          "standardMode": "blocking",
+          "description": "Static analysis for insecure code patterns blocks on errors.",
+          "applicable": true,
+          "rag": "green",
+          "reason": "Present, blocking and passing.",
+          "source": "facet",
+          "tools": [
+            "Semgrep",
+            "Semgrep (facet)"
+          ],
+          "mode": "blocking",
+          "result": "passing",
+          "resultAt": "2026-08-26T14:30:00.000Z",
+          "lastRun": {
+            "workflow": "engineering-excellence facet",
+            "url": "https://github.com/your-org/ledger/actions/runs/905089",
+            "conclusion": "success",
+            "at": "2026-08-26T14:30:00.000Z"
+          }
+        },
+        {
+          "id": "sbom",
+          "number": 7,
+          "name": "SBOM & licenses",
+          "phase": "build",
+          "standardMode": "policy",
+          "description": "A software bill of materials is produced and licences are checked against policy.",
+          "applicable": true,
+          "rag": "green",
+          "reason": "Present and within policy.",
+          "source": "facet",
+          "tools": [
+            "anchore/sbom-action",
+            "SBOM facet"
+          ],
+          "mode": "blocking",
+          "result": "passing",
+          "resultAt": "2026-08-26T14:30:00.000Z",
+          "lastRun": {
+            "workflow": "engineering-excellence facet",
+            "url": "https://github.com/your-org/ledger/actions/runs/905096",
+            "conclusion": "success",
+            "at": "2026-08-26T14:30:00.000Z"
+          }
+        },
+        {
+          "id": "complexity",
+          "number": 8,
+          "name": "Complexity",
+          "phase": "build",
+          "standardMode": "blocking",
+          "description": "A cyclomatic complexity and CRAP gate stops new hotspots.",
+          "applicable": true,
+          "rag": "yellow",
+          "reason": "Runs report-only, where blocking is expected.",
+          "source": "facet",
+          "tools": [
+            "check-complexity",
+            "complexity gate"
+          ],
+          "mode": "report-only",
+          "result": "passing",
+          "resultAt": "2026-08-26T14:30:00.000Z",
+          "lastRun": {
+            "workflow": "engineering-excellence facet",
+            "url": "https://github.com/your-org/ledger/actions/runs/905078",
+            "conclusion": "success",
+            "at": "2026-08-26T14:30:00.000Z"
+          }
+        },
+        {
+          "id": "dast",
+          "number": 9,
+          "name": "DAST",
+          "phase": "test-env",
+          "standardMode": "threshold",
+          "description": "The deployed test environment is scanned dynamically for vulnerabilities.",
+          "applicable": false,
+          "rag": "grey",
+          "reason": "Not expected of a library project.",
+          "source": "none",
+          "tools": [],
+          "mode": null,
+          "result": null,
+          "resultAt": null,
+          "lastRun": null
+        },
+        {
+          "id": "performance",
+          "number": 10,
+          "name": "Performance",
+          "phase": "test-env",
+          "standardMode": "threshold",
+          "description": "Load tests against the test environment hold response times within budget. Only when the project requires it.",
+          "applicable": false,
+          "rag": "grey",
+          "reason": "Only expected when required; opt in with scorecard.performance in projects.json.",
+          "source": "none",
+          "tools": [],
+          "mode": null,
+          "result": null,
+          "resultAt": null,
+          "lastRun": null
+        }
+      ],
+      "level": 2,
+      "score": 94,
+      "gates": {
+        "present": 8,
+        "applicable": 8
+      },
+      "aiUsage": {
+        "available": true,
+        "data": {
+          "level": 2,
+          "share": 0.121,
+          "aiCommits": 4,
+          "totalCommits": 33,
+          "byAssistant": {
+            "Copilot": 3,
+            "Gemini": 1
+          }
+        }
+      },
+      "alerts": []
+    }
+  },
+  "warnings": [
+    {
+      "code": "NO_PRODUCTION_ENVIRONMENT",
+      "severity": "info",
+      "message": "Ledger has no production environment, so production metrics are skipped."
+    },
+    {
+      "code": "USAGE_ARTIFACT_MISSING",
+      "message": "3 of 24 agent run(s) had no readable usage artifact. Artifacts expire after about 90 days, and a run still in progress has not uploaded one yet.",
+      "context": {
+        "runs": 3,
+        "of": 24
+      }
+    }
+  ],
+  "agentic": {
+    "available": true,
+    "data": {
+      "defaultBranch": "main",
+      "setup": "standard",
+      "harness": {
+        "version": "3.1.0",
+        "latest": "3.1.0",
+        "legacy": false,
+        "legacyVersion": null
+      },
+      "workflows": {
+        "version": "1.2.3",
+        "latest": "1.2.3",
+        "router": true,
+        "workers": [
+          {
+            "name": "triage",
+            "present": true
+          },
+          {
+            "name": "refine",
+            "present": true
+          },
+          {
+            "name": "implement",
+            "present": true
+          },
+          {
+            "name": "merge-gate",
+            "present": true
+          },
+          {
+            "name": "apply-review",
+            "present": true
+          },
+          {
+            "name": "audit",
+            "present": true
+          },
+          {
+            "name": "release",
+            "present": true
+          }
+        ],
+        "evidence": true,
+        "retired": [],
+        "custom": []
+      },
+      "verifyEnvironment": true,
+      "bot": {
+        "prefix": "[bot]",
+        "merged": 9,
+        "lastMergedAt": "2026-08-28T15:12:00Z",
+        "added": {
+          "pullRequests": 9,
+          "codeLines": 646,
+          "commentLines": 39,
+          "testLines": 429,
+          "testCases": 33,
+          "slop": 0
+        }
+      }
+    }
+  },
+  "codebase": {
+    "available": true,
+    "data": {
+      "branch": "main",
+      "sha": "0000000",
+      "files": {
+        "source": 180,
+        "test": 70,
+        "generated": 2
+      },
+      "comments": {
+        "codeLines": 18400,
+        "commentLines": 1490,
+        "density": 0.081,
+        "slop": {
+          "findings": 4,
+          "byRule": {
+            "banner": 2,
+            "region": 0,
+            "untracked-todo": 2,
+            "restating-summary": 0,
+            "restating-jsdoc": 0,
+            "restating-param": 0,
+            "filler-returns": 0,
+            "commented-out-code": 0,
+            "apologetic": 0
+          }
+        },
+        "heuristics": {
+          "history": 3,
+          "essay": 24,
+          "internalDoc": 16
+        }
+      },
+      "tests": {
+        "files": 70,
+        "lines": 11408,
+        "commentLines": 120,
+        "cases": 920,
+        "ratio": 0.62,
+        "casesPerKloc": 50,
+        "features": 2,
+        "scenarios": 9,
+        "suspicious": {
+          "skipped": 1,
+          "focused": 0,
+          "snapshot": 2,
+          "noAssertion": 3,
+          "mockOnly": 5
+        }
+      },
+      "hotspots": [
+        {
+          "path": "src/ledger/orders/service.ts",
+          "codeLines": 640,
+          "commentLines": 82,
+          "slop": 1
+        },
+        {
+          "path": "src/ledger/api/client.ts",
+          "codeLines": 420,
+          "commentLines": 44,
+          "slop": 0
+        }
+      ]
+    }
+  },
+  "actions": {
+    "minutes": {
+      "available": true,
+      "data": {
+        "total": 5210,
+        "byOs": {
+          "UBUNTU": 5210
+        },
+        "runs": 698,
+        "timed": 698,
+        "pending": 0,
+        "truncated": false,
+        "measuredAt": "2026-09-01T03:15:00.000Z",
+        "countedBefore": "2026-08-31T21:40:12Z",
+        "countedIds": []
+      }
+    },
+    "storage": {
+      "available": true,
+      "data": {
+        "measuredAt": "2026-08-31T03:15:00.000Z",
+        "cache": {
+          "bytes": 6012954214,
+          "count": 81
+        },
+        "artifacts": {
+          "bytes": 751619277,
+          "count": 89,
+          "truncated": false
+        },
+        "totalBytes": 6764573491
+      }
+    }
+  },
+  "environment": {
+    "available": false,
+    "reason": "No deployments recorded."
+  }
+}

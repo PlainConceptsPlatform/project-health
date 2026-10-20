@@ -511,5 +511,46 @@
         "totalBytes": 858993459
       }
     }
+  },
+  "environment": {
+    "available": true,
+    "data": {
+      "final": "PRO",
+      "environments": [
+        {
+          "name": "production",
+          "resourceGroup": null,
+          "tier": "PRO",
+          "source": "environment-name",
+          "lastDeployedAt": "2026-06-26T19:21:00Z"
+        }
+      ]
+    }
+  },
+  "engineeringExcellence": {
+    "coverage": {
+      "available": false,
+      "reason": "No engineering-excellence-coverage artifact was uploaded from main in this period, or every one has expired."
+    },
+    "complexity": {
+      "available": false,
+      "reason": "No engineering-excellence-complexity artifact was uploaded from main in this period, or every one has expired."
+    },
+    "mutation": {
+      "available": false,
+      "reason": "No engineering-excellence-mutation artifact was uploaded from main in this period, or every one has expired."
+    },
+    "security": {
+      "available": false,
+      "reason": "No engineering-excellence-security artifact was uploaded from main in this period, or every one has expired."
+    },
+    "sbom": {
+      "available": false,
+      "reason": "No engineering-excellence-sbom artifact was uploaded from main in this period, or every one has expired."
+    },
+    "hygiene": {
+      "available": false,
+      "reason": "No engineering-excellence-hygiene artifact was uploaded from main in this period, or every one has expired."
+    }
   }
 }
