@@ -626,6 +626,8 @@ export interface EvidenceWaypoint {
   expect: string | null
   reached: boolean
   image: string | null
+  /** The screenshot copied into the site, as a path from its root. Absent before copies existed. */
+  copy?: string | null
 }
 
 export interface JourneyEvidence {

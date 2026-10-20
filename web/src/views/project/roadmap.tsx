@@ -646,6 +646,13 @@ function Timeline({
   )
 }
 
+/**
+ * The copy the collector stored in the site when there is one: a private repository's own link
+ * needs a GitHub session the browser does not send for an image on another site.
+ */
+const shotOf = (w: { image: string | null; copy?: string | null }): string | null =>
+  w.copy ? withBase(`/${w.copy}`) : w.image ? withBase(w.image) : null
+
 function Evidence({ issue }: { issue: IssueJourney }) {
   const [index, setIndex] = useState(0)
   const [broken, setBroken] = useState<Set<number>>(new Set())
@@ -688,9 +695,9 @@ function Evidence({ issue }: { issue: IssueJourney }) {
             )}
           </div>
         ) : (
-          <a href={current.image ? withBase(current.image) : undefined}>
+          <a href={shotOf(current) ?? undefined}>
             <img
-              src={current.image ? withBase(current.image) : undefined}
+              src={shotOf(current) ?? undefined}
               alt={current.expect ?? current.capture}
               loading="lazy"
               className="aspect-video w-full bg-muted object-contain object-top"
@@ -728,7 +735,7 @@ function Evidence({ issue }: { issue: IssueJourney }) {
             >
               {w.image && !broken.has(i) ? (
                 <img
-                  src={withBase(w.image)}
+                  src={shotOf(w) ?? undefined}
                   alt=""
                   loading="lazy"
                   className="aspect-video w-full rounded bg-muted object-cover object-top"
@@ -748,6 +755,35 @@ function Evidence({ issue }: { issue: IssueJourney }) {
         All evidence for PR #{evidence.pullRequest} on GitHub
       </a>
     </div>
+  )
+}
+
+/** The selected issue rides in the hash after the tab, so a link opens straight on it. */
+const ISSUE_HASH = /^#roadmap\/(\d+)$/
+
+const issueUrl = (issue: number): string =>
+  `${window.location.origin}${window.location.pathname}${window.location.search}#roadmap/${issue}`
+
+function CopyLink({ issue }: { issue: number }) {
+  const [copied, setCopied] = useState(false)
+  useEffect(() => {
+    if (!copied) return
+    const timer = setTimeout(() => setCopied(false), 1500)
+    return () => clearTimeout(timer)
+  }, [copied])
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        navigator.clipboard
+          ?.writeText(issueUrl(issue))
+          .then(() => setCopied(true))
+          .catch(() => window.history.replaceState(null, '', issueUrl(issue)))
+      }}
+      className="rounded-md border px-3 py-1.5 text-sm hover:bg-accent"
+    >
+      {copied ? 'Link copied' : 'Copy link'}
+    </button>
   )
 }
 
@@ -808,7 +844,7 @@ function IssueDetail({
   ]
 
   return (
-    <div className="space-y-5 rounded-md border p-5">
+    <div id="roadmap-issue" className="scroll-mt-4 space-y-5 rounded-md border p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="space-y-1">
           <div className="flex flex-wrap items-center gap-2">
@@ -824,12 +860,15 @@ function IssueDetail({
             Opened {stamp(Date.parse(issue.createdAt))} by {issue.author ?? 'someone'}
           </p>
         </div>
-        <a
-          href={`https://github.com/${repo}/issues/${issue.number}`}
-          className="rounded-md border px-3 py-1.5 text-sm hover:bg-accent"
-        >
-          Open on GitHub
-        </a>
+        <div className="flex gap-2">
+          <CopyLink issue={issue.number} />
+          <a
+            href={`https://github.com/${repo}/issues/${issue.number}`}
+            className="rounded-md border px-3 py-1.5 text-sm hover:bg-accent"
+          >
+            Open on GitHub
+          </a>
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-2">
@@ -1153,6 +1192,30 @@ export function RoadmapView({
   )
   const current = roadmap.issues.find((i) => i.number === selected) ?? null
 
+  useEffect(() => {
+    const fromHash = () => {
+      const wanted = Number(window.location.hash.match(ISSUE_HASH)?.[1])
+      if (!roadmap.issues.some((i) => i.number === wanted)) return
+      setSelected(wanted)
+      // The tab switches in its own effect, so wait until the detail is laid out to scroll to it.
+      let frames = 0
+      const scroll = () => {
+        const detail = document.getElementById('roadmap-issue')
+        if (detail && detail.offsetParent !== null) detail.scrollIntoView({ block: 'start' })
+        else if (++frames < 60) requestAnimationFrame(scroll)
+      }
+      requestAnimationFrame(scroll)
+    }
+    fromHash()
+    window.addEventListener('hashchange', fromHash)
+    return () => window.removeEventListener('hashchange', fromHash)
+  }, [roadmap])
+
+  const select = (issue: number) => {
+    setSelected(issue)
+    window.history.replaceState(null, '', issueUrl(issue))
+  }
+
   const start = Date.parse(from)
   // The axis ends at the period end, or at the end of the day the data was collected.
   const asOf = Date.parse(roadmap.asOf)
@@ -1283,7 +1346,7 @@ export function RoadmapView({
               start={view === 'calendar' ? start : 0}
               end={view === 'calendar' ? end : alignedEnd}
               selected={selected}
-              onSelect={setSelected}
+              onSelect={select}
             />
           )}
 

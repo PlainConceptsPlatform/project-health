@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "node scripts/copy-evidence.mjs && next dev",
+    "build": "node scripts/copy-evidence.mjs && next build",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },

@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 
 import { join } from 'node:path'
 import { isExampleConfig, loadDora, loadProjects, loadScorecardConfig, repoRoot } from './config.ts'
 import { discover } from './discover.ts'
+import { copyEvidence } from './evidence.ts'
 import { get } from './github.ts'
 import { parseHistory, pointOf, withPoint } from './history.ts'
 import { collectActions, githubActionsSource } from './metrics/actions.ts'
@@ -617,6 +618,14 @@ async function main(): Promise<void> {
         const message = error instanceof Error ? error.message : String(error)
         console.error(`  ${project.id} ${label(period)} failed: ${message}`)
       }
+    }
+
+    try {
+      const copied = await copyEvidence(join(dataDir, project.id), project.id)
+      if (copied > 0) console.log(`    copied ${copied} evidence screenshot(s) for ${project.id}`)
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      console.error(`  ${project.id} evidence copies failed: ${message}`)
     }
   }
 
