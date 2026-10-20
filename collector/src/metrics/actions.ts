@@ -34,7 +34,22 @@ export interface RunTiming {
   run_duration_ms?: number
 }
 
+/** One line of the enhanced billing usage report, per day, product, SKU and repository. */
+export interface BillingUsageItem {
+  product: string
+  sku: string
+  unitType: string
+  quantity: number
+  repositoryName?: string | null
+  organizationName?: string | null
+}
+
 export interface ActionsSource {
+  /**
+   * The billing usage report lines of this repository for one month (1 to 12), or null when the
+   * report is not readable with this token. Optional: without it minutes are timed run by run.
+   */
+  billingUsage?: (year: number, month: number) => Promise<BillingUsageItem[] | null>
   /** null when the endpoint answers 404. */
   cacheUsage: () => Promise<CacheUsage | null>
   /** Every artifact the repository keeps, expired ones included. */
@@ -50,8 +65,37 @@ const RUNS_PAGES_PER_DAY = 10
 const ARTIFACT_PAGES = 50
 const PER_PAGE = 100
 
+/**
+ * The report covers a whole organization, so it is read once per organization and month and shared
+ * by every project in it. A failure is remembered too, so a token without billing access is refused
+ * once per organization rather than once per project.
+ */
+const billingReports = new Map<string, Promise<BillingUsageItem[] | null>>()
+
+function billingReport(org: string, year: number, month: number) {
+  const key = `${org.toLowerCase()}:${year}-${month}`
+  let report = billingReports.get(key)
+  if (!report) {
+    report = get<{ usageItems?: BillingUsageItem[] }>(
+      `/organizations/${org}/settings/billing/usage?year=${year}&month=${month}`,
+    ).then((body) => (body ? (body.usageItems ?? []) : null))
+    billingReports.set(key, report)
+  }
+  return report
+}
+
 export function githubActionsSource(repo: string): ActionsSource {
+  const [org = '', name = ''] = repo.split('/')
   return {
+    billingUsage: async (year, month) => {
+      const items = await billingReport(org, year, month)
+      if (!items) return null
+      return items.filter(
+        (item) =>
+          item.repositoryName?.toLowerCase() === name.toLowerCase() &&
+          (!item.organizationName || item.organizationName.toLowerCase() === org.toLowerCase()),
+      )
+    },
     cacheUsage: () => get<CacheUsage>(`/repos/${repo}/actions/cache/usage`),
     artifacts: async () => {
       const artifacts = await paginate<StoredArtifact>(
@@ -145,6 +189,67 @@ export function daysBetween(from: Date, to: Date, now: Date): string[] {
   return days
 }
 
+/**
+ * The runner OS a billing SKU is charged for, named as the timing endpoint names it, so both sources
+ * fill the same split. "Actions Linux", "Actions Linux Advanced 2-core" and "Actions Linux Slim" are
+ * all UBUNTU; a SKU that names no known OS is kept under its own name rather than dropped.
+ */
+export function osOfSku(sku: string): string {
+  const s = sku.toLowerCase()
+  if (s.includes('linux') || s.includes('ubuntu')) return 'UBUNTU'
+  if (s.includes('windows')) return 'WINDOWS'
+  if (s.includes('macos') || s.includes('mac os')) return 'MACOS'
+  return sku
+}
+
+/** Actions minutes of the report lines, by runner OS. Storage and other products are left out. */
+export function billedMinutesByOs(items: BillingUsageItem[]): Record<string, number> {
+  const byOs: Record<string, number> = {}
+  for (const item of items) {
+    if (item.product.toLowerCase() !== 'actions') continue
+    if (item.unitType.toLowerCase() !== 'minutes') continue
+    const os = osOfSku(item.sku)
+    byOs[os] = (byOs[os] ?? 0) + (item.quantity ?? 0)
+  }
+  const rounded: Record<string, number> = {}
+  for (const [os, minutes] of Object.entries(byOs)) {
+    if (Math.round(minutes) > 0) rounded[os] = Math.round(minutes)
+  }
+  return rounded
+}
+
+/**
+ * Billable minutes for the month from the organization's billing usage report: one call for every
+ * repository of the organization, against one call per run for the timing path. null when the report
+ * cannot be read (a token without billing access answers 403 or 404), so the caller falls back.
+ */
+export async function collectBilledMinutes(
+  source: ActionsSource,
+  period: { from: Date; now: Date },
+): Promise<ActionsMinutes | null> {
+  if (!source.billingUsage) return null
+  let items: BillingUsageItem[] | null
+  try {
+    items = await source.billingUsage(period.from.getUTCFullYear(), period.from.getUTCMonth() + 1)
+  } catch {
+    return null
+  }
+  if (!items) return null
+  const byOs = billedMinutesByOs(items)
+  return {
+    source: 'billing',
+    total: Object.values(byOs).reduce((sum, m) => sum + m, 0),
+    byOs,
+    runs: 0,
+    timed: 0,
+    pending: 0,
+    truncated: false,
+    measuredAt: period.now.toISOString(),
+    countedBefore: null,
+    countedIds: [],
+  }
+}
+
 /** How many run timings one collection reads per project and month. The rest wait for the next. */
 export const TIMING_BUDGET = 1500
 
@@ -227,6 +332,7 @@ export async function collectMinutes(
     : []
 
   return ok({
+    source: 'timing',
     total: Object.values(byOs).reduce((sum, m) => sum + m, 0),
     byOs,
     runs,
@@ -240,7 +346,8 @@ export async function collectMinutes(
 }
 
 /**
- * Minutes and storage for one project and month. Storage only exists as it is now, so a month that
+ * Minutes and storage for one project and month. Minutes come from the billing usage report when the
+ * token can read it, and are otherwise timed run by run. Storage only exists as it is now, so a month that
  * is not current keeps what was stored while it was, and says so when nothing was.
  */
 export async function collectActions(
@@ -248,14 +355,22 @@ export async function collectActions(
   period: { from: Date; to: Date; now: Date },
   previous: ActionsUsage | null,
 ): Promise<ActionsUsage> {
-  const prevMinutes = previous?.minutes.available ? previous.minutes.data : null
+  const stored = previous?.minutes.available ? previous.minutes : null
+  const billedBefore = stored?.data.source === 'billing'
   let minutes: MetricBlock<ActionsMinutes>
-  try {
-    minutes = await collectMinutes(source, period, prevMinutes)
-  } catch (error) {
-    minutes = previous?.minutes.available
-      ? previous.minutes
-      : skip(`Actions minutes could not be read: ${reasonOf(error)}.`)
+  const billed = await collectBilledMinutes(source, period)
+  if (billed) {
+    minutes = ok(billed)
+  } else if (stored && billedBefore) {
+    // The report was read before and cannot be now. Keep that total rather than start timing the
+    // month from scratch, which is the slow path the report is there to avoid.
+    minutes = stored
+  } else {
+    try {
+      minutes = await collectMinutes(source, period, stored?.data ?? null)
+    } catch (error) {
+      minutes = stored ?? skip(`Actions minutes could not be read: ${reasonOf(error)}.`)
+    }
   }
 
   const current = period.now >= period.from && period.now < period.to

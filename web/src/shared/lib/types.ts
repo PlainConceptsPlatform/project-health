@@ -179,6 +179,8 @@ export interface ActionsUsage {
 }
 
 export interface ActionsMinutes {
+  /** `billing`: the organization's billing report, exact, no run counts. Absent or `timing`: timed run by run. */
+  source?: 'billing' | 'timing'
   total: number
   byOs: Record<string, number>
   runs: number

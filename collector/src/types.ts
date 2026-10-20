@@ -400,6 +400,12 @@ export interface ActionsUsage {
 }
 
 export interface ActionsMinutes {
+  /**
+   * Where the minutes come from. `billing` is the organization's billing usage report, which is
+   * exact and has no run counts (`runs`, `timed` and `pending` are 0). `timing` sums each run's
+   * timing and is a floor. Absent in months collected before the report was used, which were timed.
+   */
+  source?: 'billing' | 'timing'
   /** Billable minutes of the month's runs, each job rounded up to the minute as GitHub bills it. */
   total: number
   /** Billable minutes by runner OS, as the timing endpoint names it: UBUNTU, MACOS, WINDOWS. */

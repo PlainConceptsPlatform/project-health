@@ -83,9 +83,15 @@ export function ActionsTable({ rows }: { rows: ActionsRow[] }) {
                           </span>
                           <span className="flex gap-2 text-xs text-muted-foreground tabular-nums">
                             <Change change={row.change} surge={row.minutesSurge} />
-                            <span title="Runs whose timing was read, of the runs seen">
-                              {m.timed}/{m.runs + m.pending} runs
-                            </span>
+                            {m.source === 'billing' ? (
+                              <span title="From the organization's billing usage report">
+                                billed
+                              </span>
+                            ) : (
+                              <span title="Runs whose timing was read, of the runs seen">
+                                {m.timed}/{m.runs + m.pending} runs
+                              </span>
+                            )}
                           </span>
                         </div>
                         {row.minutesTrend.length > 1 ? (
