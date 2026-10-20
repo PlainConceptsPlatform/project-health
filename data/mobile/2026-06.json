@@ -29,8 +29,627 @@
     }
   },
   "agents": {
-    "available": false,
-    "reason": "Mobile does not run agent workflows."
+    "available": true,
+    "data": {
+      "runs": [
+        {
+          "runId": 54337710135,
+          "workflow": "All Work Router",
+          "kind": "merge-gate",
+          "conclusion": "success",
+          "startedAt": "2026-06-30T20:52:27.490Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 167,
+          "executionSeconds": 461,
+          "usage": {
+            "inputTokens": 1782650,
+            "outputTokens": 5815,
+            "cacheReadTokens": 1597307,
+            "cacheWriteTokens": 0,
+            "ambientContext": 6216,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54337443513,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-06-29T21:58:36.801Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 131,
+          "executionSeconds": 154,
+          "usage": {
+            "inputTokens": 615435,
+            "outputTokens": 2507,
+            "cacheReadTokens": 561259,
+            "cacheWriteTokens": 0,
+            "ambientContext": 8878,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54337717256,
+          "workflow": "All Work Router",
+          "kind": "merge-gate",
+          "conclusion": "success",
+          "startedAt": "2026-06-29T15:42:58.242Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 198,
+          "executionSeconds": 762,
+          "usage": null
+        },
+        {
+          "runId": 54337546130,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-06-29T08:06:55.124Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 145,
+          "executionSeconds": 1260,
+          "usage": {
+            "inputTokens": 4265522,
+            "outputTokens": 20386,
+            "cacheReadTokens": 3614316,
+            "cacheWriteTokens": 0,
+            "ambientContext": 5886,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54337489234,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-06-28T04:07:30.741Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 171,
+          "executionSeconds": 496,
+          "usage": {
+            "inputTokens": 2169910,
+            "outputTokens": 7856,
+            "cacheReadTokens": 1863479,
+            "cacheWriteTokens": 0,
+            "ambientContext": 5780,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54337766260,
+          "workflow": "All Work Router",
+          "kind": "merge-gate",
+          "conclusion": "success",
+          "startedAt": "2026-06-26T07:38:09.259Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 150,
+          "executionSeconds": 213,
+          "usage": {
+            "inputTokens": 960848,
+            "outputTokens": 3162,
+            "cacheReadTokens": 813317,
+            "cacheWriteTokens": 0,
+            "ambientContext": 6484,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54337519778,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-06-25T23:25:12.875Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 134,
+          "executionSeconds": 358,
+          "usage": {
+            "inputTokens": 1746644,
+            "outputTokens": 9091,
+            "cacheReadTokens": 1544030,
+            "cacheWriteTokens": 0,
+            "ambientContext": 7704,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54337646038,
+          "workflow": "All Work Router",
+          "kind": "apply-review",
+          "conclusion": "success",
+          "startedAt": "2026-06-22T13:59:35.230Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 139,
+          "executionSeconds": 486,
+          "usage": {
+            "inputTokens": 1340801,
+            "outputTokens": 5856,
+            "cacheReadTokens": 1210323,
+            "cacheWriteTokens": 0,
+            "ambientContext": 5850,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54337773013,
+          "workflow": "All Work Router",
+          "kind": "audit",
+          "conclusion": "success",
+          "startedAt": "2026-06-21T09:48:50.092Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": null,
+          "executionSeconds": 637,
+          "usage": {
+            "inputTokens": 2346051,
+            "outputTokens": 11234,
+            "cacheReadTokens": 1899097,
+            "cacheWriteTokens": 0,
+            "ambientContext": 6239,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54337419314,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "failure",
+          "startedAt": "2026-06-20T08:27:02.770Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 164,
+          "executionSeconds": 1535,
+          "usage": {
+            "inputTokens": 4131707,
+            "outputTokens": 20148,
+            "cacheReadTokens": 3641545,
+            "cacheWriteTokens": 0,
+            "ambientContext": 8592,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54337486924,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-06-20T00:10:00.871Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 197,
+          "executionSeconds": 421,
+          "usage": {
+            "inputTokens": 1288328,
+            "outputTokens": 6368,
+            "cacheReadTokens": 1180800,
+            "cacheWriteTokens": 0,
+            "ambientContext": 5547,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54337622915,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-06-14T21:16:58.975Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 205,
+          "executionSeconds": 1389,
+          "usage": {
+            "inputTokens": 4359060,
+            "outputTokens": 14494,
+            "cacheReadTokens": 3487732,
+            "cacheWriteTokens": 0,
+            "ambientContext": 6126,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54337683093,
+          "workflow": "All Work Router",
+          "kind": "apply-review",
+          "conclusion": "success",
+          "startedAt": "2026-06-14T18:36:52.778Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 128,
+          "executionSeconds": 656,
+          "usage": {
+            "inputTokens": 2099539,
+            "outputTokens": 7900,
+            "cacheReadTokens": 1871369,
+            "cacheWriteTokens": 0,
+            "ambientContext": 8134,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54337368386,
+          "workflow": "All Work Router",
+          "kind": "triage",
+          "conclusion": "success",
+          "startedAt": "2026-06-14T16:23:51.838Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 125,
+          "executionSeconds": 52,
+          "usage": {
+            "inputTokens": 192249,
+            "outputTokens": 966,
+            "cacheReadTokens": 173518,
+            "cacheWriteTokens": 0,
+            "ambientContext": 7862,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54337604399,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-06-13T22:14:15.612Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 166,
+          "executionSeconds": 1168,
+          "usage": {
+            "inputTokens": 3090902,
+            "outputTokens": 10744,
+            "cacheReadTokens": 2548486,
+            "cacheWriteTokens": 0,
+            "ambientContext": 7560,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54337749546,
+          "workflow": "All Work Router",
+          "kind": "merge-gate",
+          "conclusion": "failure",
+          "startedAt": "2026-06-13T14:33:45.179Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 174,
+          "executionSeconds": 58,
+          "usage": {
+            "inputTokens": 206110,
+            "outputTokens": 1076,
+            "cacheReadTokens": 171064,
+            "cacheWriteTokens": 0,
+            "ambientContext": 8908,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54337550847,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-06-12T23:53:59.969Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 196,
+          "executionSeconds": 974,
+          "usage": {
+            "inputTokens": 3331603,
+            "outputTokens": 13871,
+            "cacheReadTokens": 2832084,
+            "cacheWriteTokens": 0,
+            "ambientContext": 6065,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54337374273,
+          "workflow": "All Work Router",
+          "kind": "triage",
+          "conclusion": "success",
+          "startedAt": "2026-06-12T04:18:39.953Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 148,
+          "executionSeconds": 115,
+          "usage": {
+            "inputTokens": 357752,
+            "outputTokens": 1357,
+            "cacheReadTokens": 303489,
+            "cacheWriteTokens": 0,
+            "ambientContext": 5063,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54337581669,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-06-10T18:06:51.297Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 199,
+          "executionSeconds": 1455,
+          "usage": {
+            "inputTokens": 4299702,
+            "outputTokens": 16027,
+            "cacheReadTokens": 3703126,
+            "cacheWriteTokens": 0,
+            "ambientContext": 5042,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54337412506,
+          "workflow": "All Work Router",
+          "kind": "triage",
+          "conclusion": "success",
+          "startedAt": "2026-06-09T17:54:48.284Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 129,
+          "executionSeconds": 160,
+          "usage": null
+        },
+        {
+          "runId": 54337485984,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-06-08T02:23:49.622Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 199,
+          "executionSeconds": 214,
+          "usage": null
+        },
+        {
+          "runId": 54337713128,
+          "workflow": "All Work Router",
+          "kind": "merge-gate",
+          "conclusion": "success",
+          "startedAt": "2026-06-08T01:06:43.267Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 169,
+          "executionSeconds": 351,
+          "usage": {
+            "inputTokens": 1503015,
+            "outputTokens": 5347,
+            "cacheReadTokens": 1175253,
+            "cacheWriteTokens": 0,
+            "ambientContext": 4849,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54337381562,
+          "workflow": "All Work Router",
+          "kind": "triage",
+          "conclusion": "success",
+          "startedAt": "2026-06-07T04:02:08.286Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 171,
+          "executionSeconds": 96,
+          "usage": {
+            "inputTokens": 465047,
+            "outputTokens": 1657,
+            "cacheReadTokens": 419809,
+            "cacheWriteTokens": 0,
+            "ambientContext": 6769,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54337416379,
+          "workflow": "All Work Router",
+          "kind": "triage",
+          "conclusion": "success",
+          "startedAt": "2026-06-06T23:26:48.146Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 135,
+          "executionSeconds": 159,
+          "usage": {
+            "inputTokens": 511289,
+            "outputTokens": 1755,
+            "cacheReadTokens": 447505,
+            "cacheWriteTokens": 0,
+            "ambientContext": 7383,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54337524721,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-06-04T11:50:12.069Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 182,
+          "executionSeconds": 474,
+          "usage": {
+            "inputTokens": 1203374,
+            "outputTokens": 3825,
+            "cacheReadTokens": 1053682,
+            "cacheWriteTokens": 0,
+            "ambientContext": 5944,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54337472749,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-06-03T01:26:23.328Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 157,
+          "executionSeconds": 660,
+          "usage": {
+            "inputTokens": 3192775,
+            "outputTokens": 10565,
+            "cacheReadTokens": 2595334,
+            "cacheWriteTokens": 0,
+            "ambientContext": 5590,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        }
+      ],
+      "byKind": {
+        "triage": {
+          "runs": 5,
+          "runsWithUsage": 4,
+          "successful": 5,
+          "tokens": {
+            "inputTokens": 1526337,
+            "outputTokens": 5735,
+            "cacheReadTokens": 1344321,
+            "cacheWriteTokens": 0,
+            "ambientContext": 27077,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          },
+          "executionSeconds": {
+            "available": true,
+            "data": {
+              "count": 5,
+              "p50": 115,
+              "p75": 159,
+              "p90": 159.6
+            }
+          },
+          "totalExecutionSeconds": 582
+        },
+        "refine": {
+          "runs": 7,
+          "runsWithUsage": 6,
+          "successful": 6,
+          "tokens": {
+            "inputTokens": 13144799,
+            "outputTokens": 56535,
+            "cacheReadTokens": 11386447,
+            "cacheWriteTokens": 0,
+            "ambientContext": 42091,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          },
+          "executionSeconds": {
+            "available": true,
+            "data": {
+              "count": 7,
+              "p50": 421,
+              "p75": 578,
+              "p90": 1010
+            }
+          },
+          "totalExecutionSeconds": 3838
+        },
+        "implement": {
+          "runs": 6,
+          "runsWithUsage": 6,
+          "successful": 6,
+          "tokens": {
+            "inputTokens": 20550163,
+            "outputTokens": 79347,
+            "cacheReadTokens": 17239426,
+            "cacheWriteTokens": 0,
+            "ambientContext": 36623,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          },
+          "executionSeconds": {
+            "available": true,
+            "data": {
+              "count": 6,
+              "p50": 1214,
+              "p75": 1356.75,
+              "p90": 1422
+            }
+          },
+          "totalExecutionSeconds": 6720
+        },
+        "apply-review": {
+          "runs": 2,
+          "runsWithUsage": 2,
+          "successful": 2,
+          "tokens": {
+            "inputTokens": 3440340,
+            "outputTokens": 13756,
+            "cacheReadTokens": 3081692,
+            "cacheWriteTokens": 0,
+            "ambientContext": 13984,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          },
+          "executionSeconds": {
+            "available": true,
+            "data": {
+              "count": 2,
+              "p50": 571,
+              "p75": 613.5,
+              "p90": 639
+            }
+          },
+          "totalExecutionSeconds": 1142
+        },
+        "merge-gate": {
+          "runs": 5,
+          "runsWithUsage": 4,
+          "successful": 4,
+          "tokens": {
+            "inputTokens": 4452623,
+            "outputTokens": 15400,
+            "cacheReadTokens": 3756941,
+            "cacheWriteTokens": 0,
+            "ambientContext": 26457,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          },
+          "executionSeconds": {
+            "available": true,
+            "data": {
+              "count": 5,
+              "p50": 351,
+              "p75": 461,
+              "p90": 641.6
+            }
+          },
+          "totalExecutionSeconds": 1845
+        },
+        "audit": {
+          "runs": 1,
+          "runsWithUsage": 1,
+          "successful": 1,
+          "tokens": {
+            "inputTokens": 2346051,
+            "outputTokens": 11234,
+            "cacheReadTokens": 1899097,
+            "cacheWriteTokens": 0,
+            "ambientContext": 6239,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          },
+          "executionSeconds": {
+            "available": true,
+            "data": {
+              "count": 1,
+              "p50": 637,
+              "p75": 637,
+              "p90": 637
+            }
+          },
+          "totalExecutionSeconds": 637
+        }
+      }
+    }
   },
   "contributors": {
     "available": true,
@@ -316,9 +935,12 @@
       "message": "Mobile has no production environment, so production metrics are skipped."
     },
     {
-      "code": "AGENTS_DISABLED",
-      "severity": "info",
-      "message": "Agent collection is off for Mobile."
+      "code": "USAGE_ARTIFACT_MISSING",
+      "message": "3 of 26 agent run(s) had no readable usage artifact. Artifacts expire after about 90 days, and a run still in progress has not uploaded one yet.",
+      "context": {
+        "runs": 3,
+        "of": 26
+      }
     }
   ],
   "actions": {

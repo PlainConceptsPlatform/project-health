@@ -29,8 +29,1119 @@
     }
   },
   "agents": {
-    "available": false,
-    "reason": "Mobile does not run agent workflows."
+    "available": true,
+    "data": {
+      "runs": [
+        {
+          "runId": 54339375616,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-08-30T12:35:48Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 234,
+          "executionSeconds": 693,
+          "usage": {
+            "inputTokens": 2629435,
+            "outputTokens": 8618,
+            "cacheReadTokens": 2177219,
+            "cacheWriteTokens": 0,
+            "ambientContext": 7088,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54339367300,
+          "workflow": "All Work Router",
+          "kind": "merge-gate",
+          "conclusion": "success",
+          "startedAt": "2026-08-30T10:44:00Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 244,
+          "executionSeconds": 900,
+          "usage": {
+            "inputTokens": 3097732,
+            "outputTokens": 13316,
+            "cacheReadTokens": 2558395,
+            "cacheWriteTokens": 0,
+            "ambientContext": 8085,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54339342495,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-08-30T10:19:04Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 232,
+          "executionSeconds": 1172,
+          "usage": {
+            "inputTokens": 5568969,
+            "outputTokens": 23858,
+            "cacheReadTokens": 5107688,
+            "cacheWriteTokens": 0,
+            "ambientContext": 5003,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54339323321,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-08-30T10:04:14Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 232,
+          "executionSeconds": 428,
+          "usage": {
+            "inputTokens": 1872901,
+            "outputTokens": 6701,
+            "cacheReadTokens": 1499126,
+            "cacheWriteTokens": 0,
+            "ambientContext": 6163,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54339321760,
+          "workflow": "All Work Router",
+          "kind": "merge-gate",
+          "conclusion": "success",
+          "startedAt": "2026-08-29T08:38:00Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 243,
+          "executionSeconds": 900,
+          "usage": null
+        },
+        {
+          "runId": 54339318304,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-08-29T08:13:32Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 230,
+          "executionSeconds": 1242,
+          "usage": {
+            "inputTokens": 5596735,
+            "outputTokens": 22720,
+            "cacheReadTokens": 5106625,
+            "cacheWriteTokens": 0,
+            "ambientContext": 7874,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54339291737,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-08-29T06:33:10Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 230,
+          "executionSeconds": 438,
+          "usage": {
+            "inputTokens": 1431442,
+            "outputTokens": 5921,
+            "cacheReadTokens": 1127532,
+            "cacheWriteTokens": 0,
+            "ambientContext": 6059,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54339280051,
+          "workflow": "All Work Router",
+          "kind": "merge-gate",
+          "conclusion": "success",
+          "startedAt": "2026-08-28T13:49:00Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 242,
+          "executionSeconds": 300,
+          "usage": {
+            "inputTokens": 1033592,
+            "outputTokens": 4262,
+            "cacheReadTokens": 860941,
+            "cacheWriteTokens": 0,
+            "ambientContext": 5884,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54339250440,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-08-28T13:22:36Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 226,
+          "executionSeconds": 1370,
+          "usage": {
+            "inputTokens": 3837640,
+            "outputTokens": 19550,
+            "cacheReadTokens": 3509126,
+            "cacheWriteTokens": 0,
+            "ambientContext": 7116,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54339232219,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-08-28T09:04:03Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 226,
+          "executionSeconds": 791,
+          "usage": null
+        },
+        {
+          "runId": 54339210657,
+          "workflow": "All Work Router",
+          "kind": "merge-gate",
+          "conclusion": "success",
+          "startedAt": "2026-08-28T03:37:00Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 241,
+          "executionSeconds": 900,
+          "usage": {
+            "inputTokens": 3293629,
+            "outputTokens": 13308,
+            "cacheReadTokens": 2715666,
+            "cacheWriteTokens": 0,
+            "ambientContext": 8281,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54339203183,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-08-28T03:15:02Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 224,
+          "executionSeconds": 1113,
+          "usage": {
+            "inputTokens": 4191795,
+            "outputTokens": 15743,
+            "cacheReadTokens": 3639035,
+            "cacheWriteTokens": 0,
+            "ambientContext": 8436,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54339170271,
+          "workflow": "All Work Router",
+          "kind": "merge-gate",
+          "conclusion": "success",
+          "startedAt": "2026-08-27T15:48:00Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 240,
+          "executionSeconds": 900,
+          "usage": {
+            "inputTokens": 3886057,
+            "outputTokens": 12665,
+            "cacheReadTokens": 3213927,
+            "cacheWriteTokens": 0,
+            "ambientContext": 6617,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54339152557,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-08-27T15:08:55Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 222,
+          "executionSeconds": 2121,
+          "usage": {
+            "inputTokens": 10092084,
+            "outputTokens": 33618,
+            "cacheReadTokens": 8453439,
+            "cacheWriteTokens": 0,
+            "ambientContext": 7440,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54339142111,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-08-27T14:09:53Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 222,
+          "executionSeconds": 752,
+          "usage": {
+            "inputTokens": 2120230,
+            "outputTokens": 10976,
+            "cacheReadTokens": 1770105,
+            "cacheWriteTokens": 0,
+            "ambientContext": 8367,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54339106026,
+          "workflow": "All Work Router",
+          "kind": "merge-gate",
+          "conclusion": "success",
+          "startedAt": "2026-08-26T14:04:00Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 239,
+          "executionSeconds": 900,
+          "usage": null
+        },
+        {
+          "runId": 54339068170,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-08-26T13:31:52Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 220,
+          "executionSeconds": 1782,
+          "usage": {
+            "inputTokens": 7691075,
+            "outputTokens": 24337,
+            "cacheReadTokens": 6826875,
+            "cacheWriteTokens": 0,
+            "ambientContext": 8974,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54339065953,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-08-26T11:44:36Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 220,
+          "executionSeconds": 518,
+          "usage": null
+        },
+        {
+          "runId": 54339042192,
+          "workflow": "All Work Router",
+          "kind": "merge-gate",
+          "conclusion": "success",
+          "startedAt": "2026-08-26T11:11:00Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 238,
+          "executionSeconds": 900,
+          "usage": {
+            "inputTokens": 2171784,
+            "outputTokens": 8905,
+            "cacheReadTokens": 1780972,
+            "cacheWriteTokens": 0,
+            "ambientContext": 4888,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54339036413,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-08-26T10:30:12Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 218,
+          "executionSeconds": 2237,
+          "usage": {
+            "inputTokens": 7042901,
+            "outputTokens": 23661,
+            "cacheReadTokens": 6167202,
+            "cacheWriteTokens": 0,
+            "ambientContext": 5543,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54339007621,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-08-26T09:36:16Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 218,
+          "executionSeconds": 917,
+          "usage": {
+            "inputTokens": 4563107,
+            "outputTokens": 16609,
+            "cacheReadTokens": 3832700,
+            "cacheWriteTokens": 0,
+            "ambientContext": 5435,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54338979921,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-08-26T09:15:54Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 218,
+          "executionSeconds": 641,
+          "usage": {
+            "inputTokens": 2149741,
+            "outputTokens": 8618,
+            "cacheReadTokens": 1937152,
+            "cacheWriteTokens": 0,
+            "ambientContext": 5521,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54338954633,
+          "workflow": "All Work Router",
+          "kind": "merge-gate",
+          "conclusion": "success",
+          "startedAt": "2026-08-25T13:50:00Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 237,
+          "executionSeconds": 840,
+          "usage": {
+            "inputTokens": 4095755,
+            "outputTokens": 14472,
+            "cacheReadTokens": 3405422,
+            "cacheWriteTokens": 0,
+            "ambientContext": 4867,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54338915775,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-08-25T13:27:48Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 216,
+          "executionSeconds": 1103,
+          "usage": {
+            "inputTokens": 4809123,
+            "outputTokens": 24731,
+            "cacheReadTokens": 3815487,
+            "cacheWriteTokens": 0,
+            "ambientContext": 6359,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54338905876,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "failure",
+          "startedAt": "2026-08-25T13:17:50Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 216,
+          "executionSeconds": 490,
+          "usage": {
+            "inputTokens": 2400588,
+            "outputTokens": 9212,
+            "cacheReadTokens": 2146508,
+            "cacheWriteTokens": 0,
+            "ambientContext": 5880,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54338888832,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-08-25T11:52:17Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 216,
+          "executionSeconds": 1144,
+          "usage": {
+            "inputTokens": 4014016,
+            "outputTokens": 20695,
+            "cacheReadTokens": 3556530,
+            "cacheWriteTokens": 0,
+            "ambientContext": 7240,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54338872491,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-08-25T09:05:33Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 216,
+          "executionSeconds": 1442,
+          "usage": {
+            "inputTokens": 4125523,
+            "outputTokens": 14016,
+            "cacheReadTokens": 3741084,
+            "cacheWriteTokens": 0,
+            "ambientContext": 5137,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54338871258,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-08-25T08:27:01Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 216,
+          "executionSeconds": 329,
+          "usage": {
+            "inputTokens": 1563567,
+            "outputTokens": 6311,
+            "cacheReadTokens": 1288893,
+            "cacheWriteTokens": 0,
+            "ambientContext": 7422,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54338473736,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-08-24T10:01:32.106Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 152,
+          "executionSeconds": 576,
+          "usage": {
+            "inputTokens": 1624281,
+            "outputTokens": 7669,
+            "cacheReadTokens": 1274557,
+            "cacheWriteTokens": 0,
+            "ambientContext": 7918,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54338796033,
+          "workflow": "All Work Router",
+          "kind": "merge-gate",
+          "conclusion": "success",
+          "startedAt": "2026-08-22T16:47:27.780Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 156,
+          "executionSeconds": 69,
+          "usage": {
+            "inputTokens": 220045,
+            "outputTokens": 769,
+            "cacheReadTokens": 185085,
+            "cacheWriteTokens": 0,
+            "ambientContext": 6876,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54338590339,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-08-20T18:10:34.218Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 186,
+          "executionSeconds": 350,
+          "usage": {
+            "inputTokens": 1637022,
+            "outputTokens": 7304,
+            "cacheReadTokens": 1423309,
+            "cacheWriteTokens": 0,
+            "ambientContext": 7670,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54338510764,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-08-20T10:18:43.963Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 155,
+          "executionSeconds": 409,
+          "usage": null
+        },
+        {
+          "runId": 54338683218,
+          "workflow": "All Work Router",
+          "kind": "apply-review",
+          "conclusion": "success",
+          "startedAt": "2026-08-19T12:19:09.632Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 146,
+          "executionSeconds": 556,
+          "usage": {
+            "inputTokens": 2263009,
+            "outputTokens": 11644,
+            "cacheReadTokens": 1987618,
+            "cacheWriteTokens": 0,
+            "ambientContext": 5065,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54338483445,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-08-19T10:29:51.550Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 203,
+          "executionSeconds": 184,
+          "usage": {
+            "inputTokens": 836368,
+            "outputTokens": 2633,
+            "cacheReadTokens": 767351,
+            "cacheWriteTokens": 0,
+            "ambientContext": 8253,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54338659554,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "failure",
+          "startedAt": "2026-08-19T01:40:37.009Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 136,
+          "executionSeconds": 2709,
+          "usage": null
+        },
+        {
+          "runId": 54338757451,
+          "workflow": "All Work Router",
+          "kind": "merge-gate",
+          "conclusion": "success",
+          "startedAt": "2026-08-17T22:59:52.741Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 192,
+          "executionSeconds": 154,
+          "usage": {
+            "inputTokens": 389590,
+            "outputTokens": 1666,
+            "cacheReadTokens": 351170,
+            "cacheWriteTokens": 0,
+            "ambientContext": 6067,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54338352700,
+          "workflow": "All Work Router",
+          "kind": "triage",
+          "conclusion": "success",
+          "startedAt": "2026-08-17T00:43:05.473Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 204,
+          "executionSeconds": 68,
+          "usage": {
+            "inputTokens": 218192,
+            "outputTokens": 683,
+            "cacheReadTokens": 188187,
+            "cacheWriteTokens": 0,
+            "ambientContext": 8159,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54338798302,
+          "workflow": "All Work Router",
+          "kind": "merge-gate",
+          "conclusion": "success",
+          "startedAt": "2026-08-16T06:45:11.663Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 167,
+          "executionSeconds": 472,
+          "usage": {
+            "inputTokens": 1865046,
+            "outputTokens": 7329,
+            "cacheReadTokens": 1467189,
+            "cacheWriteTokens": 0,
+            "ambientContext": 6986,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54338716473,
+          "workflow": "All Work Router",
+          "kind": "apply-review",
+          "conclusion": "success",
+          "startedAt": "2026-08-15T14:48:50.992Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 125,
+          "executionSeconds": 398,
+          "usage": {
+            "inputTokens": 1619987,
+            "outputTokens": 5616,
+            "cacheReadTokens": 1346885,
+            "cacheWriteTokens": 0,
+            "ambientContext": 6100,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54338834987,
+          "workflow": "All Work Router",
+          "kind": "audit",
+          "conclusion": "success",
+          "startedAt": "2026-08-15T05:54:17.453Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": null,
+          "executionSeconds": 612,
+          "usage": {
+            "inputTokens": 2274627,
+            "outputTokens": 8669,
+            "cacheReadTokens": 1876600,
+            "cacheWriteTokens": 0,
+            "ambientContext": 9181,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54338366635,
+          "workflow": "All Work Router",
+          "kind": "triage",
+          "conclusion": "success",
+          "startedAt": "2026-08-13T22:49:14.539Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 130,
+          "executionSeconds": 51,
+          "usage": {
+            "inputTokens": 227262,
+            "outputTokens": 798,
+            "cacheReadTokens": 188469,
+            "cacheWriteTokens": 0,
+            "ambientContext": 5381,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54338383309,
+          "workflow": "All Work Router",
+          "kind": "triage",
+          "conclusion": "failure",
+          "startedAt": "2026-08-13T16:28:33.396Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 148,
+          "executionSeconds": 2,
+          "usage": null
+        },
+        {
+          "runId": 54338421075,
+          "workflow": "All Work Router",
+          "kind": "triage",
+          "conclusion": "success",
+          "startedAt": "2026-08-13T06:44:14.723Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 180,
+          "executionSeconds": 97,
+          "usage": {
+            "inputTokens": 306675,
+            "outputTokens": 1260,
+            "cacheReadTokens": 279925,
+            "cacheWriteTokens": 0,
+            "ambientContext": 7691,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54338409540,
+          "workflow": "All Work Router",
+          "kind": "triage",
+          "conclusion": "success",
+          "startedAt": "2026-08-12T15:47:07.704Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 121,
+          "executionSeconds": 113,
+          "usage": {
+            "inputTokens": 430837,
+            "outputTokens": 1770,
+            "cacheReadTokens": 380500,
+            "cacheWriteTokens": 0,
+            "ambientContext": 7930,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54338456673,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-08-11T02:53:42.651Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 121,
+          "executionSeconds": 559,
+          "usage": {
+            "inputTokens": 2894412,
+            "outputTokens": 12346,
+            "cacheReadTokens": 2575824,
+            "cacheWriteTokens": 0,
+            "ambientContext": 9117,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54338782211,
+          "workflow": "All Work Router",
+          "kind": "merge-gate",
+          "conclusion": "success",
+          "startedAt": "2026-08-10T12:13:40.676Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 170,
+          "executionSeconds": 108,
+          "usage": {
+            "inputTokens": 474084,
+            "outputTokens": 1485,
+            "cacheReadTokens": 374290,
+            "cacheWriteTokens": 0,
+            "ambientContext": 8966,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54338635654,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-08-09T00:14:01.393Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 200,
+          "executionSeconds": 706,
+          "usage": {
+            "inputTokens": 2195081,
+            "outputTokens": 8055,
+            "cacheReadTokens": 1761638,
+            "cacheWriteTokens": 0,
+            "ambientContext": 7024,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54338531023,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-08-07T15:04:29.214Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 201,
+          "executionSeconds": 563,
+          "usage": {
+            "inputTokens": 2834136,
+            "outputTokens": 13691,
+            "cacheReadTokens": 2548960,
+            "cacheWriteTokens": 0,
+            "ambientContext": 8758,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54338633926,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-08-06T21:49:43.196Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 174,
+          "executionSeconds": 1453,
+          "usage": {
+            "inputTokens": 4183507,
+            "outputTokens": 15701,
+            "cacheReadTokens": 3730160,
+            "cacheWriteTokens": 0,
+            "ambientContext": 7374,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54338540337,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-08-04T18:19:19.682Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 130,
+          "executionSeconds": 523,
+          "usage": {
+            "inputTokens": 1605815,
+            "outputTokens": 5859,
+            "cacheReadTokens": 1316117,
+            "cacheWriteTokens": 0,
+            "ambientContext": 8186,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54338570720,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-08-03T00:38:13.241Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 184,
+          "executionSeconds": 809,
+          "usage": {
+            "inputTokens": 4011195,
+            "outputTokens": 21597,
+            "cacheReadTokens": 3372661,
+            "cacheWriteTokens": 0,
+            "ambientContext": 9126,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54338723545,
+          "workflow": "All Work Router",
+          "kind": "merge-gate",
+          "conclusion": "success",
+          "startedAt": "2026-08-02T21:24:26.934Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 198,
+          "executionSeconds": 660,
+          "usage": {
+            "inputTokens": 1865948,
+            "outputTokens": 9209,
+            "cacheReadTokens": 1673442,
+            "cacheWriteTokens": 0,
+            "ambientContext": 7094,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54338452133,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-08-02T02:51:49.358Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 175,
+          "executionSeconds": 551,
+          "usage": null
+        },
+        {
+          "runId": 54338609440,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "failure",
+          "startedAt": "2026-08-01T05:15:40.872Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 185,
+          "executionSeconds": 15,
+          "usage": {
+            "inputTokens": 44818,
+            "outputTokens": 146,
+            "cacheReadTokens": 36565,
+            "cacheWriteTokens": 0,
+            "ambientContext": 6709,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        }
+      ],
+      "byKind": {
+        "triage": {
+          "runs": 5,
+          "runsWithUsage": 4,
+          "successful": 4,
+          "tokens": {
+            "inputTokens": 1182966,
+            "outputTokens": 4511,
+            "cacheReadTokens": 1037081,
+            "cacheWriteTokens": 0,
+            "ambientContext": 29161,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          },
+          "executionSeconds": {
+            "available": true,
+            "data": {
+              "count": 5,
+              "p50": 68,
+              "p75": 97,
+              "p90": 106.6
+            }
+          },
+          "totalExecutionSeconds": 331
+        },
+        "refine": {
+          "runs": 16,
+          "runsWithUsage": 12,
+          "successful": 16,
+          "tokens": {
+            "inputTokens": 25754123,
+            "outputTokens": 105086,
+            "cacheReadTokens": 21921871,
+            "cacheWriteTokens": 0,
+            "ambientContext": 91288,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          },
+          "executionSeconds": {
+            "available": true,
+            "data": {
+              "count": 16,
+              "p50": 555,
+              "p75": 654,
+              "p90": 771.5
+            }
+          },
+          "totalExecutionSeconds": 9068
+        },
+        "implement": {
+          "runs": 17,
+          "runsWithUsage": 16,
+          "successful": 14,
+          "tokens": {
+            "inputTokens": 71813384,
+            "outputTokens": 285810,
+            "cacheReadTokens": 62587597,
+            "cacheWriteTokens": 0,
+            "ambientContext": 109904,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          },
+          "executionSeconds": {
+            "available": true,
+            "data": {
+              "count": 17,
+              "p50": 1172,
+              "p75": 1453,
+              "p90": 2167.4
+            }
+          },
+          "totalExecutionSeconds": 21062
+        },
+        "apply-review": {
+          "runs": 2,
+          "runsWithUsage": 2,
+          "successful": 2,
+          "tokens": {
+            "inputTokens": 3882996,
+            "outputTokens": 17260,
+            "cacheReadTokens": 3334503,
+            "cacheWriteTokens": 0,
+            "ambientContext": 11165,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          },
+          "executionSeconds": {
+            "available": true,
+            "data": {
+              "count": 2,
+              "p50": 477,
+              "p75": 516.5,
+              "p90": 540.2
+            }
+          },
+          "totalExecutionSeconds": 954
+        },
+        "merge-gate": {
+          "runs": 13,
+          "runsWithUsage": 11,
+          "successful": 13,
+          "tokens": {
+            "inputTokens": 22393262,
+            "outputTokens": 87386,
+            "cacheReadTokens": 18586499,
+            "cacheWriteTokens": 0,
+            "ambientContext": 74611,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          },
+          "executionSeconds": {
+            "available": true,
+            "data": {
+              "count": 13,
+              "p50": 840,
+              "p75": 900,
+              "p90": 900
+            }
+          },
+          "totalExecutionSeconds": 8003
+        },
+        "audit": {
+          "runs": 1,
+          "runsWithUsage": 1,
+          "successful": 1,
+          "tokens": {
+            "inputTokens": 2274627,
+            "outputTokens": 8669,
+            "cacheReadTokens": 1876600,
+            "cacheWriteTokens": 0,
+            "ambientContext": 9181,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          },
+          "executionSeconds": {
+            "available": true,
+            "data": {
+              "count": 1,
+              "p50": 612,
+              "p75": 612,
+              "p90": 612
+            }
+          },
+          "totalExecutionSeconds": 612
+        }
+      }
+    }
   },
   "contributors": {
     "available": true,
@@ -316,74 +1427,75 @@
       "message": "Mobile has no production environment, so production metrics are skipped."
     },
     {
-      "code": "AGENTS_DISABLED",
-      "severity": "info",
-      "message": "Agent collection is off for Mobile."
+      "code": "USAGE_ARTIFACT_MISSING",
+      "message": "8 of 54 agent run(s) had no readable usage artifact. Artifacts expire after about 90 days, and a run still in progress has not uploaded one yet.",
+      "context": {
+        "runs": 8,
+        "of": 54
+      }
     }
   ],
   "agentic": {
     "available": true,
     "data": {
       "defaultBranch": "main",
-      "setup": "custom",
+      "setup": "standard",
       "harness": {
-        "version": null,
+        "version": "3.1.0",
         "latest": "3.1.0",
-        "legacy": true,
-        "legacyVersion": "1.6.0"
+        "legacy": false,
+        "legacyVersion": null
       },
       "workflows": {
-        "version": null,
+        "version": "1.2.3",
         "latest": "1.2.3",
-        "router": false,
+        "router": true,
         "workers": [
           {
             "name": "triage",
-            "present": false
+            "present": true
           },
           {
             "name": "refine",
-            "present": false
+            "present": true
           },
           {
             "name": "implement",
-            "present": false
+            "present": true
           },
           {
             "name": "merge-gate",
-            "present": false
+            "present": true
           },
           {
             "name": "apply-review",
-            "present": false
+            "present": true
           },
           {
             "name": "audit",
-            "present": false
+            "present": true
           },
           {
             "name": "release",
-            "present": false
+            "present": true
           }
         ],
-        "evidence": false,
+        "evidence": true,
         "retired": [],
-        "custom": [
-          "implement-ready.md"
-        ]
+        "custom": []
       },
-      "verifyEnvironment": null,
+      "verifyEnvironment": true,
       "bot": {
         "prefix": "[bot]",
-        "merged": 0,
-        "lastMergedAt": null,
+        "merged": 8,
+        "lastMergedAt": "2026-08-30T11:49:00Z",
         "added": {
-          "pullRequests": 0,
-          "codeLines": 0,
-          "commentLines": 0,
-          "testLines": 0,
-          "testCases": 0,
-          "slop": 0
+          "pullRequests": 8,
+          "codeLines": 839,
+          "commentLines": 29,
+          "testLines": 437,
+          "testCases": 36,
+          "slop": 1
         }
       }
     }
@@ -529,6 +1641,1293 @@
     "hygiene": {
       "available": false,
       "reason": "No engineering-excellence-hygiene artifact was uploaded from main in this period, or every one has expired."
+    }
+  },
+  "roadmap": {
+    "available": true,
+    "data": {
+      "asOf": "2026-08-31T03:15:00Z",
+      "issues": [
+        {
+          "number": 214,
+          "title": "Login screen forgets the email after rotating",
+          "author": "alex",
+          "source": "person",
+          "createdAt": "2026-08-24T16:30:00Z",
+          "closedAt": "2026-08-24T21:10:00Z",
+          "updatedAt": "2026-08-24T21:10:00Z",
+          "outcome": "merged-by-hand",
+          "estimate": null,
+          "segments": [
+            {
+              "state": "manual",
+              "from": 0,
+              "to": 280
+            }
+          ],
+          "marks": [],
+          "events": [
+            {
+              "at": "2026-08-24T16:30:00Z",
+              "kind": "opened",
+              "actor": "alex",
+              "detail": null
+            },
+            {
+              "at": "2026-08-24T21:00:00Z",
+              "kind": "pr-linked",
+              "actor": "alex",
+              "detail": "236"
+            },
+            {
+              "at": "2026-08-24T21:10:00Z",
+              "kind": "merged",
+              "actor": "alex",
+              "detail": "236"
+            },
+            {
+              "at": "2026-08-24T21:10:00Z",
+              "kind": "closed",
+              "actor": "alex",
+              "detail": null
+            }
+          ],
+          "pullRequests": [
+            {
+              "number": 236,
+              "title": "Login screen forgets the email after rotating",
+              "author": "alex",
+              "byAgent": false,
+              "closes": true,
+              "createdAt": "2026-08-24T21:00:00Z",
+              "mergedAt": "2026-08-24T21:10:00Z",
+              "mergedBy": "alex",
+              "additions": 40,
+              "deletions": 6,
+              "changedFiles": 2,
+              "mergeGate": null
+            }
+          ],
+          "evidence": null,
+          "agent": {
+            "runs": 0,
+            "inputTokens": 0,
+            "outputTokens": 0,
+            "seconds": 0
+          }
+        },
+        {
+          "number": 216,
+          "title": "Order totals differ between the app and the web",
+          "author": "sam",
+          "source": "person",
+          "createdAt": "2026-08-25T08:20:00Z",
+          "closedAt": "2026-08-25T14:05:00Z",
+          "updatedAt": "2026-08-25T14:05:00Z",
+          "outcome": "merged",
+          "estimate": 2,
+          "segments": [
+            {
+              "state": "queued",
+              "from": 0,
+              "to": 4
+            },
+            {
+              "state": "agent",
+              "from": 4,
+              "to": 13
+            },
+            {
+              "state": "queued",
+              "from": 13,
+              "to": 43
+            },
+            {
+              "state": "agent",
+              "from": 43,
+              "to": 70
+            },
+            {
+              "state": "person",
+              "from": 70,
+              "to": 210
+            },
+            {
+              "state": "agent",
+              "from": 210,
+              "to": 232
+            },
+            {
+              "state": "person",
+              "from": 232,
+              "to": 296
+            },
+            {
+              "state": "agent",
+              "from": 296,
+              "to": 327
+            },
+            {
+              "state": "merge",
+              "from": 327,
+              "to": 345
+            }
+          ],
+          "marks": [
+            {
+              "at": 70,
+              "kind": "stalled"
+            },
+            {
+              "at": 232,
+              "kind": "stalled"
+            },
+            {
+              "at": 306,
+              "kind": "failed-run"
+            }
+          ],
+          "events": [
+            {
+              "at": "2026-08-25T08:20:00Z",
+              "kind": "opened",
+              "actor": "sam",
+              "detail": null
+            },
+            {
+              "at": "2026-08-25T08:20:00Z",
+              "kind": "requested",
+              "actor": "sam",
+              "detail": "refine"
+            },
+            {
+              "at": "2026-08-25T08:24:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-25T08:33:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-25T08:33:00Z",
+              "kind": "estimated",
+              "actor": "example-bot[bot]",
+              "detail": "sp-2"
+            },
+            {
+              "at": "2026-08-25T09:03:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-25T09:30:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-25T09:30:00Z",
+              "kind": "stalled",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-25T11:50:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-25T12:12:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-25T12:12:00Z",
+              "kind": "stalled",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-25T13:16:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-25T13:26:00Z",
+              "kind": "failed-run",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-25T13:47:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-25T13:47:00Z",
+              "kind": "pr-linked",
+              "actor": "example-bot[bot]",
+              "detail": "237"
+            },
+            {
+              "at": "2026-08-25T14:05:00Z",
+              "kind": "merged",
+              "actor": "sam",
+              "detail": "237"
+            },
+            {
+              "at": "2026-08-25T14:05:00Z",
+              "kind": "closed",
+              "actor": "sam",
+              "detail": null
+            }
+          ],
+          "pullRequests": [
+            {
+              "number": 237,
+              "title": "Order totals differ between the app and the web",
+              "author": "example-bot[bot]",
+              "byAgent": true,
+              "closes": true,
+              "createdAt": "2026-08-25T13:47:00Z",
+              "mergedAt": "2026-08-25T14:05:00Z",
+              "mergedBy": "sam",
+              "additions": 95,
+              "deletions": 31,
+              "changedFiles": 4,
+              "mergeGate": null
+            }
+          ],
+          "evidence": null,
+          "agent": {
+            "runs": 5,
+            "inputTokens": 16912817,
+            "outputTokens": 74965,
+            "seconds": 4508
+          }
+        },
+        {
+          "number": 218,
+          "title": "Add Face ID sign-in on iOS",
+          "author": "sam",
+          "source": "person",
+          "createdAt": "2026-08-26T09:10:00Z",
+          "closedAt": "2026-08-26T11:30:00Z",
+          "updatedAt": "2026-08-26T11:30:00Z",
+          "outcome": "auto-merged",
+          "estimate": 5,
+          "segments": [
+            {
+              "state": "queued",
+              "from": 0,
+              "to": 3
+            },
+            {
+              "state": "agent",
+              "from": 3,
+              "to": 17
+            },
+            {
+              "state": "queued",
+              "from": 17,
+              "to": 23
+            },
+            {
+              "state": "agent",
+              "from": 23,
+              "to": 42
+            },
+            {
+              "state": "queued",
+              "from": 42,
+              "to": 77
+            },
+            {
+              "state": "agent",
+              "from": 77,
+              "to": 118
+            },
+            {
+              "state": "merge",
+              "from": 118,
+              "to": 140
+            }
+          ],
+          "marks": [],
+          "events": [
+            {
+              "at": "2026-08-26T09:10:00Z",
+              "kind": "opened",
+              "actor": "sam",
+              "detail": null
+            },
+            {
+              "at": "2026-08-26T09:10:00Z",
+              "kind": "requested",
+              "actor": "sam",
+              "detail": "refine"
+            },
+            {
+              "at": "2026-08-26T09:13:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-26T09:27:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-26T09:27:00Z",
+              "kind": "estimated",
+              "actor": "example-bot[bot]",
+              "detail": "sp-5"
+            },
+            {
+              "at": "2026-08-26T09:33:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-26T09:52:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-26T10:27:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-26T11:08:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-26T11:08:00Z",
+              "kind": "pr-linked",
+              "actor": "example-bot[bot]",
+              "detail": "238"
+            },
+            {
+              "at": "2026-08-26T11:30:00Z",
+              "kind": "merged",
+              "actor": "example-bot[bot]",
+              "detail": "238"
+            },
+            {
+              "at": "2026-08-26T11:30:00Z",
+              "kind": "closed",
+              "actor": "example-bot[bot]",
+              "detail": null
+            }
+          ],
+          "pullRequests": [
+            {
+              "number": 238,
+              "title": "Add Face ID sign-in on iOS",
+              "author": "example-bot[bot]",
+              "byAgent": true,
+              "closes": true,
+              "createdAt": "2026-08-26T11:08:00Z",
+              "mergedAt": "2026-08-26T11:30:00Z",
+              "mergedBy": "example-bot[bot]",
+              "additions": 612,
+              "deletions": 40,
+              "changedFiles": 14,
+              "mergeGate": "auto-merge"
+            }
+          ],
+          "evidence": null,
+          "agent": {
+            "runs": 3,
+            "inputTokens": 13755749,
+            "outputTokens": 48888,
+            "seconds": 3795
+          }
+        },
+        {
+          "number": 220,
+          "title": "Explain why a push notification was not delivered",
+          "author": "alex",
+          "source": "person",
+          "createdAt": "2026-08-26T11:40:00Z",
+          "closedAt": "2026-08-26T14:50:00Z",
+          "updatedAt": "2026-08-26T14:50:00Z",
+          "outcome": "merged",
+          "estimate": 3,
+          "segments": [
+            {
+              "state": "queued",
+              "from": 0,
+              "to": 2
+            },
+            {
+              "state": "agent",
+              "from": 2,
+              "to": 14
+            },
+            {
+              "state": "person",
+              "from": 14,
+              "to": 109
+            },
+            {
+              "state": "agent",
+              "from": 109,
+              "to": 142
+            },
+            {
+              "state": "merge",
+              "from": 142,
+              "to": 190
+            }
+          ],
+          "marks": [],
+          "events": [
+            {
+              "at": "2026-08-26T11:40:00Z",
+              "kind": "opened",
+              "actor": "alex",
+              "detail": null
+            },
+            {
+              "at": "2026-08-26T11:40:00Z",
+              "kind": "requested",
+              "actor": "alex",
+              "detail": "refine"
+            },
+            {
+              "at": "2026-08-26T11:42:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-26T11:54:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-26T11:54:00Z",
+              "kind": "review",
+              "actor": "example-bot[bot]",
+              "detail": "review"
+            },
+            {
+              "at": "2026-08-26T11:54:00Z",
+              "kind": "estimated",
+              "actor": "example-bot[bot]",
+              "detail": "sp-3"
+            },
+            {
+              "at": "2026-08-26T13:29:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-26T14:02:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-26T14:02:00Z",
+              "kind": "pr-linked",
+              "actor": "example-bot[bot]",
+              "detail": "239"
+            },
+            {
+              "at": "2026-08-26T14:50:00Z",
+              "kind": "merged",
+              "actor": "alex",
+              "detail": "239"
+            },
+            {
+              "at": "2026-08-26T14:50:00Z",
+              "kind": "closed",
+              "actor": "alex",
+              "detail": null
+            }
+          ],
+          "pullRequests": [
+            {
+              "number": 239,
+              "title": "Explain why a push notification was not delivered",
+              "author": "example-bot[bot]",
+              "byAgent": true,
+              "closes": true,
+              "createdAt": "2026-08-26T14:02:00Z",
+              "mergedAt": "2026-08-26T14:50:00Z",
+              "mergedBy": "alex",
+              "additions": 188,
+              "deletions": 12,
+              "changedFiles": 6,
+              "mergeGate": null
+            }
+          ],
+          "evidence": null,
+          "agent": {
+            "runs": 2,
+            "inputTokens": 7691075,
+            "outputTokens": 24337,
+            "seconds": 2300
+          }
+        },
+        {
+          "number": 222,
+          "title": "Restore the cart after the app is killed",
+          "author": "jo",
+          "source": "person",
+          "createdAt": "2026-08-27T14:05:00Z",
+          "closedAt": "2026-08-28T01:45:00Z",
+          "updatedAt": "2026-08-28T01:45:00Z",
+          "outcome": "merged",
+          "estimate": 3,
+          "segments": [
+            {
+              "state": "queued",
+              "from": 0,
+              "to": 2
+            },
+            {
+              "state": "agent",
+              "from": 2,
+              "to": 18
+            },
+            {
+              "state": "queued",
+              "from": 18,
+              "to": 62
+            },
+            {
+              "state": "agent",
+              "from": 62,
+              "to": 100
+            },
+            {
+              "state": "merge",
+              "from": 100,
+              "to": 700
+            }
+          ],
+          "marks": [],
+          "events": [
+            {
+              "at": "2026-08-27T14:05:00Z",
+              "kind": "opened",
+              "actor": "jo",
+              "detail": null
+            },
+            {
+              "at": "2026-08-27T14:05:00Z",
+              "kind": "requested",
+              "actor": "jo",
+              "detail": "refine"
+            },
+            {
+              "at": "2026-08-27T14:07:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-27T14:23:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-27T14:23:00Z",
+              "kind": "estimated",
+              "actor": "example-bot[bot]",
+              "detail": "sp-3"
+            },
+            {
+              "at": "2026-08-27T15:07:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-27T15:45:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-27T15:45:00Z",
+              "kind": "pr-linked",
+              "actor": "example-bot[bot]",
+              "detail": "240"
+            },
+            {
+              "at": "2026-08-28T01:45:00Z",
+              "kind": "merged",
+              "actor": "jo",
+              "detail": "240"
+            },
+            {
+              "at": "2026-08-28T01:45:00Z",
+              "kind": "closed",
+              "actor": "jo",
+              "detail": null
+            }
+          ],
+          "pullRequests": [
+            {
+              "number": 240,
+              "title": "Restore the cart after the app is killed",
+              "author": "example-bot[bot]",
+              "byAgent": true,
+              "closes": true,
+              "createdAt": "2026-08-27T15:45:00Z",
+              "mergedAt": "2026-08-28T01:45:00Z",
+              "mergedBy": "jo",
+              "additions": 240,
+              "deletions": 18,
+              "changedFiles": 9,
+              "mergeGate": null
+            }
+          ],
+          "evidence": null,
+          "agent": {
+            "runs": 2,
+            "inputTokens": 12212314,
+            "outputTokens": 44594,
+            "seconds": 2873
+          }
+        },
+        {
+          "number": 224,
+          "title": "Nightly E2E is failing",
+          "author": "github-actions[bot]",
+          "source": "nightly",
+          "createdAt": "2026-08-28T03:05:00Z",
+          "closedAt": "2026-08-28T04:09:00Z",
+          "updatedAt": "2026-08-28T04:09:00Z",
+          "outcome": "auto-merged",
+          "estimate": null,
+          "segments": [
+            {
+              "state": "queued",
+              "from": 0,
+              "to": 8
+            },
+            {
+              "state": "agent",
+              "from": 8,
+              "to": 29
+            },
+            {
+              "state": "merge",
+              "from": 29,
+              "to": 64
+            }
+          ],
+          "marks": [],
+          "events": [
+            {
+              "at": "2026-08-28T03:05:00Z",
+              "kind": "opened",
+              "actor": "github-actions[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-28T03:05:00Z",
+              "kind": "requested",
+              "actor": "github-actions[bot]",
+              "detail": "refine"
+            },
+            {
+              "at": "2026-08-28T03:13:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-28T03:34:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-28T03:34:00Z",
+              "kind": "pr-linked",
+              "actor": "example-bot[bot]",
+              "detail": "241"
+            },
+            {
+              "at": "2026-08-28T04:09:00Z",
+              "kind": "merged",
+              "actor": "example-bot[bot]",
+              "detail": "241"
+            },
+            {
+              "at": "2026-08-28T04:09:00Z",
+              "kind": "closed",
+              "actor": "example-bot[bot]",
+              "detail": null
+            }
+          ],
+          "pullRequests": [
+            {
+              "number": 241,
+              "title": "Nightly E2E is failing",
+              "author": "example-bot[bot]",
+              "byAgent": true,
+              "closes": true,
+              "createdAt": "2026-08-28T03:34:00Z",
+              "mergedAt": "2026-08-28T04:09:00Z",
+              "mergedBy": "example-bot[bot]",
+              "additions": 12,
+              "deletions": 4,
+              "changedFiles": 1,
+              "mergeGate": "auto-merge"
+            }
+          ],
+          "evidence": null,
+          "agent": {
+            "runs": 1,
+            "inputTokens": 4191795,
+            "outputTokens": 15743,
+            "seconds": 1113
+          }
+        },
+        {
+          "number": 226,
+          "title": "Retry image uploads on a flaky connection",
+          "author": "sam",
+          "source": "person",
+          "createdAt": "2026-08-28T09:00:00Z",
+          "closedAt": "2026-08-28T13:55:00Z",
+          "updatedAt": "2026-08-28T13:55:00Z",
+          "outcome": "auto-merged",
+          "estimate": 2,
+          "segments": [
+            {
+              "state": "queued",
+              "from": 0,
+              "to": 1
+            },
+            {
+              "state": "agent",
+              "from": 1,
+              "to": 18
+            },
+            {
+              "state": "person",
+              "from": 18,
+              "to": 248
+            },
+            {
+              "state": "queued",
+              "from": 248,
+              "to": 260
+            },
+            {
+              "state": "agent",
+              "from": 260,
+              "to": 286
+            },
+            {
+              "state": "merge",
+              "from": 286,
+              "to": 295
+            }
+          ],
+          "marks": [],
+          "events": [
+            {
+              "at": "2026-08-28T09:00:00Z",
+              "kind": "opened",
+              "actor": "sam",
+              "detail": null
+            },
+            {
+              "at": "2026-08-28T09:00:00Z",
+              "kind": "requested",
+              "actor": "sam",
+              "detail": "refine"
+            },
+            {
+              "at": "2026-08-28T09:01:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-28T09:18:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-28T09:18:00Z",
+              "kind": "review",
+              "actor": "example-bot[bot]",
+              "detail": "review"
+            },
+            {
+              "at": "2026-08-28T09:18:00Z",
+              "kind": "estimated",
+              "actor": "example-bot[bot]",
+              "detail": "sp-2"
+            },
+            {
+              "at": "2026-08-28T13:20:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-28T13:46:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-28T13:46:00Z",
+              "kind": "pr-linked",
+              "actor": "example-bot[bot]",
+              "detail": "242"
+            },
+            {
+              "at": "2026-08-28T13:55:00Z",
+              "kind": "merged",
+              "actor": "example-bot[bot]",
+              "detail": "242"
+            },
+            {
+              "at": "2026-08-28T13:55:00Z",
+              "kind": "closed",
+              "actor": "example-bot[bot]",
+              "detail": null
+            }
+          ],
+          "pullRequests": [
+            {
+              "number": 242,
+              "title": "Retry image uploads on a flaky connection",
+              "author": "example-bot[bot]",
+              "byAgent": true,
+              "closes": true,
+              "createdAt": "2026-08-28T13:46:00Z",
+              "mergedAt": "2026-08-28T13:55:00Z",
+              "mergedBy": "example-bot[bot]",
+              "additions": 130,
+              "deletions": 22,
+              "changedFiles": 5,
+              "mergeGate": "auto-merge"
+            }
+          ],
+          "evidence": null,
+          "agent": {
+            "runs": 2,
+            "inputTokens": 3837640,
+            "outputTokens": 19550,
+            "seconds": 2161
+          }
+        },
+        {
+          "number": 228,
+          "title": "Audit: 2026-08-29",
+          "author": "github-actions[bot]",
+          "source": "audit",
+          "createdAt": "2026-08-29T02:10:00Z",
+          "closedAt": "2026-08-29T21:56:00Z",
+          "updatedAt": "2026-08-29T21:56:00Z",
+          "outcome": "closed",
+          "estimate": null,
+          "segments": [
+            {
+              "state": "queued",
+              "from": 0,
+              "to": 6
+            },
+            {
+              "state": "person",
+              "from": 6,
+              "to": 1186
+            }
+          ],
+          "marks": [],
+          "events": [
+            {
+              "at": "2026-08-29T02:10:00Z",
+              "kind": "opened",
+              "actor": "github-actions[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-29T02:10:00Z",
+              "kind": "requested",
+              "actor": "github-actions[bot]",
+              "detail": "refine"
+            },
+            {
+              "at": "2026-08-29T02:16:00Z",
+              "kind": "review",
+              "actor": "example-bot[bot]",
+              "detail": "review"
+            },
+            {
+              "at": "2026-08-29T21:56:00Z",
+              "kind": "closed",
+              "actor": "sam",
+              "detail": null
+            }
+          ],
+          "pullRequests": [],
+          "evidence": null,
+          "agent": {
+            "runs": 0,
+            "inputTokens": 0,
+            "outputTokens": 0,
+            "seconds": 0
+          }
+        },
+        {
+          "number": 230,
+          "title": "NetworkTimeoutException in mobile-pre-app",
+          "author": "github-actions[bot]",
+          "source": "app-error",
+          "createdAt": "2026-08-29T02:15:00Z",
+          "closedAt": "2026-08-29T09:05:00Z",
+          "updatedAt": "2026-08-29T09:05:00Z",
+          "outcome": "auto-merged",
+          "estimate": null,
+          "segments": [
+            {
+              "state": "queued",
+              "from": 0,
+              "to": 255
+            },
+            {
+              "state": "agent",
+              "from": 255,
+              "to": 266
+            },
+            {
+              "state": "person",
+              "from": 266,
+              "to": 356
+            },
+            {
+              "state": "agent",
+              "from": 356,
+              "to": 380
+            },
+            {
+              "state": "merge",
+              "from": 380,
+              "to": 410
+            }
+          ],
+          "marks": [],
+          "events": [
+            {
+              "at": "2026-08-29T02:15:00Z",
+              "kind": "opened",
+              "actor": "github-actions[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-29T02:15:00Z",
+              "kind": "requested",
+              "actor": "github-actions[bot]",
+              "detail": "refine"
+            },
+            {
+              "at": "2026-08-29T06:30:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-29T06:41:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-29T06:41:00Z",
+              "kind": "review",
+              "actor": "example-bot[bot]",
+              "detail": "review"
+            },
+            {
+              "at": "2026-08-29T08:11:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-29T08:35:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-29T08:35:00Z",
+              "kind": "pr-linked",
+              "actor": "example-bot[bot]",
+              "detail": "243"
+            },
+            {
+              "at": "2026-08-29T09:05:00Z",
+              "kind": "merged",
+              "actor": "example-bot[bot]",
+              "detail": "243"
+            },
+            {
+              "at": "2026-08-29T09:05:00Z",
+              "kind": "closed",
+              "actor": "example-bot[bot]",
+              "detail": null
+            }
+          ],
+          "pullRequests": [
+            {
+              "number": 243,
+              "title": "NetworkTimeoutException in mobile-pre-app",
+              "author": "example-bot[bot]",
+              "byAgent": true,
+              "closes": true,
+              "createdAt": "2026-08-29T08:35:00Z",
+              "mergedAt": "2026-08-29T09:05:00Z",
+              "mergedBy": "example-bot[bot]",
+              "additions": 52,
+              "deletions": 8,
+              "changedFiles": 3,
+              "mergeGate": "auto-merge"
+            }
+          ],
+          "evidence": null,
+          "agent": {
+            "runs": 2,
+            "inputTokens": 7028177,
+            "outputTokens": 28641,
+            "seconds": 1680
+          }
+        },
+        {
+          "number": 232,
+          "title": "Deep links open the home screen instead of the order",
+          "author": "jo",
+          "source": "person",
+          "createdAt": "2026-08-30T10:00:00Z",
+          "closedAt": "2026-08-30T11:49:00Z",
+          "updatedAt": "2026-08-30T11:49:00Z",
+          "outcome": "auto-merged",
+          "estimate": 1,
+          "segments": [
+            {
+              "state": "queued",
+              "from": 0,
+              "to": 2
+            },
+            {
+              "state": "agent",
+              "from": 2,
+              "to": 12
+            },
+            {
+              "state": "queued",
+              "from": 12,
+              "to": 17
+            },
+            {
+              "state": "agent",
+              "from": 17,
+              "to": 39
+            },
+            {
+              "state": "merge",
+              "from": 39,
+              "to": 109
+            }
+          ],
+          "marks": [],
+          "events": [
+            {
+              "at": "2026-08-30T10:00:00Z",
+              "kind": "opened",
+              "actor": "jo",
+              "detail": null
+            },
+            {
+              "at": "2026-08-30T10:00:00Z",
+              "kind": "requested",
+              "actor": "jo",
+              "detail": "refine"
+            },
+            {
+              "at": "2026-08-30T10:02:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-30T10:12:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-30T10:12:00Z",
+              "kind": "estimated",
+              "actor": "example-bot[bot]",
+              "detail": "sp-1"
+            },
+            {
+              "at": "2026-08-30T10:17:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-30T10:39:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-30T10:39:00Z",
+              "kind": "pr-linked",
+              "actor": "example-bot[bot]",
+              "detail": "244"
+            },
+            {
+              "at": "2026-08-30T11:49:00Z",
+              "kind": "merged",
+              "actor": "example-bot[bot]",
+              "detail": "244"
+            },
+            {
+              "at": "2026-08-30T11:49:00Z",
+              "kind": "closed",
+              "actor": "example-bot[bot]",
+              "detail": null
+            }
+          ],
+          "pullRequests": [
+            {
+              "number": 244,
+              "title": "Deep links open the home screen instead of the order",
+              "author": "example-bot[bot]",
+              "byAgent": true,
+              "closes": true,
+              "createdAt": "2026-08-30T10:39:00Z",
+              "mergedAt": "2026-08-30T11:49:00Z",
+              "mergedBy": "example-bot[bot]",
+              "additions": 64,
+              "deletions": 5,
+              "changedFiles": 2,
+              "mergeGate": "auto-merge"
+            }
+          ],
+          "evidence": null,
+          "agent": {
+            "runs": 2,
+            "inputTokens": 7441870,
+            "outputTokens": 30559,
+            "seconds": 1600
+          }
+        },
+        {
+          "number": 234,
+          "title": "Offline mode for the order history",
+          "author": "sam",
+          "source": "person",
+          "createdAt": "2026-08-30T12:30:00Z",
+          "closedAt": null,
+          "updatedAt": "2026-08-30T12:30:00Z",
+          "outcome": "open",
+          "estimate": 5,
+          "segments": [
+            {
+              "state": "queued",
+              "from": 0,
+              "to": 3
+            },
+            {
+              "state": "agent",
+              "from": 3,
+              "to": 18
+            },
+            {
+              "state": "person",
+              "from": 18,
+              "to": 885
+            }
+          ],
+          "marks": [],
+          "events": [
+            {
+              "at": "2026-08-30T12:30:00Z",
+              "kind": "opened",
+              "actor": "sam",
+              "detail": null
+            },
+            {
+              "at": "2026-08-30T12:30:00Z",
+              "kind": "requested",
+              "actor": "sam",
+              "detail": "refine"
+            },
+            {
+              "at": "2026-08-30T12:33:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-30T12:48:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-30T12:48:00Z",
+              "kind": "review",
+              "actor": "example-bot[bot]",
+              "detail": "review"
+            },
+            {
+              "at": "2026-08-30T12:48:00Z",
+              "kind": "estimated",
+              "actor": "example-bot[bot]",
+              "detail": "sp-5"
+            }
+          ],
+          "pullRequests": [],
+          "evidence": null,
+          "agent": {
+            "runs": 1,
+            "inputTokens": 2629435,
+            "outputTokens": 8618,
+            "seconds": 693
+          }
+        }
+      ]
     }
   }
 }

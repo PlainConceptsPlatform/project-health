@@ -48,13 +48,16 @@
       "reworkLabel": "bug",
       "reworkLabelPrecision": "broad",
       "agents": {
-        "enabled": false,
-        "workflow": null
+        "enabled": true,
+        "workflow": ".github/workflows/work-router.yml"
       },
       "engineeringExcellence": {
         "enabled": true
       },
-      "notes": "Names its environment production rather than pro, deploys main rather than tags, and has no dedicated hotfix label. Every one of those is why these are configuration and not assumptions."
+      "notes": "Names its environment production rather than pro, deploys main rather than tags, and has no dedicated hotfix label. Every one of those is why these are configuration and not assumptions.",
+      "roadmap": {
+        "enabled": true
+      }
     },
     {
       "id": "mobile",
@@ -72,13 +75,16 @@
       "reworkLabel": "bug",
       "reworkLabelPrecision": "broad",
       "agents": {
-        "enabled": false,
-        "workflow": null
+        "enabled": true,
+        "workflow": ".github/workflows/work-router.yml"
       },
       "engineeringExcellence": {
         "enabled": true
       },
-      "notes": "Ships to staging but not yet to production, so production metrics are skipped rather than reported as zero."
+      "notes": "Ships to staging but not yet to production, so production metrics are skipped rather than reported as zero.",
+      "roadmap": {
+        "enabled": true
+      }
     },
     {
       "id": "ledger",
@@ -102,7 +108,10 @@
       "engineeringExcellence": {
         "enabled": true
       },
-      "notes": "A library: it publishes packages instead of deploying, so delivery metrics are skipped, and the engineering scorecard and the agents carry it."
+      "notes": "A library: it publishes packages instead of deploying, so delivery metrics are skipped, and the engineering scorecard and the agents carry it.",
+      "roadmap": {
+        "enabled": true
+      }
     }
   ]
 }
