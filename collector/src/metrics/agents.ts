@@ -17,6 +17,43 @@ const AGENT_STEP = /execute\s+opencode/i
 const MAX_RUNS_PER_KIND = 400
 const MAX_RUN_PAGES = 10
 const CONCURRENCY = 8
+/** GitHub returns at most this many runs for a filtered listing, however many pages are asked. */
+const LISTING_LIMIT = MAX_RUN_PAGES * 100
+const HOUR = 3_600_000
+const WEEK = 7 * 24 * HOUR
+
+/** A created filter for runs in [from, to), to the second, which the runs listing accepts. */
+export const createdBetween = (from: Date, to: Date): string => {
+  const iso = (ms: number) => new Date(ms).toISOString().replace(/\.\d{3}Z$/, 'Z')
+  return `${iso(from.getTime())}..${iso(to.getTime() - 1000)}`
+}
+
+/**
+ * Lists runs created in [from, to) a week at a time, halving any slice that comes back full.
+ *
+ * A filtered runs listing stops at a thousand results, and a router that wakes every hour and on
+ * every event passes that in a month: Numa's router ran 1,476 times in October 2026, so listing the
+ * month at once silently lost its first week. A full slice is split down to an hour, past which a
+ * thousand runs would be a runaway loop rather than work worth measuring.
+ */
+export async function listInSlices<T extends { id: number }>(
+  from: Date,
+  to: Date,
+  list: (from: Date, to: Date) => Promise<T[]>,
+): Promise<T[]> {
+  const fill = async (start: number, end: number): Promise<T[]> => {
+    const runs = await list(new Date(start), new Date(end))
+    if (runs.length < LISTING_LIMIT || end - start <= HOUR) return runs
+    const mid = Math.floor((start + end) / 2000) * 1000
+    return [...(await fill(start, mid)), ...(await fill(mid, end))]
+  }
+  const slices: [number, number][] = []
+  for (let start = from.getTime(); start < to.getTime(); start += WEEK) {
+    slices.push([start, Math.min(start + WEEK, to.getTime())])
+  }
+  const found = (await Promise.all(slices.map(([start, end]) => fill(start, end)))).flat()
+  return [...new Map(found.map((run) => [run.id, run])).values()]
+}
 
 /**
  * Runs fn over items with a bounded number in flight. Measuring a run costs three API calls and a
@@ -135,11 +172,40 @@ async function readUsage(repo: string, runId: number): Promise<TokenUsage | null
 
 /** Matches the job that actually runs an agent, for example "call-triage / agent". */
 const AGENT_JOB = /^call-(.+?)\s*\/\s*agent$/
+/** A workflow that runs one kind of agent, for example ".github/workflows/agent-implement.lock.yml". */
+const DIRECT_WORKFLOW = /(?:^|\/)agent-([a-z0-9-]+)\.lock\.ya?ml$/
+/** The jobs before the agent that log the issue they picked, smallest first. */
+const ISSUE_JOBS = ['eligibility', 'reserve', 'still_open']
+const ISSUE_IN_LOG = /\bISSUE_NUMBER:\s*(\d+)/
+const ISSUE_IN_BRANCH = /(?:^|\/)issue-(\d+)(?:\D|$)/
 
 export interface RunShape {
   /** The kind of work, taken from the agent job name. null when no agent ran. */
   kind: string | null
   executionSeconds: number | null
+}
+
+/** The kind a single-kind agent workflow runs, from its file name, or null for any other file. */
+export function directKind(path: string): string | null {
+  return path.match(DIRECT_WORKFLOW)?.[1] ?? null
+}
+
+/**
+ * The issue a directly dispatched agent run worked on. Its title names none, and its branch is no
+ * guide either: a stacked child runs on its parent's feature branch, so "feat/774" ran #781. The
+ * jobs before the agent log the issue they picked, so that line wins; a branch only counts when
+ * it names an issue outright, as "feature/issue-780-manual" does.
+ */
+export function issueOfDirectRun(log: string | null, branch: string | null): number | null {
+  const fromLog = log?.match(ISSUE_IN_LOG)?.[1]
+  if (fromLog) return Number(fromLog)
+  const fromBranch = branch?.match(ISSUE_IN_BRANCH)?.[1]
+  return fromBranch ? Number(fromBranch) : null
+}
+
+async function readJobs(repo: string, runId: number): Promise<Job[] | null> {
+  const jobs = await get<{ jobs: Job[] }>(`/repos/${repo}/actions/runs/${runId}/jobs?per_page=100`)
+  return jobs?.jobs ?? null
 }
 
 /**
@@ -149,19 +215,44 @@ export interface RunShape {
  * nothing for a run that was going to be measured anyway.
  */
 async function readRunShape(repo: string, runId: number): Promise<RunShape> {
-  const jobs = await get<{ jobs: Job[] }>(`/repos/${repo}/actions/runs/${runId}/jobs?per_page=100`)
-  if (!jobs?.jobs) return { kind: null, executionSeconds: null }
-  return shapeFromJobs(jobs.jobs)
+  const jobs = await readJobs(repo, runId)
+  return jobs ? shapeFromJobs(jobs) : { kind: null, executionSeconds: null }
+}
+
+/**
+ * A directly dispatched run: its shape, and its issue from the log of the first small job that
+ * names one. One or two log reads per run, and only for a run not measured before.
+ */
+async function readDirectRun(
+  repo: string,
+  run: WorkflowRun,
+  kind: string,
+): Promise<RunShape & { issueNumber: number | null }> {
+  const jobs = await readJobs(repo, run.id)
+  if (!jobs) return { kind: null, executionSeconds: null, issueNumber: null }
+  const shape = shapeFromJobs(jobs, kind)
+  if (shape.kind === null) return { ...shape, issueNumber: null }
+  for (const name of ISSUE_JOBS) {
+    const job = jobs.find((j) => j.name === name && j.conclusion !== 'skipped')
+    if (!job) continue
+    const bytes = await getBinary(`/repos/${repo}/actions/jobs/${job.id}/logs`)
+    const issue = issueOfDirectRun(bytes ? new TextDecoder().decode(bytes) : null, null)
+    if (issue !== null) return { ...shape, issueNumber: issue }
+  }
+  return { ...shape, issueNumber: issueOfDirectRun(null, run.head_branch ?? null) }
 }
 
 /**
  * Derives the kind and the agent step duration from a run's jobs. Pure, so the rule that a declared
  * but skipped agent job does not count can be tested without the API.
+ *
+ * A run of a single-kind workflow passes that kind, and then its job named plain "agent" counts:
+ * the router calls the same workflow as "call-<kind> / agent", but a direct dispatch runs it alone.
  */
-export function shapeFromJobs(jobs: Job[]): RunShape {
+export function shapeFromJobs(jobs: Job[], direct?: string): RunShape {
   for (const job of jobs) {
-    const match = job.name.match(AGENT_JOB)
-    if (!match?.[1]) continue
+    const kind = job.name.match(AGENT_JOB)?.[1] ?? (direct && job.name === 'agent' ? direct : null)
+    if (!kind) continue
 
     // The job existing is not enough. Several kinds declare an agent job that is conditionally
     // skipped, and a skipped job reports no steps: merge-gate declares one on every run and skips
@@ -178,10 +269,29 @@ export function shapeFromJobs(jobs: Job[]): RunShape {
         new Date(step.started_at as string).getTime()) /
       1000
 
-    return { kind: match[1].trim(), executionSeconds: seconds >= 0 ? Math.round(seconds) : null }
+    return { kind: kind.trim(), executionSeconds: seconds >= 0 ? Math.round(seconds) : null }
   }
 
   return { kind: null, executionSeconds: null }
+}
+
+/**
+ * Finished runs stored for this period that no listing returned this time. A listing can come
+ * back short, from the cap above or a run deleted by housekeeping, and a run measured once
+ * happened all the same, so a month only ever gains runs.
+ */
+export function missedRuns(
+  previous: AgentRun[],
+  listed: Set<number>,
+  from: Date,
+  to: Date,
+): AgentRun[] {
+  return previous.filter((run) => {
+    const at = Date.parse(run.startedAt)
+    return (
+      run.conclusion !== null && !listed.has(run.runId) && at >= from.getTime() && at < to.getTime()
+    )
+  })
 }
 
 export interface AgentResult {
@@ -256,10 +366,11 @@ export async function collectAgents(
     }
   }
 
-  const day = (d: Date) => d.toISOString().slice(0, 10)
-  const found = await paginate<WorkflowRun>(
-    `/repos/${project.repo}/actions/workflows/${workflow.id}/runs?created=${day(from)}..${day(to)}&per_page=100`,
-    MAX_RUN_PAGES,
+  const found = await listInSlices(from, to, (start, end) =>
+    paginate<WorkflowRun>(
+      `/repos/${project.repo}/actions/workflows/${workflow.id}/runs?created=${createdBetween(start, end)}&per_page=100`,
+      MAX_RUN_PAGES,
+    ),
   )
 
   const inWindow = found.filter((r) => {
@@ -280,24 +391,78 @@ export async function collectAgents(
 
   // The kind comes from the jobs, so every candidate is shaped before anything is grouped. A
   // cached run keeps its kind rather than paying for the request again.
-  const shaped = await mapLimit(candidates, CONCURRENCY, async (run) => {
+  const routed = await mapLimit(candidates, CONCURRENCY, async (run) => {
     const hit = cached.get(run.id)
-    if (hit) return { run, kind: hit.kind, executionSeconds: hit.executionSeconds, cached: true }
-    const shape = await readRunShape(project.repo, run.id)
-    return { run, kind: shape.kind, executionSeconds: shape.executionSeconds, cached: false }
+    const shape = hit ?? (await readRunShape(project.repo, run.id))
+    return {
+      run,
+      workflow: workflow.name,
+      kind: shape.kind,
+      executionSeconds: shape.executionSeconds,
+      issueNumber: Number(run.display_title?.match(/#(\d+)/)?.[1] ?? '') || null,
+    }
   })
 
-  const agentRuns = shaped.filter(
-    (
-      e,
-    ): e is { run: WorkflowRun; kind: string; executionSeconds: number | null; cached: boolean } =>
-      e.kind !== null,
+  // A stacked child's implement is dispatched straight to its single-kind workflow rather than
+  // called by the router, so it never appears among the router's runs. Only dispatches count: the
+  // same files also run on every push to validate the lock file, and those never reach an agent.
+  const direct = await Promise.all(
+    catalog.workflows
+      .filter((w) => w.id !== workflow.id && directKind(w.path) !== null)
+      .map(async (w) => {
+        const kind = directKind(w.path) as string
+        const runs = await paginate<WorkflowRun>(
+          `/repos/${project.repo}/actions/workflows/${w.id}/runs?event=workflow_dispatch&created=${createdBetween(from, to)}&per_page=100`,
+          MAX_RUN_PAGES,
+        )
+        return runs
+          .filter((r) => {
+            const at = new Date(r.run_started_at ?? r.created_at)
+            return at >= from && at < to
+          })
+          .filter((r) => r.conclusion !== 'cancelled' && r.conclusion !== 'skipped')
+          .map((run) => ({ run, workflow: w.name, kind }))
+      }),
+  )
+  const dispatched = await mapLimit(direct.flat(), CONCURRENCY, async ({ run, workflow, kind }) => {
+    const shape = cached.get(run.id) ?? (await readDirectRun(project.repo, run, kind))
+    return {
+      run,
+      workflow,
+      kind: shape.kind,
+      executionSeconds: shape.executionSeconds,
+      issueNumber: shape.issueNumber,
+    }
+  })
+
+  const listed = new Set([...found, ...direct.flat().map((d) => d.run)].map((r) => r.id))
+  const kept = missedRuns(previous, listed, from, to)
+  const keptById = new Map(kept.map((run) => [run.runId, run]))
+  const restored = kept.map((run) => ({
+    run: {
+      id: run.runId,
+      name: run.workflow,
+      display_title: '',
+      triggering_actor: run.actor ? { login: run.actor } : null,
+      conclusion: run.conclusion,
+      status: 'completed',
+      run_started_at: run.startedAt,
+      created_at: run.startedAt,
+    } satisfies WorkflowRun,
+    workflow: run.workflow,
+    kind: run.kind,
+    executionSeconds: run.executionSeconds,
+    issueNumber: run.issueNumber,
+  }))
+
+  const agentRuns = [...routed, ...dispatched, ...restored].filter(
+    (e): e is (typeof routed)[number] & { kind: string } => e.kind !== null,
   )
 
   if (agentRuns.length === 0) {
     return {
       block: skip(
-        `No agent runs in this period. ${inWindow.length} run(s) of ${workflow.path} were found, ${candidates.length} could have been agents, and none had a "call-<kind> / agent" job.`,
+        `No agent runs in this period. ${inWindow.length} run(s) of ${workflow.path} were found, ${candidates.length} could have been agents, and none had a "call-<kind> / agent" job. ${dispatched.length} run(s) were dispatched to a single-kind agent workflow.`,
       ),
       warnings,
     }
@@ -322,7 +487,7 @@ export async function collectAgents(
 
   const selected = [...perKind.values()].flat()
   const measured = await mapLimit(selected, CONCURRENCY, async (entry) => {
-    const hit = cached.get(entry.run.id)
+    const hit = cached.get(entry.run.id) ?? keptById.get(entry.run.id)
     if (hit) {
       reused += 1
       return { ...entry, usage: hit.usage }
@@ -341,7 +506,8 @@ export async function collectAgents(
     let count = 0
     let withUsage = 0
 
-    for (const { run, usage, executionSeconds } of measured.filter((m) => m.kind === kind)) {
+    for (const entry of measured.filter((m) => m.kind === kind)) {
+      const { run, usage, executionSeconds } = entry
       count += 1
       if (usage) withUsage += 1
       else missingUsage += 1
@@ -361,12 +527,12 @@ export async function collectAgents(
 
       runs.push({
         runId: run.id,
-        workflow: workflow.name,
+        workflow: entry.workflow,
         kind,
         conclusion: run.conclusion,
         startedAt: run.run_started_at ?? run.created_at,
         actor: run.triggering_actor?.login ?? run.actor?.login ?? null,
-        issueNumber: Number(run.display_title?.match(/#(\d+)/)?.[1] ?? '') || null,
+        issueNumber: entry.issueNumber,
         executionSeconds,
         usage,
       })
@@ -391,6 +557,9 @@ export async function collectAgents(
       message: `${missingUsage} of ${selected.length} agent run(s) had no readable usage artifact. Artifacts expire after about 90 days, and a run still in progress has not uploaded one yet.`,
       context: { runs: missingUsage, of: selected.length },
     })
+  }
+  if (kept.length > 0) {
+    console.log(`    kept ${kept.length} stored agent run(s) no listing returned for ${project.id}`)
   }
   if (reused > 0) {
     console.log(`    reused ${reused} previously measured agent run(s) for ${project.id}`)
