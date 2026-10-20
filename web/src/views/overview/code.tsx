@@ -9,6 +9,7 @@ import {
   percent,
   suspiciousTests,
 } from '@/shared/lib/code'
+import { withBase } from '@/shared/lib/utils'
 import { cn } from '@/shared/ui'
 import { Sparkline } from '@/shared/ui/sparkline'
 
@@ -66,7 +67,7 @@ export function CodeTable({ rows }: { rows: CodeRow[] }) {
                 <tr key={row.id} className="border-t align-middle">
                   <td className="px-4 py-3.5">
                     <a
-                      href={`/projects/${row.id}/`}
+                      href={withBase(`/projects/${row.id}/`)}
                       className="text-[15px] font-semibold hover:underline"
                     >
                       {row.name}

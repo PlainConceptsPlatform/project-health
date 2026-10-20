@@ -22,6 +22,7 @@ import {
 } from '@/shared/lib/portfolio'
 import { GROUP_LABEL, LEVEL_BAR, typeLabel } from '@/shared/lib/scorecard'
 import type { ProjectSummary } from '@/shared/lib/summary'
+import { withBase } from '@/shared/lib/utils'
 import { cn } from '@/shared/ui'
 import { LevelBadge } from '@/shared/ui/scorecard'
 import { Sparkline } from '@/shared/ui/sparkline'
@@ -269,7 +270,7 @@ function ScorecardRows({
                   <div className="flex min-w-0 flex-col gap-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <a
-                        href={`/projects/${row.id}/`}
+                        href={withBase(`/projects/${row.id}/`)}
                         className="text-[15px] font-semibold hover:underline"
                       >
                         {row.name}
@@ -357,7 +358,7 @@ function ScorecardRows({
                 )}
                 <td className="px-2 py-3.5">
                   <a
-                    href={`/projects/${row.id}/`}
+                    href={withBase(`/projects/${row.id}/`)}
                     aria-label={`Open ${row.name}`}
                     className="inline-flex size-10 items-center justify-center rounded-md text-muted-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
@@ -520,7 +521,7 @@ export function Portfolio({
               row.alert ? (
                 <a
                   key={row.id}
-                  href={`/projects/${row.id}/`}
+                  href={withBase(`/projects/${row.id}/`)}
                   className={cn(
                     'flex items-start gap-2.5 rounded-lg p-3 transition hover:opacity-90',
                     ALERT_TONE[row.alert.severity],
