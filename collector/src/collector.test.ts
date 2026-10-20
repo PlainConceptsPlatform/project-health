@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import type { Deployment, Job } from './github.ts'
-import { shapeFromJobs } from './metrics/agents.ts'
+import {
+  createdBetween,
+  directKind,
+  issueOfDirectRun,
+  listInSlices,
+  missedRuns,
+  shapeFromJobs,
+} from './metrics/agents.ts'
 import { computeDeploymentFrequency } from './metrics/deployments.ts'
 import { groupIntoReleases } from './metrics/releases.ts'
 import { attributeMarkers } from './metrics/rework.ts'
@@ -433,5 +440,121 @@ describe('shapeFromJobs', () => {
 
   it('returns nothing for a run with no agent job at all', () => {
     expect(shapeFromJobs([job('classify'), job('authorize')]).kind).toBeNull()
+  })
+
+  it('counts a plain agent job only for a run of a single-kind workflow', () => {
+    // A stacked child's implement is dispatched straight to agent-implement.lock.yml, where the
+    // job is plain "agent". A 47 minute run of it was missing from the month.
+    const jobs = [
+      job('reserve'),
+      job('agent', [agentStep('2026-10-19T13:20:39Z', '2026-10-19T14:07:30Z')]),
+    ]
+    expect(shapeFromJobs(jobs, 'implement')).toEqual({ kind: 'implement', executionSeconds: 2811 })
+    expect(shapeFromJobs(jobs).kind).toBeNull()
+  })
+})
+
+describe('directKind', () => {
+  it('reads the kind from a single-kind agent workflow file', () => {
+    expect(directKind('.github/workflows/agent-implement.lock.yml')).toBe('implement')
+    expect(directKind('.github/workflows/agent-merge-gate.lock.yml')).toBe('merge-gate')
+  })
+
+  it('ignores the router and workflows that only sound like agents', () => {
+    expect(directKind('.github/workflows/work-router.yml')).toBeNull()
+    expect(directKind('.github/workflows/agentics-checks.yml')).toBeNull()
+    expect(directKind('.github/workflows/agentic-lint.yml')).toBeNull()
+  })
+})
+
+describe('issueOfDirectRun', () => {
+  it('takes the issue the pre-agent job logged over the branch', () => {
+    // A stacked child runs on its parent's branch: run 39258615584 was on feat/774 and ran #781.
+    const log = '2026-10-19T13:17:11.8468312Z   ISSUE_NUMBER: 781\n'
+    expect(issueOfDirectRun(log, 'feat/774')).toBe(781)
+  })
+
+  it('does not take a stack parent branch for the issue', () => {
+    expect(issueOfDirectRun(null, 'feat/774')).toBeNull()
+    expect(issueOfDirectRun('no issue here', 'main')).toBeNull()
+  })
+
+  it('falls back to a branch that names the issue outright', () => {
+    expect(issueOfDirectRun(null, 'feature/issue-780-manual')).toBe(780)
+    expect(issueOfDirectRun(null, 'feature/issue-780')).toBe(780)
+  })
+})
+
+describe('createdBetween', () => {
+  it('ends a second before the next slice, so no run is listed twice', () => {
+    expect(createdBetween(new Date('2026-10-01T00:00:00Z'), new Date('2026-10-08T00:00:00Z'))).toBe(
+      '2026-10-01T00:00:00Z..2026-10-07T23:59:59Z',
+    )
+  })
+})
+
+describe('listInSlices', () => {
+  const from = new Date('2026-10-01T00:00:00Z')
+  const to = new Date('2026-11-01T00:00:00Z')
+
+  /** A fake listing that holds one run every `every` minutes and stops at a thousand, as GitHub does. */
+  const listing = (every: number) => {
+    const calls: [string, string][] = []
+    const list = async (start: Date, end: Date) => {
+      calls.push([start.toISOString(), end.toISOString()])
+      const runs: { id: number }[] = []
+      for (let t = start.getTime(); t < end.getTime() && runs.length < 1000; t += every * 60_000) {
+        runs.push({ id: t })
+      }
+      return runs
+    }
+    return { calls, list }
+  }
+
+  it('finds every run of a month that one listing would cut at a thousand', async () => {
+    // Numa's router ran 1,476 times in October 2026; listing the month at once lost its first week.
+    const { list } = listing(30)
+    const runs = await listInSlices(from, to, list)
+    expect(runs).toHaveLength(31 * 48)
+  })
+
+  it('lists a quiet month a week at a time', async () => {
+    const { calls, list } = listing(60 * 6)
+    await listInSlices(from, to, list)
+    expect(calls).toHaveLength(5)
+    expect(calls.at(-1)).toEqual(['2026-10-29T00:00:00.000Z', '2026-11-01T00:00:00.000Z'])
+  })
+
+  it('splits a slice that comes back full until it fits', async () => {
+    const { list } = listing(5)
+    const runs = await listInSlices(from, new Date('2026-10-08T00:00:00Z'), list)
+    expect(runs).toHaveLength(7 * 24 * 12)
+    expect(new Set(runs.map((r) => r.id)).size).toBe(runs.length)
+  })
+})
+
+describe('missedRuns', () => {
+  const run = (runId: number, startedAt: string, conclusion: string | null = 'success') => ({
+    runId,
+    workflow: 'Work Router',
+    kind: 'refine',
+    conclusion,
+    startedAt,
+    actor: null,
+    issueNumber: 1,
+    executionSeconds: 60,
+    usage: null,
+  })
+  const from = new Date('2026-10-01T00:00:00Z')
+  const to = new Date('2026-11-01T00:00:00Z')
+
+  it('keeps a finished run of the period that no listing returned', () => {
+    const stored = [run(1, '2026-10-08T21:54:42Z'), run(2, '2026-10-09T10:00:00Z')]
+    expect(missedRuns(stored, new Set([2]), from, to).map((r) => r.runId)).toEqual([1])
+  })
+
+  it('drops runs outside the period and runs that never finished', () => {
+    const stored = [run(1, '2026-09-30T23:59:00Z'), run(2, '2026-10-02T10:00:00Z', null)]
+    expect(missedRuns(stored, new Set(), from, to)).toEqual([])
   })
 })

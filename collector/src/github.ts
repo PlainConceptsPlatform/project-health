@@ -231,6 +231,7 @@ export interface WorkflowRun {
   status: string
   run_started_at: string
   created_at: string
+  head_branch?: string | null
 }
 
 export interface Job {
