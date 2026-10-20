@@ -7,6 +7,7 @@ import {
   ok,
   skip,
 } from '../types.ts'
+import { mapLimit } from './agents.ts'
 
 export interface CacheUsage {
   active_caches_size_in_bytes: number
@@ -254,6 +255,12 @@ export async function collectBilledMinutes(
 export const TIMING_BUDGET = 1500
 
 /**
+ * Run timings read at once. A first collection of a busy month reads up to the whole budget, and
+ * one call at a time made that take most of an hour across the portfolio.
+ */
+const TIMING_CONCURRENCY = 8
+
+/**
  * Billable minutes for the runs created in the period, summed from each run's timing.
  *
  * A month can hold thousands of runs and each needs its own call, so the count is incremental: the
@@ -295,6 +302,7 @@ export async function collectMinutes(
   let remaining = budget
   const pending: RunListing[] = []
   const countedNow: RunListing[] = []
+  const toTime: RunListing[] = []
   for (const run of fresh) {
     if (counted.has(run.id)) {
       countedNow.push(run)
@@ -305,14 +313,19 @@ export async function collectMinutes(
       continue
     }
     remaining -= 1
-    let timing: RunTiming | null = null
+    toTime.push(run)
+  }
+
+  const timings = await mapLimit(toTime, TIMING_CONCURRENCY, async (run) => {
     try {
-      timing = await source.timing(run.id)
+      return await source.timing(run.id)
     } catch {
       // A run whose timing cannot be read is counted as seen without minutes, so it is not retried
       // forever; `timed` below `runs` says the total is a floor.
-      timing = null
+      return null
     }
+  })
+  for (const timing of timings) {
     runs += 1
     if (timing) {
       timed += 1
@@ -320,8 +333,8 @@ export async function collectMinutes(
         byOs[os] = (byOs[os] ?? 0) + minutes
       }
     }
-    countedNow.push(run)
   }
+  countedNow.push(...toTime)
 
   // Everything created before the oldest uncounted run is done. Without one, the newest run seen
   // is the boundary, kept inclusive with its id so a run created in the same second is not lost.

@@ -201,6 +201,11 @@ export interface AgentKindSummary {
 export interface AgentSummary {
   runs: AgentRun[]
   byKind: Record<string, AgentKindSummary>
+  /**
+   * Finished runs of the router and the single-kind workflows whose jobs showed no agent. Kept so
+   * the next collection of the month does not read their jobs again. Absent in older months.
+   */
+  notAgentRunIds?: number[]
 }
 
 export interface Placement {
