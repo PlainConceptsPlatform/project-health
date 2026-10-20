@@ -1,20 +1,119 @@
+import { createSign } from 'node:crypto'
+
 const API = 'https://api.github.com'
+
+const BASE_HEADERS = {
+  accept: 'application/vnd.github+json',
+  'x-github-api-version': '2022-11-28',
+  'user-agent': 'plainconcepts-project-health',
+}
+
+/**
+ * GitHub App credentials, when the collector is given them. An installation token lasts one hour and
+ * a collection can take longer, so with these the collector mints its own token and mints a new one
+ * before it expires, instead of carrying on with a dead token and writing every later project as
+ * unavailable.
+ */
+interface AppCredentials {
+  appId: string
+  privateKey: string
+  owner: string
+}
+
+function appCredentials(): AppCredentials | null {
+  const appId = process.env.GITHUB_APP_ID
+  const privateKey = process.env.GITHUB_APP_PRIVATE_KEY
+  const owner = process.env.GITHUB_APP_OWNER ?? process.env.GITHUB_REPOSITORY_OWNER
+  if (!appId || !privateKey || !owner) return null
+  // A key pasted into a secret with escaped newlines is still a valid key.
+  return { appId, privateKey: privateKey.replace(/\\n/g, '\n'), owner }
+}
+
+const base64url = (value: string | Buffer) => Buffer.from(value).toString('base64url')
+
+/** The short lived JWT an App signs to ask for an installation token. */
+export function appJwt(appId: string, privateKey: string, now = Date.now()): string {
+  const seconds = Math.floor(now / 1000)
+  const header = base64url(JSON.stringify({ alg: 'RS256', typ: 'JWT' }))
+  // Backdated a minute against clock drift; GitHub refuses an expiry more than ten minutes ahead.
+  const payload = base64url(JSON.stringify({ iat: seconds - 60, exp: seconds + 540, iss: appId }))
+  const signature = createSign('RSA-SHA256').update(`${header}.${payload}`).sign(privateKey)
+  return `${header}.${payload}.${base64url(signature)}`
+}
+
+/** A minted token is replaced this long before it expires, so no request goes out with a dead one. */
+const REFRESH_MARGIN_MS = 10 * 60_000
+
+interface MintedToken {
+  token: string
+  expiresAt: number
+}
+
+let appToken: MintedToken | null = null
+let minting: Promise<MintedToken> | null = null
+
+async function mintInstallationToken(app: AppCredentials): Promise<MintedToken> {
+  const headers = { ...BASE_HEADERS, authorization: `Bearer ${appJwt(app.appId, app.privateKey)}` }
+  let installation = await fetch(`${API}/orgs/${app.owner}/installation`, { headers })
+  if (installation.status === 404) {
+    installation = await fetch(`${API}/users/${app.owner}/installation`, { headers })
+  }
+  if (!installation.ok) {
+    throw new Error(`App installation for ${app.owner} answered ${installation.status}`)
+  }
+  const { id } = (await installation.json()) as { id: number }
+  const minted = await fetch(`${API}/app/installations/${id}/access_tokens`, {
+    method: 'POST',
+    headers,
+  })
+  if (!minted.ok) throw new Error(`App installation token answered ${minted.status}`)
+  const body = (await minted.json()) as { token: string; expires_at: string }
+  return { token: body.token, expiresAt: Date.parse(body.expires_at) }
+}
+
+/**
+ * The token for the next request: the App's own, refreshed before it expires, when App credentials
+ * are set, and otherwise GITHUB_TOKEN or METRICS_TOKEN. If minting fails the given token is used, so
+ * App credentials never make a run worse than it was without them.
+ */
+async function currentToken(forceRefresh = false): Promise<string> {
+  const fallback = process.env.GITHUB_TOKEN ?? process.env.METRICS_TOKEN
+  const app = appCredentials()
+  if (app) {
+    const fresh = appToken !== null && appToken.expiresAt - Date.now() > REFRESH_MARGIN_MS
+    if (!fresh || forceRefresh) {
+      minting ??= mintInstallationToken(app).finally(() => {
+        minting = null
+      })
+      try {
+        appToken = await minting
+      } catch (error) {
+        if (!fallback) throw error
+        console.warn(`Could not mint an App token, using GITHUB_TOKEN: ${String(error)}`)
+        appToken = null
+        return fallback
+      }
+    }
+    if (appToken) return appToken.token
+  }
+  if (!fallback) {
+    throw new Error('Set GITHUB_TOKEN or METRICS_TOKEN before running the collector.')
+  }
+  return fallback
+}
+
+/** For tests: forget the minted token so the next request mints again. */
+export function resetAppToken() {
+  appToken = null
+  minting = null
+}
 
 /**
  * Resolved on first request rather than at import. A module that throws when it is loaded cannot be
  * imported by a test, or even for its types, which is how this file ended up untestable.
  */
-function authHeaders(): Record<string, string> {
-  const token = process.env.GITHUB_TOKEN ?? process.env.METRICS_TOKEN
-  if (!token) {
-    throw new Error('Set GITHUB_TOKEN or METRICS_TOKEN before running the collector.')
-  }
-  return {
-    accept: 'application/vnd.github+json',
-    authorization: `Bearer ${token}`,
-    'x-github-api-version': '2022-11-28',
-    'user-agent': 'plainconcepts-project-health',
-  }
+async function authHeaders(forceRefresh = false): Promise<Record<string, string>> {
+  return { ...BASE_HEADERS, authorization: `Bearer ${await currentToken(forceRefresh)}` }
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
@@ -22,13 +121,13 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 const MAX_ATTEMPTS = 5
 const REQUEST_TIMEOUT_MS = 45_000
 
-async function request(path: string, attempt = 0): Promise<Response> {
+async function request(path: string, attempt = 0, reauthed = false): Promise<Response> {
   const url = path.startsWith('http') ? path : `${API}${path}`
 
   let response: Response
   try {
     response = await fetch(url, {
-      headers: authHeaders(),
+      headers: await authHeaders(reauthed),
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     })
   } catch (error) {
@@ -37,9 +136,15 @@ async function request(path: string, attempt = 0): Promise<Response> {
     // project into an unavailable metric for that month.
     if (attempt < MAX_ATTEMPTS) {
       await sleep(Math.min(2 ** attempt * 1000, 30_000))
-      return request(path, attempt + 1)
+      return request(path, attempt + 1, reauthed)
     }
     throw error
+  }
+
+  // A 401 with App credentials means the minted token was revoked or expired early: mint a new one
+  // and try once more.
+  if (response.status === 401 && !reauthed && appCredentials()) {
+    return request(path, attempt, true)
   }
 
   // A 403 means either a spent rate limit or a permission the token does not have. An App
@@ -57,7 +162,7 @@ async function request(path: string, attempt = 0): Promise<Response> {
     const waitForReset = remaining === '0' && reset > Date.now() ? reset - Date.now() + 1000 : 0
     const backoff = Math.max(waitForReset, 2 ** attempt * 1000)
     await sleep(Math.min(backoff, 60_000))
-    return request(path, attempt + 1)
+    return request(path, attempt + 1, reauthed)
   }
   return response
 }
@@ -113,7 +218,7 @@ export async function getBinary(path: string): Promise<Uint8Array | null> {
   let response: Response
   try {
     response = await fetch(url, {
-      headers: authHeaders(),
+      headers: await authHeaders(),
       redirect: 'manual',
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     })
