@@ -33,449 +33,917 @@
     "data": {
       "runs": [
         {
-          "runId": 54339781152,
+          "runId": 54341358717,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-08-30T12:35:50Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 116,
+          "executionSeconds": 683,
+          "usage": {
+            "inputTokens": 2734324,
+            "outputTokens": 9514,
+            "cacheReadTokens": 2140180,
+            "cacheWriteTokens": 0,
+            "ambientContext": 8017,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54341337208,
+          "workflow": "All Work Router",
+          "kind": "merge-gate",
+          "conclusion": "success",
+          "startedAt": "2026-08-30T10:45:00Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 128,
+          "executionSeconds": 900,
+          "usage": {
+            "inputTokens": 3267554,
+            "outputTokens": 15328,
+            "cacheReadTokens": 2992785,
+            "cacheWriteTokens": 0,
+            "ambientContext": 8493,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54341304600,
           "workflow": "All Work Router",
           "kind": "implement",
           "conclusion": "success",
-          "startedAt": "2026-08-30T07:47:20.606Z",
+          "startedAt": "2026-08-30T10:20:15Z",
           "actor": "example-bot[bot]",
-          "issueNumber": 62,
-          "executionSeconds": 1092,
+          "issueNumber": 114,
+          "executionSeconds": 1099,
           "usage": {
-            "inputTokens": 2885280,
-            "outputTokens": 12816,
-            "cacheReadTokens": 2481539,
+            "inputTokens": 2709905,
+            "outputTokens": 10487,
+            "cacheReadTokens": 2378988,
             "cacheWriteTokens": 0,
-            "ambientContext": 7527,
+            "ambientContext": 6545,
             "aiCredits": 0,
             "primaryModel": "example-model-1"
           }
         },
         {
-          "runId": 54339656196,
+          "runId": 54341265450,
           "workflow": "All Work Router",
           "kind": "refine",
           "conclusion": "success",
-          "startedAt": "2026-08-30T06:34:21.587Z",
+          "startedAt": "2026-08-30T10:03:54Z",
           "actor": "example-bot[bot]",
-          "issueNumber": 83,
-          "executionSeconds": 297,
+          "issueNumber": 114,
+          "executionSeconds": 441,
           "usage": {
-            "inputTokens": 1124477,
-            "outputTokens": 4766,
-            "cacheReadTokens": 921311,
+            "inputTokens": 2096574,
+            "outputTokens": 10975,
+            "cacheReadTokens": 1818884,
             "cacheWriteTokens": 0,
-            "ambientContext": 6986,
+            "ambientContext": 7205,
             "aiCredits": 0,
             "primaryModel": "example-model-1"
           }
         },
         {
-          "runId": 54339716197,
+          "runId": 54341253018,
+          "workflow": "All Work Router",
+          "kind": "merge-gate",
+          "conclusion": "success",
+          "startedAt": "2026-08-29T08:39:00Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 127,
+          "executionSeconds": 900,
+          "usage": {
+            "inputTokens": 4000906,
+            "outputTokens": 18746,
+            "cacheReadTokens": 3268122,
+            "cacheWriteTokens": 0,
+            "ambientContext": 9101,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54341217755,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-08-29T08:13:31Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 112,
+          "executionSeconds": 1269,
+          "usage": {
+            "inputTokens": 6486970,
+            "outputTokens": 25949,
+            "cacheReadTokens": 5168479,
+            "cacheWriteTokens": 0,
+            "ambientContext": 8633,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54341208626,
           "workflow": "All Work Router",
           "kind": "refine",
           "conclusion": "success",
-          "startedAt": "2026-08-29T10:01:54.725Z",
+          "startedAt": "2026-08-29T06:33:10Z",
           "actor": "example-bot[bot]",
-          "issueNumber": 24,
-          "executionSeconds": 337,
+          "issueNumber": 112,
+          "executionSeconds": 434,
           "usage": {
-            "inputTokens": 1290838,
-            "outputTokens": 5389,
-            "cacheReadTokens": 1177417,
+            "inputTokens": 1746841,
+            "outputTokens": 8640,
+            "cacheReadTokens": 1602360,
             "cacheWriteTokens": 0,
-            "ambientContext": 9158,
+            "ambientContext": 4877,
             "aiCredits": 0,
             "primaryModel": "example-model-1"
           }
         },
         {
-          "runId": 54339868799,
+          "runId": 54341188138,
+          "workflow": "All Work Router",
+          "kind": "merge-gate",
+          "conclusion": "success",
+          "startedAt": "2026-08-28T13:52:00Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 126,
+          "executionSeconds": 120,
+          "usage": {
+            "inputTokens": 385842,
+            "outputTokens": 1235,
+            "cacheReadTokens": 321894,
+            "cacheWriteTokens": 0,
+            "ambientContext": 7105,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54341170646,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-08-28T13:23:06Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 108,
+          "executionSeconds": 1341,
+          "usage": {
+            "inputTokens": 6967727,
+            "outputTokens": 21848,
+            "cacheReadTokens": 6187776,
+            "cacheWriteTokens": 0,
+            "ambientContext": 8134,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54341165253,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-08-28T09:04:17Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 108,
+          "executionSeconds": 795,
+          "usage": {
+            "inputTokens": 2627393,
+            "outputTokens": 8229,
+            "cacheReadTokens": 2308047,
+            "cacheWriteTokens": 0,
+            "ambientContext": 6731,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54341156044,
+          "workflow": "All Work Router",
+          "kind": "merge-gate",
+          "conclusion": "success",
+          "startedAt": "2026-08-28T03:37:00Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 125,
+          "executionSeconds": 900,
+          "usage": {
+            "inputTokens": 3900730,
+            "outputTokens": 12833,
+            "cacheReadTokens": 3239972,
+            "cacheWriteTokens": 0,
+            "ambientContext": 8844,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54341146691,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-08-28T03:16:17Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 106,
+          "executionSeconds": 1040,
+          "usage": {
+            "inputTokens": 3306798,
+            "outputTokens": 18178,
+            "cacheReadTokens": 2670947,
+            "cacheWriteTokens": 0,
+            "ambientContext": 6842,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54341111696,
+          "workflow": "All Work Router",
+          "kind": "merge-gate",
+          "conclusion": "success",
+          "startedAt": "2026-08-27T15:48:00Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 124,
+          "executionSeconds": 900,
+          "usage": {
+            "inputTokens": 4081616,
+            "outputTokens": 22577,
+            "cacheReadTokens": 3501271,
+            "cacheWriteTokens": 0,
+            "ambientContext": 8775,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54341081267,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-08-27T15:09:03Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 104,
+          "executionSeconds": 2115,
+          "usage": {
+            "inputTokens": 8802374,
+            "outputTokens": 27747,
+            "cacheReadTokens": 7805410,
+            "cacheWriteTokens": 0,
+            "ambientContext": 5760,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54341058464,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-08-27T14:09:14Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 104,
+          "executionSeconds": 777,
+          "usage": {
+            "inputTokens": 2189293,
+            "outputTokens": 10075,
+            "cacheReadTokens": 1885454,
+            "cacheWriteTokens": 0,
+            "ambientContext": 5174,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54341037269,
+          "workflow": "All Work Router",
+          "kind": "merge-gate",
+          "conclusion": "success",
+          "startedAt": "2026-08-26T14:07:00Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 123,
+          "executionSeconds": 900,
+          "usage": {
+            "inputTokens": 4120896,
+            "outputTokens": 20612,
+            "cacheReadTokens": 3648649,
+            "cacheWriteTokens": 0,
+            "ambientContext": 8969,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54341028604,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-08-26T13:31:31Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 102,
+          "executionSeconds": 1780,
+          "usage": {
+            "inputTokens": 6110689,
+            "outputTokens": 19924,
+            "cacheReadTokens": 5506204,
+            "cacheWriteTokens": 0,
+            "ambientContext": 8178,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54340994466,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-08-26T11:44:15Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 102,
+          "executionSeconds": 540,
+          "usage": {
+            "inputTokens": 1802986,
+            "outputTokens": 7175,
+            "cacheReadTokens": 1575616,
+            "cacheWriteTokens": 0,
+            "ambientContext": 8493,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54340970667,
+          "workflow": "All Work Router",
+          "kind": "merge-gate",
+          "conclusion": "success",
+          "startedAt": "2026-08-26T11:11:00Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 122,
+          "executionSeconds": 900,
+          "usage": null
+        },
+        {
+          "runId": 54340938909,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-08-26T10:29:13Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 100,
+          "executionSeconds": 2284,
+          "usage": {
+            "inputTokens": 8999718,
+            "outputTokens": 37525,
+            "cacheReadTokens": 7055353,
+            "cacheWriteTokens": 0,
+            "ambientContext": 8953,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54340913038,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-08-26T09:35:55Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 100,
+          "executionSeconds": 919,
+          "usage": {
+            "inputTokens": 2370997,
+            "outputTokens": 9872,
+            "cacheReadTokens": 1944476,
+            "cacheWriteTokens": 0,
+            "ambientContext": 6782,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54340892698,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-08-26T09:15:41Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 100,
+          "executionSeconds": 638,
+          "usage": {
+            "inputTokens": 3283349,
+            "outputTokens": 12568,
+            "cacheReadTokens": 2704267,
+            "cacheWriteTokens": 0,
+            "ambientContext": 4803,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54340868815,
+          "workflow": "All Work Router",
+          "kind": "merge-gate",
+          "conclusion": "success",
+          "startedAt": "2026-08-25T13:50:00Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 121,
+          "executionSeconds": 840,
+          "usage": {
+            "inputTokens": 3362892,
+            "outputTokens": 13666,
+            "cacheReadTokens": 3014057,
+            "cacheWriteTokens": 0,
+            "ambientContext": 8927,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54340830836,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-08-25T13:27:48Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 98,
+          "executionSeconds": 1107,
+          "usage": {
+            "inputTokens": 3693945,
+            "outputTokens": 15040,
+            "cacheReadTokens": 2974229,
+            "cacheWriteTokens": 0,
+            "ambientContext": 7558,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54340817139,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "failure",
+          "startedAt": "2026-08-25T13:18:27Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 98,
+          "executionSeconds": 453,
+          "usage": null
+        },
+        {
+          "runId": 54340780853,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-08-25T11:52:50Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 98,
+          "executionSeconds": 1110,
+          "usage": {
+            "inputTokens": 3718828,
+            "outputTokens": 14774,
+            "cacheReadTokens": 3334491,
+            "cacheWriteTokens": 0,
+            "ambientContext": 5730,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54340766723,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-08-25T09:06:06Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 98,
+          "executionSeconds": 1391,
+          "usage": null
+        },
+        {
+          "runId": 54340759161,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-08-25T08:26:12Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 98,
+          "executionSeconds": 384,
+          "usage": {
+            "inputTokens": 936539,
+            "outputTokens": 3988,
+            "cacheReadTokens": 793676,
+            "cacheWriteTokens": 0,
+            "ambientContext": 7514,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54340273800,
+          "workflow": "All Work Router",
+          "kind": "triage",
+          "conclusion": "failure",
+          "startedAt": "2026-08-24T02:35:19.948Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 20,
+          "executionSeconds": 9,
+          "usage": {
+            "inputTokens": 25936,
+            "outputTokens": 97,
+            "cacheReadTokens": 20698,
+            "cacheWriteTokens": 0,
+            "ambientContext": 5310,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54340638478,
           "workflow": "All Work Router",
           "kind": "apply-review",
           "conclusion": "success",
-          "startedAt": "2026-08-28T11:43:14.126Z",
+          "startedAt": "2026-08-23T09:48:30.257Z",
           "actor": "example-bot[bot]",
-          "issueNumber": 75,
-          "executionSeconds": 744,
+          "issueNumber": 74,
+          "executionSeconds": 361,
+          "usage": null
+        },
+        {
+          "runId": 54340363983,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "failure",
+          "startedAt": "2026-08-22T18:32:39.149Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 71,
+          "executionSeconds": 1843,
+          "usage": null
+        },
+        {
+          "runId": 54340314755,
+          "workflow": "All Work Router",
+          "kind": "triage",
+          "conclusion": "success",
+          "startedAt": "2026-08-20T22:17:37.569Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 81,
+          "executionSeconds": 49,
           "usage": {
-            "inputTokens": 2468649,
-            "outputTokens": 10630,
-            "cacheReadTokens": 1957450,
+            "inputTokens": 132260,
+            "outputTokens": 537,
+            "cacheReadTokens": 118198,
             "cacheWriteTokens": 0,
-            "ambientContext": 6888,
+            "ambientContext": 8971,
             "aiCredits": 0,
             "primaryModel": "example-model-1"
           }
         },
         {
-          "runId": 54339985675,
+          "runId": 54340356617,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-08-20T01:25:45.622Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 14,
+          "executionSeconds": 545,
+          "usage": null
+        },
+        {
+          "runId": 54340282412,
+          "workflow": "All Work Router",
+          "kind": "triage",
+          "conclusion": "failure",
+          "startedAt": "2026-08-19T14:31:02.541Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 76,
+          "executionSeconds": 12,
+          "usage": null
+        },
+        {
+          "runId": 54340672617,
+          "workflow": "All Work Router",
+          "kind": "merge-gate",
+          "conclusion": "failure",
+          "startedAt": "2026-08-19T12:14:27.201Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 19,
+          "executionSeconds": 107,
+          "usage": null
+        },
+        {
+          "runId": 54340619942,
+          "workflow": "All Work Router",
+          "kind": "apply-review",
+          "conclusion": "failure",
+          "startedAt": "2026-08-16T20:50:18.835Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 71,
+          "executionSeconds": 25,
+          "usage": null
+        },
+        {
+          "runId": 54340502947,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-08-15T04:23:54.827Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 30,
+          "executionSeconds": 1463,
+          "usage": {
+            "inputTokens": 4598865,
+            "outputTokens": 19859,
+            "cacheReadTokens": 3786670,
+            "cacheWriteTokens": 0,
+            "ambientContext": 8077,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54340670229,
+          "workflow": "All Work Router",
+          "kind": "merge-gate",
+          "conclusion": "failure",
+          "startedAt": "2026-08-13T12:03:01.839Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 85,
+          "executionSeconds": 33,
+          "usage": null
+        },
+        {
+          "runId": 54340395223,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-08-12T16:36:11.224Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 62,
+          "executionSeconds": 284,
+          "usage": {
+            "inputTokens": 947961,
+            "outputTokens": 4773,
+            "cacheReadTokens": 808331,
+            "cacheWriteTokens": 0,
+            "ambientContext": 6518,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54340519114,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "success",
+          "startedAt": "2026-08-12T01:45:48.320Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 47,
+          "executionSeconds": 504,
+          "usage": {
+            "inputTokens": 1240643,
+            "outputTokens": 4185,
+            "cacheReadTokens": 1094541,
+            "cacheWriteTokens": 0,
+            "ambientContext": 6049,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54340709160,
+          "workflow": "All Work Router",
+          "kind": "merge-gate",
+          "conclusion": "success",
+          "startedAt": "2026-08-10T20:47:17.332Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 81,
+          "executionSeconds": 780,
+          "usage": {
+            "inputTokens": 2980858,
+            "outputTokens": 9572,
+            "cacheReadTokens": 2653805,
+            "cacheWriteTokens": 0,
+            "ambientContext": 5093,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54340608647,
+          "workflow": "All Work Router",
+          "kind": "implement",
+          "conclusion": "failure",
+          "startedAt": "2026-08-08T09:31:49.260Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 41,
+          "executionSeconds": 15,
+          "usage": {
+            "inputTokens": 65708,
+            "outputTokens": 235,
+            "cacheReadTokens": 52202,
+            "cacheWriteTokens": 0,
+            "ambientContext": 5327,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54340740693,
           "workflow": "All Work Router",
           "kind": "audit",
           "conclusion": "success",
-          "startedAt": "2026-08-28T10:54:36.016Z",
+          "startedAt": "2026-08-08T03:06:24.625Z",
           "actor": "example-bot[bot]",
           "issueNumber": null,
-          "executionSeconds": 535,
+          "executionSeconds": 515,
           "usage": {
-            "inputTokens": 1801867,
-            "outputTokens": 9977,
-            "cacheReadTokens": 1414496,
+            "inputTokens": 1899083,
+            "outputTokens": 8961,
+            "cacheReadTokens": 1508436,
             "cacheWriteTokens": 0,
-            "ambientContext": 6837,
+            "ambientContext": 6424,
             "aiCredits": 0,
             "primaryModel": "example-model-1"
           }
         },
         {
-          "runId": 54339804153,
+          "runId": 54340490864,
           "workflow": "All Work Router",
           "kind": "implement",
-          "conclusion": "success",
-          "startedAt": "2026-08-28T07:00:02.364Z",
+          "conclusion": "failure",
+          "startedAt": "2026-08-06T23:53:52.737Z",
           "actor": "example-bot[bot]",
-          "issueNumber": 76,
-          "executionSeconds": 856,
+          "issueNumber": 86,
+          "executionSeconds": 2712,
           "usage": {
-            "inputTokens": 3993718,
-            "outputTokens": 19945,
-            "cacheReadTokens": 3320540,
+            "inputTokens": 12467570,
+            "outputTokens": 63919,
+            "cacheReadTokens": 9974400,
             "cacheWriteTokens": 0,
-            "ambientContext": 8283,
+            "ambientContext": 8408,
             "aiCredits": 0,
             "primaryModel": "example-model-1"
           }
         },
         {
-          "runId": 54339931239,
+          "runId": 54340666327,
           "workflow": "All Work Router",
           "kind": "merge-gate",
           "conclusion": "success",
-          "startedAt": "2026-08-28T02:00:32.742Z",
+          "startedAt": "2026-08-06T20:32:43.081Z",
           "actor": "example-bot[bot]",
-          "issueNumber": 45,
-          "executionSeconds": 717,
-          "usage": {
-            "inputTokens": 2403208,
-            "outputTokens": 12084,
-            "cacheReadTokens": 2011481,
-            "cacheWriteTokens": 0,
-            "ambientContext": 5062,
-            "aiCredits": 0,
-            "primaryModel": "example-model-1"
-          }
+          "issueNumber": 14,
+          "executionSeconds": 505,
+          "usage": null
         },
         {
-          "runId": 54339538586,
+          "runId": 54340347830,
           "workflow": "All Work Router",
           "kind": "triage",
           "conclusion": "success",
-          "startedAt": "2026-08-27T18:52:17.283Z",
+          "startedAt": "2026-08-05T01:08:18.720Z",
           "actor": "example-bot[bot]",
-          "issueNumber": 53,
+          "issueNumber": 74,
           "executionSeconds": 155,
           "usage": {
-            "inputTokens": 516693,
-            "outputTokens": 1716,
-            "cacheReadTokens": 462100,
+            "inputTokens": 439857,
+            "outputTokens": 2351,
+            "cacheReadTokens": 397613,
             "cacheWriteTokens": 0,
-            "ambientContext": 8313,
+            "ambientContext": 5427,
             "aiCredits": 0,
             "primaryModel": "example-model-1"
           }
         },
         {
-          "runId": 54339941521,
-          "workflow": "All Work Router",
-          "kind": "merge-gate",
-          "conclusion": "failure",
-          "startedAt": "2026-08-25T03:55:43.155Z",
-          "actor": "example-bot[bot]",
-          "issueNumber": 17,
-          "executionSeconds": 69,
-          "usage": {
-            "inputTokens": 302298,
-            "outputTokens": 1317,
-            "cacheReadTokens": 277333,
-            "cacheWriteTokens": 0,
-            "ambientContext": 6210,
-            "aiCredits": 0,
-            "primaryModel": "example-model-1"
-          }
-        },
-        {
-          "runId": 54339686399,
-          "workflow": "All Work Router",
-          "kind": "refine",
-          "conclusion": "success",
-          "startedAt": "2026-08-23T16:48:32.414Z",
-          "actor": "example-bot[bot]",
-          "issueNumber": 37,
-          "executionSeconds": 554,
-          "usage": {
-            "inputTokens": 2448436,
-            "outputTokens": 9175,
-            "cacheReadTokens": 2191179,
-            "cacheWriteTokens": 0,
-            "ambientContext": 5170,
-            "aiCredits": 0,
-            "primaryModel": "example-model-1"
-          }
-        },
-        {
-          "runId": 54339551333,
-          "workflow": "All Work Router",
-          "kind": "triage",
-          "conclusion": "success",
-          "startedAt": "2026-08-22T12:15:46.773Z",
-          "actor": "example-bot[bot]",
-          "issueNumber": 66,
-          "executionSeconds": 91,
-          "usage": {
-            "inputTokens": 305215,
-            "outputTokens": 1065,
-            "cacheReadTokens": 240701,
-            "cacheWriteTokens": 0,
-            "ambientContext": 7333,
-            "aiCredits": 0,
-            "primaryModel": "example-model-1"
-          }
-        },
-        {
-          "runId": 54339735480,
-          "workflow": "All Work Router",
-          "kind": "refine",
-          "conclusion": "success",
-          "startedAt": "2026-08-21T08:48:10.145Z",
-          "actor": "example-bot[bot]",
-          "issueNumber": 29,
-          "executionSeconds": 438,
-          "usage": {
-            "inputTokens": 1551677,
-            "outputTokens": 5644,
-            "cacheReadTokens": 1342188,
-            "cacheWriteTokens": 0,
-            "ambientContext": 8490,
-            "aiCredits": 0,
-            "primaryModel": "example-model-1"
-          }
-        },
-        {
-          "runId": 54339752187,
+          "runId": 54340573576,
           "workflow": "All Work Router",
           "kind": "implement",
           "conclusion": "success",
-          "startedAt": "2026-08-19T19:27:58.987Z",
+          "startedAt": "2026-08-04T23:58:53.922Z",
           "actor": "example-bot[bot]",
-          "issueNumber": 18,
-          "executionSeconds": 1466,
+          "issueNumber": 57,
+          "executionSeconds": 1474,
           "usage": {
-            "inputTokens": 5626281,
-            "outputTokens": 27557,
-            "cacheReadTokens": 5021373,
+            "inputTokens": 7077322,
+            "outputTokens": 37172,
+            "cacheReadTokens": 6287493,
             "cacheWriteTokens": 0,
-            "ambientContext": 8889,
+            "ambientContext": 8251,
             "aiCredits": 0,
             "primaryModel": "example-model-1"
           }
         },
         {
-          "runId": 54339944149,
+          "runId": 54340430439,
           "workflow": "All Work Router",
-          "kind": "merge-gate",
-          "conclusion": "failure",
-          "startedAt": "2026-08-19T08:00:57.078Z",
-          "actor": "example-bot[bot]",
-          "issueNumber": 50,
-          "executionSeconds": 2559,
-          "usage": {
-            "inputTokens": 12972061,
-            "outputTokens": 44479,
-            "cacheReadTokens": 10137831,
-            "cacheWriteTokens": 0,
-            "ambientContext": 6838,
-            "aiCredits": 0,
-            "primaryModel": "example-model-1"
-          }
-        },
-        {
-          "runId": 54339950354,
-          "workflow": "All Work Router",
-          "kind": "merge-gate",
-          "conclusion": "failure",
-          "startedAt": "2026-08-16T19:12:13.792Z",
-          "actor": "example-bot[bot]",
-          "issueNumber": 15,
-          "executionSeconds": 105,
-          "usage": null
-        },
-        {
-          "runId": 54339837058,
-          "workflow": "All Work Router",
-          "kind": "apply-review",
+          "kind": "refine",
           "conclusion": "success",
-          "startedAt": "2026-08-16T07:51:00.606Z",
+          "startedAt": "2026-08-04T13:09:11.183Z",
           "actor": "example-bot[bot]",
-          "issueNumber": 59,
-          "executionSeconds": 680,
-          "usage": null
-        },
-        {
-          "runId": 54339832349,
-          "workflow": "All Work Router",
-          "kind": "implement",
-          "conclusion": "success",
-          "startedAt": "2026-08-13T17:08:46.639Z",
-          "actor": "example-bot[bot]",
-          "issueNumber": 50,
-          "executionSeconds": 1236,
+          "issueNumber": 49,
+          "executionSeconds": 599,
           "usage": {
-            "inputTokens": 3964975,
-            "outputTokens": 19249,
-            "cacheReadTokens": 3619227,
+            "inputTokens": 2013953,
+            "outputTokens": 7592,
+            "cacheReadTokens": 1629636,
             "cacheWriteTokens": 0,
-            "ambientContext": 8440,
+            "ambientContext": 7314,
             "aiCredits": 0,
             "primaryModel": "example-model-1"
           }
         },
         {
-          "runId": 54339619725,
+          "runId": 54340377892,
+          "workflow": "All Work Router",
+          "kind": "refine",
+          "conclusion": "success",
+          "startedAt": "2026-08-04T12:45:42.553Z",
+          "actor": "example-bot[bot]",
+          "issueNumber": 39,
+          "executionSeconds": 465,
+          "usage": {
+            "inputTokens": 1602903,
+            "outputTokens": 8032,
+            "cacheReadTokens": 1291537,
+            "cacheWriteTokens": 0,
+            "ambientContext": 6598,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
+        },
+        {
+          "runId": 54340461576,
           "workflow": "All Work Router",
           "kind": "refine",
           "conclusion": "failure",
-          "startedAt": "2026-08-13T10:52:08.873Z",
+          "startedAt": "2026-08-03T14:29:49.634Z",
           "actor": "example-bot[bot]",
-          "issueNumber": 24,
-          "executionSeconds": 1764,
+          "issueNumber": 56,
+          "executionSeconds": 14,
           "usage": {
-            "inputTokens": 8091036,
-            "outputTokens": 32302,
-            "cacheReadTokens": 7363547,
+            "inputTokens": 49192,
+            "outputTokens": 225,
+            "cacheReadTokens": 41822,
             "cacheWriteTokens": 0,
-            "ambientContext": 8806,
+            "ambientContext": 7555,
             "aiCredits": 0,
             "primaryModel": "example-model-1"
           }
         },
         {
-          "runId": 54339587616,
-          "workflow": "All Work Router",
-          "kind": "triage",
-          "conclusion": "success",
-          "startedAt": "2026-08-08T10:14:52.967Z",
-          "actor": "example-bot[bot]",
-          "issueNumber": 46,
-          "executionSeconds": 146,
-          "usage": {
-            "inputTokens": 356135,
-            "outputTokens": 1367,
-            "cacheReadTokens": 301748,
-            "cacheWriteTokens": 0,
-            "ambientContext": 4993,
-            "aiCredits": 0,
-            "primaryModel": "example-model-1"
-          }
-        },
-        {
-          "runId": 54339748800,
-          "workflow": "All Work Router",
-          "kind": "refine",
-          "conclusion": "failure",
-          "startedAt": "2026-08-06T23:35:09.494Z",
-          "actor": "example-bot[bot]",
-          "issueNumber": 78,
-          "executionSeconds": 34,
-          "usage": {
-            "inputTokens": 114525,
-            "outputTokens": 390,
-            "cacheReadTokens": 92871,
-            "cacheWriteTokens": 0,
-            "ambientContext": 5445,
-            "aiCredits": 0,
-            "primaryModel": "example-model-1"
-          }
-        },
-        {
-          "runId": 54339894475,
+          "runId": 54340710569,
           "workflow": "All Work Router",
           "kind": "merge-gate",
-          "conclusion": "failure",
-          "startedAt": "2026-08-04T12:33:12.979Z",
+          "conclusion": "success",
+          "startedAt": "2026-08-03T09:52:29.185Z",
           "actor": "example-bot[bot]",
-          "issueNumber": 36,
-          "executionSeconds": 1703,
+          "issueNumber": 56,
+          "executionSeconds": 687,
           "usage": {
-            "inputTokens": 8846979,
-            "outputTokens": 46422,
-            "cacheReadTokens": 8047446,
+            "inputTokens": 3108012,
+            "outputTokens": 11224,
+            "cacheReadTokens": 2793623,
             "cacheWriteTokens": 0,
-            "ambientContext": 8478,
+            "ambientContext": 9014,
             "aiCredits": 0,
             "primaryModel": "example-model-1"
           }
         },
         {
-          "runId": 54339801181,
+          "runId": 54340554616,
           "workflow": "All Work Router",
           "kind": "implement",
           "conclusion": "success",
-          "startedAt": "2026-08-03T07:06:44.125Z",
-          "actor": "example-bot[bot]",
-          "issueNumber": 30,
-          "executionSeconds": 386,
-          "usage": {
-            "inputTokens": 1935169,
-            "outputTokens": 10104,
-            "cacheReadTokens": 1717939,
-            "cacheWriteTokens": 0,
-            "ambientContext": 8996,
-            "aiCredits": 0,
-            "primaryModel": "example-model-1"
-          }
-        },
-        {
-          "runId": 54339761894,
-          "workflow": "All Work Router",
-          "kind": "implement",
-          "conclusion": "success",
-          "startedAt": "2026-08-01T23:59:44.873Z",
-          "actor": "example-bot[bot]",
-          "issueNumber": 25,
-          "executionSeconds": 1006,
-          "usage": {
-            "inputTokens": 3639414,
-            "outputTokens": 17868,
-            "cacheReadTokens": 2891854,
-            "cacheWriteTokens": 0,
-            "ambientContext": 6905,
-            "aiCredits": 0,
-            "primaryModel": "example-model-1"
-          }
-        },
-        {
-          "runId": 54339499141,
-          "workflow": "All Work Router",
-          "kind": "triage",
-          "conclusion": "failure",
-          "startedAt": "2026-08-01T04:38:07.619Z",
+          "startedAt": "2026-08-01T08:23:00.341Z",
           "actor": "example-bot[bot]",
           "issueNumber": 60,
-          "executionSeconds": 4,
-          "usage": null
+          "executionSeconds": 344,
+          "usage": {
+            "inputTokens": 1176234,
+            "outputTokens": 3866,
+            "cacheReadTokens": 1023816,
+            "cacheWriteTokens": 0,
+            "ambientContext": 5597,
+            "aiCredits": 0,
+            "primaryModel": "example-model-1"
+          }
         }
       ],
       "byKind": {
         "triage": {
           "runs": 4,
           "runsWithUsage": 3,
-          "successful": 3,
+          "successful": 2,
           "tokens": {
-            "inputTokens": 1178043,
-            "outputTokens": 4148,
-            "cacheReadTokens": 1004549,
+            "inputTokens": 598053,
+            "outputTokens": 2985,
+            "cacheReadTokens": 536509,
             "cacheWriteTokens": 0,
-            "ambientContext": 20639,
+            "ambientContext": 19708,
             "aiCredits": 0,
             "primaryModel": "example-model-1"
           },
@@ -483,119 +951,119 @@
             "available": true,
             "data": {
               "count": 4,
-              "p50": 118.5,
-              "p75": 148.25,
-              "p90": 152.3
+              "p50": 30.5,
+              "p75": 75.5,
+              "p90": 123.2
             }
           },
-          "totalExecutionSeconds": 396
+          "totalExecutionSeconds": 225
         },
         "refine": {
-          "runs": 6,
-          "runsWithUsage": 6,
-          "successful": 4,
+          "runs": 15,
+          "runsWithUsage": 13,
+          "successful": 13,
           "tokens": {
-            "inputTokens": 14620989,
-            "outputTokens": 57666,
-            "cacheReadTokens": 13088513,
+            "inputTokens": 25338106,
+            "outputTokens": 109964,
+            "cacheReadTokens": 21270757,
             "cacheWriteTokens": 0,
-            "ambientContext": 44055,
+            "ambientContext": 87641,
             "aiCredits": 0,
             "primaryModel": "example-model-1"
           },
           "executionSeconds": {
             "available": true,
             "data": {
-              "count": 6,
-              "p50": 387.5,
-              "p75": 525,
-              "p90": 1159
+              "count": 15,
+              "p50": 545,
+              "p75": 730,
+              "p90": 942
             }
           },
-          "totalExecutionSeconds": 3424
+          "totalExecutionSeconds": 9482
         },
         "implement": {
-          "runs": 6,
-          "runsWithUsage": 6,
-          "successful": 6,
+          "runs": 17,
+          "runsWithUsage": 15,
+          "successful": 14,
           "tokens": {
-            "inputTokens": 22044837,
-            "outputTokens": 107539,
-            "cacheReadTokens": 19052472,
+            "inputTokens": 76487495,
+            "outputTokens": 312402,
+            "cacheReadTokens": 64574528,
             "cacheWriteTokens": 0,
-            "ambientContext": 49040,
+            "ambientContext": 107982,
             "aiCredits": 0,
             "primaryModel": "example-model-1"
           },
           "executionSeconds": {
             "available": true,
             "data": {
-              "count": 6,
-              "p50": 1049,
-              "p75": 1200,
-              "p90": 1351
+              "count": 17,
+              "p50": 1269,
+              "p75": 1474,
+              "p90": 2182.6
             }
           },
-          "totalExecutionSeconds": 6042
+          "totalExecutionSeconds": 21380
         },
         "apply-review": {
           "runs": 2,
-          "runsWithUsage": 1,
-          "successful": 2,
+          "runsWithUsage": 0,
+          "successful": 1,
           "tokens": {
-            "inputTokens": 2468649,
-            "outputTokens": 10630,
-            "cacheReadTokens": 1957450,
+            "inputTokens": 0,
+            "outputTokens": 0,
+            "cacheReadTokens": 0,
             "cacheWriteTokens": 0,
-            "ambientContext": 6888,
+            "ambientContext": 0,
             "aiCredits": 0,
-            "primaryModel": "example-model-1"
+            "primaryModel": null
           },
           "executionSeconds": {
             "available": true,
             "data": {
               "count": 2,
-              "p50": 712,
-              "p75": 728,
-              "p90": 737.6
+              "p50": 193,
+              "p75": 277,
+              "p90": 327.4
             }
           },
-          "totalExecutionSeconds": 1424
+          "totalExecutionSeconds": 386
         },
         "merge-gate": {
-          "runs": 5,
-          "runsWithUsage": 4,
-          "successful": 1,
+          "runs": 13,
+          "runsWithUsage": 9,
+          "successful": 11,
           "tokens": {
-            "inputTokens": 24524546,
-            "outputTokens": 104302,
-            "cacheReadTokens": 20474091,
+            "inputTokens": 29209306,
+            "outputTokens": 125793,
+            "cacheReadTokens": 25434178,
             "cacheWriteTokens": 0,
-            "ambientContext": 26588,
+            "ambientContext": 74321,
             "aiCredits": 0,
             "primaryModel": "example-model-1"
           },
           "executionSeconds": {
             "available": true,
             "data": {
-              "count": 5,
-              "p50": 717,
-              "p75": 1703,
-              "p90": 2216.6
+              "count": 13,
+              "p50": 840,
+              "p75": 900,
+              "p90": 900
             }
           },
-          "totalExecutionSeconds": 5153
+          "totalExecutionSeconds": 8472
         },
         "audit": {
           "runs": 1,
           "runsWithUsage": 1,
           "successful": 1,
           "tokens": {
-            "inputTokens": 1801867,
-            "outputTokens": 9977,
-            "cacheReadTokens": 1414496,
+            "inputTokens": 1899083,
+            "outputTokens": 8961,
+            "cacheReadTokens": 1508436,
             "cacheWriteTokens": 0,
-            "ambientContext": 6837,
+            "ambientContext": 6424,
             "aiCredits": 0,
             "primaryModel": "example-model-1"
           },
@@ -603,12 +1071,12 @@
             "available": true,
             "data": {
               "count": 1,
-              "p50": 535,
-              "p75": 535,
-              "p90": 535
+              "p50": 515,
+              "p75": 515,
+              "p90": 515
             }
           },
-          "totalExecutionSeconds": 535
+          "totalExecutionSeconds": 515
         }
       }
     }
@@ -3292,10 +3760,10 @@
     },
     {
       "code": "USAGE_ARTIFACT_MISSING",
-      "message": "3 of 24 agent run(s) had no readable usage artifact. Artifacts expire after about 90 days, and a run still in progress has not uploaded one yet.",
+      "message": "11 of 52 agent run(s) had no readable usage artifact. Artifacts expire after about 90 days, and a run still in progress has not uploaded one yet.",
       "context": {
-        "runs": 3,
-        "of": 24
+        "runs": 11,
+        "of": 52
       }
     }
   ],
@@ -3468,5 +3936,1292 @@
   "environment": {
     "available": false,
     "reason": "No deployments recorded."
+  },
+  "roadmap": {
+    "available": true,
+    "data": {
+      "asOf": "2026-08-31T03:15:00Z",
+      "issues": [
+        {
+          "number": 96,
+          "title": "Balance export drops the currency on negative amounts",
+          "author": "noor",
+          "source": "person",
+          "createdAt": "2026-08-24T16:30:00Z",
+          "closedAt": "2026-08-24T21:10:00Z",
+          "updatedAt": "2026-08-24T21:10:00Z",
+          "outcome": "merged-by-hand",
+          "estimate": null,
+          "segments": [
+            {
+              "state": "manual",
+              "from": 0,
+              "to": 280
+            }
+          ],
+          "marks": [],
+          "events": [
+            {
+              "at": "2026-08-24T16:30:00Z",
+              "kind": "opened",
+              "actor": "noor",
+              "detail": null
+            },
+            {
+              "at": "2026-08-24T21:00:00Z",
+              "kind": "pr-linked",
+              "actor": "noor",
+              "detail": "120"
+            },
+            {
+              "at": "2026-08-24T21:10:00Z",
+              "kind": "merged",
+              "actor": "noor",
+              "detail": "120"
+            },
+            {
+              "at": "2026-08-24T21:10:00Z",
+              "kind": "closed",
+              "actor": "noor",
+              "detail": null
+            }
+          ],
+          "pullRequests": [
+            {
+              "number": 120,
+              "title": "Balance export drops the currency on negative amounts",
+              "author": "noor",
+              "byAgent": false,
+              "closes": true,
+              "createdAt": "2026-08-24T21:00:00Z",
+              "mergedAt": "2026-08-24T21:10:00Z",
+              "mergedBy": "noor",
+              "additions": 40,
+              "deletions": 6,
+              "changedFiles": 2,
+              "mergeGate": null
+            }
+          ],
+          "evidence": null,
+          "agent": {
+            "runs": 0,
+            "inputTokens": 0,
+            "outputTokens": 0,
+            "seconds": 0
+          }
+        },
+        {
+          "number": 98,
+          "title": "Rounding differs between the ledger and the report API",
+          "author": "priya",
+          "source": "person",
+          "createdAt": "2026-08-25T08:20:00Z",
+          "closedAt": "2026-08-25T14:05:00Z",
+          "updatedAt": "2026-08-25T14:05:00Z",
+          "outcome": "merged",
+          "estimate": 2,
+          "segments": [
+            {
+              "state": "queued",
+              "from": 0,
+              "to": 4
+            },
+            {
+              "state": "agent",
+              "from": 4,
+              "to": 13
+            },
+            {
+              "state": "queued",
+              "from": 13,
+              "to": 43
+            },
+            {
+              "state": "agent",
+              "from": 43,
+              "to": 70
+            },
+            {
+              "state": "person",
+              "from": 70,
+              "to": 210
+            },
+            {
+              "state": "agent",
+              "from": 210,
+              "to": 232
+            },
+            {
+              "state": "person",
+              "from": 232,
+              "to": 296
+            },
+            {
+              "state": "agent",
+              "from": 296,
+              "to": 327
+            },
+            {
+              "state": "merge",
+              "from": 327,
+              "to": 345
+            }
+          ],
+          "marks": [
+            {
+              "at": 70,
+              "kind": "stalled"
+            },
+            {
+              "at": 232,
+              "kind": "stalled"
+            },
+            {
+              "at": 306,
+              "kind": "failed-run"
+            }
+          ],
+          "events": [
+            {
+              "at": "2026-08-25T08:20:00Z",
+              "kind": "opened",
+              "actor": "priya",
+              "detail": null
+            },
+            {
+              "at": "2026-08-25T08:20:00Z",
+              "kind": "requested",
+              "actor": "priya",
+              "detail": "refine"
+            },
+            {
+              "at": "2026-08-25T08:24:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-25T08:33:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-25T08:33:00Z",
+              "kind": "estimated",
+              "actor": "example-bot[bot]",
+              "detail": "sp-2"
+            },
+            {
+              "at": "2026-08-25T09:03:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-25T09:30:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-25T09:30:00Z",
+              "kind": "stalled",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-25T11:50:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-25T12:12:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-25T12:12:00Z",
+              "kind": "stalled",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-25T13:16:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-25T13:26:00Z",
+              "kind": "failed-run",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-25T13:47:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-25T13:47:00Z",
+              "kind": "pr-linked",
+              "actor": "example-bot[bot]",
+              "detail": "121"
+            },
+            {
+              "at": "2026-08-25T14:05:00Z",
+              "kind": "merged",
+              "actor": "priya",
+              "detail": "121"
+            },
+            {
+              "at": "2026-08-25T14:05:00Z",
+              "kind": "closed",
+              "actor": "priya",
+              "detail": null
+            }
+          ],
+          "pullRequests": [
+            {
+              "number": 121,
+              "title": "Rounding differs between the ledger and the report API",
+              "author": "example-bot[bot]",
+              "byAgent": true,
+              "closes": true,
+              "createdAt": "2026-08-25T13:47:00Z",
+              "mergedAt": "2026-08-25T14:05:00Z",
+              "mergedBy": "priya",
+              "additions": 95,
+              "deletions": 31,
+              "changedFiles": 4,
+              "mergeGate": null
+            }
+          ],
+          "evidence": null,
+          "agent": {
+            "runs": 5,
+            "inputTokens": 8349312,
+            "outputTokens": 33802,
+            "seconds": 4445
+          }
+        },
+        {
+          "number": 100,
+          "title": "Support multi-currency journal entries",
+          "author": "priya",
+          "source": "person",
+          "createdAt": "2026-08-26T09:10:00Z",
+          "closedAt": "2026-08-26T11:30:00Z",
+          "updatedAt": "2026-08-26T11:30:00Z",
+          "outcome": "auto-merged",
+          "estimate": 5,
+          "segments": [
+            {
+              "state": "queued",
+              "from": 0,
+              "to": 3
+            },
+            {
+              "state": "agent",
+              "from": 3,
+              "to": 17
+            },
+            {
+              "state": "queued",
+              "from": 17,
+              "to": 23
+            },
+            {
+              "state": "agent",
+              "from": 23,
+              "to": 42
+            },
+            {
+              "state": "queued",
+              "from": 42,
+              "to": 77
+            },
+            {
+              "state": "agent",
+              "from": 77,
+              "to": 118
+            },
+            {
+              "state": "merge",
+              "from": 118,
+              "to": 140
+            }
+          ],
+          "marks": [],
+          "events": [
+            {
+              "at": "2026-08-26T09:10:00Z",
+              "kind": "opened",
+              "actor": "priya",
+              "detail": null
+            },
+            {
+              "at": "2026-08-26T09:10:00Z",
+              "kind": "requested",
+              "actor": "priya",
+              "detail": "refine"
+            },
+            {
+              "at": "2026-08-26T09:13:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-26T09:27:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-26T09:27:00Z",
+              "kind": "estimated",
+              "actor": "example-bot[bot]",
+              "detail": "sp-5"
+            },
+            {
+              "at": "2026-08-26T09:33:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-26T09:52:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-26T10:27:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-26T11:08:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-26T11:08:00Z",
+              "kind": "pr-linked",
+              "actor": "example-bot[bot]",
+              "detail": "122"
+            },
+            {
+              "at": "2026-08-26T11:30:00Z",
+              "kind": "merged",
+              "actor": "example-bot[bot]",
+              "detail": "122"
+            },
+            {
+              "at": "2026-08-26T11:30:00Z",
+              "kind": "closed",
+              "actor": "example-bot[bot]",
+              "detail": null
+            }
+          ],
+          "pullRequests": [
+            {
+              "number": 122,
+              "title": "Support multi-currency journal entries",
+              "author": "example-bot[bot]",
+              "byAgent": true,
+              "closes": true,
+              "createdAt": "2026-08-26T11:08:00Z",
+              "mergedAt": "2026-08-26T11:30:00Z",
+              "mergedBy": "example-bot[bot]",
+              "additions": 612,
+              "deletions": 40,
+              "changedFiles": 14,
+              "mergeGate": "auto-merge"
+            }
+          ],
+          "evidence": null,
+          "agent": {
+            "runs": 3,
+            "inputTokens": 14654064,
+            "outputTokens": 59965,
+            "seconds": 3841
+          }
+        },
+        {
+          "number": 102,
+          "title": "Explain why a posting was rejected",
+          "author": "noor",
+          "source": "person",
+          "createdAt": "2026-08-26T11:40:00Z",
+          "closedAt": "2026-08-26T14:50:00Z",
+          "updatedAt": "2026-08-26T14:50:00Z",
+          "outcome": "merged",
+          "estimate": 3,
+          "segments": [
+            {
+              "state": "queued",
+              "from": 0,
+              "to": 2
+            },
+            {
+              "state": "agent",
+              "from": 2,
+              "to": 14
+            },
+            {
+              "state": "person",
+              "from": 14,
+              "to": 109
+            },
+            {
+              "state": "agent",
+              "from": 109,
+              "to": 142
+            },
+            {
+              "state": "merge",
+              "from": 142,
+              "to": 190
+            }
+          ],
+          "marks": [],
+          "events": [
+            {
+              "at": "2026-08-26T11:40:00Z",
+              "kind": "opened",
+              "actor": "noor",
+              "detail": null
+            },
+            {
+              "at": "2026-08-26T11:40:00Z",
+              "kind": "requested",
+              "actor": "noor",
+              "detail": "refine"
+            },
+            {
+              "at": "2026-08-26T11:42:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-26T11:54:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-26T11:54:00Z",
+              "kind": "review",
+              "actor": "example-bot[bot]",
+              "detail": "review"
+            },
+            {
+              "at": "2026-08-26T11:54:00Z",
+              "kind": "estimated",
+              "actor": "example-bot[bot]",
+              "detail": "sp-3"
+            },
+            {
+              "at": "2026-08-26T13:29:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-26T14:02:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-26T14:02:00Z",
+              "kind": "pr-linked",
+              "actor": "example-bot[bot]",
+              "detail": "123"
+            },
+            {
+              "at": "2026-08-26T14:50:00Z",
+              "kind": "merged",
+              "actor": "noor",
+              "detail": "123"
+            },
+            {
+              "at": "2026-08-26T14:50:00Z",
+              "kind": "closed",
+              "actor": "noor",
+              "detail": null
+            }
+          ],
+          "pullRequests": [
+            {
+              "number": 123,
+              "title": "Explain why a posting was rejected",
+              "author": "example-bot[bot]",
+              "byAgent": true,
+              "closes": true,
+              "createdAt": "2026-08-26T14:02:00Z",
+              "mergedAt": "2026-08-26T14:50:00Z",
+              "mergedBy": "noor",
+              "additions": 188,
+              "deletions": 12,
+              "changedFiles": 6,
+              "mergeGate": null
+            }
+          ],
+          "evidence": null,
+          "agent": {
+            "runs": 2,
+            "inputTokens": 7913675,
+            "outputTokens": 27099,
+            "seconds": 2320
+          }
+        },
+        {
+          "number": 104,
+          "title": "Keep the batch import when validation fails",
+          "author": "noor",
+          "source": "person",
+          "createdAt": "2026-08-27T14:05:00Z",
+          "closedAt": "2026-08-28T01:45:00Z",
+          "updatedAt": "2026-08-28T01:45:00Z",
+          "outcome": "merged",
+          "estimate": 3,
+          "segments": [
+            {
+              "state": "queued",
+              "from": 0,
+              "to": 2
+            },
+            {
+              "state": "agent",
+              "from": 2,
+              "to": 18
+            },
+            {
+              "state": "queued",
+              "from": 18,
+              "to": 62
+            },
+            {
+              "state": "agent",
+              "from": 62,
+              "to": 100
+            },
+            {
+              "state": "merge",
+              "from": 100,
+              "to": 700
+            }
+          ],
+          "marks": [],
+          "events": [
+            {
+              "at": "2026-08-27T14:05:00Z",
+              "kind": "opened",
+              "actor": "noor",
+              "detail": null
+            },
+            {
+              "at": "2026-08-27T14:05:00Z",
+              "kind": "requested",
+              "actor": "noor",
+              "detail": "refine"
+            },
+            {
+              "at": "2026-08-27T14:07:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-27T14:23:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-27T14:23:00Z",
+              "kind": "estimated",
+              "actor": "example-bot[bot]",
+              "detail": "sp-3"
+            },
+            {
+              "at": "2026-08-27T15:07:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-27T15:45:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-27T15:45:00Z",
+              "kind": "pr-linked",
+              "actor": "example-bot[bot]",
+              "detail": "124"
+            },
+            {
+              "at": "2026-08-28T01:45:00Z",
+              "kind": "merged",
+              "actor": "noor",
+              "detail": "124"
+            },
+            {
+              "at": "2026-08-28T01:45:00Z",
+              "kind": "closed",
+              "actor": "noor",
+              "detail": null
+            }
+          ],
+          "pullRequests": [
+            {
+              "number": 124,
+              "title": "Keep the batch import when validation fails",
+              "author": "example-bot[bot]",
+              "byAgent": true,
+              "closes": true,
+              "createdAt": "2026-08-27T15:45:00Z",
+              "mergedAt": "2026-08-28T01:45:00Z",
+              "mergedBy": "noor",
+              "additions": 240,
+              "deletions": 18,
+              "changedFiles": 9,
+              "mergeGate": null
+            }
+          ],
+          "evidence": null,
+          "agent": {
+            "runs": 2,
+            "inputTokens": 10991667,
+            "outputTokens": 37822,
+            "seconds": 2892
+          }
+        },
+        {
+          "number": 106,
+          "title": "Nightly E2E is failing",
+          "author": "github-actions[bot]",
+          "source": "nightly",
+          "createdAt": "2026-08-28T03:05:00Z",
+          "closedAt": "2026-08-28T04:09:00Z",
+          "updatedAt": "2026-08-28T04:09:00Z",
+          "outcome": "auto-merged",
+          "estimate": null,
+          "segments": [
+            {
+              "state": "queued",
+              "from": 0,
+              "to": 8
+            },
+            {
+              "state": "agent",
+              "from": 8,
+              "to": 29
+            },
+            {
+              "state": "merge",
+              "from": 29,
+              "to": 64
+            }
+          ],
+          "marks": [],
+          "events": [
+            {
+              "at": "2026-08-28T03:05:00Z",
+              "kind": "opened",
+              "actor": "github-actions[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-28T03:05:00Z",
+              "kind": "requested",
+              "actor": "github-actions[bot]",
+              "detail": "refine"
+            },
+            {
+              "at": "2026-08-28T03:13:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-28T03:34:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-28T03:34:00Z",
+              "kind": "pr-linked",
+              "actor": "example-bot[bot]",
+              "detail": "125"
+            },
+            {
+              "at": "2026-08-28T04:09:00Z",
+              "kind": "merged",
+              "actor": "example-bot[bot]",
+              "detail": "125"
+            },
+            {
+              "at": "2026-08-28T04:09:00Z",
+              "kind": "closed",
+              "actor": "example-bot[bot]",
+              "detail": null
+            }
+          ],
+          "pullRequests": [
+            {
+              "number": 125,
+              "title": "Nightly E2E is failing",
+              "author": "example-bot[bot]",
+              "byAgent": true,
+              "closes": true,
+              "createdAt": "2026-08-28T03:34:00Z",
+              "mergedAt": "2026-08-28T04:09:00Z",
+              "mergedBy": "example-bot[bot]",
+              "additions": 12,
+              "deletions": 4,
+              "changedFiles": 1,
+              "mergeGate": "auto-merge"
+            }
+          ],
+          "evidence": null,
+          "agent": {
+            "runs": 1,
+            "inputTokens": 3306798,
+            "outputTokens": 18178,
+            "seconds": 1040
+          }
+        },
+        {
+          "number": 108,
+          "title": "Retry the FX rate provider on a timeout",
+          "author": "priya",
+          "source": "person",
+          "createdAt": "2026-08-28T09:00:00Z",
+          "closedAt": "2026-08-28T13:55:00Z",
+          "updatedAt": "2026-08-28T13:55:00Z",
+          "outcome": "auto-merged",
+          "estimate": 2,
+          "segments": [
+            {
+              "state": "queued",
+              "from": 0,
+              "to": 1
+            },
+            {
+              "state": "agent",
+              "from": 1,
+              "to": 18
+            },
+            {
+              "state": "person",
+              "from": 18,
+              "to": 248
+            },
+            {
+              "state": "queued",
+              "from": 248,
+              "to": 260
+            },
+            {
+              "state": "agent",
+              "from": 260,
+              "to": 286
+            },
+            {
+              "state": "merge",
+              "from": 286,
+              "to": 295
+            }
+          ],
+          "marks": [],
+          "events": [
+            {
+              "at": "2026-08-28T09:00:00Z",
+              "kind": "opened",
+              "actor": "priya",
+              "detail": null
+            },
+            {
+              "at": "2026-08-28T09:00:00Z",
+              "kind": "requested",
+              "actor": "priya",
+              "detail": "refine"
+            },
+            {
+              "at": "2026-08-28T09:01:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-28T09:18:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-28T09:18:00Z",
+              "kind": "review",
+              "actor": "example-bot[bot]",
+              "detail": "review"
+            },
+            {
+              "at": "2026-08-28T09:18:00Z",
+              "kind": "estimated",
+              "actor": "example-bot[bot]",
+              "detail": "sp-2"
+            },
+            {
+              "at": "2026-08-28T13:20:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-28T13:46:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-28T13:46:00Z",
+              "kind": "pr-linked",
+              "actor": "example-bot[bot]",
+              "detail": "126"
+            },
+            {
+              "at": "2026-08-28T13:55:00Z",
+              "kind": "merged",
+              "actor": "example-bot[bot]",
+              "detail": "126"
+            },
+            {
+              "at": "2026-08-28T13:55:00Z",
+              "kind": "closed",
+              "actor": "example-bot[bot]",
+              "detail": null
+            }
+          ],
+          "pullRequests": [
+            {
+              "number": 126,
+              "title": "Retry the FX rate provider on a timeout",
+              "author": "example-bot[bot]",
+              "byAgent": true,
+              "closes": true,
+              "createdAt": "2026-08-28T13:46:00Z",
+              "mergedAt": "2026-08-28T13:55:00Z",
+              "mergedBy": "example-bot[bot]",
+              "additions": 130,
+              "deletions": 22,
+              "changedFiles": 5,
+              "mergeGate": "auto-merge"
+            }
+          ],
+          "evidence": null,
+          "agent": {
+            "runs": 2,
+            "inputTokens": 9595120,
+            "outputTokens": 30077,
+            "seconds": 2136
+          }
+        },
+        {
+          "number": 110,
+          "title": "Audit: 2026-08-29",
+          "author": "github-actions[bot]",
+          "source": "audit",
+          "createdAt": "2026-08-29T02:10:00Z",
+          "closedAt": "2026-08-29T21:56:00Z",
+          "updatedAt": "2026-08-29T21:56:00Z",
+          "outcome": "closed",
+          "estimate": null,
+          "segments": [
+            {
+              "state": "queued",
+              "from": 0,
+              "to": 6
+            },
+            {
+              "state": "person",
+              "from": 6,
+              "to": 1186
+            }
+          ],
+          "marks": [],
+          "events": [
+            {
+              "at": "2026-08-29T02:10:00Z",
+              "kind": "opened",
+              "actor": "github-actions[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-29T02:10:00Z",
+              "kind": "requested",
+              "actor": "github-actions[bot]",
+              "detail": "refine"
+            },
+            {
+              "at": "2026-08-29T02:16:00Z",
+              "kind": "review",
+              "actor": "example-bot[bot]",
+              "detail": "review"
+            },
+            {
+              "at": "2026-08-29T21:56:00Z",
+              "kind": "closed",
+              "actor": "priya",
+              "detail": null
+            }
+          ],
+          "pullRequests": [],
+          "evidence": null,
+          "agent": {
+            "runs": 0,
+            "inputTokens": 0,
+            "outputTokens": 0,
+            "seconds": 0
+          }
+        },
+        {
+          "number": 112,
+          "title": "FxRateTimeoutException in the ledger contract tests",
+          "author": "github-actions[bot]",
+          "source": "app-error",
+          "createdAt": "2026-08-29T02:15:00Z",
+          "closedAt": "2026-08-29T09:05:00Z",
+          "updatedAt": "2026-08-29T09:05:00Z",
+          "outcome": "auto-merged",
+          "estimate": null,
+          "segments": [
+            {
+              "state": "queued",
+              "from": 0,
+              "to": 255
+            },
+            {
+              "state": "agent",
+              "from": 255,
+              "to": 266
+            },
+            {
+              "state": "person",
+              "from": 266,
+              "to": 356
+            },
+            {
+              "state": "agent",
+              "from": 356,
+              "to": 380
+            },
+            {
+              "state": "merge",
+              "from": 380,
+              "to": 410
+            }
+          ],
+          "marks": [],
+          "events": [
+            {
+              "at": "2026-08-29T02:15:00Z",
+              "kind": "opened",
+              "actor": "github-actions[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-29T02:15:00Z",
+              "kind": "requested",
+              "actor": "github-actions[bot]",
+              "detail": "refine"
+            },
+            {
+              "at": "2026-08-29T06:30:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-29T06:41:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-29T06:41:00Z",
+              "kind": "review",
+              "actor": "example-bot[bot]",
+              "detail": "review"
+            },
+            {
+              "at": "2026-08-29T08:11:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-29T08:35:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-29T08:35:00Z",
+              "kind": "pr-linked",
+              "actor": "example-bot[bot]",
+              "detail": "127"
+            },
+            {
+              "at": "2026-08-29T09:05:00Z",
+              "kind": "merged",
+              "actor": "example-bot[bot]",
+              "detail": "127"
+            },
+            {
+              "at": "2026-08-29T09:05:00Z",
+              "kind": "closed",
+              "actor": "example-bot[bot]",
+              "detail": null
+            }
+          ],
+          "pullRequests": [
+            {
+              "number": 127,
+              "title": "FxRateTimeoutException in the ledger contract tests",
+              "author": "example-bot[bot]",
+              "byAgent": true,
+              "closes": true,
+              "createdAt": "2026-08-29T08:35:00Z",
+              "mergedAt": "2026-08-29T09:05:00Z",
+              "mergedBy": "example-bot[bot]",
+              "additions": 52,
+              "deletions": 8,
+              "changedFiles": 3,
+              "mergeGate": "auto-merge"
+            }
+          ],
+          "evidence": null,
+          "agent": {
+            "runs": 2,
+            "inputTokens": 8233811,
+            "outputTokens": 34589,
+            "seconds": 1703
+          }
+        },
+        {
+          "number": 114,
+          "title": "Reversal entries accept a closed period",
+          "author": "noor",
+          "source": "person",
+          "createdAt": "2026-08-30T10:00:00Z",
+          "closedAt": "2026-08-30T11:49:00Z",
+          "updatedAt": "2026-08-30T11:49:00Z",
+          "outcome": "auto-merged",
+          "estimate": 1,
+          "segments": [
+            {
+              "state": "queued",
+              "from": 0,
+              "to": 2
+            },
+            {
+              "state": "agent",
+              "from": 2,
+              "to": 12
+            },
+            {
+              "state": "queued",
+              "from": 12,
+              "to": 17
+            },
+            {
+              "state": "agent",
+              "from": 17,
+              "to": 39
+            },
+            {
+              "state": "merge",
+              "from": 39,
+              "to": 109
+            }
+          ],
+          "marks": [],
+          "events": [
+            {
+              "at": "2026-08-30T10:00:00Z",
+              "kind": "opened",
+              "actor": "noor",
+              "detail": null
+            },
+            {
+              "at": "2026-08-30T10:00:00Z",
+              "kind": "requested",
+              "actor": "noor",
+              "detail": "refine"
+            },
+            {
+              "at": "2026-08-30T10:02:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-30T10:12:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-30T10:12:00Z",
+              "kind": "estimated",
+              "actor": "example-bot[bot]",
+              "detail": "sp-1"
+            },
+            {
+              "at": "2026-08-30T10:17:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-30T10:39:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-30T10:39:00Z",
+              "kind": "pr-linked",
+              "actor": "example-bot[bot]",
+              "detail": "128"
+            },
+            {
+              "at": "2026-08-30T11:49:00Z",
+              "kind": "merged",
+              "actor": "example-bot[bot]",
+              "detail": "128"
+            },
+            {
+              "at": "2026-08-30T11:49:00Z",
+              "kind": "closed",
+              "actor": "example-bot[bot]",
+              "detail": null
+            }
+          ],
+          "pullRequests": [
+            {
+              "number": 128,
+              "title": "Reversal entries accept a closed period",
+              "author": "example-bot[bot]",
+              "byAgent": true,
+              "closes": true,
+              "createdAt": "2026-08-30T10:39:00Z",
+              "mergedAt": "2026-08-30T11:49:00Z",
+              "mergedBy": "example-bot[bot]",
+              "additions": 64,
+              "deletions": 5,
+              "changedFiles": 2,
+              "mergeGate": "auto-merge"
+            }
+          ],
+          "evidence": null,
+          "agent": {
+            "runs": 2,
+            "inputTokens": 4806479,
+            "outputTokens": 21462,
+            "seconds": 1540
+          }
+        },
+        {
+          "number": 116,
+          "title": "Expose the trial balance per cost centre",
+          "author": "priya",
+          "source": "person",
+          "createdAt": "2026-08-30T12:30:00Z",
+          "closedAt": null,
+          "updatedAt": "2026-08-30T12:30:00Z",
+          "outcome": "open",
+          "estimate": 5,
+          "segments": [
+            {
+              "state": "queued",
+              "from": 0,
+              "to": 3
+            },
+            {
+              "state": "agent",
+              "from": 3,
+              "to": 18
+            },
+            {
+              "state": "person",
+              "from": 18,
+              "to": 885
+            }
+          ],
+          "marks": [],
+          "events": [
+            {
+              "at": "2026-08-30T12:30:00Z",
+              "kind": "opened",
+              "actor": "priya",
+              "detail": null
+            },
+            {
+              "at": "2026-08-30T12:30:00Z",
+              "kind": "requested",
+              "actor": "priya",
+              "detail": "refine"
+            },
+            {
+              "at": "2026-08-30T12:33:00Z",
+              "kind": "agent-started",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-30T12:48:00Z",
+              "kind": "agent-stopped",
+              "actor": "example-bot[bot]",
+              "detail": null
+            },
+            {
+              "at": "2026-08-30T12:48:00Z",
+              "kind": "review",
+              "actor": "example-bot[bot]",
+              "detail": "review"
+            },
+            {
+              "at": "2026-08-30T12:48:00Z",
+              "kind": "estimated",
+              "actor": "example-bot[bot]",
+              "detail": "sp-5"
+            }
+          ],
+          "pullRequests": [],
+          "evidence": null,
+          "agent": {
+            "runs": 1,
+            "inputTokens": 2734324,
+            "outputTokens": 9514,
+            "seconds": 683
+          }
+        }
+      ]
+    }
   }
 }
