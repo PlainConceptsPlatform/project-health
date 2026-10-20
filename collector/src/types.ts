@@ -520,6 +520,8 @@ export interface EvidenceWaypoint {
   reached: boolean
   /** Absolute URL of the screenshot, null when the waypoint produced none. */
   image: string | null
+  /** The screenshot copied into the data folder, as a path from the site root. */
+  copy?: string | null
 }
 
 /** Screenshots the evidence workflow replayed from a merged pull request's verification plan. */

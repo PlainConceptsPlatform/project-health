@@ -12,7 +12,8 @@ export interface ProjectTab {
 /**
  * The panels are rendered on the server and handed in whole; this only decides which one shows.
  * The tab lives in the URL hash so a link to a project's roadmap opens on the roadmap, and the
- * first tab clears the hash so the plain project URL stays the default view.
+ * first tab clears the hash so the plain project URL stays the default view. What follows a slash
+ * belongs to the tab, such as the selected issue in #roadmap/773.
  */
 export function ProjectTabs({ tabs }: { tabs: ProjectTab[] }) {
   const first = tabs[0]?.id ?? ''
@@ -20,7 +21,8 @@ export function ProjectTabs({ tabs }: { tabs: ProjectTab[] }) {
 
   useEffect(() => {
     const fromHash = () => {
-      const hash = window.location.hash.slice(1)
+      // A tab can carry more after a slash, like the issue in #roadmap/773.
+      const hash = window.location.hash.slice(1).split('/')[0] ?? ''
       setActive(tabs.some((t) => t.id === hash) ? hash : first)
     }
     fromHash()
