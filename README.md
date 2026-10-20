@@ -115,6 +115,14 @@ artifact list, which is Actions read. Preflight checks that endpoint for every p
 The [roadmap](#roadmap) needs a sixth, **Pull requests** read. Without it the roadmap block reads
 unavailable with a warning naming the permission, and every other metric is collected as before.
 
+[Actions minutes](#actions-usage) are read from the organization's billing report when the App also
+has the organization permission **Administration** read. Without it they are timed run by run, which
+is slower but needs nothing more.
+
+An installation token lasts one hour. The workflows pass the App's credentials to the collector as
+`GITHUB_APP_ID` and `GITHUB_APP_PRIVATE_KEY`, so it mints a new token before the old one expires,
+and mint another one right before the push, so a collection that takes longer still lands.
+
 ### That is it
 
 A project appears on the dashboard as soon as it is in `projects.json`, before anything is collected,
@@ -377,11 +385,18 @@ every collection with the Actions read permission already required, and needs no
 
 | Measure | Read from |
 | --- | --- |
-| Minutes | `actions/runs?created=<day>` for each day of the month, then `actions/runs/{id}/timing` for every completed run; each job is rounded up to the minute, as GitHub bills it, and split by runner OS |
+| Minutes | the organization's billing usage report, `GET /organizations/{org}/settings/billing/usage?year=&month=`, when the token can read it: one call per organization and month, filtered to the repository, with the `Actions Linux*`, `Actions Windows*` and `Actions macOS*` SKUs mapped to UBUNTU, WINDOWS and MACOS |
+| Minutes, fallback | `actions/runs?created=<day>` for each day of the month, then `actions/runs/{id}/timing` for every completed run; each job is rounded up to the minute, as GitHub bills it, and split by runner OS |
 | Cache storage | `actions/cache/usage`: active cache bytes and count |
 | Artifact storage | `actions/artifacts`: the bytes of every artifact that has not expired |
 
-Minutes are counted incrementally: the month file remembers which runs were already timed, so a
+The billing report needs the **Administration: read** organization permission (a GitHub App) or an
+organization owner's token. Without it the report answers 403 or 404 and minutes are timed run by
+run, which costs one call per run. A month read from the report is marked `source: "billing"` and
+has no run counts; if the report later stops answering, the billed total is kept rather than timed
+again.
+
+Timed minutes are counted incrementally: the month file remembers which runs were already timed, so a
 daily collection only times new runs, a run still in progress waits for the next one, and a month
 that was complete when last read is not listed again. At most 1,500 timings are read per project
 and month in one collection; the rest show as pending until the next. Public repositories and

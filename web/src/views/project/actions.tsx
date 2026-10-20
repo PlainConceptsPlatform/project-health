@@ -68,17 +68,25 @@ export function ActionsPanel({ history }: { history: ActionsEntry[] }) {
                       : `${pct > 0 ? '+' : ''}${pct}% daily pace on last month`
                   }
                 />
-                <Stat
-                  label="Runs timed"
-                  value={`${m.timed}/${m.runs + m.pending}`}
-                  hint={
-                    m.pending > 0
-                      ? `${m.pending} still running or waiting for the next collection`
-                      : m.timed < m.runs || m.truncated
-                        ? 'some runs unreadable, the total is a floor'
-                        : 'complete'
-                  }
-                />
+                {m.source === 'billing' ? (
+                  <Stat
+                    label="Source"
+                    value="Billing report"
+                    hint="the organization's billed minutes for this repository"
+                  />
+                ) : (
+                  <Stat
+                    label="Runs timed"
+                    value={`${m.timed}/${m.runs + m.pending}`}
+                    hint={
+                      m.pending > 0
+                        ? `${m.pending} still running or waiting for the next collection`
+                        : m.timed < m.runs || m.truncated
+                          ? 'some runs unreadable, the total is a floor'
+                          : 'complete'
+                    }
+                  />
+                )}
               </div>
               <ul className="space-y-1.5 text-sm">
                 {Object.entries(m.byOs).length > 0 ? (

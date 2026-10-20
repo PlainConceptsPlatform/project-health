@@ -1,10 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import {
   type ActionsSource,
+  type BillingUsageItem,
   type RunListing,
   type RunTiming,
   billableMinutes,
+  billedMinutesByOs,
   collectActions,
+  collectBilledMinutes,
   collectMinutes,
   collectStorage,
   daysBetween,
@@ -37,12 +40,26 @@ function source(opts: {
   cache?: { bytes: number; count: number } | null | Error
   artifacts?: { size: number; expired?: boolean }[] | Error
   truncatedDay?: string
-}): ActionsSource & { timed: number[]; listedDays: string[] } {
+  /** Leave out for a source without the billing report, as before it was used. */
+  billing?: BillingUsageItem[] | null | Error
+}): ActionsSource & { timed: number[]; listedDays: string[]; billedMonths: string[] } {
   const timed: number[] = []
   const listedDays: string[] = []
+  const billedMonths: string[] = []
+  const billing = opts.billing
   return {
     timed,
     listedDays,
+    billedMonths,
+    ...(billing === undefined
+      ? {}
+      : {
+          billingUsage: async (year: number, month: number) => {
+            billedMonths.push(`${year}-${month}`)
+            if (billing instanceof Error) throw billing
+            return billing
+          },
+        }),
     cacheUsage: async () => {
       if (opts.cache instanceof Error) throw opts.cache
       if (opts.cache === null) return null
@@ -77,6 +94,15 @@ function source(opts: {
 }
 
 const PERIOD = { from: FROM, to: TO, now: NOW }
+
+const minutesLine = (sku: string, quantity: number, product = 'actions'): BillingUsageItem => ({
+  product,
+  sku,
+  unitType: 'Minutes',
+  quantity,
+  organizationName: 'PlainConceptsPlatform',
+  repositoryName: 'Atlas',
+})
 
 describe('billableMinutes', () => {
   it('rounds every job up to the minute, as GitHub bills it, not the run total', () => {
@@ -308,5 +334,122 @@ describe('collectActions', () => {
       null,
     )
     expect(usage.storage.available).toBe(false)
+  })
+})
+
+describe('billedMinutesByOs', () => {
+  it('maps every Linux, Windows and macOS SKU onto the split the timing endpoint uses', () => {
+    expect(
+      billedMinutesByOs([
+        minutesLine('Actions Linux', 100),
+        minutesLine('Actions Linux Advanced 2-core', 40),
+        minutesLine('Actions Linux Slim', 3),
+        minutesLine('Actions Windows', 12),
+        minutesLine('Actions macOS 3-core', 7),
+      ]),
+    ).toEqual({ UBUNTU: 143, WINDOWS: 12, MACOS: 7 })
+  })
+
+  it('leaves out storage and other products, and keeps an unknown runner under its SKU', () => {
+    expect(
+      billedMinutesByOs([
+        { ...minutesLine('Actions storage', 5), unitType: 'GigabyteHours' },
+        minutesLine('Code Quality AI Credits', 9, 'code_quality'),
+        minutesLine('Actions Linux', 0.4),
+        minutesLine('Actions Linux', 0.4),
+        minutesLine('Actions ARM Something', 2),
+      ]),
+    ).toEqual({ UBUNTU: 1, 'Actions ARM Something': 2 })
+  })
+})
+
+describe('collectBilledMinutes', () => {
+  it('reads the month of the period, numbered from 1, and sums it with no run counts', async () => {
+    const s = source({
+      billing: [minutesLine('Actions Linux', 20_000), minutesLine('Actions Windows', 171)],
+    })
+    const minutes = await collectBilledMinutes(s, PERIOD)
+    expect(s.billedMonths).toEqual(['2026-10'])
+    expect(minutes).toMatchObject({
+      source: 'billing',
+      total: 20_171,
+      byOs: { UBUNTU: 20_000, WINDOWS: 171 },
+      runs: 0,
+      timed: 0,
+      pending: 0,
+      countedBefore: null,
+      countedIds: [],
+    })
+  })
+
+  it('is null when the report is refused or missing, so the caller can fall back', async () => {
+    expect(
+      await collectBilledMinutes(source({ billing: new Error('GET failed with 403') }), PERIOD),
+    ).toBeNull()
+    expect(await collectBilledMinutes(source({ billing: null }), PERIOD)).toBeNull()
+    expect(await collectBilledMinutes(source({}), PERIOD)).toBeNull()
+  })
+
+  it('reads zero, not unavailable, for a repository with no billed minutes this month', async () => {
+    const minutes = await collectBilledMinutes(source({ billing: [] }), PERIOD)
+    expect(minutes).toMatchObject({ source: 'billing', total: 0, byOs: {} })
+  })
+})
+
+describe('collectActions with the billing report', () => {
+  const runs = [run(1, '2026-10-01T10:00:00Z'), run(2, '2026-10-02T10:00:00Z')]
+
+  it('prefers the report and times no run at all', async () => {
+    const s = source({ runs, billing: [minutesLine('Actions Linux', 500)] })
+    const usage = await collectActions(s, PERIOD, null)
+    expect(usage.minutes.available && usage.minutes.data).toMatchObject({
+      source: 'billing',
+      total: 500,
+    })
+    expect(s.listedDays).toEqual([])
+    expect(s.timed).toEqual([])
+  })
+
+  it('falls back to timing each run when the report answers 403', async () => {
+    const s = source({ runs, billing: new Error('GET failed with 403') })
+    const usage = await collectActions(s, PERIOD, null)
+    expect(usage.minutes.available && usage.minutes.data).toMatchObject({
+      source: 'timing',
+      total: 2,
+      runs: 2,
+    })
+    expect(s.timed).toEqual([1, 2])
+  })
+
+  it('falls back to timing when the report answers 404', async () => {
+    const s = source({ runs, billing: null })
+    const usage = await collectActions(s, PERIOD, null)
+    expect(usage.minutes.available && usage.minutes.data.source).toBe('timing')
+  })
+
+  it('keeps a billed total when the report stops answering, rather than retiming the month', async () => {
+    const first = await collectActions(
+      source({ billing: [minutesLine('Actions Linux', 800)] }),
+      PERIOD,
+      null,
+    )
+    const s = source({ runs, billing: new Error('GET failed with 502') })
+    const second = await collectActions(s, PERIOD, first)
+    expect(second.minutes).toEqual(first.minutes)
+    expect(s.timed).toEqual([])
+  })
+
+  it('replaces a timed floor with the billed total once the report is readable', async () => {
+    const timed = await collectActions(source({ runs }), PERIOD, null)
+    const billed = await collectActions(
+      source({ runs, billing: [minutesLine('Actions Linux', 900)] }),
+      PERIOD,
+      timed,
+    )
+    expect(billed.minutes.available && billed.minutes.data).toMatchObject({
+      source: 'billing',
+      total: 900,
+      runs: 0,
+    })
   })
 })
