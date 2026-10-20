@@ -9,6 +9,7 @@ import {
   filterSummaries,
   sortSummaries,
 } from '@/shared/lib/summary'
+import { withBase } from '@/shared/lib/utils'
 import {
   Badge,
   Card,
@@ -45,7 +46,7 @@ function ProjectCard({ p, month }: { p: ProjectSummary; month: string | null }) 
 
   return (
     <a
-      href={month ? `/projects/${p.id}/${month}/` : `/projects/${p.id}/`}
+      href={withBase(month ? `/projects/${p.id}/${month}/` : `/projects/${p.id}/`)}
       className="group block rounded-xl outline-none transition focus-visible:ring-2 focus-visible:ring-ring"
     >
       <Card className="h-full transition group-hover:border-primary/40 group-hover:shadow-md">

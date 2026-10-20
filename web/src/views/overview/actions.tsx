@@ -7,6 +7,7 @@ import {
   storageSize,
   trendMax,
 } from '@/shared/lib/actions'
+import { withBase } from '@/shared/lib/utils'
 import { cn } from '@/shared/ui'
 import { Sparkline } from '@/shared/ui/sparkline'
 
@@ -62,7 +63,7 @@ export function ActionsTable({ rows }: { rows: ActionsRow[] }) {
                 >
                   <td className="px-4 py-3.5">
                     <a
-                      href={`/projects/${row.id}/`}
+                      href={withBase(`/projects/${row.id}/`)}
                       className="text-[15px] font-semibold hover:underline"
                     >
                       {row.name}

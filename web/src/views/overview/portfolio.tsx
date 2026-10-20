@@ -223,8 +223,9 @@ function Delta({ delta, basis }: { delta: number | null; basis: DeltaBasis }) {
 function openRow(e: React.MouseEvent<HTMLTableRowElement>, href: string) {
   if ((e.target as HTMLElement).closest('a, button')) return
   if (window.getSelection()?.toString()) return
-  if (e.metaKey || e.ctrlKey) window.open(href, '_blank', 'noopener')
-  else window.location.assign(href)
+  const url = withBase(href)
+  if (e.metaKey || e.ctrlKey) window.open(url, '_blank', 'noopener')
+  else window.location.assign(url)
 }
 
 const COLUMNS = ['Project', 'Engineering', 'Gates', 'AI usage', `Last ${DELTA_DAYS} days`, '']
