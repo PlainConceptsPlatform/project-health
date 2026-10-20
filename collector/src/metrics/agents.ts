@@ -321,6 +321,7 @@ export async function collectAgents(
   from: Date,
   to: Date,
   previous: AgentRun[] = [],
+  previousNotAgent: number[] = [],
 ): Promise<AgentResult> {
   const warnings: Warning[] = []
   const config = project.agents
@@ -341,6 +342,10 @@ export async function collectAgents(
     if (run.conclusion !== null && run.usage !== null) cached.set(run.runId, run)
   }
   let reused = 0
+  // Runs already read and found to hold no agent. A busy router logs hundreds a month, and reading
+  // their jobs again on every daily collection was most of its time.
+  const notAgent = new Set(previousNotAgent)
+  const noAgent = { kind: null, executionSeconds: null }
 
   const catalog = await get<{ workflows: { id: number; name: string; path: string }[] }>(
     `/repos/${project.repo}/actions/workflows?per_page=100`,
@@ -392,7 +397,7 @@ export async function collectAgents(
   // The kind comes from the jobs, so every candidate is shaped before anything is grouped. A
   // cached run keeps its kind rather than paying for the request again.
   const routed = await mapLimit(candidates, CONCURRENCY, async (run) => {
-    const hit = cached.get(run.id)
+    const hit = cached.get(run.id) ?? (notAgent.has(run.id) ? noAgent : undefined)
     const shape = hit ?? (await readRunShape(project.repo, run.id))
     return {
       run,
@@ -425,7 +430,10 @@ export async function collectAgents(
       }),
   )
   const dispatched = await mapLimit(direct.flat(), CONCURRENCY, async ({ run, workflow, kind }) => {
-    const shape = cached.get(run.id) ?? (await readDirectRun(project.repo, run, kind))
+    const shape =
+      cached.get(run.id) ??
+      (notAgent.has(run.id) ? { ...noAgent, issueNumber: null } : undefined) ??
+      (await readDirectRun(project.repo, run, kind))
     return {
       run,
       workflow,
@@ -565,5 +573,10 @@ export async function collectAgents(
     console.log(`    reused ${reused} previously measured agent run(s) for ${project.id}`)
   }
 
-  return { block: ok({ runs, byKind }), warnings }
+  // Only a finished run is settled: one still running may yet call its agent job.
+  const notAgentRunIds = [...routed, ...dispatched]
+    .filter((e) => e.kind === null && e.run.conclusion !== null)
+    .map((e) => e.run.id)
+
+  return { block: ok({ runs, byKind, notAgentRunIds }), warnings }
 }

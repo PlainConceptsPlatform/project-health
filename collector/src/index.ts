@@ -186,6 +186,12 @@ function previousAgentRuns(projectId: string, month: string): AgentRun[] {
   return prior?.agents.available ? prior.agents.data.runs : []
 }
 
+/** Runs already found to hold no agent this month, so their jobs are not read again. */
+function previousNotAgentRuns(projectId: string, month: string): number[] {
+  const prior = previousReport(projectId, month)
+  return prior?.agents.available ? (prior.agents.data.notAgentRunIds ?? []) : []
+}
+
 /** Issue journeys already stored for this month, so closed issues are not read again. */
 function previousRoadmap(projectId: string, month: string): Roadmap | null {
   const prior = previousReport(projectId, month)
@@ -267,7 +273,13 @@ async function collectProject(project: ProjectConfig, period: Period): Promise<M
     'agent usage',
     warnings,
     () =>
-      collectAgents(project, period.from, period.to, previousAgentRuns(project.id, label(period))),
+      collectAgents(
+        project,
+        period.from,
+        period.to,
+        previousAgentRuns(project.id, label(period)),
+        previousNotAgentRuns(project.id, label(period)),
+      ),
     (reason) => ({ block: skip<AgentSummary>(reason), warnings: [] }),
   )
   warnings.push(...agents.warnings)
