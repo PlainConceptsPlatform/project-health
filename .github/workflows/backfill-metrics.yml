@@ -43,9 +43,12 @@ jobs:
           private-key: ${{ secrets.BOT_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
 
+      # Credentials are not persisted: the collection can outlast this token's hour, so the push
+      # below sets its own fresh token instead of reusing one that may have expired.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           token: ${{ steps.app-token.outputs.token }}
+          persist-credentials: false
 
       - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
 
@@ -68,6 +71,11 @@ jobs:
           # An App installation allows 15000 calls an hour against a user token's 5000, which a
           # multi month backfill will need.
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          # With the App's own credentials the collector mints a new installation token before the
+          # one above expires (they last an hour), so a long collection does not finish on a dead
+          # token. GITHUB_TOKEN stays as the fallback if minting fails.
+          GITHUB_APP_ID: ${{ secrets.BOT_APP_ID }}
+          GITHUB_APP_PRIVATE_KEY: ${{ secrets.BOT_PRIVATE_KEY }}
           OTEL_EXPORTER_OTLP_ENDPOINT: ${{ vars.OTEL_EXPORTER_OTLP_ENDPOINT }}
         run: |
           pnpm --filter @project-health/collector run start \
@@ -75,8 +83,22 @@ jobs:
             ${{ inputs.month && format('--month {0}', inputs.month) || '' }} \
             --backfill '${{ inputs.months }}'
 
+      # An installation token lasts one hour and a collection can take longer (the first run of a
+      # month times every Actions run when the billing report is not readable), so the token minted
+      # at the start can be dead by now. A second one is minted right before the push.
+      - name: Generate a fresh App token for the push
+        id: push-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.BOT_APP_ID }}
+          private-key: ${{ secrets.BOT_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
       - name: Commit collected data
+        env:
+          PUSH_TOKEN: ${{ steps.push-token.outputs.token }}
         run: |
+          git remote set-url origin "https://x-access-token:${PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
           git add data
