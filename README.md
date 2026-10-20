@@ -7,7 +7,7 @@ No database, no monitoring system, no service to run. A scheduled workflow reads
 result, and rebuilds a static site. Where GitHub cannot answer a question, the site says so instead of
 estimating.
 
-**[Live demo](https://plainconceptsplatform.github.io/Project-Health/)** running on the example data
+**[Live demo](https://plainconceptsplatform.github.io/project-health/)** running on the example data
 that ships with this repository.
 
 **Adding a project takes one command and one paste.** Jump to

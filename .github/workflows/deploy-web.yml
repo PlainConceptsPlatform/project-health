@@ -46,7 +46,7 @@ jobs:
       - name: Build static export
         env:
           # Empty when the site is served from a custom domain at the root. Set it to
-          # /Project-Health only if you drop the custom domain and use the github.io subpath.
+          # /project-health only if you drop the custom domain and use the github.io subpath.
           NEXT_PUBLIC_BASE_PATH: ${{ vars.PAGES_BASE_PATH }}
         run: pnpm --filter @project-health/web run build
 
