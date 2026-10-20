@@ -1,5 +1,6 @@
 import { hasSyntheticData, readCollectedAt } from '@/shared/lib/data'
 import { repoSlug, repoUrl } from '@/shared/lib/repo'
+import { withBase } from '@/shared/lib/utils'
 import { TooltipProvider } from '@/shared/ui'
 import { THEME_INIT_SCRIPT, ThemeToggle } from '@/shared/ui/theme-toggle'
 import { Github } from 'lucide-react'
@@ -35,7 +36,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <header className="border-t-[3px] border-b border-t-primary bg-background">
           <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-3 gap-y-2 px-6 py-4">
             <a
-              href="/"
+              href={withBase('/')}
               className="inline-flex items-center gap-2 text-lg font-semibold tracking-tight"
             >
               <span className="size-2.5 rounded-[2px] bg-primary" aria-hidden="true" />

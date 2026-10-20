@@ -8,6 +8,7 @@ import {
 import { percent } from '@/shared/lib/code'
 import { shortDate } from '@/shared/lib/format'
 import type { AgenticAdoption } from '@/shared/lib/types'
+import { withBase } from '@/shared/lib/utils'
 import { cn } from '@/shared/ui'
 import { Mark, Partial, VerdictBadge, VersionCell } from '@/shared/ui/agentic'
 
@@ -125,7 +126,7 @@ export function AgenticTable({ rows }: { rows: AgenticRow[] }) {
                   <td className="px-4 py-3.5">
                     <div className="flex flex-col gap-1">
                       <a
-                        href={`/projects/${row.id}/#agentic`}
+                        href={withBase(`/projects/${row.id}/#agentic`)}
                         className="text-[15px] font-semibold hover:underline"
                       >
                         {row.name}

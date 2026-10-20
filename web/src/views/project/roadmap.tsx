@@ -1,6 +1,8 @@
 'use client'
 
+import { seconds } from '@/shared/lib/format'
 import {
+  type KindTiming,
   type LogTone,
   SOURCE_LABEL,
   STATES,
@@ -10,14 +12,24 @@ import {
   clock,
   dayName,
   duration,
+  failedRun,
   logOf,
   minutesIn,
   openFor,
   outcomeOf,
   stamp,
   summarise,
+  timingByKind,
 } from '@/shared/lib/roadmap'
-import type { IssueJourney, JourneyState, Roadmap } from '@/shared/lib/types'
+import type {
+  AgentRun,
+  AgentSummary,
+  IssueJourney,
+  JourneyState,
+  MetricBlock,
+  Roadmap,
+} from '@/shared/lib/types'
+import { withBase } from '@/shared/lib/utils'
 import { Panel, Stat, Unavailable, cn } from '@/shared/ui'
 import { ChevronLeftIcon, ChevronRightIcon, MinusIcon, PlusIcon } from 'lucide-react'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
@@ -669,16 +681,16 @@ function Evidence({ issue }: { issue: IssueJourney }) {
             {current.image === null ? (
               'This waypoint produced no screenshot.'
             ) : (
-              <a href={current.image} className="text-primary hover:underline">
+              <a href={withBase(current.image)} className="text-primary hover:underline">
                 The screenshot needs a GitHub sign-in with access to the repository. Open it on
                 GitHub.
               </a>
             )}
           </div>
         ) : (
-          <a href={current.image ?? undefined}>
+          <a href={current.image ? withBase(current.image) : undefined}>
             <img
-              src={current.image ?? undefined}
+              src={current.image ? withBase(current.image) : undefined}
               alt={current.expect ?? current.capture}
               loading="lazy"
               className="aspect-video w-full bg-muted object-contain object-top"
@@ -716,7 +728,7 @@ function Evidence({ issue }: { issue: IssueJourney }) {
             >
               {w.image && !broken.has(i) ? (
                 <img
-                  src={w.image}
+                  src={withBase(w.image)}
                   alt=""
                   loading="lazy"
                   className="aspect-video w-full rounded bg-muted object-cover object-top"
@@ -739,7 +751,15 @@ function Evidence({ issue }: { issue: IssueJourney }) {
   )
 }
 
-function IssueDetail({ issue, repo }: { issue: IssueJourney; repo: string }) {
+function IssueDetail({
+  issue,
+  repo,
+  runs,
+}: {
+  issue: IssueJourney
+  repo: string
+  runs: AgentRun[]
+}) {
   const outcome = outcomeOf(issue)
   const log = logOf(issue)
   const tokens = issue.agent.inputTokens + issue.agent.outputTokens
@@ -761,6 +781,18 @@ function IssueDetail({ issue, repo }: { issue: IssueJourney; repo: string }) {
             `${issue.agent.runs} run${issue.agent.runs === 1 ? '' : 's'}${
               tokens > 0 ? `, ${(tokens / 1_000_000).toFixed(2)}M tokens` : ''
             }`,
+          ] as [string, string],
+        ]
+      : []),
+    ...(runs.some((r) => r.executionSeconds !== null)
+      ? [
+          [
+            'Agent time',
+            [...runs]
+              .filter((r) => r.executionSeconds !== null)
+              .sort((a, b) => Date.parse(a.startedAt) - Date.parse(b.startedAt))
+              .map((r) => `${r.kind} ${seconds(r.executionSeconds as number)}`)
+              .join(', '),
           ] as [string, string],
         ]
       : []),
@@ -866,13 +898,241 @@ function IssueDetail({ issue, repo }: { issue: IssueJourney; repo: string }) {
   )
 }
 
+/** Axis steps in seconds; the first that fits the longest run in six ticks or fewer wins. */
+const AXIS_STEPS = [30, 60, 120, 300, 600, 900, 1800, 3600]
+
+const tickLabel = (s: number) => (s < 60 ? `${s} s` : s < 3600 ? `${s / 60} min` : `${s / 3600} h`)
+
+const kindLabel = (kind: string) =>
+  `${kind.charAt(0).toUpperCase()}${kind.slice(1).replace(/-/g, ' ')}`
+
+const runUrl = (repo: string, run: AgentRun) =>
+  `https://github.com/${repo}/actions/runs/${run.runId}`
+
+/**
+ * One row per kind of job: the average, the middle and the longest agent step, and every run as
+ * a dot on one shared axis, so a slow kind and a slow run both stand out without reading numbers.
+ */
+function AgentTime({ agents, repo }: { agents?: MetricBlock<AgentSummary>; repo: string }) {
+  const kinds = useMemo(() => (agents?.available ? timingByKind(agents.data.runs) : []), [agents])
+  const [open, setOpen] = useState<string | null>(null)
+
+  const description =
+    'How long the agent itself worked on each run: the Execute OpenCode CLI step, wall clock. The agent colour on the bars below counts from the bot-working label instead, so it also covers the runner setting up before the agent starts and is a few minutes longer.'
+
+  if (!agents?.available || kinds.length === 0) {
+    return (
+      <Panel title="Agent time by job" description={description}>
+        <Unavailable
+          reason={
+            agents && !agents.available
+              ? agents.reason
+              : 'No agent run recorded how long its agent step took in this period.'
+          }
+        />
+      </Panel>
+    )
+  }
+
+  const longest = Math.max(...kinds.map((k) => k.slowest))
+  const step = AXIS_STEPS.find((s) => longest / s <= 6) ?? 3600
+  const max = Math.max(step, Math.ceil(longest / step) * step)
+  const ticks = Array.from({ length: max / step + 1 }, (_, i) => i * step)
+  const runs = kinds.reduce((t, k) => t + k.runs.length, 0)
+  const total = kinds.reduce((t, k) => t + k.total, 0)
+  const row =
+    'grid grid-cols-3 items-center gap-x-4 gap-y-2 sm:grid-cols-[10rem_repeat(3,5.5rem)_minmax(0,1fr)]'
+
+  return (
+    <Panel title="Agent time by job" description={description}>
+      <div className="space-y-4">
+        <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-muted-foreground">
+          <span>
+            <span className="font-semibold text-foreground">{runs}</span> runs,{' '}
+            <span className="font-semibold text-foreground">{seconds(total)}</span> of agent time
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span aria-hidden className="size-2.5 rounded-full bg-chart-1" />
+            One run
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span
+              aria-hidden
+              className="size-2.5 rounded-full border-2 border-destructive bg-background"
+            />
+            Run failed
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span aria-hidden className="h-3 w-0.5 bg-foreground" />
+            Average
+          </span>
+          <span>Average, median and longest count successful runs only</span>
+        </div>
+
+        <div className="divide-y rounded-md border">
+          <div
+            className={cn(
+              row,
+              'hidden px-3 py-2 text-xs uppercase tracking-wide text-muted-foreground sm:grid',
+            )}
+          >
+            <span>Job</span>
+            <span>Average</span>
+            <span>Median</span>
+            <span>Longest</span>
+            <span>Each run</span>
+          </div>
+          {kinds.map((k) => {
+            const expanded = open === k.kind
+            return (
+              <div key={k.kind}>
+                <div className={cn(row, 'px-3 py-3')}>
+                  <button
+                    type="button"
+                    aria-expanded={expanded}
+                    onClick={() => setOpen(expanded ? null : k.kind)}
+                    className="col-span-3 flex items-center gap-2 text-left sm:col-span-1"
+                  >
+                    <ChevronRightIcon
+                      aria-hidden
+                      className={cn(
+                        'size-4 shrink-0 text-muted-foreground transition-transform',
+                        expanded && 'rotate-90',
+                      )}
+                    />
+                    <span>
+                      <span className="font-medium hover:underline">{kindLabel(k.kind)}</span>
+                      <span className="block text-xs text-muted-foreground">
+                        {k.runs.length} run{k.runs.length === 1 ? '' : 's'}
+                        {k.failed > 0 ? `, ${k.failed} failed` : ''}
+                        {k.allFailed ? ', none succeeded' : ''}
+                      </span>
+                    </span>
+                  </button>
+                  <span>
+                    <span className="block text-xs text-muted-foreground sm:hidden">Average</span>
+                    <span className="text-lg font-semibold tabular-nums">{seconds(k.average)}</span>
+                  </span>
+                  <span className="tabular-nums">
+                    <span className="block text-xs text-muted-foreground sm:hidden">Median</span>
+                    {seconds(k.median)}
+                  </span>
+                  <span className="tabular-nums">
+                    <span className="block text-xs text-muted-foreground sm:hidden">Longest</span>
+                    {seconds(k.longest)}
+                  </span>
+                  <div className="relative col-span-3 h-7 sm:col-span-1">
+                    <span aria-hidden className="absolute inset-x-0 top-1/2 h-px bg-border" />
+                    <span
+                      aria-hidden
+                      className="absolute inset-y-0.5 w-0.5 -translate-x-1/2 bg-foreground"
+                      style={{ left: pct(k.average, max) }}
+                    />
+                    {k.runs.map((r) => (
+                      <a
+                        key={r.runId}
+                        href={runUrl(repo, r)}
+                        title={`${seconds(r.executionSeconds)}${r.issueNumber ? ` on #${r.issueNumber}` : ''}, ${stamp(Date.parse(r.startedAt))}${failedRun(r) ? `, ${r.conclusion}` : ''}`}
+                        className={cn(
+                          'absolute top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full hover:z-10 hover:scale-150',
+                          failedRun(r)
+                            ? 'border-2 border-destructive bg-background'
+                            : 'bg-chart-1/70 ring-1 ring-background',
+                        )}
+                        style={{ left: pct(r.executionSeconds, max) }}
+                      >
+                        <span className="sr-only">
+                          {kindLabel(k.kind)} run of {seconds(r.executionSeconds)}
+                        </span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+                {expanded ? <RunList runs={k.runs} repo={repo} longest={k.slowest} /> : null}
+              </div>
+            )
+          })}
+          <div className={cn(row, 'px-3 py-2')}>
+            <div className="relative col-span-3 h-4 text-xs text-muted-foreground sm:col-span-1 sm:col-start-5">
+              {ticks.map((t) => (
+                <span
+                  key={t}
+                  className={cn(
+                    'absolute top-0 whitespace-nowrap tabular-nums',
+                    t === 0 ? '' : t === max ? '-translate-x-full' : '-translate-x-1/2',
+                  )}
+                  style={{ left: pct(t, max) }}
+                >
+                  {tickLabel(t)}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </Panel>
+  )
+}
+
+/** Every run of one kind, newest first, with a bar scaled to that kind's longest run. */
+function RunList({
+  runs,
+  repo,
+  longest,
+}: {
+  runs: KindTiming['runs']
+  repo: string
+  longest: number
+}) {
+  return (
+    <ol className="space-y-1 border-t bg-muted/30 px-3 py-3 text-sm">
+      {[...runs].reverse().map((r) => (
+        <li
+          key={r.runId}
+          className="grid grid-cols-[6.5rem_4rem_minmax(0,1fr)_4.5rem] items-center gap-3"
+        >
+          <a
+            href={runUrl(repo, r)}
+            className="font-mono text-xs text-muted-foreground hover:underline"
+          >
+            {stamp(Date.parse(r.startedAt)).replace(/^\w+ /, '')}
+          </a>
+          <span className="text-xs">
+            {r.issueNumber ? (
+              <a
+                href={`https://github.com/${repo}/issues/${r.issueNumber}`}
+                className="hover:underline"
+              >
+                #{r.issueNumber}
+              </a>
+            ) : (
+              <span className="text-muted-foreground">no issue</span>
+            )}
+          </span>
+          <span aria-hidden className="h-2 overflow-hidden rounded-full bg-border">
+            <span
+              className={cn('block h-full', failedRun(r) ? 'bg-destructive' : 'bg-chart-1')}
+              style={{ width: pct(r.executionSeconds, longest) }}
+            />
+          </span>
+          <span className={cn('text-right tabular-nums', failedRun(r) && 'text-destructive')}>
+            {seconds(r.executionSeconds)}
+          </span>
+        </li>
+      ))}
+    </ol>
+  )
+}
+
 export function RoadmapView({
   roadmap,
+  agents,
   repo,
   from,
   to,
 }: {
   roadmap: Roadmap
+  agents?: MetricBlock<AgentSummary>
   repo: string
   from: string
   to: string
@@ -959,6 +1219,8 @@ export function RoadmapView({
         </div>
       </Panel>
 
+      <AgentTime agents={agents} repo={repo} />
+
       <Panel
         title="Issue by issue"
         description="Each bar is one issue, placed on the day and hour it was opened. Zoom in and scroll sideways; select an issue to see what happened."
@@ -1025,7 +1287,17 @@ export function RoadmapView({
             />
           )}
 
-          {current ? <IssueDetail issue={current} repo={repo} /> : null}
+          {current ? (
+            <IssueDetail
+              issue={current}
+              repo={repo}
+              runs={
+                agents?.available
+                  ? agents.data.runs.filter((r) => r.issueNumber === current.number)
+                  : []
+              }
+            />
+          ) : null}
         </div>
       </Panel>
     </div>

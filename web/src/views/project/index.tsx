@@ -10,6 +10,7 @@ import {
 } from '@/shared/lib/format'
 import type { DailyScore } from '@/shared/lib/scorecard'
 import type { MonthlyReport } from '@/shared/lib/types'
+import { withBase } from '@/shared/lib/utils'
 import {
   Badge,
   DataTable,
@@ -527,6 +528,7 @@ export function ProjectView({
       content: roadmap.available ? (
         <RoadmapView
           roadmap={roadmap.data}
+          agents={report.agents}
           repo={report.repo}
           from={report.period.from}
           to={report.period.to}
@@ -543,7 +545,7 @@ export function ProjectView({
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <a href="/" className="text-sm text-muted-foreground hover:underline">
+          <a href={withBase('/')} className="text-sm text-muted-foreground hover:underline">
             Back to projects
           </a>
           <h1 className="mt-1 text-2xl font-semibold tracking-tight">{report.name}</h1>
@@ -558,7 +560,7 @@ export function ProjectView({
           {months.map((month) => (
             <a
               key={month}
-              href={`/projects/${report.project}/${month}/`}
+              href={withBase(`/projects/${report.project}/${month}/`)}
               className={
                 month === current
                   ? 'rounded-md bg-primary px-2.5 py-1 text-xs font-medium text-primary-foreground'

@@ -1,4 +1,5 @@
 import type {
+  AgentRun,
   IssueJourney,
   IssueSource,
   JourneyEvent,
@@ -161,6 +162,71 @@ export function summarise(roadmap: Roadmap, from: string, to: string): RoadmapSu
     totals,
     total,
   }
+}
+
+/** The order work flows through, so the rows read like the pipeline. Unknown kinds go last. */
+const KIND_ORDER = ['triage', 'refine', 'implement', 'apply-review', 'merge-gate', 'evidence']
+
+export interface KindTiming {
+  kind: string
+  /** Runs with a measured agent step, oldest first. */
+  runs: (AgentRun & { executionSeconds: number })[]
+  /** Average, median and longest of the successful runs, or of every run when none succeeded. */
+  average: number
+  median: number
+  longest: number
+  /** The longest run of any outcome, which sets the scale. */
+  slowest: number
+  total: number
+  failed: number
+  /** True when no run succeeded, so the figures describe failed runs. */
+  allFailed: boolean
+}
+
+export const failedRun = (run: AgentRun): boolean =>
+  run.conclusion !== null && run.conclusion !== 'success'
+
+/**
+ * How long the agent worked in each kind of job, from the step that runs it. The bars on the
+ * roadmap count from the working label instead, which also covers the runner setting up before
+ * the agent starts, so a run reads shorter here than the agent colour on its issue.
+ *
+ * The figures leave failed runs out: one that dies in its first seconds or runs into the timeout
+ * says nothing about how long the work takes, and either would drag a kind's figures with it.
+ * They still count in the total, which is time spent all the same.
+ */
+export function timingByKind(runs: AgentRun[]): KindTiming[] {
+  const byKind = new Map<string, KindTiming['runs']>()
+  for (const run of runs) {
+    if (run.executionSeconds === null) continue
+    byKind.set(run.kind, [
+      ...(byKind.get(run.kind) ?? []),
+      { ...run, executionSeconds: run.executionSeconds },
+    ])
+  }
+  const rank = (kind: string) => {
+    const i = KIND_ORDER.indexOf(kind)
+    return i === -1 ? KIND_ORDER.length : i
+  }
+  return [...byKind.entries()]
+    .map(([kind, list]) => {
+      const sorted = [...list].sort((a, b) => Date.parse(a.startedAt) - Date.parse(b.startedAt))
+      const succeeded = sorted.filter((r) => !failedRun(r))
+      const counted = (succeeded.length > 0 ? succeeded : sorted).map((r) => r.executionSeconds)
+      const all = sorted.map((r) => r.executionSeconds)
+      return {
+        kind,
+        runs: sorted,
+        average: counted.reduce((t, s) => t + s, 0) / counted.length,
+        median: median(counted) ?? 0,
+        longest: Math.max(...counted),
+        slowest: Math.max(...all),
+        total: all.reduce((t, s) => t + s, 0),
+        failed: sorted.length - succeeded.length,
+        allFailed: succeeded.length === 0,
+      }
+    })
+    .sort((a, b) => rank(a.kind) - rank(b.kind) || b.runs.length - a.runs.length)
 }
 
 export type LogTone = JourneyState | 'neutral' | 'bad'
