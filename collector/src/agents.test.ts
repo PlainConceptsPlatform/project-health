@@ -50,8 +50,9 @@ const agentJobs = [
 const plainJobs = [{ id: 2, name: 'route', conclusion: 'success', steps: [] }]
 
 /** Run 10 called an agent, run 11 finished without one, run 12 is still running. */
-function fakeApi() {
+function fakeApi({ artifactsFail = false } = {}) {
   const jobsRead: number[] = []
+  const artifactsRead: number[] = []
   const fetchMock = vi.fn(async (url: string) => {
     if (url.includes('/actions/workflows?')) {
       return json({ workflows: [{ id: 1, name: 'Router', path: '.github/workflows/router.yml' }] })
@@ -65,10 +66,14 @@ function fakeApi() {
       jobsRead.push(id)
       return json({ jobs: id === 10 ? agentJobs : plainJobs })
     }
-    if (url.includes('/artifacts')) return json({ artifacts: [] })
+    const artifacts = url.match(/\/actions\/runs\/(\d+)\/artifacts/)
+    if (artifacts) {
+      artifactsRead.push(Number(artifacts[1]))
+      return artifactsFail ? new Response('{}', { status: 404 }) : json({ artifacts: [] })
+    }
     return new Response('{}', { status: 404 })
   })
-  return { fetchMock, jobsRead }
+  return { fetchMock, jobsRead, artifactsRead }
 }
 
 describe('collectAgents', () => {
@@ -95,8 +100,38 @@ describe('collectAgents', () => {
     vi.stubGlobal('fetch', second.fetchMock)
     const runs = result.block.available ? result.block.data.runs : []
     const again = await collectAgents(project, FROM, TO, runs, [11])
-    expect(second.jobsRead.sort()).toEqual([10, 12])
+    expect(second.jobsRead.sort()).toEqual([12])
     expect(again.block.available && again.block.data.notAgentRunIds).toEqual([11])
     expect(again.block.available && again.block.data.runs.map((r) => r.runId)).toEqual([10])
+  })
+
+  it('remembers finished agent runs that uploaded no usage and does not read them again', async () => {
+    // A third of a busy router's agent runs upload no usage artifact. Reading their jobs and
+    // artifacts again on every daily collection was most of what was left of its time.
+    const first = fakeApi()
+    vi.stubGlobal('fetch', first.fetchMock)
+    const result = await collectAgents(project, FROM, TO)
+    const runs = result.block.available ? result.block.data.runs : []
+    expect(runs.map((r) => [r.runId, r.usage, r.usageMissing])).toEqual([[10, null, true]])
+
+    const second = fakeApi()
+    vi.stubGlobal('fetch', second.fetchMock)
+    const again = await collectAgents(project, FROM, TO, runs, [11])
+    expect(second.jobsRead).not.toContain(10)
+    expect(second.artifactsRead).not.toContain(10)
+    expect(again.block.available && again.block.data.runs).toEqual(runs)
+  })
+
+  it('reads a run again when its artifacts could not be read', async () => {
+    const first = fakeApi({ artifactsFail: true })
+    vi.stubGlobal('fetch', first.fetchMock)
+    const result = await collectAgents(project, FROM, TO)
+    const runs = result.block.available ? result.block.data.runs : []
+    expect(runs.map((r) => [r.runId, r.usageMissing])).toEqual([[10, undefined]])
+
+    const second = fakeApi()
+    vi.stubGlobal('fetch', second.fetchMock)
+    await collectAgents(project, FROM, TO, runs, [11])
+    expect(second.artifactsRead).toContain(10)
   })
 })

@@ -133,24 +133,38 @@ function sumPerRequest(files: Record<string, Uint8Array>): TokenUsage | null {
   return seen > 0 ? totals : null
 }
 
-/** Reads agent_usage.json out of the run's usage artifact. Returns null when it is gone. */
-async function readUsage(repo: string, runId: number): Promise<TokenUsage | null> {
+/**
+ * The usage read from a run, and whether the answer is final. It is final when the artifacts were
+ * read and either held usage or held none; a request that failed leaves it open for the next try.
+ */
+interface UsageRead {
+  usage: TokenUsage | null
+  final: boolean
+}
+
+/** Reads agent_usage.json out of the run's usage artifact. Usage is null when it is gone. */
+async function readUsage(repo: string, runId: number): Promise<UsageRead> {
   const artifacts = await get<{ artifacts: Artifact[] }>(
     `/repos/${repo}/actions/runs/${runId}/artifacts?per_page=100`,
   )
-  const usageArtifact = artifacts?.artifacts?.find((a) => a.name.endsWith('-usage') && !a.expired)
-  if (!usageArtifact) return null
+  if (!artifacts?.artifacts) return { usage: null, final: false }
+  const usageArtifact = artifacts.artifacts.find((a) => a.name.endsWith('-usage') && !a.expired)
+  if (!usageArtifact) return { usage: null, final: true }
 
   const zip = await getBinary(`/repos/${repo}/actions/artifacts/${usageArtifact.id}/zip`)
-  if (!zip) return null
+  if (!zip) return { usage: null, final: false }
 
   let files: Record<string, Uint8Array>
   try {
     files = unzipSync(zip)
   } catch {
-    return null
+    return { usage: null, final: false }
   }
 
+  return { usage: parseUsage(files), final: true }
+}
+
+function parseUsage(files: Record<string, Uint8Array>): TokenUsage | null {
   const entry = Object.entries(files).find(([name]) => name.endsWith('agent_usage.json'))
   if (!entry) return sumPerRequest(files)
 
@@ -336,10 +350,13 @@ export async function collectAgents(
   }
 
   // Records already collected for this month. Artifacts expire and downloading them again on every
-  // daily run is the slowest part of collection, so a finished run is measured once and kept.
+  // daily run is the slowest part of collection, so a finished run is measured once and kept. That
+  // includes a run found to hold no usage: a third of a busy router's agent runs upload none.
   const cached = new Map<number, AgentRun>()
   for (const run of previous) {
-    if (run.conclusion !== null && run.usage !== null) cached.set(run.runId, run)
+    if (run.conclusion !== null && (run.usage !== null || run.usageMissing)) {
+      cached.set(run.runId, run)
+    }
   }
   let reused = 0
   // Runs already read and found to hold no agent. A busy router logs hundreds a month, and reading
@@ -498,9 +515,11 @@ export async function collectAgents(
     const hit = cached.get(entry.run.id) ?? keptById.get(entry.run.id)
     if (hit) {
       reused += 1
-      return { ...entry, usage: hit.usage }
+      return { ...entry, usage: hit.usage, usageMissing: hit.usageMissing ?? false }
     }
-    return { ...entry, usage: await readUsage(project.repo, entry.run.id) }
+    const read = await readUsage(project.repo, entry.run.id)
+    const settled = read.final && entry.run.conclusion !== null
+    return { ...entry, usage: read.usage, usageMissing: settled && read.usage === null }
   })
 
   const runs: AgentRun[] = []
@@ -515,7 +534,7 @@ export async function collectAgents(
     let withUsage = 0
 
     for (const entry of measured.filter((m) => m.kind === kind)) {
-      const { run, usage, executionSeconds } = entry
+      const { run, usage, usageMissing, executionSeconds } = entry
       count += 1
       if (usage) withUsage += 1
       else missingUsage += 1
@@ -543,6 +562,7 @@ export async function collectAgents(
         issueNumber: entry.issueNumber,
         executionSeconds,
         usage,
+        ...(usageMissing ? { usageMissing } : {}),
       })
     }
 

@@ -186,6 +186,11 @@ export interface AgentRun {
   issueNumber: number | null
   executionSeconds: number | null
   usage: TokenUsage | null
+  /**
+   * True when the finished run's artifacts were read and hold no usage. Its artifacts cannot change
+   * any more, so the next collection of the month keeps the run instead of reading it again.
+   */
+  usageMissing?: boolean
 }
 
 export interface AgentKindSummary {

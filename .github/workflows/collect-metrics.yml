@@ -31,9 +31,12 @@ jobs:
           owner: ${{ github.repository_owner }}
 
       # Credentials are not persisted: the collection can outlast this token's hour, so the push
-      # below sets its own fresh token instead of reusing one that may have expired.
+      # below sets its own fresh token instead of reusing one that may have expired. The branch tip
+      # rather than the triggering commit: a run that queued behind another starts from the data that
+      # one pushed, instead of measuring everything again and conflicting with it on push (#65).
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: ${{ github.ref }}
           token: ${{ steps.app-token.outputs.token }}
           persist-credentials: false
 
