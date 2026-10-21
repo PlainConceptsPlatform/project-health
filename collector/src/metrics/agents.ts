@@ -308,9 +308,20 @@ export function missedRuns(
   })
 }
 
+/**
+ * What one listing found, whether or not it held agent runs: the runs measured, the finished runs
+ * without an agent, and the runs still in progress. Absent when the listing could not be made.
+ */
+export interface AgentScan {
+  runs: AgentRun[]
+  notAgentRunIds: number[]
+  unsettled: { runId: number; startedAt: string }[]
+}
+
 export interface AgentResult {
   block: MetricBlock<AgentSummary>
   warnings: Warning[]
+  scan?: AgentScan
 }
 
 /**
@@ -480,6 +491,15 @@ export async function collectAgents(
     issueNumber: run.issueNumber,
   }))
 
+  // Only a finished run is settled: one still running may yet call its agent job.
+  const notAgentRunIds = [...routed, ...dispatched]
+    .filter((e) => e.kind === null && e.run.conclusion !== null)
+    .map((e) => e.run.id)
+  const unsettled = [...routed, ...dispatched]
+    .filter((e) => e.run.conclusion === null)
+    .map((e) => ({ runId: e.run.id, startedAt: e.run.run_started_at ?? e.run.created_at }))
+  const scanOf = (runs: AgentRun[]): AgentScan => ({ runs, notAgentRunIds, unsettled })
+
   const agentRuns = [...routed, ...dispatched, ...restored].filter(
     (e): e is (typeof routed)[number] & { kind: string } => e.kind !== null,
   )
@@ -490,6 +510,7 @@ export async function collectAgents(
         `No agent runs in this period. ${inWindow.length} run(s) of ${workflow.path} were found, ${candidates.length} could have been agents, and none had a "call-<kind> / agent" job. ${dispatched.length} run(s) were dispatched to a single-kind agent workflow.`,
       ),
       warnings,
+      scan: scanOf([]),
     }
   }
 
@@ -523,35 +544,9 @@ export async function collectAgents(
   })
 
   const runs: AgentRun[] = []
-  const byKind: Record<string, AgentKindSummary> = {}
-  let missingUsage = 0
-
   for (const kind of perKind.keys()) {
-    const totals = emptyUsage()
-    const durations: number[] = []
-    let successful = 0
-    let count = 0
-    let withUsage = 0
-
     for (const entry of measured.filter((m) => m.kind === kind)) {
       const { run, usage, usageMissing, executionSeconds } = entry
-      count += 1
-      if (usage) withUsage += 1
-      else missingUsage += 1
-
-      if (run.conclusion === 'success') successful += 1
-      if (executionSeconds !== null) durations.push(executionSeconds)
-
-      if (usage) {
-        totals.inputTokens += usage.inputTokens
-        totals.outputTokens += usage.outputTokens
-        totals.cacheReadTokens += usage.cacheReadTokens
-        totals.cacheWriteTokens += usage.cacheWriteTokens
-        totals.ambientContext += usage.ambientContext
-        totals.aiCredits += usage.aiCredits
-        totals.primaryModel = usage.primaryModel ?? totals.primaryModel
-      }
-
       runs.push({
         runId: run.id,
         workflow: entry.workflow,
@@ -564,6 +559,56 @@ export async function collectAgents(
         usage,
         ...(usageMissing ? { usageMissing } : {}),
       })
+    }
+  }
+
+  const { byKind, missingUsage } = summarizeAgentRuns(runs)
+  if (missingUsage > 0) warnings.push(missingUsageWarning(missingUsage, runs.length))
+  if (kept.length > 0) {
+    console.log(`    kept ${kept.length} stored agent run(s) no listing returned for ${project.id}`)
+  }
+  if (reused > 0) {
+    console.log(`    reused ${reused} previously measured agent run(s) for ${project.id}`)
+  }
+
+  return { block: ok({ runs, byKind, notAgentRunIds }), warnings, scan: scanOf(runs) }
+}
+
+/**
+ * Totals per kind for a set of agent runs. Shared by the monthly listing and by the month rebuilt
+ * from day files, so both give the same numbers for the same runs.
+ */
+export function summarizeAgentRuns(runs: AgentRun[]): {
+  byKind: Record<string, AgentKindSummary>
+  missingUsage: number
+} {
+  const byKind: Record<string, AgentKindSummary> = {}
+  let missingUsage = 0
+
+  for (const kind of new Set(runs.map((run) => run.kind))) {
+    const totals = emptyUsage()
+    const durations: number[] = []
+    let successful = 0
+    let count = 0
+    let withUsage = 0
+
+    for (const { usage, conclusion, executionSeconds } of runs.filter((r) => r.kind === kind)) {
+      count += 1
+      if (usage) withUsage += 1
+      else missingUsage += 1
+
+      if (conclusion === 'success') successful += 1
+      if (executionSeconds !== null) durations.push(executionSeconds)
+
+      if (usage) {
+        totals.inputTokens += usage.inputTokens
+        totals.outputTokens += usage.outputTokens
+        totals.cacheReadTokens += usage.cacheReadTokens
+        totals.cacheWriteTokens += usage.cacheWriteTokens
+        totals.ambientContext += usage.ambientContext
+        totals.aiCredits += usage.aiCredits
+        totals.primaryModel = usage.primaryModel ?? totals.primaryModel
+      }
     }
 
     byKind[kind] = {
@@ -579,24 +624,13 @@ export async function collectAgents(
     }
   }
 
-  if (missingUsage > 0) {
-    warnings.push({
-      code: 'USAGE_ARTIFACT_MISSING',
-      message: `${missingUsage} of ${selected.length} agent run(s) had no readable usage artifact. Artifacts expire after about 90 days, and a run still in progress has not uploaded one yet.`,
-      context: { runs: missingUsage, of: selected.length },
-    })
-  }
-  if (kept.length > 0) {
-    console.log(`    kept ${kept.length} stored agent run(s) no listing returned for ${project.id}`)
-  }
-  if (reused > 0) {
-    console.log(`    reused ${reused} previously measured agent run(s) for ${project.id}`)
-  }
+  return { byKind, missingUsage }
+}
 
-  // Only a finished run is settled: one still running may yet call its agent job.
-  const notAgentRunIds = [...routed, ...dispatched]
-    .filter((e) => e.kind === null && e.run.conclusion !== null)
-    .map((e) => e.run.id)
-
-  return { block: ok({ runs, byKind, notAgentRunIds }), warnings }
+export function missingUsageWarning(missing: number, of: number): Warning {
+  return {
+    code: 'USAGE_ARTIFACT_MISSING',
+    message: `${missing} of ${of} agent run(s) had no readable usage artifact. Artifacts expire after about 90 days, and a run still in progress has not uploaded one yet.`,
+    context: { runs: missing, of },
+  }
 }
