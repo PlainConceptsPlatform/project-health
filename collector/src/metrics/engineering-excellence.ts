@@ -146,6 +146,7 @@ export function readFacet<F extends Facet>(
   facet: F,
   repo: string,
   branch: string,
+  formerRepos: string[] = [],
 ): FacetRead<F> {
   const entry = Object.entries(files).find(
     ([name]) => name === `${facet}.json` || name.endsWith(`/${facet}.json`),
@@ -179,7 +180,9 @@ export function readFacet<F extends Facet>(
       reason: `the artifact for ${facet} carries the ${envelope.facet} facet`,
     }
   }
-  if (envelope.repo !== null && envelope.repo.toLowerCase() !== repo.toLowerCase()) {
+  // A renamed repository keeps its old name in every artifact produced before the rename.
+  const names = [repo, ...formerRepos].map((name) => name.toLowerCase())
+  if (envelope.repo !== null && !names.includes(envelope.repo.toLowerCase())) {
     return {
       ok: false,
       kind: 'mismatch',
@@ -385,7 +388,7 @@ async function collectFacet<F extends Facet>(
     } catch {
       return { artifact, read: { ok: false, kind: 'missing', reason: 'unreadable zip' } as const }
     }
-    return { artifact, read: readFacet(files, facet, project.repo, branch) }
+    return { artifact, read: readFacet(files, facet, project.repo, branch, project.formerRepos) }
   })
 
   const fresh: FacetSample<FacetDataMap[F]>[] = []

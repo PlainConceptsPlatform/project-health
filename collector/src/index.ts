@@ -7,7 +7,7 @@ import { get } from './github.ts'
 import { parseHistory, pointOf, withPoint } from './history.ts'
 import { collectActions, githubActionsSource } from './metrics/actions.ts'
 import { collectAgentic } from './metrics/agentic.ts'
-import { collectAgents } from './metrics/agents.ts'
+import { collectAgents, mapLimit } from './metrics/agents.ts'
 import { collectCodebase } from './metrics/codebase.ts'
 import { collectContributors } from './metrics/contributors.ts'
 import { computeDeploymentFrequency } from './metrics/deployments.ts'
@@ -496,6 +496,12 @@ function writeIndex(projects: ProjectConfig[]): void {
   )
 }
 
+/**
+ * Projects collected at the same time. Nearly all of a collection is waiting on the API, and one
+ * project after another took half an hour. Kept low because every project shares one rate limit.
+ */
+const PROJECT_CONCURRENCY = 3
+
 async function main(): Promise<void> {
   const args = process.argv.slice(2)
 
@@ -592,7 +598,8 @@ async function main(): Promise<void> {
     `Collecting ${usable.length + planned.readable.length} project(s), ${planned.readable.length} planned, over ${periods.length} month(s)${only ? ` for ${only}` : ''}.`,
   )
 
-  for (const project of usable) {
+  // Months stay in order within a project; only whole projects run side by side.
+  await mapLimit(usable, PROJECT_CONCURRENCY, async (project) => {
     mkdirSync(join(dataDir, project.id), { recursive: true })
 
     for (const period of periods) {
@@ -639,7 +646,7 @@ async function main(): Promise<void> {
       const message = error instanceof Error ? error.message : String(error)
       console.error(`  ${project.id} evidence copies failed: ${message}`)
     }
-  }
+  })
 
   const scorecardConfig = loadScorecardConfig()
   for (const project of planned.readable) {
@@ -685,6 +692,15 @@ async function main(): Promise<void> {
   // scoped backfill never removes the others from the site.
   writeIndex(all)
   console.log('Wrote data/index.json')
+
+  // Reading the limit does not count against it. It shows how much room is left for concurrency.
+  const limit = await get<{ resources: { core: { limit: number; remaining: number } } }>(
+    '/rate_limit',
+  ).catch(() => null)
+  if (limit) {
+    const { core } = limit.resources
+    console.log(`API rate limit left: ${core.remaining} of ${core.limit} this hour.`)
+  }
 
   // Planned projects are left out: OTLP carries delivery and agent metrics, which they do not have.
   if (otlpConfigured()) {
