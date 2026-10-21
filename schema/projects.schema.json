@@ -37,6 +37,11 @@
             "pattern": "^[^/]+/[^/]+$",
             "description": "owner/repository"
           },
+          "formerRepos": {
+            "type": "array",
+            "items": { "type": "string", "pattern": "^[^/]+/[^/]+$" },
+            "description": "Names the repository had before a rename (owner/repository). Engineering excellence artifacts produced under one of them still count."
+          },
           "enabled": {
             "type": "boolean",
             "description": "Disabled projects are skipped without being removed from the list."

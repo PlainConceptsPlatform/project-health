@@ -158,6 +158,12 @@ describe('readFacet', () => {
     if (!read.ok) expect(read.reason).toContain('someone/else')
   })
 
+  it('accepts a facet produced before the repository was renamed', () => {
+    const doc = files({ ...fixture('coverage'), repo: 'org/Old-Name' })
+    expect(readFacet(doc, 'coverage', REPO, 'main', ['org/old-name']).ok).toBe(true)
+    expect(readFacet(doc, 'coverage', REPO, 'main').ok).toBe(false)
+  })
+
   it('rejects a facet produced on another ref', () => {
     const read = readFacet(
       files({ ...fixture('coverage'), ref: 'refs/pull/7/merge' }),

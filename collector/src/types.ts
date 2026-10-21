@@ -38,6 +38,8 @@ export interface ProjectConfig {
   id: string
   name: string
   repo: string
+  /** Names the repository had before a rename. Artifacts produced under them still count. */
+  formerRepos?: string[]
   enabled: boolean
   status: 'production' | 'pre-production' | 'planned'
   environments: { production: string | null; staging: string | null }
