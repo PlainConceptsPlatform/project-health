@@ -1,5 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { AgentDayStore, collectWindow, compareMonths, monthFromDays, seed } from './agent-days.ts'
 import { isExampleConfig, loadDora, loadProjects, loadScorecardConfig, repoRoot } from './config.ts'
 import { discover } from './discover.ts'
 import { copyEvidence } from './evidence.ts'
@@ -41,6 +42,14 @@ import {
 } from './types.ts'
 
 const dataDir = join(repoRoot, 'data')
+/** Collection state that is committed but not published: the site builds from data/ only. */
+const stateDir = join(repoRoot, 'state')
+
+/**
+ * Agent runs per day (#68). "shadow" keeps the monthly listing for the report and logs where the
+ * month rebuilt from day files differs from it; "off" skips the day files entirely.
+ */
+const AGENT_DAYS = process.env.AGENT_DAYS === 'off' ? 'off' : 'shadow'
 
 /**
  * Not every note is a problem. A project with agents switched off, or without a production
@@ -190,6 +199,67 @@ function previousAgentRuns(projectId: string, month: string): AgentRun[] {
 function previousNotAgentRuns(projectId: string, month: string): number[] {
   const prior = previousReport(projectId, month)
   return prior?.agents.available ? (prior.agents.data.notAgentRunIds ?? []) : []
+}
+
+/**
+ * Lists the agent window since the last collection into the project's day files, seeding them from
+ * the stored months on first use. Only for a collection that includes the current month: a
+ * backfill of older months has nothing new to add.
+ */
+async function updateAgentDays(
+  project: ProjectConfig,
+  periods: Period[],
+  now: Date,
+): Promise<AgentDayStore | null> {
+  if (AGENT_DAYS === 'off' || !project.agents.enabled) return null
+  if (!periods.some((period) => now >= period.from && now < period.to)) return null
+
+  const store = new AgentDayStore(join(stateDir, project.id, 'agents'))
+  if (!store.readCursor()) {
+    const reports = periods.map((period) => previousReport(project.id, label(period)))
+    const runs = reports.flatMap((r) => (r?.agents.available ? r.agents.data.runs : []))
+    const notAgent = reports.flatMap((r) =>
+      r?.agents.available ? (r.agents.data.notAgentRunIds ?? []) : [],
+    )
+    // The newest stored report is when those runs were listed; without one, the whole span.
+    const written = reports.at(-1)?.generatedAt
+    const collectedAt = written ? new Date(written) : (periods[0]?.from ?? now)
+    seed(store, runs, notAgent, collectedAt)
+    console.log(`    seeded agent day files for ${project.id} with ${runs.length} stored run(s)`)
+  }
+
+  try {
+    const result = await collectWindow(project, store, now)
+    if (result.ok) {
+      const hours = Math.round((result.to.getTime() - result.from.getTime()) / 3_600_000)
+      console.log(
+        `    agent days for ${project.id}: ${hours} h window, ${result.runs} agent run(s)`,
+      )
+    } else {
+      console.log(`    agent days for ${project.id}: window not collected, ${result.reason}`)
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    console.error(`    agent days for ${project.id} failed: ${message}`)
+  }
+  return store
+}
+
+/** Logs whether the month rebuilt from day files gives the same runs as the monthly listing. */
+function shadowAgentMonth(store: AgentDayStore, report: MonthlyReport, period: Period): void {
+  const listed = report.agents.available ? report.agents.data.runs : []
+  const days = monthFromDays(store, period.from, period.to)
+  const fromDays = days.block.available ? days.block.data.runs : []
+  const differences = compareMonths(listed, fromDays)
+  const name = `${report.project} ${label(period)}`
+  if (differences.length === 0) {
+    console.log(`    agent days match the listing for ${name}: ${fromDays.length} run(s)`)
+    return
+  }
+  console.log(
+    `    agent days differ from the listing for ${name}: ${differences.length} difference(s)`,
+  )
+  for (const line of differences.slice(0, 10)) console.log(`      ${line}`)
 }
 
 /** Issue journeys already stored for this month, so closed issues are not read again. */
@@ -601,6 +671,7 @@ async function main(): Promise<void> {
   // Months stay in order within a project; only whole projects run side by side.
   await mapLimit(usable, PROJECT_CONCURRENCY, async (project) => {
     mkdirSync(join(dataDir, project.id), { recursive: true })
+    const agentDays = await updateAgentDays(project, periods, now)
 
     for (const period of periods) {
       try {
@@ -622,6 +693,7 @@ async function main(): Promise<void> {
         const file = join(dataDir, project.id, `${label(period)}.json`)
         writeFileSync(file, `${JSON.stringify(report, null, 2)}\n`)
         recordDaily(project.id, period, report, now)
+        if (agentDays) shadowAgentMonth(agentDays, report, period)
         const releases = report.delivery.deploymentFrequency.available
           ? report.delivery.deploymentFrequency.data.count
           : 0
