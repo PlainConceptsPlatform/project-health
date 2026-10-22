@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   collect:
-    runs-on: agents-arc
+    runs-on: ubuntu-latest
     steps:
       # Minted before checkout so the repository is cloned with these credentials. A push made with
       # the default GITHUB_TOKEN does not trigger other workflows, which would leave collected data

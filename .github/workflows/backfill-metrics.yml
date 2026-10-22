@@ -27,7 +27,7 @@ permissions:
 
 jobs:
   backfill:
-    runs-on: agents-arc
+    runs-on: ubuntu-latest
     # A backfill of several months across many agent runs is slow, because each run costs three
     # API calls and the client waits out the rate limit rather than dropping data.
     timeout-minutes: 350

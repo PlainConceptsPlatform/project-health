@@ -22,7 +22,7 @@ permissions:
 
 jobs:
   build-and-deploy:
-    runs-on: agents-arc
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
