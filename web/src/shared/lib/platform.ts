@@ -1,7 +1,7 @@
 /** The Platform family of sites. Platform Foundations is the main one; the rest are its siblings. */
 export const PLATFORM_FOUNDATIONS = {
   name: 'Platform Foundations',
-  href: 'https://platform.plainconcepts.com',
+  href: 'https://platform.plainconcepts.dev',
 }
 
 export const PLATFORM_SIBLINGS = [
