@@ -33,6 +33,7 @@ import { withBase } from '@/shared/lib/utils'
 import { Panel, Stat, Unavailable, cn } from '@/shared/ui'
 import { ChevronLeftIcon, ChevronRightIcon, MinusIcon, PlusIcon } from 'lucide-react'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { TAB_PARAM, adoptSharedTab } from './tabs'
 
 const MINUTE = 60_000
 const DAY = 1440
@@ -764,6 +765,10 @@ const ISSUE_HASH = /^#roadmap\/(\d+)$/
 const issueUrl = (issue: number): string =>
   `${window.location.origin}${window.location.pathname}${window.location.search}#roadmap/${issue}`
 
+/** The link to copy goes in the query, which survives the GitHub sign-in that the hash does not. */
+const sharedIssueUrl = (issue: number): string =>
+  `${window.location.origin}${window.location.pathname}?${TAB_PARAM}=roadmap/${issue}`
+
 function CopyLink({ issue }: { issue: number }) {
   const [copied, setCopied] = useState(false)
   useEffect(() => {
@@ -776,7 +781,7 @@ function CopyLink({ issue }: { issue: number }) {
       type="button"
       onClick={() => {
         navigator.clipboard
-          ?.writeText(issueUrl(issue))
+          ?.writeText(sharedIssueUrl(issue))
           .then(() => setCopied(true))
           .catch(() => window.history.replaceState(null, '', issueUrl(issue)))
       }}
@@ -1193,6 +1198,7 @@ export function RoadmapView({
   const current = roadmap.issues.find((i) => i.number === selected) ?? null
 
   useEffect(() => {
+    adoptSharedTab()
     const fromHash = () => {
       const wanted = Number(window.location.hash.match(ISSUE_HASH)?.[1])
       if (!roadmap.issues.some((i) => i.number === wanted)) return
