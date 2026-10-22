@@ -1,4 +1,5 @@
 import { hasSyntheticData, readCollectedAt } from '@/shared/lib/data'
+import { PLATFORM_FOUNDATIONS, PLATFORM_SIBLINGS } from '@/shared/lib/platform'
 import { repoSlug, repoUrl } from '@/shared/lib/repo'
 import { withBase } from '@/shared/lib/utils'
 import { TooltipProvider } from '@/shared/ui'
@@ -35,13 +36,21 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body className="min-h-screen bg-background font-sans text-foreground antialiased">
         <header className="border-t-[3px] border-b border-t-primary bg-background">
           <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-3 gap-y-2 px-6 py-4">
-            <a
-              href={withBase('/')}
-              className="inline-flex items-center gap-2 text-lg font-semibold tracking-tight"
-            >
-              <span className="size-2.5 rounded-[2px] bg-primary" aria-hidden="true" />
-              Project Health
-            </a>
+            <nav aria-label="Breadcrumb" className="inline-flex items-center gap-2 text-lg">
+              <a
+                href={PLATFORM_FOUNDATIONS.href}
+                className="inline-flex items-center gap-2 font-semibold tracking-tight text-muted-foreground transition hover:text-foreground"
+              >
+                <span className="size-2.5 rounded-[2px] bg-primary" aria-hidden="true" />
+                {PLATFORM_FOUNDATIONS.name}
+              </a>
+              <span className="text-muted-foreground" aria-hidden="true">
+                /
+              </span>
+              <a href={withBase('/')} className="font-semibold tracking-tight">
+                Project Health
+              </a>
+            </nav>
             <span className="hidden text-sm text-muted-foreground sm:inline">
               Delivery and agent metrics from GitHub
             </span>
@@ -98,6 +107,20 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               Source and documentation
             </a>
             .
+          </p>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Part of{' '}
+            <a href={PLATFORM_FOUNDATIONS.href} className="underline hover:text-foreground">
+              {PLATFORM_FOUNDATIONS.name}
+            </a>
+            {PLATFORM_SIBLINGS.map((site) => (
+              <span key={site.href}>
+                {' · '}
+                <a href={site.href} className="underline hover:text-foreground">
+                  {site.name}
+                </a>
+              </span>
+            ))}
           </p>
         </footer>
       </body>
