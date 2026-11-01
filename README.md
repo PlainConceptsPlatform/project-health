@@ -13,6 +13,9 @@ that ships with this repository.
 **Adding a project takes one command and one paste.** Jump to
 [Adding a project](#adding-a-project).
 
+**Adopting this for another repository?** Read [`BLUEPRINT.md`](BLUEPRINT.md). It picks between
+copying the dashboard, taking only the engineering half, and taking the ideas.
+
 ## What it measures
 
 Modern DORA defines five metrics across two groups. Three can be derived from GitHub alone. Two
