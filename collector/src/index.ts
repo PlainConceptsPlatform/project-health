@@ -1,7 +1,14 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { AgentDayStore, collectWindow, compareMonths, monthFromDays, seed } from './agent-days.ts'
-import { isExampleConfig, loadDora, loadProjects, loadScorecardConfig, repoRoot } from './config.ts'
+import {
+  isExampleConfig,
+  loadDora,
+  loadProjects,
+  loadScorecardConfig,
+  projectProblems,
+  repoRoot,
+} from './config.ts'
 import { discover } from './discover.ts'
 import { copyEvidence } from './evidence.ts'
 import { get } from './github.ts'
@@ -631,6 +638,14 @@ async function main(): Promise<void> {
     )
     process.exitCode = 1
     return
+  }
+
+  // A misconfigured entry turns the run red, but every project is still collected.
+  const problems = projects.flatMap(projectProblems)
+  if (problems.length > 0) {
+    console.error('projects.json breaks the rules in schema/projects.schema.json:')
+    for (const problem of problems) console.error(`  ${problem}`)
+    process.exitCode = 1
   }
 
   const { usable, failed } = await preflight(delivered)

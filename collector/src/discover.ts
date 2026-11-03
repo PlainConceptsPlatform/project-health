@@ -1,3 +1,4 @@
+import { fromKitchenSink, parseCopierAnswers } from './copier.ts'
 import { type Deployment, get, paginate } from './github.ts'
 
 /**
@@ -72,6 +73,13 @@ export async function discover(repo: string): Promise<void> {
   const status =
     production && productionCount > 0 ? 'production' : staging ? 'pre-production' : 'planned'
 
+  // Copier leaves its answers behind; answers from Kitchen-Sink mean the app is in that family.
+  const copier = await get<{ content?: string }>(`/repos/${repo}/contents/.copier-answers.yml`)
+  const answers = copier?.content
+    ? parseCopierAnswers(Buffer.from(copier.content, 'base64').toString('utf8'))
+    : null
+  const family = answers && fromKitchenSink(answers) ? 'kitchen-sink' : null
+
   const router = workflows.find((w) => w.path.includes('work-router'))
   // Agents hand issues over with these labels; without them the roadmap has nothing to read.
   const handover = ['bot-working', 'pr-pending'].filter((l) => labels.includes(l))
@@ -89,6 +97,7 @@ export async function discover(repo: string): Promise<void> {
     reworkLabelPrecision: labels.includes('hotfix') ? 'incident' : 'broad',
     agents: { enabled: Boolean(router), workflow: router ? router.path : null },
     ...(handover.length > 0 ? { roadmap: { enabled: true } } : {}),
+    ...(family ? { family } : {}),
     notes: '',
   }
 
@@ -112,6 +121,15 @@ export async function discover(repo: string): Promise<void> {
       handover.length > 0
         ? `labels ${handover.join(', ')} found, issue journeys collected`
         : 'no bot-working or pr-pending label, not collected'
+    }`,
+  )
+  console.log(
+    `  family            ${
+      family
+        ? `kitchen-sink (.copier-answers.yml from ${answers?.srcPath} at ${answers?.commit ?? 'no tag'})`
+        : answers
+          ? `none, .copier-answers.yml comes from ${answers.srcPath ?? 'an unknown template'}`
+          : 'none, no .copier-answers.yml; use own-design with a familyReason for a deliberate exception'
     }`,
   )
   console.log(`  status            ${status}`)

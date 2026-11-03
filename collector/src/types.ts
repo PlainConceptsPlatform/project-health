@@ -100,8 +100,15 @@ export interface ProjectConfig {
     /** Practice ids that do not apply to this project, on top of its type's defaults. */
     notApplicable?: string[]
   }
+  /** kitchen-sink is measured against the template on the Family tab; own-design is only listed. */
+  family?: ProjectFamily
+  /** Why an own-design project keeps its own architecture. Required for own-design. */
+  familyReason?: string
   notes?: string
 }
+
+export const PROJECT_FAMILIES = ['kitchen-sink', 'own-design'] as const
+export type ProjectFamily = (typeof PROJECT_FAMILIES)[number]
 
 export const PROJECT_TYPES = [
   'back-front',
