@@ -409,7 +409,64 @@ export interface MonthlyReport {
   codebase?: MetricBlock<Codebase>
   /** GitHub Actions minutes and storage; absent in files written before it existed. */
   actions?: ActionsUsage
+  /** Drift from the family template; only for family members, and only for the current month. */
+  family?: MetricBlock<Family>
   warnings: Warning[]
+}
+
+export interface FamilyFile {
+  path: string
+  /** Lines shared with the template's copy, 0 to 1; null when compared byte for byte. */
+  similarity: number | null
+  /** An active exception in .platform/exceptions.yml allows this file to differ. */
+  excepted?: boolean
+}
+
+export interface FamilyException {
+  path: string
+  reason: string | null
+  issue: string | null
+  /** YYYY-MM-DD. */
+  expires: string | null
+}
+
+/**
+ * How far a family member's platform code has drifted from its template. manifest: the paths in
+ * `.platform/manifest`, byte for byte against the template tag the app last rendered. baseline:
+ * before adoption, a provisional list of platform paths against the template's default branch,
+ * with app names normalised.
+ */
+export interface Family {
+  family: 'kitchen-sink'
+  mode: 'manifest' | 'baseline'
+  reference: { repo: string; ref: string }
+  /** The project is the template itself. */
+  isReference: boolean
+  counts: {
+    /** Every platform path in either repository. */
+    platform: number
+    identical: number
+    /** Baseline only: at least 90% of lines shared. */
+    similar: number
+    modified: number
+    /** In the template, not in the app. */
+    missing: number
+    /** In the app, not in the template. */
+    extra: number
+  }
+  identicalShare: number | null
+  /** Up to 300 paths per state; truncated says when a list was cut. */
+  files: { similar: FamilyFile[]; modified: FamilyFile[]; missing: string[]; extra: string[] }
+  truncated: boolean
+  exceptions: { active: FamilyException[]; expired: FamilyException[] }
+  template: {
+    /** The template tag the app last rendered; null before adoption. */
+    tag: string | null
+    /** The template's newest v* tag; null when it has none or they could not be read. */
+    latest: string | null
+    /** Template tags newer than the rendered one. */
+    lag: number | null
+  }
 }
 
 /** Billable runner time and the storage Actions keeps, per repository. See metrics/actions.ts. */

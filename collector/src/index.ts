@@ -4,6 +4,7 @@ import { AgentDayStore, collectWindow, compareMonths, monthFromDays, seed } from
 import {
   isExampleConfig,
   loadDora,
+  loadOrganization,
   loadProjects,
   loadScorecardConfig,
   projectProblems,
@@ -16,7 +17,7 @@ import { parseHistory, pointOf, withPoint } from './history.ts'
 import { collectActions, githubActionsSource } from './metrics/actions.ts'
 import { collectAgentic } from './metrics/agentic.ts'
 import { collectAgents, mapLimit } from './metrics/agents.ts'
-import { collectCodebase } from './metrics/codebase.ts'
+import { type SourceArchive, codebaseOf, sourceArchive } from './metrics/codebase.ts'
 import { collectContributors } from './metrics/contributors.ts'
 import { computeDeploymentFrequency } from './metrics/deployments.ts'
 import {
@@ -24,6 +25,7 @@ import {
   unavailableExcellence,
 } from './metrics/engineering-excellence.ts'
 import { collectEnvironment, githubEnvironmentSource } from './metrics/environment.ts'
+import { FAMILY_TEMPLATE, collectFamily } from './metrics/family.ts'
 import { collectLeadTime } from './metrics/leadtime.ts'
 import { fetchReleaseHistory, withinWindow } from './metrics/releases.ts'
 import { collectRework } from './metrics/rework.ts'
@@ -39,12 +41,14 @@ import {
   type Codebase,
   type Contributors,
   type EngineeringExcellence,
+  type Family,
   type MetricBlock,
   type MonthlyReport,
   type ProjectConfig,
   type Roadmap,
   type Scorecard,
   type Warning,
+  ok,
   skip,
 } from './types.ts'
 
@@ -490,23 +494,79 @@ async function withAgentic(report: MonthlyReport, project: ProjectConfig, period
   }
 }
 
-// The source is only read as it is today, so a past month keeps the scan stored while it was current.
-async function withCodebase(
+/** The template family members are compared with, and every member's name to normalise away. */
+interface FamilyContext {
+  reference: string
+  names: string[]
+}
+
+function familyContext(projects: ProjectConfig[], organization: string): FamilyContext {
+  const members = projects.filter((p) => p.family === 'kitchen-sink')
+  const template = FAMILY_TEMPLATE['kitchen-sink'].toLowerCase()
+  const listed = projects.find((p) => p.repo.split('/')[1]?.toLowerCase() === template)
+  return {
+    reference: listed?.repo ?? `${organization}/${FAMILY_TEMPLATE['kitchen-sink']}`,
+    names: [...members, ...(listed ? [listed] : [])].flatMap((p) => [
+      p.name,
+      p.repo.split('/')[1] ?? p.name,
+    ]),
+  }
+}
+
+/**
+ * The code scan and the family comparison share one download of the default branch. The source is
+ * only read as it is today, so a past month keeps what was stored while it was current.
+ */
+async function withSource(
   report: MonthlyReport,
   project: ProjectConfig,
   period: Period,
   now: Date,
+  family: FamilyContext,
 ) {
+  const member = project.family === 'kitchen-sink'
   if (now < period.from || now > period.to) {
-    const stored = previousReport(project.id, label(period))?.codebase
-    return stored ? { ...report, codebase: stored } : report
+    const stored = previousReport(project.id, label(period))
+    return {
+      ...report,
+      ...(stored?.codebase ? { codebase: stored.codebase } : {}),
+      ...(member && stored?.family ? { family: stored.family } : {}),
+    }
   }
+  let archive: MetricBlock<SourceArchive>
   try {
-    return { ...report, codebase: await collectCodebase(project.repo) }
+    const isReference = project.repo.toLowerCase() === family.reference.toLowerCase()
+    archive = await sourceArchive(project.repo, isReference)
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
-    return { ...report, codebase: skip<Codebase>(`source could not be scanned. ${message}`) }
+    archive = skip(`source could not be downloaded. ${message}`)
   }
+
+  let codebase: MetricBlock<Codebase>
+  try {
+    codebase = archive.available ? ok(codebaseOf(archive.data)) : archive
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    codebase = skip(`source could not be scanned. ${message}`)
+  }
+  if (!member) return { ...report, codebase }
+
+  let drift: MetricBlock<Family>
+  try {
+    drift = archive.available
+      ? await collectFamily({
+          project,
+          zip: archive.data.zip,
+          reference: family.reference,
+          names: family.names,
+          today: now,
+        })
+      : skip(`The template was not compared. ${archive.reason}`)
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    drift = skip(`family could not be compared. ${message}`)
+  }
+  return { ...report, codebase, family: drift }
 }
 
 /**
@@ -648,6 +708,8 @@ async function main(): Promise<void> {
     process.exitCode = 1
   }
 
+  const family = familyContext(all, loadOrganization())
+
   const { usable, failed } = await preflight(delivered)
   const planned = await partitionPlanned(projects)
 
@@ -691,7 +753,7 @@ async function main(): Promise<void> {
     for (const period of periods) {
       try {
         const report = await withActions(
-          await withCodebase(
+          await withSource(
             await withAgentic(
               await withEnvironment(await collectProject(project, period), project, period),
               project,
@@ -700,6 +762,7 @@ async function main(): Promise<void> {
             project,
             period,
             now,
+            family,
           ),
           project,
           period,
@@ -760,7 +823,7 @@ async function main(): Promise<void> {
         })
           .then((r) => withEnvironment(r, project, period))
           .then((r) => withAgentic(r, project, period))
-          .then((r) => withCodebase(r, project, period, now))
+          .then((r) => withSource(r, project, period, now, family))
           .then((r) => withActions(r, project, period, now))
         const file = join(dataDir, project.id, `${label(period)}.json`)
         writeFileSync(file, `${JSON.stringify(report, null, 2)}\n`)
