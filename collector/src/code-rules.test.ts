@@ -5,6 +5,7 @@ import {
   countLines,
   isGenerated,
   kindOf,
+  scenarioCount,
   slopFindings,
   testStats,
 } from './metrics/code-rules.ts'
@@ -147,6 +148,72 @@ describe('testStats', () => {
       noAssertion: 0,
       mockOnly: 1,
     })
+  })
+})
+
+describe('scenarioCount', () => {
+  it('counts plain scenarios and examples once each', () => {
+    expect(scenarioCount('Feature: a\n  Scenario: one\n  Example: two\n')).toBe(2)
+  })
+
+  it('counts every data row of a scenario outline, not the outline', () => {
+    const text = [
+      'Feature: roles',
+      '  Scenario Outline: access',
+      '    Given I am a "<role>"',
+      '    Examples:',
+      '      | role          | status |',
+      '      | Administrador | 200    |',
+      '      | Auditor       | 403    |',
+      '      | Consultor     | 403    |',
+    ].join('\n')
+    expect(scenarioCount(text)).toBe(3)
+  })
+
+  it('adds the rows of several Examples tables and ignores the header and comments', () => {
+    const text = [
+      'Scenario Outline: x',
+      '  Examples: allowed',
+      '    | a |',
+      '    | 1 |',
+      '    # | 2 |',
+      '    | 3 |',
+      '  @forbidden',
+      '  Examples: forbidden',
+      '    | a |',
+      '    | 4 |',
+    ].join('\n')
+    expect(scenarioCount(text)).toBe(3)
+  })
+
+  it('does not count tables that belong to steps, and an outline with no rows counts zero', () => {
+    const text = [
+      'Scenario: with a data table',
+      '  Given these managers',
+      '    | name |',
+      '    | Ana  |',
+      'Scenario Template: empty',
+      '  Examples:',
+      '    | a |',
+      'Scenario: after',
+    ].join('\n')
+    expect(scenarioCount(text)).toBe(2)
+  })
+
+  it('stops reading rows once a new scenario, rule or background starts', () => {
+    const text = [
+      'Scenario Outline: o',
+      '  Examples:',
+      '    | a |',
+      '    | 1 |',
+      'Rule: r',
+      '  Background:',
+      '    Given a table',
+      '      | x |',
+      '      | y |',
+      '  Scenario: s',
+    ].join('\n')
+    expect(scenarioCount(text)).toBe(2)
   })
 })
 
