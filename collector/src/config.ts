@@ -1,6 +1,12 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import type { PracticePhase, ProjectConfig, ProjectType, StandardMode } from './types.ts'
+import {
+  PROJECT_FAMILIES,
+  type PracticePhase,
+  type ProjectConfig,
+  type ProjectType,
+  type StandardMode,
+} from './types.ts'
 
 const packageRoot = join(import.meta.dirname, '..', '..')
 
@@ -78,6 +84,24 @@ export const isExampleConfig = (): boolean => {
 /** Every enabled project, including planned ones, so the site can show what is coming. */
 export const loadProjects = (): ProjectConfig[] =>
   readProjectsFile().projects.filter((p) => p.enabled)
+
+export const loadOrganization = (): string => readProjectsFile().organization
+
+/**
+ * The rules projects.schema.json states but the collector cannot rely on an editor to enforce: an
+ * own-design project says why, and family is one of the known values.
+ */
+export function projectProblems(project: ProjectConfig): string[] {
+  const problems: string[] = []
+  const family = project.family as string | undefined
+  if (family !== undefined && !(PROJECT_FAMILIES as readonly string[]).includes(family)) {
+    problems.push(`${project.id}: family "${family}" is not one of ${PROJECT_FAMILIES.join(', ')}`)
+  }
+  if (family === 'own-design' && !project.familyReason?.trim()) {
+    problems.push(`${project.id}: family own-design needs a familyReason`)
+  }
+  return problems
+}
 
 export const loadDora = (): DoraConfig => read<DoraConfig>('config/dora.json')
 

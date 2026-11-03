@@ -169,8 +169,46 @@ export interface MonthlyReport {
   codebase?: MetricBlock<Codebase>
   /** Absent in files written before it existed. */
   actions?: ActionsUsage
+  /** Only for family members, scanned for the current month; absent in older files. */
+  family?: MetricBlock<Family>
   warnings: Warning[]
 }
+
+/** Mirrors the collector's family drift; see collector/src/types.ts for what each field means. */
+export interface FamilyFile {
+  path: string
+  similarity: number | null
+  excepted?: boolean
+}
+
+export interface FamilyException {
+  path: string
+  reason: string | null
+  issue: string | null
+  expires: string | null
+}
+
+export interface Family {
+  family: 'kitchen-sink'
+  mode: 'manifest' | 'baseline'
+  reference: { repo: string; ref: string }
+  isReference: boolean
+  counts: {
+    platform: number
+    identical: number
+    similar: number
+    modified: number
+    missing: number
+    extra: number
+  }
+  identicalShare: number | null
+  files: { similar: FamilyFile[]; modified: FamilyFile[]; missing: string[]; extra: string[] }
+  truncated: boolean
+  exceptions: { active: FamilyException[]; expired: FamilyException[] }
+  template: { tag: string | null; latest: string | null; lag: number | null }
+}
+
+export type ProjectFamily = 'kitchen-sink' | 'own-design'
 
 /** Mirrors the collector's Actions usage; see collector/src/types.ts for what each field means. */
 export interface ActionsUsage {
@@ -290,6 +328,9 @@ export interface DataIndex {
     status: string
     /** Resolved from projects.json when the site is built; the collector's index.json omits it. */
     group: ProjectGroup
+    /** From projects.json; absent for a project outside any family. */
+    family?: ProjectFamily
+    familyReason?: string
     months: string[]
     latest: string | null
   }[]

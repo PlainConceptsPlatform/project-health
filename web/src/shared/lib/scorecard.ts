@@ -112,6 +112,7 @@ export interface DailyScore {
   score: number | null
   commentDensity?: number | null
   testRatio?: number | null
+  familyIdentical?: number | null
 }
 
 const cardOf = (report: MonthlyReport | null | undefined) =>

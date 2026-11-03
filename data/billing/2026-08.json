@@ -5571,5 +5571,69 @@
         }
       ]
     }
+  },
+  "family": {
+    "available": true,
+    "data": {
+      "family": "kitchen-sink",
+      "mode": "baseline",
+      "reference": {
+        "repo": "your-org/Kitchen-Sink",
+        "ref": "main"
+      },
+      "isReference": false,
+      "counts": {
+        "platform": 12,
+        "identical": 4,
+        "similar": 2,
+        "modified": 3,
+        "missing": 2,
+        "extra": 1
+      },
+      "identicalShare": 0.333,
+      "files": {
+        "similar": [
+          {
+            "path": "apps/api/src/Billing.Api/Security/SecurityHeaders.cs",
+            "similarity": 0.96
+          },
+          {
+            "path": "apps/web/src/shared/ui/data-table.tsx",
+            "similarity": 0.91
+          }
+        ],
+        "modified": [
+          {
+            "path": "apps/api/src/Billing.Infrastructure/Iam/SessionStore.cs",
+            "similarity": 0.62
+          },
+          {
+            "path": "apps/web/src/widgets/app-shell/ui/Sidebar.tsx",
+            "similarity": 0.48
+          },
+          {
+            "path": "scripts/check-coverage.mjs",
+            "similarity": 0.71
+          }
+        ],
+        "missing": [
+          "apps/api/src/Billing.Application/Features/FeatureCatalog.cs",
+          "apps/web/src/pages/audit/ui/AuditPage.tsx"
+        ],
+        "extra": [
+          "apps/api/src/Billing.Api/Security/InvoiceSigning.cs"
+        ]
+      },
+      "truncated": false,
+      "exceptions": {
+        "active": [],
+        "expired": []
+      },
+      "template": {
+        "tag": null,
+        "latest": "v1.4.0",
+        "lag": null
+      }
+    }
   }
 }

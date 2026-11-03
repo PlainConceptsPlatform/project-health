@@ -10,6 +10,8 @@ export interface DailyPoint {
   gatesApplicable: number
   commentDensity?: number | null
   testRatio?: number | null
+  /** Share of platform files identical to the family template; family members only. */
+  familyIdentical?: number | null
 }
 
 export interface DailyHistory {
@@ -27,6 +29,7 @@ export function pointOf(report: MonthlyReport, date: Date): DailyPoint | null {
   if (!report.scorecard?.available) return null
   const card = report.scorecard.data
   const code = report.codebase?.available ? report.codebase.data : null
+  const family = report.family?.available ? report.family.data : null
   return {
     date: date.toISOString().slice(0, 10),
     score: card.score,
@@ -34,6 +37,7 @@ export function pointOf(report: MonthlyReport, date: Date): DailyPoint | null {
     gatesPresent: card.gates.present,
     gatesApplicable: card.gates.applicable,
     ...(code ? { commentDensity: code.comments.density, testRatio: code.tests.ratio } : {}),
+    ...(family ? { familyIdentical: family.identicalShare } : {}),
   }
 }
 

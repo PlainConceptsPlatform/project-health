@@ -111,32 +111,78 @@ export function scanFiles(files: SourceFile[], branch: string, sha: string | nul
   }
 }
 
-/** A zipball nests everything under `<owner>-<repo>-<short sha>/`. */
-export function unpackZipball(zip: Uint8Array): { files: SourceFile[]; sha: string | null } {
+/**
+ * The files of a zipball that `keep` accepts, by their path in the repository. A zipball nests
+ * everything under `<owner>-<repo>-<short sha>/`, which is stripped here and read as the sha.
+ */
+export function unzipEntries(
+  zip: Uint8Array,
+  keep: (path: string) => boolean,
+): { entries: Map<string, Uint8Array>; sha: string | null } {
   const strip = (name: string) => name.slice(name.indexOf('/') + 1)
   let root: string | null = null
-  const entries = unzipSync(zip, {
+  const unzipped = unzipSync(zip, {
     filter: (f) => {
       root ??= f.name.slice(0, f.name.indexOf('/'))
-      return f.originalSize <= MAX_FILE_BYTES && kindOf(strip(f.name)) !== null
+      const path = strip(f.name)
+      return path !== '' && !path.endsWith('/') && f.originalSize <= MAX_FILE_BYTES && keep(path)
     },
   })
+  const entries = new Map(Object.entries(unzipped).map(([name, bytes]) => [strip(name), bytes]))
+  const sha = (root as string | null)?.split('-').at(-1) ?? null
+  return { entries, sha }
+}
+
+export function unpackZipball(zip: Uint8Array): { files: SourceFile[]; sha: string | null } {
+  const { entries, sha } = unzipEntries(zip, (path) => kindOf(path) !== null)
   const decoder = new TextDecoder('utf-8')
-  const files = Object.entries(entries).map(([name, bytes]) => ({
-    path: strip(name),
+  const files = [...entries].map(([path, bytes]) => ({
+    path,
     text: decoder.decode(bytes).replace(/^﻿/, '').replace(/\r\n/g, '\n'),
   }))
-  const sha = (root as string | null)?.split('-').at(-1) ?? null
   return { files, sha }
 }
 
-export async function collectCodebase(repo: string): Promise<MetricBlock<Codebase>> {
+export interface SourceArchive {
+  branch: string
+  zip: Uint8Array
+}
+
+/** Archives another scan compares against, kept for the run so each is downloaded only once. */
+const sharedArchives = new Map<string, Promise<Uint8Array | null>>()
+
+/**
+ * The zipball of a ref. A shared one is kept for the rest of the run: the family reference is
+ * compared against every member, and is itself scanned as a project.
+ */
+export function downloadArchive(
+  repo: string,
+  ref: string,
+  share = false,
+): Promise<Uint8Array | null> {
+  const key = `${repo.toLowerCase()}@${ref}`
+  const cached = sharedArchives.get(key)
+  if (cached) return cached
+  const load = getBinary(`/repos/${repo}/zipball/${encodeURIComponent(ref)}`)
+  if (share) sharedArchives.set(key, load)
+  return load
+}
+
+/** The default branch's source, downloaded once for every scan that reads it. */
+export async function sourceArchive(
+  repo: string,
+  share = false,
+): Promise<MetricBlock<SourceArchive>> {
   const branch = (await get<{ default_branch: string }>(`/repos/${repo}`))?.default_branch
   if (!branch) return skip('The repository could not be read, so its source was not scanned.')
-  const zip = await getBinary(`/repos/${repo}/zipball/${encodeURIComponent(branch)}`)
+  const zip = await downloadArchive(repo, branch, share)
   if (!zip) return skip('The source archive of the default branch could not be downloaded.')
-  const { files, sha } = unpackZipball(zip)
-  return ok(scanFiles(files, branch, sha))
+  return ok({ branch, zip })
+}
+
+export function codebaseOf(archive: SourceArchive): Codebase {
+  const { files, sha } = unpackZipball(archive.zip)
+  return scanFiles(files, archive.branch, sha)
 }
 
 export interface PatchFile {

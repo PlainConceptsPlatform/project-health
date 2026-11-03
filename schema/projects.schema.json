@@ -23,6 +23,13 @@
           "agents"
         ],
         "additionalProperties": false,
+        "if": {
+          "required": ["family"],
+          "properties": { "family": { "const": "own-design" } }
+        },
+        "then": {
+          "required": ["familyReason"]
+        },
         "properties": {
           "id": {
             "type": "string",
@@ -200,6 +207,15 @@
                 "description": "Practice ids from config/scorecard.json that do not apply to this project, on top of its type's defaults."
               }
             }
+          },
+          "family": {
+            "enum": ["kitchen-sink", "own-design"],
+            "description": "Which app family the project belongs to. kitchen-sink: it shares its platform code with the Kitchen-Sink template, and the Family tab measures how far it has drifted from it. own-design: it deliberately follows its own architecture, which familyReason explains; it is listed but never measured. Absent means the project is not part of any family."
+          },
+          "familyReason": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Why the project keeps its own design. Required when family is own-design, and shown next to it on the Family tab."
           },
           "notes": {
             "type": "string"

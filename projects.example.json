@@ -30,6 +30,7 @@
       "scorecard": {
         "performance": true
       },
+      "family": "kitchen-sink",
       "notes": "Tag based releases and a dedicated hotfix label, so every metric including the stability axis is available."
     },
     {
@@ -54,6 +55,7 @@
       "engineeringExcellence": {
         "enabled": true
       },
+      "family": "kitchen-sink",
       "notes": "Names its environment production rather than pro, deploys main rather than tags, and has no dedicated hotfix label. Every one of those is why these are configuration and not assumptions.",
       "roadmap": {
         "enabled": true
@@ -81,6 +83,8 @@
       "engineeringExcellence": {
         "enabled": true
       },
+      "family": "own-design",
+      "familyReason": "A native app with its own architecture; the web template does not apply.",
       "notes": "Ships to staging but not yet to production, so production metrics are skipped rather than reported as zero.",
       "roadmap": {
         "enabled": true

@@ -60,6 +60,17 @@ describe('pointOf', () => {
     const unscored = { scorecard: { available: false, reason: 'x' } } as unknown as MonthlyReport
     expect(pointOf(unscored, new Date())).toBeNull()
   })
+
+  it('records the family share for a family member, for the Family tab trend', () => {
+    const report = {
+      scorecard: {
+        available: true,
+        data: { score: 72, level: 2, gates: { present: 7, applicable: 9 } },
+      },
+      family: { available: true, data: { identicalShare: 0.351 } },
+    } as unknown as MonthlyReport
+    expect(pointOf(report, new Date('2026-11-03T03:30:00Z'))?.familyIdentical).toBe(0.351)
+  })
 })
 
 describe('parseHistory', () => {
