@@ -77,6 +77,7 @@ your-org/some-repo (private)
   work item label   implement
   rework label      hotfix (incident)
   agents            .github/workflows/work-router.yml
+  family            kitchen-sink (.copier-answers.yml from gh:your-org/Kitchen-Sink at v1.3.0)
   status            production
 
 Paste into projects.json:
@@ -409,6 +410,27 @@ the reading stored while it was current.
 A project reads red when its storage is over 5 GB, half the 10 GB cache cap, or when its minutes per
 day are more than 50% above the previous month's (ignored below 100 minutes in the previous month).
 Comparing the daily pace keeps a month in progress from reading as a drop.
+
+## Family
+
+Apps generated from the Kitchen-Sink template share their platform code with it: session and auth, permissions, the audit chain, feature flags, errors, security headers and the web shell. The **Family** tab on the overview and on each member project shows how far each app has drifted from the template. A project joins in `projects.json`:
+
+| Field | Meaning |
+| --- | --- |
+| `"family": "kitchen-sink"` | Compared with the template on every collection. `--discover` suggests it when the repository has a `.copier-answers.yml` whose `_src_path` points at Kitchen-Sink. |
+| `"family": "own-design"` | Keeps its own architecture on purpose. Listed greyed on the Family tab with its reason, never measured and never red. |
+| `"familyReason"` | Why an own-design project keeps its own design. Required with `own-design`; the collector reports an entry without one. |
+
+The template is the `Kitchen-Sink` repository of the organisation, or the listed project whose repository has that name. The comparison reuses the zipball the code scan downloads, so a member costs no extra download, and the template's own archive is downloaded once per run and per tag. Like the code scan, only the current month is compared, and `daily.json` keeps the share of identical files for the trend.
+
+It runs in one of two modes:
+
+| Mode | When | Compares |
+| --- | --- | --- |
+| Manifest | the app has `.platform/manifest` and `.copier-answers.yml` | the paths the manifest's gitwildmatch globs select, byte for byte with the template at the `_commit` tag the app last rendered: identical, modified, missing |
+| Baseline | before the app adopts the template | a provisional list of platform paths (the API's security, authorization, errors, rate limiting, IAM, features, auditing, notifications and settings folders, the shared kernel, service defaults and app host, the web's shared `ui`, `auth`, `lib` and `theme`, the app shell, the providers and styles and the login, not-found, settings, users and audit pages, plus `scripts/`, the `app-*` workflows and the root configuration) with every family member's name normalised to `APP` in paths and contents: identical, at least 90% of lines alike, divergent, missing in the app, only in the app |
+
+In manifest mode `.platform/exceptions.yml` lists platform paths an app may diverge from until a date: `exceptions: [{ path, reason, issue, expires }]`. Active exceptions mark the files they cover; an expired one is the only thing the tab shows in red. Template lag is the number of the template's `v*` tags newer than the app's `_commit`, ordered as PEP 440 orders them.
 
 ## Setting it up the first time
 
