@@ -43,7 +43,7 @@ export function CodePanel({ report, daily = [] }: { report: MonthlyReport; daily
           const tone = densityTone(c.comments.density)
           return (
             <div className="space-y-8">
-              <div className="grid grid-cols-2 gap-6 lg:grid-cols-4">
+              <div className="grid grid-cols-2 gap-6 lg:grid-cols-5">
                 <Stat
                   label="Comments per code line"
                   value={
@@ -66,7 +66,12 @@ export function CodePanel({ report, daily = [] }: { report: MonthlyReport; daily
                 <Stat
                   label="Test cases per 1,000 lines"
                   value={c.tests.casesPerKloc ?? 'n/a'}
-                  hint={`${c.tests.scenarios} Gherkin scenarios`}
+                  hint="unit and integration cases"
+                />
+                <Stat
+                  label="Gherkin scenarios"
+                  value={c.tests.scenarios.toLocaleString('en-GB')}
+                  hint={`${c.tests.features.toLocaleString('en-GB')} feature files, each outline row counted`}
                 />
               </div>
 
