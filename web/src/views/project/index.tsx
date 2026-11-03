@@ -34,6 +34,7 @@ import { ActionsPanel } from './actions'
 import { AdoptionPanel } from './agentic'
 import { CodePanel } from './code'
 import { ExcellencePanel } from './excellence'
+import { FamilyPanel } from './family'
 import { RoadmapView } from './roadmap'
 import { ScorecardPanel } from './scorecard'
 import { type ProjectTab, ProjectTabs } from './tabs'
@@ -525,6 +526,13 @@ export function ProjectView({
       </>
     ),
   })
+  if (engineeringReport.family) {
+    tabs.push({
+      id: 'family',
+      label: 'Family',
+      content: <FamilyPanel report={engineeringReport} daily={daily} />,
+    })
+  }
   // Only projects that opted in get the tab; for the rest it would be an empty promise.
   if (report.roadmap) {
     const roadmap = report.roadmap

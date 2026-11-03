@@ -3,6 +3,7 @@
 import { type ActionsRow, flaggedCount } from '@/shared/lib/actions'
 import type { AgenticRow } from '@/shared/lib/agentic'
 import type { CodeRow } from '@/shared/lib/code'
+import type { FamilyRow } from '@/shared/lib/family'
 import {
   DELTA_DAYS,
   DELTA_TITLE,
@@ -32,6 +33,7 @@ import { useState } from 'react'
 import { ActionsTable } from './actions'
 import { AgenticTable } from './agentic'
 import { CodeTable } from './code'
+import { FamilyTable } from './family'
 import { ProjectGrid } from './grid'
 
 const ALERT_TONE: Record<PortfolioAlert['severity'], string> = {
@@ -394,6 +396,7 @@ export function Portfolio({
   agentic,
   code,
   actions = [],
+  family = [],
 }: {
   rows: PortfolioRow[]
   typeLabels: Record<string, string>
@@ -402,6 +405,8 @@ export function Portfolio({
   agentic: AgenticRow[]
   code: CodeRow[]
   actions?: ActionsRow[]
+  /** Projects in a family; the tab is left out when none is. */
+  family?: FamilyRow[]
 }) {
   const [showInfo, setShowInfo] = useState(false)
   const [filter, setFilter] = useState<PortfolioFilter>('all')
@@ -412,6 +417,9 @@ export function Portfolio({
   const kpi = portfolioKpis(applications)
   const toolingKpi = portfolioKpis(tooling)
   const actionsFlagged = flaggedCount(actions)
+  const expiredExceptions = family.filter(
+    (r) => (r.drift?.exceptions.expired.length ?? 0) > 0,
+  ).length
   const attention = sortRows(
     rows.filter((r) => r.risk < 2),
     'risk',
@@ -559,6 +567,19 @@ export function Portfolio({
                 </span>
               ) : null}
             </TabsTrigger>
+            {family.length > 0 ? (
+              <TabsTrigger value="family">
+                Family
+                {expiredExceptions > 0 ? (
+                  <span
+                    title={`${expiredExceptions} project(s) with an expired family exception`}
+                    className="ml-1.5 rounded-full bg-destructive/10 px-1.5 text-xs font-semibold text-destructive tabular-nums"
+                  >
+                    {expiredExceptions}
+                  </span>
+                ) : null}
+              </TabsTrigger>
+            ) : null}
           </TabsList>
           {tab === 'scorecard' ? (
             <div className="flex flex-wrap items-center gap-2">
@@ -642,6 +663,11 @@ export function Portfolio({
         <TabsContent value="actions">
           <ActionsTable rows={actions} />
         </TabsContent>
+        {family.length > 0 ? (
+          <TabsContent value="family">
+            <FamilyTable rows={family} />
+          </TabsContent>
+        ) : null}
       </Tabs>
     </div>
   )

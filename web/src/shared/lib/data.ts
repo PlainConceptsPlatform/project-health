@@ -11,6 +11,7 @@ import type {
   HygieneData,
   MonthlyReport,
   MutationData,
+  ProjectFamily,
 } from './types'
 
 /**
@@ -39,6 +40,8 @@ interface ProjectsFile {
     status: string
     type?: string
     group?: string
+    family?: ProjectFamily
+    familyReason?: string
   }[]
 }
 
@@ -84,6 +87,8 @@ export function readIndex(): DataIndex {
         repo: project.repo,
         status: project.status,
         group: groupOf(project),
+        ...(project.family ? { family: project.family } : {}),
+        ...(project.familyReason ? { familyReason: project.familyReason } : {}),
         months,
         latest: months.at(-1) ?? null,
       }
@@ -98,11 +103,12 @@ export function readDailyScores(projectId: string): DailyScore[] {
       days?: DailyScore[]
     }
     return Array.isArray(raw.days)
-      ? raw.days.map(({ date, score, commentDensity, testRatio }) => ({
+      ? raw.days.map(({ date, score, commentDensity, testRatio, familyIdentical }) => ({
           date,
           score,
           commentDensity,
           testRatio,
+          familyIdentical,
         }))
       : []
   } catch {

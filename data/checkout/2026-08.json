@@ -5749,5 +5749,92 @@
         }
       ]
     }
+  },
+  "family": {
+    "available": true,
+    "data": {
+      "family": "kitchen-sink",
+      "mode": "manifest",
+      "reference": {
+        "repo": "your-org/Kitchen-Sink",
+        "ref": "v1.3.0"
+      },
+      "isReference": false,
+      "counts": {
+        "platform": 142,
+        "identical": 131,
+        "similar": 0,
+        "modified": 7,
+        "missing": 3,
+        "extra": 1
+      },
+      "identicalShare": 0.923,
+      "files": {
+        "similar": [],
+        "modified": [
+          {
+            "path": "apps/api/src/Platform/Auditing/AuditChain.cs",
+            "similarity": null,
+            "excepted": true
+          },
+          {
+            "path": "apps/api/src/Platform/Errors/ProblemDetailsMapper.cs",
+            "similarity": null
+          },
+          {
+            "path": "apps/api/src/Platform/Security/SecurityHeaders.cs",
+            "similarity": null
+          },
+          {
+            "path": "apps/api/src/Platform/Session/SessionCookie.cs",
+            "similarity": null
+          },
+          {
+            "path": "apps/web/src/shared/platform/app-layout/AppLayout.tsx",
+            "similarity": null
+          },
+          {
+            "path": "apps/web/src/shared/platform/theme/ThemeProvider.tsx",
+            "similarity": null
+          },
+          {
+            "path": ".github/workflows/app-deploy.yml",
+            "similarity": null
+          }
+        ],
+        "missing": [
+          "apps/api/src/Platform/Mcp/ToolAnnotations.cs",
+          "apps/api/src/Platform/RateLimiting/ClientLimits.cs",
+          "apps/web/src/shared/platform/tour/TourProvider.tsx"
+        ],
+        "extra": [
+          "apps/api/src/Platform/Session/LegacyTokenBridge.cs"
+        ]
+      },
+      "truncated": false,
+      "exceptions": {
+        "active": [
+          {
+            "path": "apps/api/src/Platform/Auditing/AuditChain.cs",
+            "reason": "Keeps the previous hash format until stored events are migrated.",
+            "issue": "https://github.com/your-org/checkout/issues/412",
+            "expires": "2026-09-30"
+          }
+        ],
+        "expired": [
+          {
+            "path": "apps/web/src/shared/platform/theme/**",
+            "reason": "Brand colours waited on the design review.",
+            "issue": "https://github.com/your-org/checkout/issues/377",
+            "expires": "2026-08-15"
+          }
+        ]
+      },
+      "template": {
+        "tag": "v1.3.0",
+        "latest": "v1.4.0",
+        "lag": 1
+      }
+    }
   }
 }
