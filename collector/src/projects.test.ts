@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { projectProblems } from './config.ts'
@@ -8,6 +8,10 @@ import type { ProjectConfig } from './types.ts'
 
 const root = join(import.meta.dirname, '..', '..')
 const readJson = (path: string) => JSON.parse(readFileSync(join(root, path), 'utf8'))
+
+// A private mirror has no example, and a typo in its own list must not stop the collection these
+// tests guard; the collector reports that one instead.
+const hasExample = existsSync(join(root, 'projects.example.json'))
 
 const project = (extra: Partial<ProjectConfig>): ProjectConfig => ({
   id: 'orders',
@@ -22,7 +26,7 @@ const project = (extra: Partial<ProjectConfig>): ProjectConfig => ({
 })
 
 describe('projects.json', () => {
-  it('accepts the example against the schema and the family rules', () => {
+  it.skipIf(!hasExample)('accepts the example against the schema and the family rules', () => {
     const example = readJson('projects.example.json')
     expect(validate(example, readJson('schema/projects.schema.json'))).toEqual([])
     expect(example.projects.flatMap(projectProblems)).toEqual([])
