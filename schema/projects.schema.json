@@ -8,6 +8,23 @@
       "type": "string",
       "description": "GitHub organisation that owns every listed repository."
     },
+    "family": {
+      "type": "object",
+      "required": ["template"],
+      "additionalProperties": false,
+      "description": "The baseline for family members that have no .platform/contract.yml yet. A member with a contract is compared with the template its contract names instead.",
+      "properties": {
+        "template": {
+          "type": "string",
+          "description": "The template repository members without a contract are compared with: a GitHub URL such as https://github.com/your-org/app-template, or owner/repo."
+        },
+        "paths": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Platform paths compared in baseline mode, as globs with {a,b} alternatives, after app names are replaced with APP. Defaults to the built-in list for a .NET API and React web app; root configuration files are always included."
+        }
+      }
+    },
     "projects": {
       "type": "array",
       "items": {
@@ -209,8 +226,8 @@
             }
           },
           "family": {
-            "enum": ["kitchen-sink", "own-design"],
-            "description": "Which app family the project belongs to. kitchen-sink: it shares its platform code with the Kitchen-Sink template, and the Family tab measures how far it has drifted from it. own-design: it deliberately follows its own architecture, which familyReason explains; it is listed but never measured. Absent means the project is not part of any family."
+            "enum": ["member", "own-design"],
+            "description": "Whether the project shares platform code with a template. member: the Family tab measures how far it has drifted from the template its .platform/contract.yml names, or from family.template before it has a contract. own-design: it deliberately follows its own architecture, which familyReason explains; it is listed but never measured. Absent means the project is not part of any family."
           },
           "familyReason": {
             "type": "string",

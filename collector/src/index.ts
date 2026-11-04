@@ -2,14 +2,16 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 
 import { join } from 'node:path'
 import { AgentDayStore, collectWindow, compareMonths, monthFromDays, seed } from './agent-days.ts'
 import {
+  baselineProblems,
   isExampleConfig,
+  loadBaseline,
   loadDora,
-  loadOrganization,
   loadProjects,
   loadScorecardConfig,
   projectProblems,
   repoRoot,
 } from './config.ts'
+import { githubRepo } from './contract.ts'
 import { discover } from './discover.ts'
 import { copyEvidence } from './evidence.ts'
 import { get } from './github.ts'
@@ -25,7 +27,7 @@ import {
   unavailableExcellence,
 } from './metrics/engineering-excellence.ts'
 import { collectEnvironment, githubEnvironmentSource } from './metrics/environment.ts'
-import { FAMILY_TEMPLATE, collectFamily } from './metrics/family.ts'
+import { collectFamily } from './metrics/family.ts'
 import { collectLeadTime } from './metrics/leadtime.ts'
 import { fetchReleaseHistory, withinWindow } from './metrics/releases.ts'
 import { collectRework } from './metrics/rework.ts'
@@ -38,10 +40,11 @@ import {
   type AgentRun,
   type AgentSummary,
   type AgenticAdoption,
+  type Baseline,
   type Codebase,
   type Contributors,
   type EngineeringExcellence,
-  type Family,
+  type FamilyBlock,
   type MetricBlock,
   type MonthlyReport,
   type ProjectConfig,
@@ -494,18 +497,21 @@ async function withAgentic(report: MonthlyReport, project: ProjectConfig, period
   }
 }
 
-/** The template family members are compared with, and every member's name to normalise away. */
+/** The baseline template members without a contract are compared with, and the names to normalise. */
 interface FamilyContext {
-  reference: string
+  baseline: Baseline | null
+  /** The baseline template as owner/repo, when one is configured. */
+  template: string | null
   names: string[]
 }
 
-function familyContext(projects: ProjectConfig[], organization: string): FamilyContext {
-  const members = projects.filter((p) => p.family === 'kitchen-sink')
-  const template = FAMILY_TEMPLATE['kitchen-sink'].toLowerCase()
-  const listed = projects.find((p) => p.repo.split('/')[1]?.toLowerCase() === template)
+function familyContext(projects: ProjectConfig[], baseline: Baseline | null): FamilyContext {
+  const members = projects.filter((p) => p.family === 'member')
+  const template = baseline ? githubRepo(baseline.template) : null
+  const listed = projects.find((p) => p.repo.toLowerCase() === template?.toLowerCase())
   return {
-    reference: listed?.repo ?? `${organization}/${FAMILY_TEMPLATE['kitchen-sink']}`,
+    baseline,
+    template,
     names: [...members, ...(listed ? [listed] : [])].flatMap((p) => [
       p.name,
       p.repo.split('/')[1] ?? p.name,
@@ -524,7 +530,7 @@ async function withSource(
   now: Date,
   family: FamilyContext,
 ) {
-  const member = project.family === 'kitchen-sink'
+  const member = project.family === 'member'
   if (now < period.from || now > period.to) {
     const stored = previousReport(project.id, label(period))
     return {
@@ -535,7 +541,7 @@ async function withSource(
   }
   let archive: MetricBlock<SourceArchive>
   try {
-    const isReference = project.repo.toLowerCase() === family.reference.toLowerCase()
+    const isReference = project.repo.toLowerCase() === family.template?.toLowerCase()
     archive = await sourceArchive(project.repo, isReference)
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
@@ -551,13 +557,13 @@ async function withSource(
   }
   if (!member) return { ...report, codebase }
 
-  let drift: MetricBlock<Family>
+  let drift: FamilyBlock
   try {
     drift = archive.available
       ? await collectFamily({
           project,
           zip: archive.data.zip,
-          reference: family.reference,
+          baseline: family.baseline,
           names: family.names,
           today: now,
         })
@@ -701,14 +707,15 @@ async function main(): Promise<void> {
   }
 
   // A misconfigured entry turns the run red, but every project is still collected.
-  const problems = projects.flatMap(projectProblems)
+  const baseline = loadBaseline()
+  const problems = [...baselineProblems(baseline), ...projects.flatMap(projectProblems)]
   if (problems.length > 0) {
     console.error('projects.json breaks the rules in schema/projects.schema.json:')
     for (const problem of problems) console.error(`  ${problem}`)
     process.exitCode = 1
   }
 
-  const family = familyContext(all, loadOrganization())
+  const family = familyContext(all, baseline)
 
   const { usable, failed } = await preflight(delivered)
   const planned = await partitionPlanned(projects)
