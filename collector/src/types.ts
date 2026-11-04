@@ -97,6 +97,13 @@ export interface ProjectConfig {
      * it by default. false opts out of a type default.
      */
     performance?: boolean
+    /**
+     * The restore drill is only expected of a project that owns a production database. true makes
+     * it applicable; the product is read from the hub workflow's jobs.
+     */
+    restoredrill?: boolean
+    /** The hub's product id for this project, when it is not the repository name in lower case. */
+    restoreDrillProduct?: string
     /** Practice ids that do not apply to this project, on top of its type's defaults. */
     notApplicable?: string[]
   }
@@ -653,7 +660,7 @@ export interface Roadmap {
   issues: IssueJourney[]
 }
 
-export type PracticePhase = 'build' | 'test-env'
+export type PracticePhase = 'build' | 'test-env' | 'operate'
 /** How the practice is expected to run: fail the build, hold a score, or follow a policy. */
 export type StandardMode = 'blocking' | 'threshold' | 'policy'
 export type DetectedMode = 'blocking' | 'report-only'

@@ -227,7 +227,7 @@ gauges.
 ## Engineering scorecard
 
 A portfolio view of which engineering practices guard each project, read every collection from the
-default branch. The eleven practices, their standard mode (Blocking, Threshold or Policy), the tool
+default branch. The twelve practices, their standard mode (Blocking, Threshold or Policy), the tool
 patterns that detect them and which project types they apply to live in `config/scorecard.json`.
 `config/` is the file a platform mirror overrides, so practices (complexity included) can be
 disabled or extended there without touching code.
@@ -240,6 +240,14 @@ Each practice is decided by one of two sources, and the page says which:
   violations, no exception is swallowed without a justification, dead code is gated or absent and,
   when the facet carries `commentSlop`, its gate has no violations; a hygiene facet without a `gate` is report-only. It counts towards the score and the gates,
   not towards the L1 to L3 levels.
+- **Hub workflow** (Restore drill, practice 12): a project that owns a production database opts in
+  with `scorecard.restoredrill: true` in `projects.json`. One workflow in a hub repository, named by
+  `restoreDrill: { repo, workflow, branch }` in `config/scorecard.json`, restores every such database;
+  its jobs are called `Drill <product>/<database>`, and the collector rates the project by the newest
+  decisive job of its product (the repository name in lower case, or `scorecard.restoreDrillProduct`).
+  Posture-only jobs (`Posture ...`) never count. The practice has its own `staleDays` of 100, because
+  the drill is quarterly; with no hub named, or no job for the product, it is red. It counts towards
+  the score and the gates, not the levels.
 - **Detected**: otherwise the collector reads `.github/workflows/*.yml` at the default branch and
   finds the tools in `uses:` and `run:` lines. A step is report-only when it carries
   `continue-on-error: true`, `exit-code: "0"` or `|| true` (Trivy also needs an explicit non-zero

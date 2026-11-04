@@ -215,7 +215,7 @@ Take these, and say in writing which ones you took:
 
 - The contract in section 3. Keep the envelope even if your own shape differs, so a later adoption
   is a configuration change rather than a migration.
-- The eleven practices, the four colours, the cumulative level and the score formula, as a rubric.
+- The twelve practices, the four colours, the cumulative level and the score formula, as a rubric.
 - The honesty rules in section 7.
 - Weak versus strong: tests that run without a coverage tool are yellow, never green. When a weak
   and a strong tool are both found, the strong one decides.

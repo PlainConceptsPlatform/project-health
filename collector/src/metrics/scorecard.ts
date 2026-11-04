@@ -29,6 +29,11 @@ import {
   featureSuites,
 } from './gherkin-detection.ts'
 import {
+  type RestoreDrillHub,
+  githubRestoreDrillHub,
+  restoreDrillEvidence,
+} from './restore-drill.ts'
+import {
   type PracticeDetection,
   callersOf,
   detectTools,
@@ -36,6 +41,9 @@ import {
 } from './workflow-detection.ts'
 
 const DAY_MS = 86_400_000
+
+/** Evidence for this practice comes from the hub's drill jobs, not from the project's workflows. */
+const RESTORE_DRILL_PRACTICE = 'restoredrill'
 
 /** What is known about one practice, from one source, before it is rated. */
 export interface PracticeEvidence {
@@ -104,8 +112,9 @@ export function ratePractice(
   applicable: { applicable: boolean; reason: string | null },
   evidence: PracticeEvidence | null,
   reference: Date,
-  staleDays: number,
+  defaultStaleDays: number,
 ): { rag: Rag; reason: string } {
+  const staleDays = practice.staleDays ?? defaultStaleDays
   if (!applicable.applicable) {
     return { rag: 'grey', reason: applicable.reason ?? 'Not applicable.' }
   }
@@ -113,6 +122,7 @@ export function ratePractice(
     return {
       rag: 'red',
       reason:
+        practice.absentReason ??
         'Expected but absent: no workflow on the default branch runs it and no facet reports it.',
     }
   }
@@ -718,6 +728,7 @@ export async function collectScorecard(
   previousScores: (number | null)[],
   source: ScorecardSource = githubScorecardSource(project.repo),
   now: Date = new Date(),
+  hub?: RestoreDrillHub,
 ): Promise<MetricBlock<Scorecard>> {
   const branch = await source.defaultBranch()
   if (!branch) return skip('The repository could not be read, so no scorecard was produced.')
@@ -735,6 +746,16 @@ export async function collectScorecard(
   const detected = new Map<string, PracticeEvidence>()
   for (const [practice, detection] of detections) {
     detected.set(practice, await detectedEvidence(detection, files, branch, period.to, source))
+  }
+  const drill = enabled.find((p) => p.id === RESTORE_DRILL_PRACTICE)
+  if (drill && config.restoreDrill && applicability(drill, project, config).applicable) {
+    const evidence = await restoreDrillEvidence(
+      project,
+      config.restoreDrill,
+      hub ?? githubRestoreDrillHub(config.restoreDrill.repo),
+      period.to,
+    )
+    if (evidence) detected.set(RESTORE_DRILL_PRACTICE, evidence)
   }
   if (suites.length > 0 && !detected.has(SPEC_PRACTICE)) {
     detected.set(SPEC_PRACTICE, {

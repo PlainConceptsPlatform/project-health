@@ -361,14 +361,14 @@ describe('engineeringScore and gateCounts', () => {
         spec: 'yellow',
         sbom: 'yellow',
       },
-      ['dast', 'performance', 'hygiene'],
+      ['dast', 'performance', 'hygiene', 'restoredrill'],
     )
     expect(engineeringScore(practices)).toBe(63)
     expect(gateCounts(practices)).toEqual({ present: 6, applicable: 8 })
   })
 
   it('counts gates of every phase, test environment included', () => {
-    const practices = results({ dast: 'green' }, ['performance'])
+    const practices = results({ dast: 'green' }, ['performance', 'restoredrill'])
     expect(gateCounts(practices)).toEqual({ present: 1, applicable: 10 })
   })
 
@@ -780,6 +780,7 @@ describe('collectScorecard', () => {
       dast: 'red',
       performance: 'grey',
       hygiene: 'red',
+      restoredrill: 'grey',
     })
     expect(card.practices.find((p) => p.id === 'mutation')?.lastRun?.workflow).toBe(
       '.github/workflows/deploy.yml',

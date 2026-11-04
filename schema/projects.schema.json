@@ -216,6 +216,15 @@
                 "default": false,
                 "description": "Performance testing (k6, JMeter, Lighthouse CI) is only expected when required. true makes it applicable; false drops it for a type that expects it by default, such as static-site."
               },
+              "restoredrill": {
+                "type": "boolean",
+                "default": false,
+                "description": "The project owns a production database that the restore drill covers (see restoreDrill in config/scorecard.json). true makes the Restore drill practice applicable."
+              },
+              "restoreDrillProduct": {
+                "type": "string",
+                "description": "The product id the restore drill inventory uses for this project, when it is not the repository name in lower case."
+              },
               "notApplicable": {
                 "type": "array",
                 "items": {

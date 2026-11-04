@@ -560,7 +560,7 @@ export type ProjectType =
   | 'other'
 /** The dashboard section a project is ranked in; see groupOf in scorecard.ts for the default. */
 export type ProjectGroup = 'applications' | 'tooling'
-export type PracticePhase = 'build' | 'test-env'
+export type PracticePhase = 'build' | 'test-env' | 'operate'
 export type StandardMode = 'blocking' | 'threshold' | 'policy'
 export type DetectedMode = 'blocking' | 'report-only'
 export type Rag = 'green' | 'yellow' | 'red' | 'grey'

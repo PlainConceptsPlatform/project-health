@@ -145,6 +145,18 @@
           "pattern": "@lhci/cli|\\blhci\\s+(autorun|assert)\\b|lighthouse-ci"
         }
       ]
+    },
+    {
+      "id": "restoredrill",
+      "number": 12,
+      "name": "Restore drill",
+      "phase": "operate",
+      "mode": "blocking",
+      "optIn": true,
+      "staleDays": 100,
+      "absentReason": "No restore drill has covered this project's production database: it is not in the drill inventory yet, or the quarterly drill has not run.",
+      "description": "The production database is restored from a point-in-time backup into a throwaway copy, verified and dropped, at least every quarter (ISO/IEC 27001 A.8.13). Only for a project that owns a production database.",
+      "tools": []
     }
   ],
   "types": {
