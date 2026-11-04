@@ -100,14 +100,22 @@ export interface ProjectConfig {
     /** Practice ids that do not apply to this project, on top of its type's defaults. */
     notApplicable?: string[]
   }
-  /** kitchen-sink is measured against the template on the Family tab; own-design is only listed. */
+  /** A member is measured against its template on the Family tab; own-design is only listed. */
   family?: ProjectFamily
   /** Why an own-design project keeps its own architecture. Required for own-design. */
   familyReason?: string
   notes?: string
 }
 
-export const PROJECT_FAMILIES = ['kitchen-sink', 'own-design'] as const
+/** `family` at the top of projects.json: the template members without a contract are compared with. */
+export interface Baseline {
+  /** The template repository: a GitHub URL or owner/repo. */
+  template: string
+  /** Platform paths as globs; the built-in list when absent. */
+  paths?: string[]
+}
+
+export const PROJECT_FAMILIES = ['member', 'own-design'] as const
 export type ProjectFamily = (typeof PROJECT_FAMILIES)[number]
 
 export const PROJECT_TYPES = [
@@ -410,7 +418,7 @@ export interface MonthlyReport {
   /** GitHub Actions minutes and storage; absent in files written before it existed. */
   actions?: ActionsUsage
   /** Drift from the family template; only for family members, and only for the current month. */
-  family?: MetricBlock<Family>
+  family?: FamilyBlock
   warnings: Warning[]
 }
 
@@ -431,14 +439,16 @@ export interface FamilyException {
 }
 
 /**
- * How far a family member's platform code has drifted from its template. manifest: the paths in
- * `.platform/manifest`, byte for byte against the template tag the app last rendered. baseline:
- * before adoption, a provisional list of platform paths against the template's default branch,
- * with app names normalised.
+ * How far a family member's platform code has drifted from its template. contract: the owned paths
+ * of `.platform/contract.yml`, byte for byte against the template version the app records. legacy:
+ * the same, read from `.platform/manifest` and `.copier-answers.yml`. baseline: before adoption, a
+ * provisional list of platform paths against the configured template's default branch, with app
+ * names normalised.
  */
 export interface Family {
-  family: 'kitchen-sink'
-  mode: 'manifest' | 'baseline'
+  mode: 'contract' | 'legacy' | 'baseline'
+  /** The contract's source, or the baseline template named by its repository. */
+  source: { name: string; url: string }
   reference: { repo: string; ref: string }
   /** The project is the template itself. */
   isReference: boolean
@@ -468,6 +478,9 @@ export interface Family {
     lag: number | null
   }
 }
+
+/** A contract that cannot be read is an error to show, never hidden behind an older comparison. */
+export type FamilyBlock = MetricBlock<Family> | { available: false; reason: string; invalid: true }
 
 /** Billable runner time and the storage Actions keeps, per repository. See metrics/actions.ts. */
 export interface ActionsUsage {

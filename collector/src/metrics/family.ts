@@ -1,7 +1,16 @@
-import { type CopierAnswers, parseCopierAnswers } from '../copier.ts'
+import {
+  CONTRACT,
+  LEGACY_ANSWERS,
+  LEGACY_MANIFEST,
+  githubRepo,
+  readContract,
+  topLevel,
+} from '../contract.ts'
 import { get, paginate } from '../github.ts'
 import {
+  type Baseline,
   type Family,
+  type FamilyBlock,
   type FamilyException,
   type FamilyFile,
   type MetricBlock,
@@ -11,12 +20,7 @@ import {
 } from '../types.ts'
 import { downloadArchive, unzipEntries } from './codebase.ts'
 
-const MANIFEST = '.platform/manifest'
 const EXCEPTIONS = '.platform/exceptions.yml'
-const ANSWERS = '.copier-answers.yml'
-
-/** The repository of each family's template, under the organisation of projects.json. */
-export const FAMILY_TEMPLATE = { 'kitchen-sink': 'Kitchen-Sink' } as const
 
 /** At or above this share of shared lines, a baseline file counts as similar rather than divergent. */
 export const SIMILAR = 0.9
@@ -25,9 +29,9 @@ export const SIMILAR = 0.9
 const LISTED = 300
 
 /**
- * The platform code before an app adopts the template and its manifest: the session, permission,
- * audit, feature flag, error and security plumbing of the API, the web shell, the scripts, the app
- * workflows and the root configuration. Provisional, until every app carries `.platform/manifest`.
+ * The default platform paths of an app without a contract, for a .NET API and React web layout:
+ * the session, permission, audit, feature flag, error and security plumbing of the API, the web
+ * shell, the scripts, the app workflows and the root configuration. `family.paths` replaces it.
  */
 export const BASELINE_PATHS = [
   'apps/api/src/*.Api/{Security,Authorization,Errors,RateLimiting,Features}/**',
@@ -76,12 +80,11 @@ export function globToRegExp(glob: string): RegExp {
 }
 
 /**
- * The manifest's platform paths: one gitwildmatch glob per line, `#` comments and `!` negations.
- * As in gitignore, a pattern without a slash matches at any depth and a directory takes its files.
+ * Owned paths as gitwildmatch globs, with `#` comments and `!` negations. As in gitignore, a
+ * pattern without a slash matches at any depth and a directory takes its files.
  */
-export function manifestMatcher(text: string): (path: string) => boolean {
-  const rules = text
-    .split(/\r?\n/)
+export function pathMatcher(globs: string[]): (path: string) => boolean {
+  const rules = globs
     .map((line) => line.trim())
     .filter((line) => line !== '' && !line.startsWith('#'))
     .map((line) => {
@@ -100,14 +103,17 @@ export function manifestMatcher(text: string): (path: string) => boolean {
   }
 }
 
-const BASELINE = BASELINE_PATHS.map(globToRegExp)
+export function baselineMatcher(paths: string[] = BASELINE_PATHS): (path: string) => boolean {
+  const globs = paths.map(globToRegExp)
+  return (path) =>
+    globs.some((r) => r.test(path)) || (!path.includes('/') && !NOT_ROOT_CONFIG.test(path))
+}
 
-export const inBaseline = (path: string): boolean =>
-  BASELINE.some((r) => r.test(path)) || (!path.includes('/') && !NOT_ROOT_CONFIG.test(path))
+export const inBaseline = baselineMatcher()
 
 /**
- * Every spelling an app name takes in code: KitchenSink, Kitchen-Sink, kitchensink, kitchen-sink
- * and KITCHEN_SINK. Longest first, so a longer spelling is replaced before a shorter one inside it.
+ * Every spelling an app name takes in code: OrderDesk, Order-Desk, orderdesk, order-desk
+ * and ORDER_DESK. Longest first, so a longer spelling is replaced before a shorter one inside it.
  */
 export function appTokens(names: string[]): string[] {
   const tokens = new Set<string>()
@@ -214,11 +220,11 @@ export function compareTags(a: string, b: string): number {
   return x.pre.localeCompare(y.pre, 'en', { numeric: true })
 }
 
-const VERSION_TAG = /^v\d+(\.\d+)*/
+const VERSION_TAG = /^v?\d+(\.\d+)+/
 
 /**
- * Copier records the tag it rendered, or `v1.2.0-3-gabc1234` when it rendered commits after one:
- * the archive is read at that commit, and the lag is counted from the tag.
+ * A recorded version is a tag, a commit, or `v1.2.0-3-gabc1234` when commits after a tag were
+ * applied: the archive is read at that commit, and the lag is counted from the tag.
  */
 export function templateRef(commit: string): { ref: string; tag: string | null } {
   const described = commit.match(/^(.+)-\d+-g([0-9a-f]+)$/)
@@ -249,7 +255,7 @@ export interface Comparison {
 }
 
 /**
- * Compares an app's platform files with the reference's, by path. Byte for byte in manifest mode;
+ * Compares an app's platform files with the reference's, by path. Byte for byte with a contract;
  * in baseline mode the app names are normalised first and a near copy counts as similar.
  */
 export function compareFiles(
@@ -270,7 +276,7 @@ export function compareFiles(
       result.missing.push(ref.path)
       continue
     }
-    if (mode === 'manifest' || isBinary(own.bytes) || isBinary(ref.bytes)) {
+    if (mode !== 'baseline' || isBinary(own.bytes) || isBinary(ref.bytes)) {
       if (sameBytes(own.bytes, ref.bytes)) result.identical += 1
       else result.modified.push({ path: own.path, similarity: null })
       continue
@@ -306,8 +312,7 @@ export interface FamilyInput {
   project: ProjectConfig
   /** The app's default branch zipball, the one the code scan already downloaded. */
   zip: Uint8Array
-  /** The template repository the app is compared with. */
-  reference: string
+  baseline: Baseline | null
   /** Every family member's name, normalised away in baseline mode. */
   names: string[]
   today: Date
@@ -339,62 +344,72 @@ const exceptionsOf = (text: string | null, today: Date) => {
   }
 }
 
+const notCompared = (why: string): FamilyBlock => skip(`${why}, so nothing was compared.`)
+
+/** Text files of the app's zipball, read once for the paths asked. */
+function reader(zip: Uint8Array, paths: string[]) {
+  const { entries } = unzipEntries(zip, (path) => paths.includes(path))
+  return (path: string) => {
+    const bytes = entries.get(path)
+    return bytes ? textOf(bytes) : null
+  }
+}
+
 /**
- * How far a family member has drifted from its template. With `.platform/manifest` and Copier
- * answers, the manifest's paths are compared byte for byte with the template at the tag the app
- * last rendered. Before that, a provisional list of platform paths is compared with the template's
- * default branch, app names normalised.
+ * How far a family member has drifted from its template. With a contract, its owned paths are
+ * compared byte for byte with the template at the version the app records; contract.yml wins over
+ * the implicit `.platform/manifest` and `.copier-answers.yml` pair. Without one, the baseline paths
+ * are compared with the configured baseline template's default branch, app names normalised.
  */
 export async function collectFamily(
   input: FamilyInput,
   source: FamilySource = githubFamilySource,
-): Promise<MetricBlock<Family>> {
-  const markers = unzipEntries(input.zip, (path) => [MANIFEST, ANSWERS, EXCEPTIONS].includes(path))
-  const read = (path: string) => {
-    const bytes = markers.entries.get(path)
-    return bytes ? textOf(bytes) : null
+): Promise<FamilyBlock> {
+  const found = readContract(reader(input.zip, [CONTRACT, LEGACY_ANSWERS, LEGACY_MANIFEST]))
+  if (found?.kind === 'invalid') {
+    return { available: false, reason: `Invalid contract. ${found.error}.`, invalid: true }
   }
-  const manifest = read(MANIFEST)
-  const answersText = read(ANSWERS)
-  const answers: CopierAnswers | null = answersText ? parseCopierAnswers(answersText) : null
-  const exceptions = exceptionsOf(read(EXCEPTIONS), input.today)
-  const tags = await source.tags(input.reference)
-  const isReference = input.project.repo.toLowerCase() === input.reference.toLowerCase()
-
-  let mode: Family['mode']
-  let ref: string
-  let tag: string | null = null
-  let platform: (path: string) => boolean
-  if (manifest !== null && answers?.commit) {
-    mode = 'manifest'
-    const rendered = templateRef(answers.commit)
-    ref = rendered.ref
-    tag = rendered.tag
-    platform = manifestMatcher(manifest)
-  } else {
-    mode = 'baseline'
-    const branch = await source.defaultBranch(input.reference)
-    if (!branch) {
-      return skip(`The template ${input.reference} could not be read, so nothing was compared.`)
-    }
-    ref = branch
-    platform = inBaseline
-  }
-
-  const zip = await source.archive(input.reference, ref)
-  if (!zip) {
-    return skip(
-      `The template ${input.reference} at ${ref} could not be downloaded, so nothing was compared.`,
+  const contract = found?.contract ?? null
+  const url = contract?.source.url ?? input.baseline?.template
+  if (!url) {
+    return notCompared(
+      `The app has no ${CONTRACT} and projects.json names no baseline template (family.template)`,
     )
   }
-  const names = [...input.names, ...(answers?.appName ? [answers.appName] : [])]
-  const normalise = mode === 'baseline' ? normaliser(appTokens(names)) : undefined
+  const repo = githubRepo(url)
+  if (!repo) return notCompared(`The template ${url} is not a GitHub repository`)
+  const mode: Family['mode'] = found?.kind ?? 'baseline'
+  const exceptionsPath = contract?.exceptions ?? EXCEPTIONS
+  const version = contract?.version ?? null
+  const read = reader(input.zip, [exceptionsPath, ...(version ? [version.file] : [])])
+  const exceptions = exceptionsOf(read(exceptionsPath), input.today)
+  const recordedText = version ? read(version.file) : null
+  const recorded = version && recordedText ? topLevel(recordedText, version.key) : null
+  const tags = await source.tags(repo)
+
+  let ref: string
+  let tag: string | null = null
+  if (recorded) {
+    const applied = templateRef(recorded)
+    ref = applied.ref
+    tag = applied.tag
+  } else {
+    const branch = await source.defaultBranch(repo)
+    if (!branch) return notCompared(`The template ${repo} could not be read`)
+    ref = branch
+  }
+
+  const zip = await source.archive(repo, ref)
+  if (!zip) return notCompared(`The template ${repo} at ${ref} could not be downloaded`)
+  const name = repo.split('/')[1] as string
+  const platform = contract ? pathMatcher(contract.owned) : baselineMatcher(input.baseline?.paths)
+  const normalise = contract ? undefined : normaliser(appTokens([...input.names, name]))
   const keep = (path: string) => platform(normalise ? normalise(path) : path)
   const reference = unzipEntries(zip, keep).entries
   const app = unzipEntries(input.zip, keep).entries
   const result = compareFiles(app, reference, mode, normalise)
 
-  const covered = exceptions.active.map((e) => manifestMatcher(e.path))
+  const covered = exceptions.active.map((e) => pathMatcher([e.path]))
   const mark = (file: FamilyFile): FamilyFile =>
     covered.some((test) => test(file.path)) ? { ...file, excepted: true } : file
   const counts = {
@@ -412,10 +427,10 @@ export async function collectFamily(
   }
   const lists = [result.similar, result.modified, result.missing, result.extra]
   return ok({
-    family: 'kitchen-sink',
     mode,
-    reference: { repo: input.reference, ref },
-    isReference,
+    source: { name: contract?.source.name ?? name, url },
+    reference: { repo, ref },
+    isReference: input.project.repo.toLowerCase() === repo.toLowerCase(),
     counts,
     identicalShare:
       counts.platform > 0 ? Math.round((counts.identical / counts.platform) * 1000) / 1000 : null,
