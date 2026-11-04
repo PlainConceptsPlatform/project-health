@@ -5575,10 +5575,13 @@
   "family": {
     "available": true,
     "data": {
-      "family": "kitchen-sink",
       "mode": "baseline",
+      "source": {
+        "name": "app-template",
+        "url": "https://github.com/your-org/app-template"
+      },
       "reference": {
-        "repo": "your-org/Kitchen-Sink",
+        "repo": "your-org/app-template",
         "ref": "main"
       },
       "isReference": false,

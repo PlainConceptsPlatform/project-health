@@ -2,16 +2,22 @@ import type { DailyScore } from './scorecard'
 import type { DataIndex, Family, MonthlyReport, ProjectFamily } from './types'
 
 export const MODE_LABEL: Record<Family['mode'], string> = {
-  manifest: 'Manifest',
+  contract: 'Contract',
+  legacy: 'Implicit contract',
   baseline: 'Baseline',
 }
 
 export const MODE_DESCRIPTION: Record<Family['mode'], string> = {
-  manifest:
-    'The paths in .platform/manifest, byte for byte against the template tag the app last rendered.',
+  contract:
+    'The owned paths of .platform/contract.yml, byte for byte against the template version the app records.',
+  legacy:
+    'No contract.yml yet: .platform/manifest and .copier-answers.yml read as one, byte for byte against the recorded template version.',
   baseline:
-    'Before adoption: a provisional list of platform paths against the template’s default branch, with app names normalised.',
+    'Before adoption: a provisional list of platform paths against the baseline template’s default branch, with app names normalised.',
 }
+
+/** The template's display name; files written before the contract was read only have its repo. */
+export const templateName = (family: Family): string => family.source?.name ?? family.reference.repo
 
 export interface FamilyRow {
   id: string
@@ -23,6 +29,8 @@ export interface FamilyRow {
   drift: Family | null
   /** Why a family member has no comparison yet. */
   reason: string | null
+  /** The member's contract cannot be read; reason says which file and field. */
+  invalid: boolean
   trend: { month: string; score: number | null }[]
 }
 
@@ -40,15 +48,15 @@ export function identicalTrend(daily: DailyScore[]) {
 }
 
 /** Template tags the app is behind, as words. */
-export function lagLabel(template: Family['template']): string {
-  if (template.tag === null) return 'Not adopted yet'
+export function lagLabel(template: Family['template'], mode: Family['mode']): string {
+  if (template.tag === null) return mode === 'baseline' ? 'Not adopted yet' : 'No version tag'
   if (template.lag === null) return 'Tags not readable'
   return template.lag === 0
     ? 'Current'
     : `${template.lag} tag${template.lag === 1 ? '' : 's'} behind`
 }
 
-const ORDER: Record<ProjectFamily, number> = { 'kitchen-sink': 0, 'own-design': 1 }
+const ORDER: Record<ProjectFamily, number> = { member: 0, 'own-design': 1 }
 
 /** One row per project in a family, members first, from the newest month that compared it. */
 export function familyRows(
@@ -65,7 +73,11 @@ export function familyRows(
         .filter((r): r is MonthlyReport => Boolean(r))
       const compared = reports.findLast((r) => r.family?.available)
       const newest = reports.at(-1)
-      const family = compared?.family?.available ? compared.family.data : null
+      const invalid =
+        newest?.family && !newest.family.available && 'invalid' in newest.family
+          ? newest.family.reason
+          : null
+      const family = !invalid && compared?.family?.available ? compared.family.data : null
       return [
         {
           id: entry.id,
@@ -75,11 +87,12 @@ export function familyRows(
           familyReason: entry.familyReason ?? null,
           drift: family,
           reason:
-            family || entry.family !== 'kitchen-sink'
+            family || entry.family !== 'member'
               ? null
               : newest?.family && !newest.family.available
                 ? newest.family.reason
                 : 'Not compared yet; it appears after the next collection.',
+          invalid: invalid !== null,
           trend: identicalTrend(daily[entry.id] ?? []),
         },
       ]

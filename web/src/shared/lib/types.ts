@@ -170,7 +170,7 @@ export interface MonthlyReport {
   /** Absent in files written before it existed. */
   actions?: ActionsUsage
   /** Only for family members, scanned for the current month; absent in older files. */
-  family?: MetricBlock<Family>
+  family?: FamilyBlock
   warnings: Warning[]
 }
 
@@ -189,8 +189,9 @@ export interface FamilyException {
 }
 
 export interface Family {
-  family: 'kitchen-sink'
-  mode: 'manifest' | 'baseline'
+  mode: 'contract' | 'legacy' | 'baseline'
+  /** Absent in files written before the platform contract was read. */
+  source?: { name: string; url: string }
   reference: { repo: string; ref: string }
   isReference: boolean
   counts: {
@@ -208,7 +209,9 @@ export interface Family {
   template: { tag: string | null; latest: string | null; lag: number | null }
 }
 
-export type ProjectFamily = 'kitchen-sink' | 'own-design'
+export type FamilyBlock = MetricBlock<Family> | { available: false; reason: string; invalid: true }
+
+export type ProjectFamily = 'member' | 'own-design'
 
 /** Mirrors the collector's Actions usage; see collector/src/types.ts for what each field means. */
 export interface ActionsUsage {

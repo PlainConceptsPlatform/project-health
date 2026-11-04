@@ -1,5 +1,11 @@
 import { percent } from '@/shared/lib/code'
-import { MODE_DESCRIPTION, MODE_LABEL, identicalTrend, lagLabel } from '@/shared/lib/family'
+import {
+  MODE_DESCRIPTION,
+  MODE_LABEL,
+  identicalTrend,
+  lagLabel,
+  templateName,
+} from '@/shared/lib/family'
 import type { DailyScore } from '@/shared/lib/scorecard'
 import type { Family, FamilyException, FamilyFile, MonthlyReport } from '@/shared/lib/types'
 import { Badge, DataTable, Metric, Panel, Stat, TableCell, TableRow, cn } from '@/shared/ui'
@@ -83,6 +89,7 @@ function Drift({ family, repo, daily }: { family: Family; repo: string; daily: D
     <div className="space-y-8">
       <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
         <Badge variant="secondary">{MODE_LABEL[family.mode]}</Badge>
+        <span className="font-semibold text-foreground">{templateName(family)}</span>
         {family.isReference ? <Badge variant="outline">This is the template</Badge> : null}
         <span>{MODE_DESCRIPTION[family.mode]}</span>
       </div>
@@ -108,7 +115,7 @@ function Drift({ family, repo, daily }: { family: Family; repo: string; daily: D
         <Stat
           label="Template"
           value={<span className="font-mono text-lg">{family.template.tag ?? ref.ref}</span>}
-          hint={`${lagLabel(family.template)}${family.template.latest ? ` · newest ${family.template.latest}` : ''}`}
+          hint={`${lagLabel(family.template, family.mode)}${family.template.latest ? ` · newest ${family.template.latest}` : ''}`}
         />
       </div>
 
@@ -141,7 +148,7 @@ function Drift({ family, repo, daily }: { family: Family; repo: string; daily: D
 
       <div>
         <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          Exceptions in .platform/exceptions.yml
+          Exceptions
         </p>
         {active.length + expired.length === 0 ? (
           <p className="text-sm text-muted-foreground">None.</p>
@@ -167,7 +174,9 @@ export function FamilyPanel({
   return (
     <Panel
       title="Family"
-      description="Platform code against the Kitchen-Sink template, read daily from the default branch."
+      description={`Platform code against ${
+        report.family?.available ? templateName(report.family.data) : 'its template'
+      }, read daily from the default branch.`}
     >
       <Metric block={report.family}>
         {(f) => <Drift family={f} repo={report.repo} daily={daily} />}

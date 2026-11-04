@@ -5753,10 +5753,13 @@
   "family": {
     "available": true,
     "data": {
-      "family": "kitchen-sink",
-      "mode": "manifest",
+      "mode": "contract",
+      "source": {
+        "name": "Acme app template",
+        "url": "https://github.com/your-org/app-template"
+      },
       "reference": {
-        "repo": "your-org/Kitchen-Sink",
+        "repo": "your-org/app-template",
         "ref": "v1.3.0"
       },
       "isReference": false,
