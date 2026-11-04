@@ -1,8 +1,8 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { projectProblems } from './config.ts'
-import { fromKitchenSink, parseCopierAnswers } from './copier.ts'
+import { baselineProblems, projectProblems } from './config.ts'
+import { githubRepo, parseContract, readContract } from './contract.ts'
 import { validate } from './metrics/engineering-excellence.ts'
 import type { ProjectConfig } from './types.ts'
 
@@ -48,7 +48,7 @@ describe('projects.json', () => {
     expect(projectProblems(project({ family: 'own-design', familyReason: 'Native app.' }))).toEqual(
       [],
     )
-    expect(projectProblems(project({ family: 'kitchen-sink' }))).toEqual([])
+    expect(projectProblems(project({ family: 'member' }))).toEqual([])
     expect(projectProblems(project({}))).toEqual([])
   })
 
@@ -59,23 +59,60 @@ describe('projects.json', () => {
   })
 })
 
-describe('copier answers', () => {
-  it('reads the template, its version and the app name', () => {
-    const answers = parseCopierAnswers(
-      "# Changes here will be overwritten by Copier\n_commit: v1.4.0\n_src_path: https://github.com/your-org/Kitchen-Sink.git\napp_name: 'Orders'\n",
-    )
-    expect(answers).toEqual({
-      commit: 'v1.4.0',
-      srcPath: 'https://github.com/your-org/Kitchen-Sink.git',
-      appName: 'Orders',
+describe('family baseline', () => {
+  it('accepts a baseline template in the schema, and only one on GitHub', () => {
+    const schema = readJson('schema/projects.schema.json')
+    const file = (family: unknown) => ({ organization: 'o', family, projects: [project({})] })
+    expect(validate(file({ template: 'https://github.com/o/app-template' }), schema)).toEqual([])
+    expect(validate(file({ template: 'o/t', paths: ['src/**'] }), schema)).toEqual([])
+    expect(validate(file({ paths: [] }), schema)).toEqual([
+      expect.stringContaining("missing 'template'"),
+    ])
+    expect(baselineProblems({ template: 'https://github.com/o/app-template' })).toEqual([])
+    expect(baselineProblems(null)).toEqual([])
+    expect(baselineProblems({ template: 'https://gitlab.com/o/t/-/tree/main' })).toEqual([
+      'family.template "https://gitlab.com/o/t/-/tree/main" is not a GitHub repository',
+    ])
+  })
+})
+
+describe('platform contract', () => {
+  const acme = readFileSync(join(import.meta.dirname, 'fixtures', 'contract', 'acme.yml'), 'utf8')
+
+  it('reads the documented example, comments and the fields it does not use included', () => {
+    expect(parseContract(acme)).toEqual({
+      kind: 'contract',
+      contract: {
+        source: { name: 'Acme app template', url: 'https://github.com/acme/app-template' },
+        owned: ['.platform/contract.yml', 'src/platform/**'],
+        exceptions: '.platform/exceptions.yml',
+        version: { file: '.copier-answers.yml', key: '_commit' },
+      },
     })
-    expect(fromKitchenSink(answers)).toBe(true)
   })
 
-  it('does not suggest the family for another template', () => {
-    expect(fromKitchenSink(parseCopierAnswers('_src_path: gh:your-org/python-starter\n'))).toBe(
-      false,
+  it('prefers contract.yml, and has no contract without both legacy files', () => {
+    const files = (entries: Record<string, string>) => (path: string) => entries[path] ?? null
+    const legacy = { '.copier-answers.yml': '_src_path: gh:o/t\n', '.platform/manifest': 'src/\n' }
+    expect(readContract(files({ ...legacy, '.platform/contract.yml': acme }))?.kind).toBe(
+      'contract',
     )
-    expect(fromKitchenSink(parseCopierAnswers('_src_path: ../kitchen-sink\n'))).toBe(true)
+    expect(readContract(files(legacy))?.kind).toBe('legacy')
+    expect(readContract(files({ '.copier-answers.yml': '_src_path: gh:o/t\n' }))).toBeNull()
+    expect(readContract(files({}))).toBeNull()
+  })
+
+  it('reads the repository from every way a GitHub template is written', () => {
+    for (const url of [
+      'https://github.com/acme/app-template',
+      'https://github.com/acme/app-template.git',
+      'git@github.com:acme/app-template.git',
+      'gh:acme/app-template',
+      'acme/app-template',
+    ]) {
+      expect(githubRepo(url)).toBe('acme/app-template')
+    }
+    expect(githubRepo('https://gitlab.com/acme/app-template')).toBeNull()
+    expect(githubRepo('../app-template')).toBeNull()
   })
 })

@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { familyRows, lagLabel } from './family'
+import { familyRows, lagLabel, templateName } from './family'
 import type { DataIndex, Family, MonthlyReport } from './types'
 
 const drift = (identicalShare: number, over: Partial<Family> = {}): Family => ({
-  family: 'kitchen-sink',
   mode: 'baseline',
-  reference: { repo: 'your-org/Kitchen-Sink', ref: 'main' },
+  source: { name: 'app-template', url: 'https://github.com/your-org/app-template' },
+  reference: { repo: 'your-org/app-template', ref: 'main' },
   isReference: false,
   counts: {
     platform: 10,
@@ -42,28 +42,38 @@ describe('familyRows', () => {
     projects: [
       entry('outside'),
       entry('bot', { family: 'own-design', familyReason: 'Its own architecture.' }),
-      entry('orders', { family: 'kitchen-sink' }),
-      entry('kitchen-sink', { family: 'kitchen-sink' }),
-      entry('ledger', { family: 'kitchen-sink' }),
-      entry('fresh', { family: 'kitchen-sink' }),
+      entry('orders', { family: 'member' }),
+      entry('app-template', { family: 'member' }),
+      entry('ledger', { family: 'member' }),
+      entry('fresh', { family: 'member' }),
+      entry('broken', { family: 'member' }),
     ],
   }
   const months = {
     '2026-10': {
       orders: report({ available: true, data: drift(0.4) }),
       ledger: report({ available: true, data: drift(0.3) }),
+      broken: report({ available: true, data: drift(0.9) }),
     },
     '2026-11': {
       orders: report(undefined),
-      'kitchen-sink': report({ available: true, data: drift(1, { isReference: true }) }),
+      'app-template': report({ available: true, data: drift(1, { isReference: true }) }),
       ledger: report({ available: true, data: drift(0.6) }),
       fresh: report({ available: false, reason: 'The template could not be downloaded.' }),
+      broken: report({ available: false, reason: 'Invalid contract. x', invalid: true }),
     },
   }
 
   it('lists members first, the template on top, and own-design last with its reason', () => {
     const rows = familyRows(index, months)
-    expect(rows.map((r) => r.id)).toEqual(['kitchen-sink', 'ledger', 'orders', 'fresh', 'bot'])
+    expect(rows.map((r) => r.id)).toEqual([
+      'app-template',
+      'ledger',
+      'orders',
+      'broken',
+      'fresh',
+      'bot',
+    ])
     expect(rows.at(-1)).toMatchObject({ familyReason: 'Its own architecture.', reason: null })
   })
 
@@ -73,12 +83,25 @@ describe('familyRows', () => {
     expect(rows.find((r) => r.id === 'ledger')?.drift?.identicalShare).toBe(0.6)
     expect(rows.find((r) => r.id === 'fresh')?.reason).toBe('The template could not be downloaded.')
   })
+
+  it('shows an invalid contract instead of the last comparison that worked', () => {
+    const broken = familyRows(index, months).find((r) => r.id === 'broken')
+    expect(broken).toMatchObject({ drift: null, reason: 'Invalid contract. x', invalid: true })
+  })
+
+  it('names the template by the contract source, or by its repository in older files', () => {
+    expect(templateName(drift(1, { source: { name: 'Acme app template', url: 'acme/t' } }))).toBe(
+      'Acme app template',
+    )
+    expect(templateName(drift(1, { source: undefined }))).toBe('your-org/app-template')
+  })
 })
 
 describe('lagLabel', () => {
   it('names the lag, or why there is none', () => {
-    expect(lagLabel({ tag: null, latest: 'v1.4.0', lag: null })).toBe('Not adopted yet')
-    expect(lagLabel({ tag: 'v1.3.0', latest: 'v1.4.0', lag: 1 })).toBe('1 tag behind')
-    expect(lagLabel({ tag: 'v1.4.0', latest: 'v1.4.0', lag: 0 })).toBe('Current')
+    expect(lagLabel({ tag: null, latest: 'v1.4.0', lag: null }, 'baseline')).toBe('Not adopted yet')
+    expect(lagLabel({ tag: null, latest: 'v1.4.0', lag: null }, 'contract')).toBe('No version tag')
+    expect(lagLabel({ tag: 'v1.3.0', latest: 'v1.4.0', lag: 1 }, 'contract')).toBe('1 tag behind')
+    expect(lagLabel({ tag: 'v1.4.0', latest: 'v1.4.0', lag: 0 }, 'legacy')).toBe('Current')
   })
 })
