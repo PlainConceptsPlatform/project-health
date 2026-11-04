@@ -456,7 +456,7 @@ export function Portfolio({
         {showInfo ? (
           <div className="flex max-w-3xl flex-col gap-2 rounded-lg border bg-muted/40 px-4 py-4 text-sm leading-relaxed text-muted-foreground">
             <p>
-              Eleven engineering practices per project, read from the engineering excellence facets
+              Twelve engineering practices per project, read from the engineering excellence facets
               a repository publishes or detected in its workflows on the default branch. Projects
               marked “inferred” do not publish facets, so their values come from workflow detection.
             </p>

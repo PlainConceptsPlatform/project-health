@@ -50,6 +50,7 @@ export const LEVEL_BAR = ['bg-destructive', 'bg-warning', 'bg-primary/60', 'bg-p
 export const PHASES = [
   { key: 'build', label: 'Every build' },
   { key: 'test-env', label: 'After deploying to test env' },
+  { key: 'operate', label: 'In operation' },
 ] as const
 
 const FALLBACK_TYPE_LABELS: Record<string, string> = {

@@ -145,11 +145,29 @@ export interface PracticeDefinition {
   optIn?: boolean
   /** false drops the practice from every scorecard, for a platform that does not want it. */
   enabled?: boolean
+  /** Why the practice reads red when nothing was found, when the generic sentence would mislead. */
+  absentReason?: string
+  /** Days before a result reads as stale, for a practice whose cadence is not the global one. */
+  staleDays?: number
+}
+
+/**
+ * Where the restore drill runs. One workflow in a hub repository drills every project's database,
+ * so the evidence is that workflow's jobs, named `Drill <product>/<database>`, not a workflow of
+ * the project's own repository.
+ */
+export interface RestoreDrillSource {
+  repo: string
+  workflow: string
+  branch?: string
+  /** How many recent completed runs to look through for the project's job. Defaults to 10. */
+  maxRuns?: number
 }
 
 export interface ScorecardConfig {
   staleDays: number
   practices: PracticeDefinition[]
+  restoreDrill?: RestoreDrillSource
   types: Record<
     ProjectType,
     {
