@@ -1,5 +1,11 @@
 import { percent } from '@/shared/lib/code'
-import { type FamilyRow, MODE_DESCRIPTION, MODE_LABEL, lagLabel } from '@/shared/lib/family'
+import {
+  type FamilyRow,
+  MODE_DESCRIPTION,
+  MODE_LABEL,
+  lagLabel,
+  templateName,
+} from '@/shared/lib/family'
 import type { Family } from '@/shared/lib/types'
 import { withBase } from '@/shared/lib/utils'
 import { Badge, cn } from '@/shared/ui'
@@ -59,6 +65,7 @@ function Template({ family }: { family: Family }) {
   const t = family.template
   return (
     <span className="flex flex-col">
+      <span className="text-xs font-semibold">{templateName(family)}</span>
       <span className="font-mono text-xs">{t.tag ?? family.reference.ref}</span>
       <span
         className={cn(
@@ -66,7 +73,7 @@ function Template({ family }: { family: Family }) {
           t.lag ? 'text-warning-foreground dark:text-warning' : 'text-muted-foreground',
         )}
       >
-        {lagLabel(t)}
+        {lagLabel(t, family.mode)}
         {t.latest && t.lag !== 0 ? ` · newest ${t.latest}` : ''}
       </span>
     </span>
@@ -78,15 +85,17 @@ function Template({ family }: { family: Family }) {
  * that keep their own design on purpose are listed with their reason, never as a failure.
  */
 export function FamilyTable({ rows }: { rows: FamilyRow[] }) {
-  const members = rows.filter((r) => r.family === 'kitchen-sink')
+  const members = rows.filter((r) => r.family === 'member')
   const compared = members.filter((r) => r.drift && !r.drift.isReference)
+  const templates = [...new Set(members.flatMap((r) => (r.drift ? [templateName(r.drift)] : [])))]
   const identical = compared.reduce((n, r) => n + (r.drift?.counts.identical ?? 0), 0)
   const platform = compared.reduce((n, r) => n + (r.drift?.counts.platform ?? 0), 0)
   return (
     <div className="flex flex-col gap-4">
       <p className="text-sm text-muted-foreground">
-        Platform code of each Kitchen-Sink family app against the template, read daily from the
-        default branch.{' '}
+        Platform code of each family app against its template
+        {templates.length > 0 ? ` (${templates.join(', ')})` : ''}, read daily from the default
+        branch.{' '}
         {platform > 0 ? (
           <>
             Across the apps,{' '}
@@ -168,7 +177,10 @@ export function FamilyTable({ rows }: { rows: FamilyRow[] }) {
                   ) : (
                     <td
                       colSpan={COLUMNS.length - 1}
-                      className="px-4 py-3.5 text-xs text-muted-foreground"
+                      className={cn(
+                        'px-4 py-3.5 text-xs',
+                        row.invalid ? 'font-semibold text-destructive' : 'text-muted-foreground',
+                      )}
                     >
                       {row.reason}
                     </td>
@@ -180,12 +192,14 @@ export function FamilyTable({ rows }: { rows: FamilyRow[] }) {
         </table>
       </div>
       <p className="text-sm text-muted-foreground">
-        Manifest mode reads <code>.platform/manifest</code> and compares byte for byte with the
-        template tag in <code>.copier-answers.yml</code>. Baseline mode is for apps that have not
-        adopted the template yet: a provisional list of platform paths, with app names normalised,
-        compared with the template’s default branch. Modified files differ from the template;
-        missing ones are in the template but not in the app. An exception in{' '}
-        <code>.platform/exceptions.yml</code> lets a file differ until it expires.
+        Contract mode reads <code>.platform/contract.yml</code>: the paths it marks as owned by the
+        template, byte for byte with the template version the app records. Apps that still carry{' '}
+        <code>.platform/manifest</code> and <code>.copier-answers.yml</code> are read the same way
+        as an implicit contract. Baseline mode is for apps without either: a provisional list of
+        platform paths, with app names normalised, compared with the default branch of the template
+        configured in <code>projects.json</code>. Modified files differ from the template; missing
+        ones are in the template but not in the app. An exception in the contract’s exceptions file
+        lets a file differ until it expires.
       </p>
     </div>
   )

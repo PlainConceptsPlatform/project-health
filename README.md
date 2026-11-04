@@ -77,7 +77,7 @@ your-org/some-repo (private)
   work item label   implement
   rework label      hotfix (incident)
   agents            .github/workflows/work-router.yml
-  family            kitchen-sink (.copier-answers.yml from gh:your-org/Kitchen-Sink at v1.3.0)
+  family            member (.platform/contract.yml, template Acme app template)
   status            production
 
 Paste into projects.json:
@@ -413,24 +413,86 @@ Comparing the daily pace keeps a month in progress from reading as a drop.
 
 ## Family
 
-Apps generated from the Kitchen-Sink template share their platform code with it: session and auth, permissions, the audit chain, feature flags, errors, security headers and the web shell. The **Family** tab on the overview and on each member project shows how far each app has drifted from the template. A project joins in `projects.json`:
+Apps generated from a shared template carry its platform code: session and auth, permissions, the audit chain, feature flags, errors, security headers and the web shell. The **Family** tab on the overview and on each member project shows how far each app has drifted from its template. A project joins in `projects.json`:
 
 | Field | Meaning |
 | --- | --- |
-| `"family": "kitchen-sink"` | Compared with the template on every collection. `--discover` suggests it when the repository has a `.copier-answers.yml` whose `_src_path` points at Kitchen-Sink. |
+| `"family": "member"` | Compared with its template on every collection: the one its platform contract names, or the baseline template below. `--discover` suggests it when the repository has a platform contract. |
 | `"family": "own-design"` | Keeps its own architecture on purpose. Listed greyed on the Family tab with its reason, never measured and never red. |
 | `"familyReason"` | Why an own-design project keeps its own design. Required with `own-design`; the collector reports an entry without one. |
 
-The template is the `Kitchen-Sink` repository of the organisation, or the listed project whose repository has that name. The comparison reuses the zipball the code scan downloads, so a member costs no extra download, and the template's own archive is downloaded once per run and per tag. Like the code scan, only the current month is compared, and `daily.json` keeps the share of identical files for the trend.
+### The platform contract
 
-It runs in one of two modes:
+A repository that receives shared code from a template describes it in `.platform/contract.yml` at its root. The format is shared by convention with other tools, such as an agent harness that guards the owned paths or a workflow that applies template updates, but Project Health only reads the file. None of those tools is required, and the file can be written by hand or by whatever renders the template: Copier, cookiecutter, git subtree or a copy.
+
+```yaml
+version: 1                        # required; tools refuse (with a clear message) a major they don't know
+source:                           # required
+  name: Acme app template         # display name used in messages
+  url: https://github.com/acme/app-template   # where the shared code lives
+  changes: https://github.com/acme/app-template/issues/new   # optional; where to ask for a change (default: url)
+owned:                            # required; gitwildmatch globs, repo-relative; a leading "/" anchors to the root
+  - .platform/contract.yml
+  - src/platform/**
+reuse:                            # optional
+  docs: [docs/platform/]          # paths an agent reads before building something new
+  packages: ["@acme/ui"]          # packages whose exports must be reused instead of re-implemented
+  names: [DataTable]              # optional extra names to treat as reusable (when exports can't be derived)
+exceptions: .platform/exceptions.yml   # optional; default shown
+sync:                             # optional
+  marker: .copier-answers.yml     # a diff that changes this file is a template sync and may rewrite owned paths
+  version:                        # where the template version applied to this repo is recorded
+    file: .copier-answers.yml
+    key: _commit                  # top-level YAML key; value is a tag or commit of source.url
+  update: copier update --trust --defaults --conflict inline   # command that pulls the next template version
+```
+
+What the Family tab takes from it:
+
+| Field | Used as |
+| --- | --- |
+| `source.name` | The template's name on the Family tab. |
+| `source.url` | The template repository whose files are compared. It must be on GitHub: `https://github.com/owner/repo`, with or without `.git`, `git@github.com:owner/repo.git`, `gh:owner/repo` or `owner/repo`. |
+| `owned` | The paths compared, as gitwildmatch globs: a pattern without a slash matches at any depth, a directory takes its files, a leading `/` anchors to the root and `!` excludes. |
+| `sync.version` | The file and top-level key that record the template version the app applied: a tag, a commit, or `v1.2.0-3-gabc1234` for commits after a tag. The template is read at that version; without one, at its default branch. |
+| `exceptions` | The exceptions file, `.platform/exceptions.yml` by default. |
+
+`version` must be `1`. `source.changes`, `reuse`, `sync.marker` and `sync.update` belong to other tools and are ignored here. Template lag is the number of the template's version tags (`v1.2.0` or `1.2.0`) newer than the recorded one, ordered as PEP 440 orders them.
+
+A contract that cannot be read is never skipped quietly. The member's row turns red with one message naming the file and the field, for example `Invalid contract. .platform/contract.yml: source.url is required.`, and no older comparison is shown in its place.
+
+Before `contract.yml` existed, a repository with both `.copier-answers.yml` and `.platform/manifest` carried an implicit contract, and it is still read that way: the template is `_src_path`, named by its repository, the version is `_commit` and the owned paths are the manifest's lines. When both are present, `contract.yml` wins.
+
+### The baseline template
+
+A member without a contract is compared with the baseline template named at the top of `projects.json`:
+
+```json
+{
+  "organization": "your-org",
+  "family": {
+    "template": "https://github.com/your-org/app-template"
+  },
+  "projects": []
+}
+```
+
+| Field | Meaning |
+| --- | --- |
+| `family.template` | The template repository, as a GitHub URL or `owner/repo`. Without it, a member without a contract is listed with that reason and not compared. A member whose repository is the template itself is marked as the template. |
+| `family.paths` | Optional. The platform paths compared, as globs with `{a,b}` alternatives, matched after app names are replaced with `APP`. The default suits a .NET API and React web app: the API's security, authorization, errors, rate limiting, IAM, features, auditing, notifications and settings folders, the shared kernel, service defaults and app host, the web's shared `ui`, `auth`, `lib` and `theme`, the app shell, the providers and styles and the login, not-found, settings, users and audit pages, plus `scripts/` and the `app-*` workflows. Root configuration files are always included. |
+
+### Modes
 
 | Mode | When | Compares |
 | --- | --- | --- |
-| Manifest | the app has `.platform/manifest` and `.copier-answers.yml` | the paths the manifest's gitwildmatch globs select, byte for byte with the template at the `_commit` tag the app last rendered: identical, modified, missing |
-| Baseline | before the app adopts the template | a provisional list of platform paths (the API's security, authorization, errors, rate limiting, IAM, features, auditing, notifications and settings folders, the shared kernel, service defaults and app host, the web's shared `ui`, `auth`, `lib` and `theme`, the app shell, the providers and styles and the login, not-found, settings, users and audit pages, plus `scripts/`, the `app-*` workflows and the root configuration) with every family member's name normalised to `APP` in paths and contents: identical, at least 90% of lines alike, divergent, missing in the app, only in the app |
+| Contract | the app has `.platform/contract.yml` | the owned paths, byte for byte with the template at the recorded version: identical, modified, missing |
+| Implicit contract | the app has `.copier-answers.yml` and `.platform/manifest` but no `contract.yml` | the same, read from those two files |
+| Baseline | the app has neither | the baseline paths against the template's default branch, with every family member's and the template's name normalised to `APP` in paths and contents: identical, at least 90% of lines alike, divergent, missing in the app, only in the app |
 
-In manifest mode `.platform/exceptions.yml` lists platform paths an app may diverge from until a date: `exceptions: [{ path, reason, issue, expires }]`. Active exceptions mark the files they cover; an expired one is the only thing the tab shows in red. Template lag is the number of the template's `v*` tags newer than the app's `_commit`, ordered as PEP 440 orders them.
+The exceptions file lists platform paths an app may diverge from until a date: `exceptions: [{ path, reason, issue, expires }]`. Active exceptions mark the files they cover; an expired one is shown in red.
+
+The comparison reuses the zipball the code scan downloads, so a member costs no extra download, and each template archive is downloaded once per run and per version. Like the code scan, only the current month is compared, and `daily.json` keeps the share of identical files for the trend.
 
 ## Setting it up the first time
 

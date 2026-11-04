@@ -1,6 +1,8 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { githubRepo } from './contract.ts'
 import {
+  type Baseline,
   PROJECT_FAMILIES,
   type PracticePhase,
   type ProjectConfig,
@@ -46,6 +48,7 @@ export interface DoraConfig {
 
 interface ProjectsFile {
   organization: string
+  family?: Baseline
   projects: ProjectConfig[]
 }
 
@@ -86,6 +89,14 @@ export const loadProjects = (): ProjectConfig[] =>
   readProjectsFile().projects.filter((p) => p.enabled)
 
 export const loadOrganization = (): string => readProjectsFile().organization
+
+/** The template members without a contract are compared with; null when none is configured. */
+export const loadBaseline = (): Baseline | null => readProjectsFile().family ?? null
+
+export function baselineProblems(baseline: Baseline | null): string[] {
+  if (!baseline || githubRepo(baseline.template)) return []
+  return [`family.template "${baseline.template}" is not a GitHub repository`]
+}
 
 /**
  * The rules projects.schema.json states but the collector cannot rely on an editor to enforce: an

@@ -1,4 +1,4 @@
-import { fromKitchenSink, parseCopierAnswers } from './copier.ts'
+import { CONTRACT, LEGACY_ANSWERS, LEGACY_MANIFEST, readContract } from './contract.ts'
 import { type Deployment, get, paginate } from './github.ts'
 
 /**
@@ -73,12 +73,14 @@ export async function discover(repo: string): Promise<void> {
   const status =
     production && productionCount > 0 ? 'production' : staging ? 'pre-production' : 'planned'
 
-  // Copier leaves its answers behind; answers from Kitchen-Sink mean the app is in that family.
-  const copier = await get<{ content?: string }>(`/repos/${repo}/contents/.copier-answers.yml`)
-  const answers = copier?.content
-    ? parseCopierAnswers(Buffer.from(copier.content, 'base64').toString('utf8'))
-    : null
-  const family = answers && fromKitchenSink(answers) ? 'kitchen-sink' : null
+  // A platform contract, or the implicit one it replaced, means the app receives shared code.
+  const files = new Map<string, string>()
+  for (const path of [CONTRACT, LEGACY_ANSWERS, LEGACY_MANIFEST]) {
+    const file = await get<{ content?: string }>(`/repos/${repo}/contents/${path}`)
+    if (file?.content) files.set(path, Buffer.from(file.content, 'base64').toString('utf8'))
+  }
+  const contract = readContract((path) => files.get(path) ?? null)
+  const family = contract && contract.kind !== 'invalid' ? 'member' : null
 
   const router = workflows.find((w) => w.path.includes('work-router'))
   // Agents hand issues over with these labels; without them the roadmap has nothing to read.
@@ -125,11 +127,11 @@ export async function discover(repo: string): Promise<void> {
   )
   console.log(
     `  family            ${
-      family
-        ? `kitchen-sink (.copier-answers.yml from ${answers?.srcPath} at ${answers?.commit ?? 'no tag'})`
-        : answers
-          ? `none, .copier-answers.yml comes from ${answers.srcPath ?? 'an unknown template'}`
-          : 'none, no .copier-answers.yml; use own-design with a familyReason for a deliberate exception'
+      contract?.kind === 'invalid'
+        ? `none, invalid contract: ${contract.error}`
+        : contract
+          ? `member (${contract.kind === 'contract' ? CONTRACT : `${LEGACY_MANIFEST} and ${LEGACY_ANSWERS}`}, template ${contract.contract.source.name})`
+          : `none, no ${CONTRACT}; member compares it with family.template, own-design needs a familyReason`
     }`,
   )
   console.log(`  status            ${status}`)

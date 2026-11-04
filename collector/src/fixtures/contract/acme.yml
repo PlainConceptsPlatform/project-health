@@ -1,0 +1,19 @@
+version: 1                        # required; tools refuse (with a clear message) a major they don't know
+source:                           # required
+  name: Acme app template         # display name used in messages
+  url: https://github.com/acme/app-template   # where the shared code lives
+  changes: https://github.com/acme/app-template/issues/new   # optional; where to ask for a change (default: url)
+owned:                            # required; gitwildmatch globs, repo-relative; a leading "/" anchors to the root
+  - .platform/contract.yml
+  - src/platform/**
+reuse:                            # optional
+  docs: [docs/platform/]          # paths an agent reads before building something new
+  packages: ["@acme/ui"]          # packages whose exports must be reused instead of re-implemented
+  names: [DataTable]              # optional extra names to treat as reusable (when exports can't be derived)
+exceptions: .platform/exceptions.yml   # optional; default shown
+sync:                             # optional
+  marker: .copier-answers.yml     # a diff that changes this file is a template sync and may rewrite owned paths
+  version:                        # where the template version applied to this repo is recorded
+    file: .copier-answers.yml
+    key: _commit                  # top-level YAML key; value is a tag or commit of source.url
+  update: copier update --trust --defaults --conflict inline   # command that pulls the next template version

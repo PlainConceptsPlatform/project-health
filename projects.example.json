@@ -1,6 +1,9 @@
 {
   "$schema": "./schema/projects.schema.json",
   "organization": "your-org",
+  "family": {
+    "template": "https://github.com/your-org/app-template"
+  },
   "projects": [
     {
       "id": "checkout",
@@ -30,7 +33,7 @@
       "scorecard": {
         "performance": true
       },
-      "family": "kitchen-sink",
+      "family": "member",
       "notes": "Tag based releases and a dedicated hotfix label, so every metric including the stability axis is available."
     },
     {
@@ -55,7 +58,7 @@
       "engineeringExcellence": {
         "enabled": true
       },
-      "family": "kitchen-sink",
+      "family": "member",
       "notes": "Names its environment production rather than pro, deploys main rather than tags, and has no dedicated hotfix label. Every one of those is why these are configuration and not assumptions.",
       "roadmap": {
         "enabled": true
