@@ -13,8 +13,8 @@ that ships with this repository.
 **Adding a project takes one command and one paste.** Jump to
 [Adding a project](#adding-a-project).
 
-**Adopting this for another repository?** Read [`BLUEPRINT.md`](BLUEPRINT.md). It picks between
-copying the dashboard, taking only the engineering half, and taking the ideas.
+**Working in this repository?** Read [`AGENTS.md`](AGENTS.md). It points at the skills that add a
+project and that put the engineering standard into a repository that is not on GitHub.
 
 ## What it measures
 
