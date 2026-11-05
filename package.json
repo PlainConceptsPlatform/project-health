@@ -5,6 +5,7 @@
   "engines": { "node": ">=22" },
   "scripts": {
     "collect": "pnpm --filter @project-health/collector run start",
+    "facet-store": "pnpm --filter @project-health/collector run facet-store",
     "verify:config": "node scripts/check-projects.mjs",
     "test:config": "node --test scripts/check-projects.test.mjs",
     "web:dev": "pnpm --filter @project-health/web run dev",

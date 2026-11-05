@@ -89,9 +89,9 @@ published none.
 
 ## 6. The dashboard, if they asked for one
 
-Read [`references/publishing.md`](references/publishing.md). It covers the four ways to publish and
-the one that works today. Do not promise a live dashboard on a non-GitHub host: the collector speaks
-the GitHub API, and the store that would let any pipeline write the month files does not exist yet.
+Read [`references/publishing.md`](references/publishing.md). It covers the four ways to publish. A
+non-GitHub host can now write the month files with `pnpm facet-store add`, so option 3 is a commit
+rather than a piece of work; what it cannot do is collect deployments, agents or pull requests.
 
 **Done when** the person knows which publishing path they have, and what remains to build for the
 other one.

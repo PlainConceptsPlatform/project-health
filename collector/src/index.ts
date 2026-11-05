@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { AgentDayStore, collectWindow, compareMonths, monthFromDays, seed } from './agent-days.ts'
 import {
@@ -36,6 +36,7 @@ import { collectScorecard } from './metrics/scorecard.ts'
 import { exportToOtlp, otlpConfigured } from './otel.ts'
 import { collectPlannedProject, partitionPlanned } from './planned.ts'
 import { placeProject } from './profile.ts'
+import { readMonth, writeIndex as writeDataIndex, writeMonth } from './store.ts'
 import {
   type AgentRun,
   type AgentSummary,
@@ -194,13 +195,7 @@ async function preflight(
 }
 
 function previousReport(projectId: string, month: string): MonthlyReport | null {
-  const file = join(dataDir, projectId, `${month}.json`)
-  if (!existsSync(file)) return null
-  try {
-    return JSON.parse(readFileSync(file, 'utf8')) as MonthlyReport
-  } catch {
-    return null
-  }
+  return readMonth(dataDir, projectId, month)
 }
 
 /** Agent runs already measured for this project and month, so finished runs are not refetched. */
@@ -612,31 +607,7 @@ function recordDaily(projectId: string, period: Period, report: MonthlyReport, n
 }
 
 function writeIndex(projects: ProjectConfig[]): void {
-  const entries = projects.map((project) => {
-    const dir = join(dataDir, project.id)
-    let months: string[] = []
-    try {
-      months = readdirSync(dir)
-        .filter((f) => /^\d{4}-\d{2}\.json$/.test(f))
-        .map((f) => f.replace('.json', ''))
-        .sort()
-    } catch {
-      months = []
-    }
-    return {
-      id: project.id,
-      name: project.name,
-      repo: project.repo,
-      status: project.status,
-      months,
-      latest: months.at(-1) ?? null,
-    }
-  })
-
-  writeFileSync(
-    join(dataDir, 'index.json'),
-    `${JSON.stringify({ generatedAt: new Date().toISOString(), projects: entries }, null, 2)}\n`,
-  )
+  writeDataIndex(dataDir, projects)
 }
 
 /**
@@ -775,8 +746,7 @@ async function main(): Promise<void> {
           period,
           now,
         )
-        const file = join(dataDir, project.id, `${label(period)}.json`)
-        writeFileSync(file, `${JSON.stringify(report, null, 2)}\n`)
+        writeMonth(dataDir, project.id, label(period), report)
         recordDaily(project.id, period, report, now)
         if (agentDays) shadowAgentMonth(agentDays, report, period)
         const releases = report.delivery.deploymentFrequency.available
@@ -832,8 +802,7 @@ async function main(): Promise<void> {
           .then((r) => withAgentic(r, project, period))
           .then((r) => withSource(r, project, period, now, family))
           .then((r) => withActions(r, project, period, now))
-        const file = join(dataDir, project.id, `${label(period)}.json`)
-        writeFileSync(file, `${JSON.stringify(report, null, 2)}\n`)
+        writeMonth(dataDir, project.id, label(period), report)
         recordDaily(project.id, period, report, now)
         console.log(
           `  ${project.id} ${label(period)}: planned, scorecard ${report.scorecard?.available ? 'collected' : 'unavailable'}`,

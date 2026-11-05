@@ -37,15 +37,23 @@ absence is a supported state, and a zero is not a substitute.
 The facets stay in the repository and the gates do the work. This is often the right first release,
 and it is the only option that needs nothing outside the repository.
 
-## What does not exist yet
+## Writing the month files from any host
 
-On a non-GitHub host, nothing writes `data/<id>/<yyyy-mm>.json`. The collector speaks the GitHub API,
-and the store that would let any pipeline append a sample does not exist. Until it does, option 3
-means writing that file yourself, and the rules the collector applies are:
+`facet-store` does the step the collector does for GitHub: it merges one facet into the stored month,
+with the same rules.
 
-- one sample per commit, oldest first, deduplicated to the latest run attempt;
-- the newest sample keeps its full detail, older samples keep scope totals only;
-- samples already stored are merged, never refetched.
+```bash
+pnpm facet-store add --project checkout --facet coverage --file coverage.json
+# checkout 2026-10 coverage: 1 sample(s), newest 2026-10-11T23:03:56.547Z, created the month
+```
 
-Do not promise a live dashboard on a non-GitHub host. Say which of the four options the team has,
-and what remains to build for the rest.
+- The project must already be in `projects.json`. Add it first rather than inventing a config here.
+- `--month yyyy-mm` overrides the month taken from the facet's `generatedAt`; `--commit <sha>` sets
+  the commit when the CI checkouts a different revision than the one measured.
+- It creates the month when it does not exist, with every deployment, agent and pull request block
+  absent and a reason, so the page says why instead of showing a zero.
+- The merge rules are the collector's: one sample per commit, oldest first, deduplicated to the
+  latest run attempt, full detail on the newest and scope totals on the older ones.
+
+So option 3 is a commit of `data/`, not a piece of work. What remains is choosing the host for the
+static export.

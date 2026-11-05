@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "tsx src/index.ts",
+    "facet-store": "tsx src/facet-store.ts",
     "typecheck": "tsc --noEmit",
     "verify:otlp": "tsx src/verify-otlp.ts",
     "test": "vitest run",

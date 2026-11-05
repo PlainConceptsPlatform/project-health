@@ -923,8 +923,8 @@ export interface FacetSample<T> {
   commitSha: string | null
   runId: number | null
   runAttempt: number | null
-  /** Lets a later collection skip an artifact it has already read. */
-  artifactId: number
+  /** Lets a later collection skip an artifact it has already read. Null when nothing cached it. */
+  artifactId: number | null
   generatedAt: string
   data: T
 }

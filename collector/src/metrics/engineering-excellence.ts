@@ -279,7 +279,7 @@ export function summarize<F extends Facet>(facet: F, data: FacetDataMap[F]): Fac
 }
 
 const sampleKey = (s: FacetSample<unknown>) =>
-  s.commitSha ?? (s.runId !== null ? `run:${s.runId}` : `artifact:${s.artifactId}`)
+  s.commitSha ?? (s.runId !== null ? `run:${s.runId}` : `artifact:${s.artifactId ?? s.generatedAt}`)
 
 /** True when a should replace b for the same commit: a later attempt, then a later write. */
 const supersedes = (a: FacetSample<unknown>, b: FacetSample<unknown>) => {
@@ -315,10 +315,14 @@ export function mergeSamples<F extends Facet>(
   const newest = merged.at(-1)
   if (!newest) return null
 
-  const freshNewest = fresh.find((s) => s.artifactId === newest.artifactId)
-  const latest =
-    freshNewest?.data ??
-    (previous && previous.latestGeneratedAt === newest.generatedAt ? previous.latest : newest.data)
+  // The map holds the objects themselves, so identity says whether the winner came from this run.
+  // Reading it from `artifactId` tied the merge to GitHub, which has no meaning for a pipeline that
+  // hands the collector a file.
+  const latest = fresh.includes(newest)
+    ? newest.data
+    : previous && previous.latestGeneratedAt === newest.generatedAt
+      ? previous.latest
+      : newest.data
 
   return {
     samples: merged.map((s) => ({ ...s, data: summarize(facet, s.data) })),
@@ -374,7 +378,11 @@ async function collectFacet<F extends Facet>(
     return stored ? ok(stored) : skip(`The ${name} artifacts could not be listed. ${message}`)
   }
 
-  const known = new Set((stored?.samples ?? []).map((s) => s.artifactId))
+  const known = new Set(
+    (stored?.samples ?? [])
+      .map((sample) => sample.artifactId)
+      .filter((id): id is number => id !== null),
+  )
   const selected = selectArtifacts(listed, { name, branch, from, to, known })
 
   const reads = await mapLimit(selected, CONCURRENCY, async (artifact) => {

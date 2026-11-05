@@ -203,6 +203,22 @@ of per-commit samples carrying every module would make each file several megabyt
 that never reads them. Samples already stored are merged with new ones and never refetched, so, as
 with agent usage, the stored JSON is the durable record once artifacts expire after about 90 days.
 
+### Writing the month files from another host
+
+The collector can only read artifacts from GitHub Actions. A repository on Azure DevOps or GitLab
+produces the same facets and has nowhere to put them, so `facet-store` performs the step the
+collector would: it checks the file against the contract and merges it into the stored month.
+
+```bash
+pnpm facet-store add --project checkout --facet coverage --file coverage.json
+```
+
+The project must already be in `projects.json`. The merge rules are the collector's: one sample per
+commit, oldest first, deduplicated to the latest run attempt, the full detail on the newest sample and
+scope totals on the older ones. When the month does not exist it is created with every deployment,
+agent and pull request block absent with a reason, so the page says why it cannot answer instead of
+showing a zero.
+
 ### Opting in
 
 Add one line to the project's entry in `projects.json`:

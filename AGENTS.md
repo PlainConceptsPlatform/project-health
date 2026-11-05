@@ -37,6 +37,7 @@ pnpm install
 pnpm verify:config                                  # validate projects.json against the schema
 pnpm test:config                                    # test the validator itself
 pnpm collect                                        # GITHUB_TOKEN required
+pnpm facet-store add --project <id> --facet <name> --file <path>
 pnpm web:dev
 pnpm --filter @project-health/collector run test
 pnpm --filter @project-health/web run test
