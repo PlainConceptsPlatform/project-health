@@ -5,6 +5,8 @@
   "engines": { "node": ">=22" },
   "scripts": {
     "collect": "pnpm --filter @project-health/collector run start",
+    "verify:config": "node scripts/check-projects.mjs",
+    "test:config": "node --test scripts/check-projects.test.mjs",
     "web:dev": "pnpm --filter @project-health/web run dev",
     "web:build": "pnpm --filter @project-health/web run build",
     "lint": "biome check .",
