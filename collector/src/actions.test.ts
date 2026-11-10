@@ -101,7 +101,7 @@ const minutesLine = (sku: string, quantity: number, product = 'actions'): Billin
   unitType: 'Minutes',
   quantity,
   organizationName: 'PlainConceptsPlatform',
-  repositoryName: 'Atlas',
+  repositoryName: 'Acme',
 })
 
 describe('billableMinutes', () => {

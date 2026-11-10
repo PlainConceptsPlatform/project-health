@@ -46,7 +46,7 @@ describe('countLines', () => {
 })
 
 describe('slopFindings', () => {
-  it('finds the Atlas shapes', () => {
+  it('finds the Acme shapes', () => {
     expect(rules('// =====\nconst a = 1')).toEqual(['banner'])
     expect(rules('#region Helpers\n#endregion')).toEqual(['region', 'region'])
     expect(rules('// TODO fix later')).toEqual(['untracked-todo'])

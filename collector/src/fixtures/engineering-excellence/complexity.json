@@ -13,7 +13,7 @@
       "crap": 30
     },
     "scopes": {
-      "Atlas.Domain": {
+      "Acme.Domain": {
         "methods": 545,
         "ccP50": 1,
         "ccP90": 2,
@@ -76,10 +76,10 @@
     },
     "hotspots": [
       {
-        "scope": "Atlas.Application",
+        "scope": "Acme.Application",
         "module": "AiLicensing",
-        "file": "apps/api/src/Atlas.Application/AiLicensing/ForgeOpsDtos.cs",
-        "method": "ForgeOpsPanelParser.Parse",
+        "file": "apps/api/src/Acme.Application/AiLicensing/LicensingDtos.cs",
+        "method": "LicensingPanelParser.Parse",
         "line": 149,
         "cc": 57,
         "coverage": 0.3529,

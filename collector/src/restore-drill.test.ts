@@ -24,7 +24,7 @@ const config = JSON.parse(
 
 const drill = config.practices.find((p) => p.id === 'restoredrill') as PracticeDefinition
 const SOURCE: RestoreDrillSource = {
-  repo: 'hub/atlas',
+  repo: 'hub/acme',
   workflow: 'ops-backup-drill.yml',
   branch: 'main',
   maxRuns: 5,
@@ -47,7 +47,7 @@ const project = (over: Partial<ProjectConfig> = {}): ProjectConfig => ({
 
 const run = (id: number, at: string): HubRun => ({
   id,
-  url: `https://github.com/hub/atlas/actions/runs/${id}`,
+  url: `https://github.com/hub/acme/actions/runs/${id}`,
   conclusion: 'failure',
   at,
 })
@@ -79,13 +79,13 @@ describe('drillJobFor', () => {
   const jobs: HubJob[] = [
     { name: 'Plan the drill', conclusion: 'success' },
     { name: 'Posture bots/plinybot', conclusion: 'success' },
-    { name: 'Drill atlas/atlas', conclusion: 'failure' },
+    { name: 'Drill acme/acme', conclusion: 'failure' },
     { name: 'Drill bots/plinybot', conclusion: 'success' },
   ]
 
   it('finds the restore job of the product, case-insensitively', () => {
     expect(drillJobFor(jobs, 'BOTS')?.conclusion).toBe('success')
-    expect(drillJobFor(jobs, 'atlas')?.conclusion).toBe('failure')
+    expect(drillJobFor(jobs, 'acme')?.conclusion).toBe('failure')
   })
 
   it('never takes a posture-only job for a restore', () => {
@@ -133,7 +133,7 @@ describe('restoreDrillEvidence', () => {
 
   it('looks past a newer run that drilled only another product', async () => {
     const hub = hubOf([run(12, '2026-10-20T00:00:00Z'), run(10, '2026-10-01T00:00:00Z')], {
-      12: [{ name: 'Drill atlas/atlas', conclusion: 'success' }],
+      12: [{ name: 'Drill acme/acme', conclusion: 'success' }],
       10: [{ name: 'Drill bots/plinybot', conclusion: 'success' }],
     })
     const ev = await restoreDrillEvidence(project(), SOURCE, hub, BEFORE)
@@ -168,7 +168,7 @@ describe('restoreDrillEvidence', () => {
     }
     const ev = await restoreDrillEvidence(project(), SOURCE, broken, BEFORE)
     expect(ev?.result).toBe('unknown')
-    expect(ev?.shortfall).toContain('hub/atlas')
+    expect(ev?.shortfall).toContain('hub/acme')
     expect(ev?.shortfall).toContain('404')
 
     const jobsBroken: RestoreDrillHub = {
@@ -290,7 +290,7 @@ describe('collectScorecard with the restore drill', () => {
 
   it('is red for an opted-in project the hub never drilled', async () => {
     const hub = hubOf([run(10, '2026-10-20T04:00:00Z')], {
-      10: [{ name: 'Drill atlas/atlas', conclusion: 'success' }],
+      10: [{ name: 'Drill acme/acme', conclusion: 'success' }],
     })
     expect((await collect(project(), withHub, hub))?.rag).toBe('red')
   })

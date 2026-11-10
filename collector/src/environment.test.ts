@@ -41,7 +41,7 @@ function source(
 describe('tierOf', () => {
   it('reads PRO and PRE from whole tokens of a resource group or environment name', () => {
     expect(tierOf('numa-pro-rg-01')).toBe('PRO')
-    expect(tierOf('Atlas-pre-rg01')).toBe('PRE')
+    expect(tierOf('Acme-pre-rg01')).toBe('PRE')
     expect(tierOf('sd-worx-pro-rg-01')).toBe('PRO')
     expect(tierOf('production')).toBe('PRO')
     expect(tierOf('staging')).toBe('PRE')
@@ -117,11 +117,11 @@ describe('collectEnvironment', () => {
 
   it('reads an infrastructure environment from its application environment file', async () => {
     const block = await collectEnvironment(
-      source([deployment('pro-infra')], { envFiles: { pro: 'AZURE_RG=atlas-pro-rg-01' } }),
+      source([deployment('pro-infra')], { envFiles: { pro: 'AZURE_RG=acme-pro-rg-01' } }),
       UNTIL,
     )
     expect(block.available && block.data.environments[0]).toMatchObject({
-      resourceGroup: 'atlas-pro-rg-01',
+      resourceGroup: 'acme-pro-rg-01',
       source: 'resource-group',
     })
   })
@@ -140,7 +140,7 @@ describe('collectEnvironment', () => {
   it('ignores deployments after the period, so a backfilled month shows where it stood then', async () => {
     const block = await collectEnvironment(
       source([deployment('pro', '2026-11-03T09:00:00Z'), deployment('pre')], {
-        envFiles: { pro: 'AZURE_RG=atlas-pro-rg-01', pre: 'AZURE_RG=Atlas-pre-rg01' },
+        envFiles: { pro: 'AZURE_RG=acme-pro-rg-01', pre: 'AZURE_RG=Acme-pre-rg01' },
       }),
       UNTIL,
     )

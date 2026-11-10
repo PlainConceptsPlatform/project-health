@@ -9,7 +9,7 @@
   "generatedAt": "2026-10-11T23:03:56.547Z",
   "data": {
     "scopes": {
-      "Atlas.Domain": {
+      "Acme.Domain": {
         "lineRate": 0.991,
         "branchRate": 0.9667,
         "linesCovered": 1644,

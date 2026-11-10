@@ -24,7 +24,7 @@ await new Promise<void>((r) => server.listen(4318, r))
 process.env.OTEL_EXPORTER_OTLP_ENDPOINT = 'http://localhost:4318'
 
 const reports: MonthlyReport[] = []
-for (const p of ['numa', 'atlas', 'signal']) {
+for (const p of ['billing', 'checkout', 'ledger']) {
   for (const m of ['2026-07', '2026-08']) {
     try {
       reports.push(JSON.parse(readFileSync(join(repoRoot, 'data', p, `${m}.json`), 'utf8')))

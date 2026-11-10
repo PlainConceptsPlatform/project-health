@@ -339,8 +339,8 @@ describe('mergeSamples', () => {
     ])
     expect(merged?.samples.map((s) => s.artifactId)).toEqual([1, 2])
     expect(merged?.latestGeneratedAt).toBe('2026-10-05T00:00:00Z')
-    expect(merged?.samples[0]?.data.scopes['Atlas.Domain']?.modules).toBeUndefined()
-    expect(merged?.latest.scopes['Atlas.Domain']?.modules).toBeDefined()
+    expect(merged?.samples[0]?.data.scopes['Acme.Domain']?.modules).toBeUndefined()
+    expect(merged?.latest.scopes['Acme.Domain']?.modules).toBeDefined()
   })
 
   it('keeps the complexity gate on every sample while dropping hotspots', () => {
@@ -404,7 +404,7 @@ describe('mergeSamples', () => {
       coverageSample({ artifactId: 4, generatedAt: '2026-10-08T00:00:00Z' }),
     ])
     expect(merged?.latestGeneratedAt).toBe('2026-10-09T00:00:00Z')
-    expect(merged?.latest.scopes['Atlas.Domain']?.modules).toBeDefined()
+    expect(merged?.latest.scopes['Acme.Domain']?.modules).toBeDefined()
   })
 })
 

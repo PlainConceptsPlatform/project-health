@@ -90,8 +90,8 @@ describe('addFacet', () => {
     if (!series?.available) throw new Error('coverage should be available')
     expect(series.data.samples).toHaveLength(2)
     expect(series.data.latestGeneratedAt).toBe('2026-10-02T10:00:00.000Z')
-    expect(series.data.latest.scopes['Atlas.Domain']?.modules).toBeDefined()
-    expect(series.data.samples[0]?.data.scopes['Atlas.Domain']?.modules).toBeUndefined()
+    expect(series.data.latest.scopes['Acme.Domain']?.modules).toBeDefined()
+    expect(series.data.samples[0]?.data.scopes['Acme.Domain']?.modules).toBeUndefined()
   })
 
   it('a later run attempt of the same commit replaces the earlier sample', () => {
