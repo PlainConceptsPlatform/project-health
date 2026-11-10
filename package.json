@@ -15,5 +15,11 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4"
+  },
+  "pnpm": {
+    "overrides": {
+      "postcss": ">=8.5.32",
+      "source-map-js": ">=1.2.2"
+    }
   }
 }
