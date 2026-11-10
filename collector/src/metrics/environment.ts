@@ -16,7 +16,7 @@ const PRE = new Set(['pre', 'preprod', 'staging', 'stg', 'stage'])
 
 /**
  * PRO or PRE from a resource group or environment name, by whole token: `numa-pro-rg-01` is PRO,
- * `Atlas-pre-rg01` is PRE, `compass` is neither. Tokens split on anything that is not a letter, so
+ * `Acme-pre-rg01` is PRE, `compass` is neither. Tokens split on anything that is not a letter, so
  * `rg01` never reads as a tier.
  */
 export function tierOf(name: string | null | undefined): EnvironmentTier | null {

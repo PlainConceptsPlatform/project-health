@@ -52,7 +52,8 @@ The engineering standard is not defined here. [Foundations](https://github.com/P
 the scorecard and consumes the facets its CI publishes. When the two disagree about a practice, read
 Foundations. When they disagree about a facet's shape, read `schema/`.
 
-The reference implementation of the facet producer is Atlas (`scripts/engineering-excellence.mjs`),
+The facet producer (`scripts/engineering-excellence.mjs`) is published in
+[`agentic-workflows`](https://github.com/PlainConceptsPlatform/agentic-workflows) `loops/templates/quality-gates/scripts/`,
 which each repository vendors with a header pointing back. The CI that runs the gates is not part of
 that code: it is the family template, installed and updated by `@plainconceptsplatform/workflows`.
 

@@ -45,7 +45,7 @@ export function kpisOf(excellence: EngineeringExcellence | undefined | null): Ex
 }
 
 /**
- * Coverage and complexity name scopes after the assembly ("Atlas.Domain") while mutation testing
+ * Coverage and complexity name scopes after the assembly ("Acme.Domain") while mutation testing
  * names them after the project it mutates ("domain"). Joining on the last dotted segment, lower
  * cased, lines the three up without the producer having to agree on one spelling.
  */

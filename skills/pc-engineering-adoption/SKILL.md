@@ -62,7 +62,11 @@ Vendoring rule, in this order:
    platform-owned path in `.platform/manifest`, and it arrives with `copier update`. Do not copy it
    into the tree by hand.
 2. Otherwise vendor `scripts/engineering-excellence.mjs`, `scripts/lib/`, the schema copy and the
-   gates it needs, with a header pointing back to the source. Record the commit it came from.
+   gates it needs from the public repository `PlainConceptsPlatform/agentic-workflows`, folder
+   `loops/templates/quality-gates/scripts/` (read it with `gh api` or a shallow clone into a scratch
+   folder outside this repository, or install `@plainconceptsplatform/workflows` from npm). Keep a
+   header pointing back to that source and record the commit it came from. Never rewrite the
+   producer from the fixtures or from memory: a lookalike is the drift this step exists to prevent.
 
 Write down which rule you used, in the pull request or in the repository's decisions folder.
 

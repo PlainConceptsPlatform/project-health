@@ -413,7 +413,7 @@ Production code and tests are told apart by path. Vendored and installed code (`
 | Measure | How |
 | --- | --- |
 | Comments per code line | comment-only lines over code lines; the harness ceiling is 10% |
-| Slop shapes | banners, `#region`, TODO without an issue, docs that only repeat the member name (C# and JSDoc), filler returns, commented-out code, apologetic notes; ported from Atlas |
+| Slop shapes | banners, `#region`, TODO without an issue, docs that only repeat the member name (C# and JSDoc), filler returns, commented-out code, apologetic notes |
 | Stories and essays | comment blocks that cite an issue in the past tense, and blocks of five lines or more below the file header; counted, never judged |
 | Tests | test lines per code line, cases per 1,000 lines, Gherkin scenarios |
 | Suspicious tests | no assertion in the body, only checks a mock was called, snapshots, skipped and focused; approximate, since an assertion inside a helper is not seen |

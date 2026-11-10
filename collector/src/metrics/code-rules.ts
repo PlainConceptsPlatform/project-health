@@ -1,5 +1,5 @@
-// Comment-slop shapes ported from Atlas scripts/lib/comment-slop.mjs (Atlas #1969), plus
-// restating-jsdoc for TypeScript, which the Atlas rules do not cover. agent-harness ships the
+// Comment-slop shapes (banners, #region, untracked TODOs, restated member names, filler returns), plus
+// restating-jsdoc for TypeScript, which the original rules do not cover. agent-harness ships the
 // same rules as .opencode/scripts/code-rules.mjs, the gate bot pull requests must pass: keep the
 // two in step, or the dashboard and the gate disagree.
 

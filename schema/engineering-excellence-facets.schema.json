@@ -223,7 +223,7 @@
         },
         "gate": {
           "type": ["object", "null"],
-          "description": "Blocking complexity gate (Atlas #1941) as evaluated on this commit: backlog size (baseline entries still violating), violations outside the baseline, and justified exemptions. Absent or null when the repo runs no gate.",
+          "description": "Blocking complexity gate as evaluated on this commit: backlog size (baseline entries still violating), violations outside the baseline, and justified exemptions. Absent or null when the repo runs no gate.",
           "required": ["ccMax", "crapMax", "baselined", "violations", "justified"],
           "properties": {
             "ccMax": {
@@ -462,7 +462,7 @@
     },
     "hygiene": {
       "type": "object",
-      "description": "AI-slop proxies (Atlas #1942): duplication, swallowed exceptions, dead code and comment density, per scope (api, web) and module. Scope 'api' is apps/api/src, 'web' apps/web/src; tests, generated code and migrations are excluded.",
+      "description": "AI-slop proxies: duplication, swallowed exceptions, dead code and comment density, per scope (api, web) and module. Scope 'api' is apps/api/src, 'web' apps/web/src; tests, generated code and migrations are excluded.",
       "required": ["thresholds", "scopes", "global", "deadCode", "hotspots", "gate"],
       "additionalProperties": false,
       "properties": {
@@ -556,7 +556,7 @@
         },
         "commentSlop": {
           "type": "object",
-          "description": "Deterministic comment-slop findings (Atlas #1969): decorative banners, #region, untracked TODOs, doc comments that restate the member name, filler <returns>, commented-out code and apologetic notes. Optional: absent when the repository runs no comment-slop rules.",
+          "description": "Deterministic comment-slop findings: decorative banners, #region, untracked TODOs, doc comments that restate the member name, filler <returns>, commented-out code and apologetic notes. Optional: absent when the repository runs no comment-slop rules.",
           "required": ["findings", "byRule", "byScope", "gate"],
           "additionalProperties": false,
           "properties": {
@@ -648,7 +648,7 @@
         "swallowedExceptions": {
           "type": ["integer", "null"],
           "minimum": 0,
-          "description": "Unjustified empty catch blocks (Semgrep hygiene rules). Null when no Semgrep result was available. Blocking in Atlas, so normally 0 on main."
+          "description": "Unjustified empty catch blocks (Semgrep hygiene rules). Null when no Semgrep result was available. Blocking, so normally 0 on main."
         },
         "justifiedSwallows": {
           "$ref": "#/$defs/count",
@@ -712,7 +712,7 @@
         "swallowedExceptions": {
           "type": ["integer", "null"],
           "minimum": 0,
-          "description": "Unjustified empty catch blocks (Semgrep hygiene rules). Null when no Semgrep result was available. Blocking in Atlas, so normally 0 on main."
+          "description": "Unjustified empty catch blocks (Semgrep hygiene rules). Null when no Semgrep result was available. Blocking, so normally 0 on main."
         },
         "justifiedSwallows": {
           "$ref": "#/$defs/count",

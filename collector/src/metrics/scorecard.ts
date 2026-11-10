@@ -334,7 +334,7 @@ export function facetEvidence(
   }
   const passed = (d: { passed: boolean }): PracticeResultState => (d.passed ? 'passing' : 'failing')
   // The security facet's `jobs` are, by contract, the results of the BLOCKING scanner jobs
-  // (schema/engineering-excellence-facets.schema.json; Atlas, Janus and others write
+  // (schema/engineering-excellence-facets.schema.json; every producer writes
   // secretScan / depsAndIac / sast). A scanner the facet reports is a gate, whatever its workflow
   // line looks like: a step that runs `bash scripts/security/sast.sh` hides `--error` from YAML.
   const SECRETS = /trufflehog|secret|gitleaks/i
