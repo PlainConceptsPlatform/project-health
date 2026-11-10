@@ -13,6 +13,18 @@ Read [`references/producers.md`](references/producers.md) before you add anythin
 things produce engineering signals, they come from two different places, and mixing them is the
 failure this skill exists to prevent.
 
+## 0. Is this an internal repository?
+
+Run `git remote get-url origin`. The repository is **internal** only when the remote is on
+`github.com` under the `PlainConceptsPlatform` owner. Anything else (another owner, another host, no
+remote) is **external**.
+
+For an external repository, the internal template machinery does not exist: do not read, propose or
+mention Copier, `.copier-answers.yml`, `.platform/manifest`, the family template or its repository,
+and do not offer the Platform standard as an option beyond what is public. Vendor the producer by
+rule 2 of step 3 and wire the host by step 4. Never name a private repository to an external user,
+even to say it is unavailable.
+
 ## 1. Interview
 
 Read the repository first, then ask one decision per call with the host's question tool, following
@@ -58,7 +70,7 @@ host API, so the same script works everywhere; only the wiring differs.
 
 Vendoring rule, in this order:
 
-1. If the repository is a Copier consumer (`.copier-answers.yml` exists), the producer belongs to a
+1. Internal repositories only (step 0): if it is a Copier consumer (`.copier-answers.yml` exists), the producer belongs to a
    platform-owned path in `.platform/manifest`, and it arrives with `copier update`. Do not copy it
    into the tree by hand.
 2. Otherwise vendor `scripts/engineering-excellence.mjs`, `scripts/lib/`, the schema copy and the

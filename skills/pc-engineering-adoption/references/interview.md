@@ -17,8 +17,8 @@ button could carry, and never be told "several answers are possible" by a contro
 - **Every option says what it costs or needs**, in one line: the tool it requires, or the report it
   reads. An option whose input does not exist in the repository is left out of the list rather than
   offered, and you say once, in the question text, which ones you left out and why.
-- **Look before you ask.** Read the repository first (host, CI files, `.copier-answers.yml`, the
-  reports its build already writes) and phrase each question around what you found.
+- **Look before you ask.** Read the repository first (host, CI files, the reports its build already
+  writes, and `.copier-answers.yml` only when step 0 says the repository is internal) and phrase each question around what you found.
 - **"You decide"** is a valid answer. State the choice you took and why, then continue.
 
 ## The questions
