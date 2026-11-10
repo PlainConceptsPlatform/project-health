@@ -15,16 +15,27 @@ failure this skill exists to prevent.
 
 ## 1. Interview
 
-One `question` call, one message, three parts. Each has a recommendation, so the person answers in a
-single reply.
+Read the repository first, then ask one decision per call with the host's question tool, following
+[`references/interview.md`](references/interview.md). Every question has a recommendation first, and
+the person answers by selecting, not by typing.
 
 1. **Host**: GitHub, Azure DevOps, GitLab, or another. Which system holds the code and runs the CI.
 2. **Scope**: everything, or engineering only. Everything means delivery and agent metrics too.
 3. **Standard**: the Platform standard (Foundations `ai/ENGINEERING.md`), or a generic quality bar the
    team chooses.
+4. **Modules**: which of coverage, complexity, mutation, hygiene, security, SBOM, PR gates and the
+   scorecard to install. This is a **multi-select**, split into two questions of four, and it offers
+   only what the repository can produce.
+5. **Dashboard** and, if one will be built, its **look**: see step 6.
 
-**Done when** all three are answered, or the person said "you decide" and you stated the
-recommendation you took.
+A decision with several valid answers is never asked with a single-select control. If the tool has no
+multi-select, number the options and ask for the numbers.
+
+Finish by printing the plan (host, scope, standard, modules, dashboard, look, files to add) and asking
+for a go-ahead. Change nothing before it.
+
+**Done when** every question is answered or the person said "you decide" and you stated the
+recommendation you took, and the plan was confirmed.
 
 ## 2. Pick the shape
 
@@ -66,8 +77,10 @@ validates against the vendored copy of the facet schema.
 - **Azure DevOps**: [`references/azure-pipelines.md`](references/azure-pipelines.md).
 - **GitLab**: [`references/gitlab-ci.md`](references/gitlab-ci.md).
 
-Only the facets the repository can actually produce. Two or three is a good first release; six is
-rare, and a facet invented from a tool that does not run is worse than a missing one.
+Only the modules chosen in the interview, and of those only the facets the repository can actually
+produce. Two or three is a good first release; six is rare, and a facet invented from a tool that
+does not run is worse than a missing one. If a chosen module turns out to have no input, say so and
+drop it from the plan instead of faking it.
 
 **Done when** one run on the **default branch** published the chosen facets, and a pull-request run
 published none.
@@ -84,6 +97,8 @@ published none.
   it without the consumer is a silent data loss.
 - One deliberate failure is recorded: break a gate on a branch, confirm the facet still exists, and
   confirm the dashboard or the reader shows the drop rather than a zero.
+- Each module the person selected is accounted for: installed and verified, or dropped with the
+  reason. Nothing selected is silently missing from the result.
 
 **Done when** every line above is checked against a real run, not against the workflow file.
 
@@ -95,6 +110,14 @@ rather than a piece of work; what it cannot do is collect deployments, agents or
 
 **Done when** the person knows which publishing path they have, and what remains to build for the
 other one.
+
+If a site will be built, its experience is Project Health's and its identity is the person's. Read
+[`references/dashboard-ux.md`](references/dashboard-ux.md), ask the look question of the interview
+(Project Health's palette, a brand they provide, a site to take inspiration from, or colours by
+hand), and apply the identity as tokens only. Open the result in a browser, in both themes and at
+phone width, and run the checklist in that file before you call it finished.
+
+**Done when** the site renders, matches that checklist, and the person has seen it in a browser.
 
 ## What "done" does not mean
 
