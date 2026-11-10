@@ -138,6 +138,20 @@ delivery, agent, contributor and facet blocks read "Planned project: not deploye
 repository exists and is readable, its Engineering scorecard and AI usage are collected like any other
 project's, and it appears in the scorecard table. Until then it is skipped without failing the run.
 
+## Installing the adoption skill
+
+The `pc-engineering-adoption` skill puts the engineering standard into any repository, with or
+without this dashboard, on GitHub, Azure DevOps, GitLab or another host. It is public, so you can
+install it from the repository you want to adopt the standard in:
+
+```bash
+npx skills add https://github.com/plainconceptsplatform/project-health --skill pc-engineering-adoption
+```
+
+The shorthand `npx skills add PlainConceptsPlatform/project-health` installs every skill the
+repository publishes. Then ask your agent to adopt the engineering standard and it loads the skill.
+The skill's source is in [`skills/pc-engineering-adoption`](skills/pc-engineering-adoption/SKILL.md).
+
 ## Engineering excellence facets
 
 DORA says how fast and how safely work ships. It says nothing about the code that shipped. That part
