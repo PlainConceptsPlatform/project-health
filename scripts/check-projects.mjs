@@ -10,7 +10,10 @@ import { existsSync, readFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
-const root = process.env.PROJECT_HEALTH_CONFIG_DIR ?? join(import.meta.dirname, '..')
+/** The code repository: the schema always comes from here, so it matches the collector that runs. */
+const codeRoot = join(import.meta.dirname, '..')
+/** Where projects.json and config/ live, which a deployment can move with PROJECT_HEALTH_CONFIG_DIR. */
+const root = process.env.PROJECT_HEALTH_CONFIG_DIR ?? codeRoot
 
 /**
  * The keywords this validator implements. A schema that grows one it does not know would be checked
@@ -174,8 +177,28 @@ export function checkProjects(list, schema, practiceIds) {
 }
 
 /** The file a run should read: the instance's list when it exists, the shipped example otherwise. */
-export function projectListName(dir = root) {
-  return existsSync(join(dir, 'projects.json')) ? 'projects.json' : 'projects.example.json'
+export function projectListName(dir = root, exists = existsSync) {
+  return exists(join(dir, 'projects.json')) ? 'projects.json' : 'projects.example.json'
+}
+
+/**
+ * The three files a run reads. The list and config/scorecard.json come from the config folder, the
+ * same one the collector reads them from; the schema comes from the code. Resolving the list against
+ * the working directory instead made `PROJECT_HEALTH_CONFIG_DIR=<dir> pnpm verify:config` report a
+ * missing list, or check a different one than the collector would use.
+ */
+export function locate({ argv = [], cwd, configDir = root, code = codeRoot, exists = existsSync }) {
+  const argIndex = argv.indexOf('--file')
+  const list =
+    argIndex > -1
+      ? resolve(cwd, argv[argIndex + 1])
+      : join(configDir, projectListName(configDir, exists))
+  const ownScorecard = join(configDir, 'config', 'scorecard.json')
+  return {
+    list,
+    schema: join(code, 'schema', 'projects.schema.json'),
+    scorecard: exists(ownScorecard) ? ownScorecard : join(code, 'config', 'scorecard.json'),
+  }
 }
 
 function report(file, problems) {
@@ -187,9 +210,10 @@ function report(file, problems) {
 }
 
 function main() {
-  const argIndex = process.argv.indexOf('--file')
-  const name = argIndex > -1 ? process.argv[argIndex + 1] : projectListName()
-  const file = resolve(process.cwd(), name)
+  // pnpm runs the script from the package directory; INIT_CWD is where the command was typed.
+  const cwd = process.env.INIT_CWD ?? process.cwd()
+  const paths = locate({ argv: process.argv, cwd })
+  const file = paths.list
 
   if (!existsSync(file)) {
     console.error(`No project list at ${file}.`)
@@ -197,8 +221,8 @@ function main() {
     return
   }
 
-  const schema = readJson(join(root, 'schema', 'projects.schema.json'))
-  const scorecard = readJson(join(root, 'config', 'scorecard.json'))
+  const schema = readJson(paths.schema)
+  const scorecard = readJson(paths.scorecard)
   const practiceIds = new Set(scorecard.practices.map((practice) => practice.id))
 
   const list = readJson(file)
@@ -210,7 +234,7 @@ function main() {
 
   const disabled = list.projects.filter((project) => !project.enabled).length
   const suffix = disabled > 0 ? `, ${disabled} disabled` : ''
-  console.log(`${name}: ${list.projects.length} project(s)${suffix}, no problems`)
+  console.log(`${file}: ${list.projects.length} project(s)${suffix}, no problems`)
 
   if (list.organization === 'your-org') {
     console.log(

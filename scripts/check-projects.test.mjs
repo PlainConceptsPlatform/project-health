@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 import { test } from 'node:test'
-import { checkProjects } from './check-projects.mjs'
+import { checkProjects, locate } from './check-projects.mjs'
 
 const root = join(import.meta.dirname, '..')
 const read = (name) => JSON.parse(readFileSync(join(root, name), 'utf8'))
@@ -78,4 +78,28 @@ test('a family member needs no reason', () => {
 test('a schema keyword the validator does not implement fails the run', () => {
   const problems = checkProjects(listOf(project()), { ...schema, minProperties: 1 }, practiceIds)
   assert.ok(problems.some((problem) => problem.includes('does not implement')))
+})
+
+// A list kept outside the code (PROJECT_HEALTH_CONFIG_DIR) has to be the one checked, against the
+// code's schema, or the checker passes a file the collector never reads.
+test('the list comes from the config folder, the schema from the code', () => {
+  const configDir = join('/instance', 'project-health')
+  const code = join('/code')
+  const exists = (path) => path === join(configDir, 'projects.json')
+  const paths = locate({ cwd: '/elsewhere', configDir, code, exists })
+  assert.equal(paths.list, join(configDir, 'projects.json'))
+  assert.equal(paths.schema, join(code, 'schema', 'projects.schema.json'))
+  assert.equal(paths.scorecard, join(code, 'config', 'scorecard.json'))
+})
+
+test('an instance scorecard overrides the shipped one, as it does for the collector', () => {
+  const configDir = join('/instance')
+  const own = join(configDir, 'config', 'scorecard.json')
+  const paths = locate({ cwd: '/', configDir, code: '/code', exists: (path) => path === own })
+  assert.equal(paths.scorecard, own)
+})
+
+test('--file is read from where the command was typed', () => {
+  const paths = locate({ argv: ['node', 'x', '--file', 'lists/p.json'], cwd: join('/work') })
+  assert.equal(paths.list, resolve('/work', 'lists', 'p.json'))
 })

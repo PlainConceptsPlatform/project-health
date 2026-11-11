@@ -2,7 +2,9 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { type ActionsEntry, entryOf } from './actions'
 import { type ExcellenceKpis, carryFacets, kpisOf } from './excellence'
+import { resolveDataDir } from './paths'
 import { type DailyScore, groupOf } from './scorecard'
+import { type SiteSource, siteSource, withFacetOnlyReasons } from './source'
 import type {
   ComplexityData,
   CoverageData,
@@ -27,10 +29,11 @@ import type {
 /**
  * Both default to a sibling of the web package, which is the layout when the code and the data share
  * a repository. They are overridable so this app can be built from a published template against a
- * project list and collected data checked out from somewhere private.
+ * project list and collected data checked out from somewhere private. `PROJECT_HEALTH_DATA_DIR` is the
+ * folder that contains `data/`, as it is for the collector: see `resolveDataDir`.
  */
 const configRoot = process.env.PROJECT_HEALTH_CONFIG_DIR ?? join(process.cwd(), '..')
-const dataDir = process.env.PROJECT_HEALTH_DATA_DIR ?? join(configRoot, 'data')
+const dataDir = resolveDataDir(process.env, configRoot)
 const repoRoot = configRoot
 
 interface ProjectsFile {
@@ -123,7 +126,7 @@ export function readDailyScores(projectId: string): DailyScore[] {
 export function readReport(projectId: string, month: string): MonthlyReport | null {
   try {
     const raw = readFileSync(join(dataDir, projectId, `${month}.json`), 'utf8')
-    return JSON.parse(raw) as MonthlyReport
+    return withFacetOnlyReasons(JSON.parse(raw) as MonthlyReport)
   } catch {
     return null
   }
@@ -280,6 +283,14 @@ export function readCollectedAt(): string | null {
     .filter((s): s is string => Boolean(s))
     .sort()
   return stamps.at(-1) ?? null
+}
+
+/** Where the newest month of each project came from, so the header and footer do not claim GitHub. */
+export function readSiteSource(): SiteSource {
+  const reports = readIndex()
+    .projects.flatMap((p) => (p.latest ? [readReport(p.id, p.latest)] : []))
+    .filter((r): r is MonthlyReport => r !== null)
+  return siteSource(reports)
 }
 
 /** True while any example data is still present, so the site can say the numbers are made up. */

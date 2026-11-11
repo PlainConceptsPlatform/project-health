@@ -64,6 +64,14 @@ describe('addFacet', () => {
     expect(report?.engineeringExcellence?.coverage.available).toBe(true)
   })
 
+  // Without the marker the site cannot tell this month from a GitHub one, and promises that the
+  // scorecard and the Actions usage "will appear after the next collection" on a host with none.
+  it('marks a month it creates as written from facets alone', () => {
+    const dir = dataDir()
+    addFacet({ project, facet: 'coverage', file: write(dir, facet()), dataDir: dir })
+    expect(readMonth(dir, 'checkout', '2026-10')?.source).toBe('facets')
+  })
+
   it('keeps one sample per commit and the full detail only on the newest', () => {
     const dir = dataDir()
     addFacet({

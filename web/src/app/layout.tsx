@@ -1,6 +1,7 @@
-import { hasSyntheticData, readCollectedAt } from '@/shared/lib/data'
+import { hasSyntheticData, readCollectedAt, readSiteSource } from '@/shared/lib/data'
 import { PLATFORM_FOUNDATIONS, PLATFORM_SIBLINGS } from '@/shared/lib/platform'
 import { repoSlug, repoUrl } from '@/shared/lib/repo'
+import type { SiteSource } from '@/shared/lib/source'
 import { withBase } from '@/shared/lib/utils'
 import { TooltipProvider } from '@/shared/ui'
 import { THEME_INIT_SCRIPT, ThemeToggle } from '@/shared/ui/theme-toggle'
@@ -21,8 +22,26 @@ export const metadata: Metadata = {
   description: 'Delivery and agent metrics for Platform projects, collected from GitHub.',
 }
 
+/** The header's one-line claim, true for whatever wrote the stored months. */
+const TAGLINE: Record<SiteSource, string> = {
+  github: 'Delivery and agent metrics from GitHub',
+  facets: "Engineering metrics from each repository's CI",
+  mixed: 'Delivery, agent and engineering metrics',
+}
+
+/** The footer's account of where the numbers come from. */
+const PROVENANCE: Record<SiteSource, string> = {
+  github:
+    'Every number on this site comes from the GitHub API. Metrics that GitHub cannot answer are shown as unavailable rather than estimated. Collection runs daily at 03:15 UTC, so a timestamp much older than that means the last run did not finish.',
+  facets:
+    "Every number on this site comes from the engineering facets each repository's own CI publishes. Metrics no collector reads on that host are shown as unavailable rather than estimated.",
+  mixed:
+    'Numbers come from the GitHub API, or, for repositories on other hosts, from the engineering facets their own CI publishes. Metrics that cannot be answered are shown as unavailable rather than estimated.',
+}
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   const collectedAt = readCollectedAt()
+  const source = readSiteSource()
   const synthetic = hasSyntheticData()
   const repo = repoUrl()
   const slug = repoSlug()
@@ -52,7 +71,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               </a>
             </nav>
             <span className="hidden text-sm text-muted-foreground sm:inline">
-              Delivery and agent metrics from GitHub
+              {TAGLINE[source]}
             </span>
 
             <div className="ml-auto flex items-center gap-2">
@@ -100,9 +119,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 
         <footer className="mx-auto max-w-6xl px-6 pb-10 pt-4">
           <p className="text-xs text-muted-foreground">
-            Every number on this site comes from the GitHub API. Metrics that GitHub cannot answer
-            are shown as unavailable rather than estimated. Collection runs daily at 03:15 UTC, so a
-            timestamp much older than that means the last run did not finish.{' '}
+            {PROVENANCE[source]}{' '}
             <a href={repo} className="underline hover:text-foreground">
               Source and documentation
             </a>

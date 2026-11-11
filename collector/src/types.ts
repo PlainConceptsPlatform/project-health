@@ -408,6 +408,12 @@ export interface AgenticAdoption {
 
 export interface MonthlyReport {
   schemaVersion: 1
+  /**
+   * `facets` when facet-store created the month for a host the collector cannot read, so the site
+   * can say a missing metric has no collector there rather than that it will appear tomorrow.
+   * Absent for months the GitHub collector wrote.
+   */
+  source?: 'facets'
   project: string
   name: string
   repo: string

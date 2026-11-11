@@ -675,7 +675,12 @@ durable record.
 ### Splitting the data out
 
 `PROJECT_HEALTH_CONFIG_DIR` and `PROJECT_HEALTH_DATA_DIR` decide where `projects.json`, `config/` and
-`data/` are read from and written to. Both default to this repository.
+`data/` are read from and written to. Both default to this repository. `PROJECT_HEALTH_CONFIG_DIR` is
+the folder holding `projects.json` and `config/`; `PROJECT_HEALTH_DATA_DIR` is the folder that
+**contains** `data/`, for the collector, `facet-store` and the web alike, so one folder holding all
+three can be passed to both. The web still accepts a `PROJECT_HEALTH_DATA_DIR` that points at `data/`
+itself, as it used to. `pnpm verify:config` checks the list in `PROJECT_HEALTH_CONFIG_DIR` against
+this repository's schema.
 
 Setting them lets an organisation keep this code public while its project list and collected metrics
 live in a private repository. Delivery metrics name real people and describe private projects; the code

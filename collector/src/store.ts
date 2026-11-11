@@ -113,6 +113,7 @@ export function emptyMonth(project: ProjectConfig, period: MonthPeriod, now: Dat
     'This month was written from engineering facets alone, so this host publishes no deployment, agent or pull request data.'
   return {
     schemaVersion: 1,
+    source: 'facets',
     project: project.id,
     name: project.name,
     repo: project.repo,

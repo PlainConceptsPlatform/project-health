@@ -145,6 +145,8 @@ export interface FinalEnvironment {
 
 export interface MonthlyReport {
   schemaVersion: 1
+  /** `facets` when facet-store wrote the month on a host the collector cannot read; see source.ts. */
+  source?: 'facets'
   /** True for the example data shipped with the template, so the site can say the numbers are made up. */
   synthetic?: boolean
   project: string
