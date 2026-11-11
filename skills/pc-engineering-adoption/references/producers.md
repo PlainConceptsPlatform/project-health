@@ -47,3 +47,35 @@ So:
 
 A repository that wants a behaviour the producer does not have should add it upstream, where every
 consumer gets it, rather than in its own copy.
+
+## Running the producer outside GitHub Actions
+
+The envelope is filled from GitHub's variables, whatever host runs the script:
+
+| Envelope field | Variable the producer reads | Azure Pipelines | GitLab CI |
+| --- | --- | --- | --- |
+| `repo` | `GITHUB_REPOSITORY` | the `repo` of the `projects.json` entry, for example `contoso/checkout` | the same |
+| `ref` | `GITHUB_REF` | `$(Build.SourceBranch)` | `refs/heads/$CI_COMMIT_BRANCH` |
+| `commitSha` | `GITHUB_SHA` | `$(Build.SourceVersion)` | `$CI_COMMIT_SHA` |
+| `runId` | `GITHUB_RUN_ID` | `$(Build.BuildId)` | `$CI_PIPELINE_ID` |
+| `runAttempt` | `GITHUB_RUN_ATTEMPT` | `$(System.JobAttempt)` | `1` |
+
+Set all five on the step that runs the producer. Without them `repo` is `null`, and `facet-store`
+rejects the file because it names no repository: a run that looks green and stores nothing. `repo`
+must be the exact `owner/name` string in `projects.json`, which on these hosts is a name you choose
+(`<organization>/<repository>`), not something the host gives you.
+
+What each facet reads, as the published producer takes it (check the vendored copy, it is the truth):
+
+| Facet | Flags | Also reads |
+| --- | --- | --- |
+| `coverage` | `--api <cobertura.xml> --web <cobertura.xml>`, both required | `quality.config.json` floors |
+| `complexity` | `--api <cobertura.xml> --eslint <eslint.json> --web-final <coverage-final.json>`, optional `--baseline` | |
+| `mutation` | `--reports <dir>` holding `mutation-<scope>/mutation-report.json` | `quality.config.json` floors |
+| `security` | optional `--trivy`, `--semgrep`, repeated `--job <name>=<result>` | |
+| `sbom` | `--cyclonedx <bom.json>` | |
+| `hygiene` | `--jscpd <report.json>`, optional `--semgrep`, `--baseline` | `.jscpd.json` at the root |
+
+The producer is shaped for the family's two scopes, an API and a web front. A repository with one
+stack cannot feed `coverage` or `complexity` honestly by passing the same file twice; record those
+facets as not producible and raise single-scope support upstream, where every consumer gets it.

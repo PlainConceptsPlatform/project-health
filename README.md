@@ -151,7 +151,14 @@ npx skills add https://github.com/plainconceptsplatform/project-health --skill p
 
 The shorthand `npx skills add PlainConceptsPlatform/project-health` installs every skill the
 repository publishes. Then ask your agent to adopt the engineering standard and it loads the skill.
-The skill's source is in [`skills/pc-engineering-adoption`](skills/pc-engineering-adoption/SKILL.md).
+
+Whatever you ask it, the skill starts with a short form, one question at a time: the CI platform,
+whether you want a web and where it lives, how often to collect, which pillars, how much of the
+engineering standard, and the project's context. It writes the answers to
+`project-health/ADOPTION.md` and then builds step by step: the producer, the first facet, a
+`project-health/` folder of month files, the web running locally, and the CI, collection and
+deployment pipelines for your host. On GitHub it points you to this repository instead of building
+a dashboard. The skill's source is in [`skills/pc-engineering-adoption`](skills/pc-engineering-adoption/SKILL.md).
 
 ## Engineering excellence facets
 
