@@ -370,4 +370,37 @@ export function testStats(path: string, text: string): TestStats {
   return stats
 }
 
-export const scenarioCount = (text: string) => count(text, /^\s*Scenario(?: Outline)?:/gm)
+/**
+ * Gherkin scenarios as they run. A plain `Scenario:` (or `Example:`) is one test. A
+ * `Scenario Outline:` (or `Scenario Template:`) runs once per data row of its `Examples:` tables, so
+ * each row counts and the outline itself does not. An outline with no rows runs nothing and counts
+ * zero.
+ */
+export function scenarioCount(text: string): number {
+  let total = 0
+  let outline = false
+  let rows = false
+  let header = false
+  for (const raw of text.split('\n')) {
+    const line = raw.trim()
+    if (line === '' || line.startsWith('#')) continue
+    if (/^Scenario (?:Outline|Template):/.test(line)) {
+      outline = true
+      rows = false
+    } else if (/^(?:Scenario|Example):/.test(line)) {
+      total += 1
+      outline = false
+      rows = false
+    } else if (/^(?:Examples|Scenarios):/.test(line)) {
+      rows = outline
+      header = true
+    } else if (/^(?:Feature|Background|Rule):/.test(line)) {
+      outline = false
+      rows = false
+    } else if (rows && line.startsWith('|')) {
+      if (header) header = false
+      else total += 1
+    }
+  }
+  return total
+}
