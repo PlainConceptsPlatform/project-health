@@ -6,9 +6,14 @@ import { TooltipProvider } from '@/shared/ui'
 import { THEME_INIT_SCRIPT, ThemeToggle } from '@/shared/ui/theme-toggle'
 import { Github } from 'lucide-react'
 import type { Metadata } from 'next'
+import Script from 'next/script'
 import { Outfit } from 'next/font/google'
 import type { ReactNode } from 'react'
 import './globals.css'
+
+// Google Tag Manager, only where the build names a container: the public demo sets GTM_ID, a
+// private copy of this template does not, so its dashboards load no third-party script.
+const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID
 
 const outfit = Outfit({
   subsets: ['latin'],
@@ -123,6 +128,16 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             ))}
           </p>
         </footer>
+        {GTM_ID ? (
+          <>
+            <Script src={`https://www.googletagmanager.com/gtm.js?id=${GTM_ID}`} strategy="afterInteractive" />
+            <Script id="gtm-init" strategy="afterInteractive">
+              {`window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());`}
+            </Script>
+          </>
+        ) : null}
       </body>
     </html>
   )

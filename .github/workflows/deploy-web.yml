@@ -48,6 +48,8 @@ jobs:
           # Empty when the site is served from a custom domain at the root. Set it to
           # /project-health only if you drop the custom domain and use the github.io subpath.
           NEXT_PUBLIC_BASE_PATH: ${{ vars.PAGES_BASE_PATH }}
+          # Set only on the public demo; a private copy leaves it unset and loads no tag manager.
+          NEXT_PUBLIC_GTM_ID: ${{ vars.GTM_ID }}
         run: pnpm --filter @project-health/web run build
 
       # Actions based deploys do not run Jekyll, so this is only insurance against the _next
