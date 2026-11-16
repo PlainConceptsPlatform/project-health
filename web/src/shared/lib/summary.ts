@@ -22,6 +22,11 @@ export interface ProjectSummary {
   releases: number | null
   perWeek: number | null
   partialMonth: boolean
+  /**
+   * Days of the trailing window the delivery numbers cover while the month is in progress; null for
+   * a finished month, which is measured from its 1st to its last day.
+   */
+  windowDays: number | null
 
   leadTimeP50Hours: number | null
   issueToStagingP50Hours: number | null
@@ -71,6 +76,7 @@ export function summarise(
     releases: null,
     perWeek: null,
     partialMonth: false,
+    windowDays: null,
     leadTimeP50Hours: null,
     issueToStagingP50Hours: null,
     reworkRate: null,
@@ -101,6 +107,7 @@ export function summarise(
     ...base,
     month: `${report.period.year}-${String(report.period.month).padStart(2, '0')}`,
     hasData: true,
+    windowDays: report.window?.rolling ? report.window.days : null,
     agentRuns: agents?.runs ?? null,
     agentTokens: agents?.tokens ?? null,
     agentSeconds: agents?.seconds ?? null,

@@ -55,6 +55,7 @@ import {
   ok,
   skip,
 } from './types.ts'
+import { type Window, carryFacets, measurementWindow, storedWindow } from './window.ts'
 
 const dataDir = join(repoRoot, 'data')
 /** Collection state that is committed but not published: the site builds from data/ only. */
@@ -282,6 +283,34 @@ function previousExcellence(projectId: string, month: string): EngineeringExcell
   return previousReport(projectId, month)?.engineeringExcellence ?? null
 }
 
+/** The calendar month before this one. */
+function previousPeriod(period: Period): Period {
+  const date = new Date(Date.UTC(period.year, period.month - 2, 1))
+  return periodFor(date.getUTCFullYear(), date.getUTCMonth() + 1)
+}
+
+/**
+ * The facets the scorecard reads. For the month in progress, a facet with no sample yet this month
+ * is taken from the previous month while its newest sample is inside the window; see carryFacets.
+ */
+function scorecardExcellence(
+  projectId: string,
+  period: Period,
+  window: Window,
+  excellence: EngineeringExcellence | undefined,
+): EngineeringExcellence | undefined {
+  if (!window.rolling) return excellence
+  return carryFacets(
+    excellence,
+    previousExcellence(projectId, label(previousPeriod(period))),
+    window.from,
+  )
+}
+
+/** The period with its window attached only when it is rolling, which is all the scorecard needs. */
+const withWindow = (period: Period, window: Window) =>
+  window.rolling ? { ...period, window } : period
+
 /**
  * Scores of the months before this one inside the declining-alert window, oldest first. Reports
  * are written oldest first during a backfill, so the earlier months are already on disk.
@@ -299,8 +328,15 @@ function previousScores(projectId: string, period: Period, months: number): (num
   return scores
 }
 
-async function collectProject(project: ProjectConfig, period: Period): Promise<MonthlyReport> {
+async function collectProject(
+  project: ProjectConfig,
+  period: Period,
+  now: Date,
+): Promise<MonthlyReport> {
   const warnings: Warning[] = []
+  // Delivery, contributors and the scorecard's AI usage are measured over this: the calendar month
+  // once it has finished, the last 30 days while it is in progress.
+  const window = measurementWindow(period, now)
   const dora = loadDora()
   const production = project.environments.production
 
@@ -320,10 +356,17 @@ async function collectProject(project: ProjectConfig, period: Period): Promise<M
     })
   }
 
-  const windowReleases = withinWindow(history.releases, period.from, period.to)
+  const windowReleases = withinWindow(history.releases, window.from, window.to)
 
   const frequency = production
-    ? computeDeploymentFrequency(project, history, windowReleases, period.from, period.to)
+    ? computeDeploymentFrequency(
+        project,
+        history,
+        windowReleases,
+        window.from,
+        window.to,
+        now.getTime(),
+      )
     : {
         block: skip<never>(
           `${project.name} has no production environment configured, so deployment frequency is not measured.`,
@@ -335,7 +378,7 @@ async function collectProject(project: ProjectConfig, period: Period): Promise<M
   const leadTime = await attempt(
     'lead time',
     warnings,
-    () => collectLeadTime(project, history.releases, windowReleases, period.from, period.to),
+    () => collectLeadTime(project, history.releases, windowReleases, window.from, window.to),
     (reason) => skip(reason),
   )
 
@@ -343,7 +386,7 @@ async function collectProject(project: ProjectConfig, period: Period): Promise<M
     ? await attempt(
         'rework rate',
         warnings,
-        () => collectRework(project, windowReleases, period.from, period.to),
+        () => collectRework(project, windowReleases, window.from, window.to),
         (reason) => skip(reason),
       )
     : skip<never>(`${project.name} has no production environment, so rework rate is not measured.`)
@@ -386,7 +429,7 @@ async function collectProject(project: ProjectConfig, period: Period): Promise<M
   const contributors = await attempt(
     'contributors',
     warnings,
-    () => collectContributors(project, windowReleases, period.from, period.to),
+    () => collectContributors(project, windowReleases, window.from, window.to),
     (reason) => skip<Contributors>(reason),
   )
 
@@ -411,9 +454,11 @@ async function collectProject(project: ProjectConfig, period: Period): Promise<M
       collectScorecard(
         project,
         scorecardConfig,
-        period,
-        engineeringExcellence,
+        withWindow(period, window),
+        scorecardExcellence(project.id, period, window, engineeringExcellence),
         previousScores(project.id, period, scorecardConfig.alerts.decliningMonths),
+        undefined,
+        now,
       ),
     (reason) => skip(reason),
   )
@@ -440,6 +485,7 @@ async function collectProject(project: ProjectConfig, period: Period): Promise<M
       from: period.from.toISOString(),
       to: period.to.toISOString(),
     },
+    ...(window.rolling ? { window: storedWindow(window) } : {}),
     generatedAt: new Date().toISOString(),
     delivery: {
       productionEnvironment: production,
@@ -733,7 +779,7 @@ async function main(): Promise<void> {
         const report = await withActions(
           await withSource(
             await withAgentic(
-              await withEnvironment(await collectProject(project, period), project, period),
+              await withEnvironment(await collectProject(project, period, now), project, period),
               project,
               period,
             ),
@@ -781,9 +827,14 @@ async function main(): Promise<void> {
 
     for (const period of periods) {
       try {
+        const window = measurementWindow(period, now)
         const report = await collectPlannedProject({
           project,
-          period,
+          period: withWindow(period, window),
+          now,
+          previousExcellence: window.rolling
+            ? previousExcellence(project.id, label(previousPeriod(period)))
+            : null,
           excellence: () =>
             collectEngineeringExcellence(
               project,

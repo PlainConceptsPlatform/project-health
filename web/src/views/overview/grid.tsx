@@ -1,6 +1,6 @@
 'use client'
 
-import { hours, monthName, percent, seconds, tokens } from '@/shared/lib/format'
+import { hours, monthName, percent, periodLabel, seconds, tokens } from '@/shared/lib/format'
 import {
   type Filters,
   type ProjectSummary,
@@ -54,7 +54,9 @@ function ProjectCard({ p, month }: { p: ProjectSummary; month: string | null }) 
           <CardTitle className="group-hover:text-primary">{p.name}</CardTitle>
           <CardDescription>
             {p.repo}
-            {p.month ? ` · ${monthName(p.month)}` : null}
+            {p.month
+              ? ` · ${periodLabel(p.month, p.windowDays ? { days: p.windowDays, rolling: true } : null)}`
+              : null}
           </CardDescription>
           <div className="col-start-2 row-span-2 row-start-1 self-start">
             <Badge variant={badge.variant}>{badge.label}</Badge>
@@ -100,7 +102,7 @@ function ProjectCard({ p, month }: { p: ProjectSummary; month: string | null }) 
                       label="Deploy frequency"
                       explain="deployFrequency"
                       value={`${p.perWeek}/wk`}
-                      hint={`${p.releases} release${p.releases === 1 ? '' : 's'}${p.partialMonth ? ', month in progress' : ''}`}
+                      hint={`${p.releases} release${p.releases === 1 ? '' : 's'}${p.windowDays ? `, last ${p.windowDays} days` : p.partialMonth ? ', month in progress' : ''}`}
                     />
                   )}
 

@@ -29,6 +29,19 @@ import {
   Unavailable,
 } from '@/shared/ui'
 import { ScopeTrend } from '@/shared/ui/charts'
+import { ToolList } from '@/shared/ui/tools'
+
+/** A section's heading and the open-source tools its facet is read from, each linked. */
+function SectionTitle({ title, facets }: { title: string; facets: string[] }) {
+  return (
+    <div className="mb-2">
+      <p className="text-sm font-medium">{title}</p>
+      <p className="text-xs text-muted-foreground">
+        From <ToolList tools={facets} />
+      </p>
+    </div>
+  )
+}
 
 const SEVERITIES = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW', 'UNKNOWN'] as const
 
@@ -553,9 +566,15 @@ export function ExcellencePanel({
   report: MonthlyReport
   history: ExcellenceHistory | undefined
 }) {
-  const excellence = report.engineeringExcellence
-  const description =
-    'Reported by the repository’s own main branch CI, one sample per commit. These never gate anything here; the repository’s CI decides what fails.'
+  // A month in progress shows a facet it has no sample of yet from the previous month, as its
+  // scorecard rates it, so the panel does not empty out on the 1st.
+  const current = history?.current
+  const excellence = current?.excellence ?? report.engineeringExcellence
+  const carried =
+    current && current.carried.length > 0
+      ? ` ${current.carried.join(', ')}: no sample yet this month, so the newest from ${monthName(current.from)} within the last ${report.window?.days ?? 30} days.`
+      : ''
+  const description = `Reported by the repository’s own main branch CI, one sample per commit. These never gate anything here; the repository’s CI decides what fails.${carried}`
 
   if (!excellence) {
     return (
@@ -592,28 +611,28 @@ export function ExcellencePanel({
         ) : null}
 
         <div>
-          <p className="mb-2 text-sm font-medium">Modules</p>
+          <SectionTitle title="Modules" facets={['coverage facet', 'mutation facet']} />
           <ModulesTable excellence={excellence} />
         </div>
 
         <div>
-          <p className="mb-2 text-sm font-medium">CRAP hotspots</p>
+          <SectionTitle title="CRAP hotspots" facets={['complexity facet']} />
           <HotspotsTable excellence={excellence} repo={report.repo} />
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
           <div>
-            <p className="mb-2 text-sm font-medium">Security</p>
+            <SectionTitle title="Security" facets={['security facet']} />
             <SecuritySection excellence={excellence} />
           </div>
           <div>
-            <p className="mb-2 text-sm font-medium">Software bill of materials</p>
+            <SectionTitle title="Software bill of materials" facets={['SBOM facet']} />
             <SbomSection excellence={excellence} />
           </div>
         </div>
 
         <div>
-          <p className="mb-2 text-sm font-medium">Hygiene</p>
+          <SectionTitle title="Hygiene" facets={['hygiene facet']} />
           <HygieneSection excellence={excellence} history={history} repo={report.repo} />
         </div>
       </div>

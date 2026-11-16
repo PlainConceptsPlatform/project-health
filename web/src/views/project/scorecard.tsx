@@ -10,6 +10,7 @@ import {
   ScorecardLegend,
   StatusDot,
 } from '@/shared/ui/scorecard'
+import { ToolList } from '@/shared/ui/tools'
 
 const HEAD = ['#', 'Practice', 'Description', 'Tool(s)', 'Mode', 'Status', 'Source', 'Last run']
 
@@ -43,7 +44,7 @@ function PracticeRow({ practice }: { practice: PracticeResult }) {
         {practice.description}
       </TableCell>
       <TableCell className="max-w-56 whitespace-normal text-xs">
-        {practice.tools.length > 0 ? practice.tools.join(', ') : 'none found'}
+        <ToolList tools={practice.tools} />
         {practice.mode === 'report-only' ? (
           <span className="block text-muted-foreground">report-only</span>
         ) : null}
@@ -91,7 +92,7 @@ function Summary({ card, typeLabels }: { card: Scorecard; typeLabels: Record<str
         value={<AiUsageValue usage={card.aiUsage} />}
         hint={
           card.aiUsage.available
-            ? `${card.aiUsage.data.aiCommits} of ${card.aiUsage.data.totalCommits} commits`
+            ? `${card.aiUsage.data.aiCommits} of ${card.aiUsage.data.totalCommits} commits${card.window ? `, last ${card.window.days} days` : ''}`
             : card.aiUsage.reason
         }
       />
@@ -133,6 +134,12 @@ export function ScorecardPanel({
                 on {card.defaultBranch ?? 'the default branch'}
                 <InfoTip term="scorecardSource" />
               </span>
+              {card.window ? (
+                <span className="text-xs text-muted-foreground">
+                  · AI usage and facets over the last {card.window.days} days, while the month is in
+                  progress
+                </span>
+              ) : null}
             </div>
 
             {card.alerts.length > 0 ? (

@@ -5,9 +5,11 @@ import {
   hours,
   monthName,
   percent,
+  periodLabel,
   seconds,
   shortDate,
   tokens,
+  windowNote,
 } from '@/shared/lib/format'
 import type { DailyScore } from '@/shared/lib/scorecard'
 import type { MonthlyReport } from '@/shared/lib/types'
@@ -47,9 +49,25 @@ export interface TrendPoint {
 
 const monthKey = (r: MonthlyReport) => `${r.period.year}-${String(r.period.month).padStart(2, '0')}`
 
-/** Every day of the month, so a quiet week reads as a gap rather than being collapsed away. */
-function releasesPerDay(report: MonthlyReport) {
+/**
+ * Every day of the month, so a quiet week reads as a gap rather than being collapsed away. A month
+ * in progress shows every day of its trailing window instead, labelled by date.
+ */
+function releasesPerDay(report: Pick<MonthlyReport, 'delivery' | 'period' | 'window'>) {
   if (!report.delivery.deploymentFrequency.available) return []
+  const { window } = report
+  if (window?.rolling) {
+    const start = Date.parse(window.from.slice(0, 10))
+    const counts = new Map<string, number>()
+    for (const release of report.delivery.deploymentFrequency.data.releases) {
+      const day = release.deployedAt.slice(0, 10)
+      counts.set(day, (counts.get(day) ?? 0) + 1)
+    }
+    return Array.from({ length: window.days + 1 }, (_, i) => {
+      const day = new Date(start + i * 86_400_000).toISOString().slice(0, 10)
+      return { day: shortDate(day), releases: counts.get(day) ?? 0 }
+    })
+  }
   const { year, month } = report.period
   const days = new Date(Date.UTC(year, month, 0)).getUTCDate()
   const counts = new Map<number, number>()
@@ -72,7 +90,7 @@ function DeliveryPanel({ report }: { report: MonthlyReport }) {
         report.status === 'planned'
           ? 'Planned project: not deployed yet'
           : report.delivery.productionEnvironment
-            ? `Production environment: ${report.delivery.productionEnvironment}`
+            ? `Production environment: ${report.delivery.productionEnvironment}${report.window ? `. ${windowNote(report.window)}` : ''}`
             : 'No production environment configured'
       }
     >
@@ -84,7 +102,11 @@ function DeliveryPanel({ report }: { report: MonthlyReport }) {
               <>
                 <div className="grid grid-cols-2 gap-4">
                   <Stat label="Per week" explain="deployFrequency" value={d.perWeek} />
-                  <Stat label="Releases" value={d.count} />
+                  <Stat
+                    label="Releases"
+                    value={d.count}
+                    hint={report.window ? `last ${report.window.days} days` : undefined}
+                  />
                   <Stat
                     label="Median gap"
                     explain="medianGap"
@@ -351,7 +373,7 @@ function PeoplePanel({ report }: { report: MonthlyReport }) {
   return (
     <Panel
       title="People"
-      description="Who opened the work and who released it. Every agent run is triggered by the bot App, so that is not charted."
+      description={`Who opened the work and who released it${report.window ? ` in the last ${report.window.days} days` : ''}. Every agent run is triggered by the bot App, so that is not charted.`}
     >
       <Metric block={report.contributors}>
         {(d) => (
@@ -385,7 +407,10 @@ function PeoplePanel({ report }: { report: MonthlyReport }) {
 
 function ReleasesPanel({ report }: { report: MonthlyReport }) {
   return (
-    <Panel title="Releases" description="Distinct commits that reached production">
+    <Panel
+      title="Releases"
+      description={`Distinct commits that reached production${report.window ? ` in the last ${report.window.days} days` : ''}`}
+    >
       <Metric block={report.delivery.deploymentFrequency}>
         {(d) => (
           <DataTable head={['Ref', 'Deployed', 'By', 'Commit', 'Signals']}>
@@ -568,6 +593,9 @@ export function ProjectView({
               {report.repo}
             </a>{' '}
             · {monthName(current)}
+            {report.window
+              ? ` (in progress: delivery covers the ${periodLabel(current, report.window)})`
+              : null}
           </p>
         </div>
         <div className="flex flex-wrap gap-1.5">

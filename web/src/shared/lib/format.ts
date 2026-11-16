@@ -40,3 +40,16 @@ export const dateTime = (iso: string): string =>
     minute: '2-digit',
     timeZone: 'UTC',
   })
+
+/**
+ * What a period-based number covers: the month's name once it has finished, "last 30 days" while it
+ * is in progress and the collector measured it over a trailing window instead of from the 1st.
+ */
+export const periodLabel = (
+  month: string,
+  window: { days: number; rolling: true } | null | undefined,
+): string => (window?.rolling ? `last ${window.days} days` : monthName(month))
+
+/** The sentence a card shows under its title while its numbers cover a trailing window. */
+export const windowNote = (window: { from: string; to: string; days: number }): string =>
+  `Last ${window.days} days, ${shortDate(window.from)} to ${shortDate(window.to)}: the month is in progress, so these include the end of last month rather than starting again on the 1st.`

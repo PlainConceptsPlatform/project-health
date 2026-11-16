@@ -311,7 +311,15 @@ complexity where they apply. The **score** is (green + half of yellow) over appl
 **Gates** is the practices present (green or yellow) over those that apply, in every phase, so a
 red DAST or Performance shows in the count.
 **AI usage** (1 to 5) is the share of the month's non-merge default branch commits with an assistant
-Co-authored-by trailer or an agent bot author; dependency and Actions bots are excluded.
+Co-authored-by trailer or an agent bot author; dependency and Actions bots are excluded. While the
+month is in progress it is the last 30 days' commits, and a facet with no sample yet this month is
+read from the previous month; see [The month in progress is the last 30 days](#honesty-features).
+
+The Tool(s) column names the open-source tools behind each practice and links each to its project
+(the map is `web/src/shared/lib/tools.ts`). The platform's own gates and facets are shown as the
+tools whose output they read: the complexity gate as coverlet, ReportGenerator, Vitest, Istanbul and
+ESLint; coverage as coverlet, ReportGenerator, Vitest and coverage-v8; mutation as Stryker; hygiene
+as jscpd and Semgrep; security as Trivy and Semgrep; the SBOM as CycloneDX.
 
 Two alerts read both axes: *High AI usage, low engineering* (AI 4 or more at L1 or below) and
 *Engineering declining* (the score 10 or more points under the best of the two previous months).
@@ -591,8 +599,29 @@ lead time" ranking.
 
 **Small samples refuse to be placed.** Below five releases in a period, no profile is assigned.
 
+**The month in progress is the last 30 days.** Measured from the 1st, every period-based number
+restarted each month: on the 2nd a healthy project had a release or two, one commit and no facet
+sample yet, so deploy frequency fell, AI usage swung to an extreme and the scorecard dropped to
+workflow detection, which put projects on the attention list until the month filled up. While a
+month is in progress the collector measures these over the 30 days up to the collection instead,
+and writes that window into the report as `window: { from, to, days, rolling: true }`:
+
+- Delivery: deploy frequency (per week over the 30 days), change lead time, issue to staging,
+  rework rate, the releases list and the people who opened and released the work.
+- Engineering: AI usage (the window's commits), and the facets the scorecard rates by: a facet
+  with no sample yet this month is taken from the previous month while its newest sample is inside
+  the window. The Engineering excellence panel shows it the same way and names the facets it took.
+  Run results were already the newest before the collection, so they are unchanged.
+
+The site labels those numbers "last 30 days" instead of the month's name, and the monthly trend
+still counts each month's own releases. A finished month has no `window`: the daily collection
+re-collects the previous month on the 1st as its calendar month, so history, the monthly trend and
+the month-over-month comparisons are unchanged. Actions usage, agent runs, the roadmap, agentic
+adoption and the family comparison stay per calendar month.
+
 **Partial periods divide by elapsed days.** Dividing a month in progress by its full length understated
-frequency by a third.
+frequency by a third. Files written before the rolling window measured the month in progress from
+the 1st this way (`partialMonth`, `elapsedDays`), and the site still reads them so.
 
 ## Chart colours
 
