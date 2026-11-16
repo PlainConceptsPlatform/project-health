@@ -179,11 +179,12 @@ function AiUsage({ row }: { row: PortfolioRow }) {
     )
   }
   const { level, aiCommits, totalCommits, share } = usage.data
+  const window = row.card?.window
   return (
     <Measure
       value={level}
       of={5}
-      title={`AI usage ${level} of 5 · ${aiCommits} of ${totalCommits} commits AI-assisted (${Math.round(share * 100)}%)`}
+      title={`AI usage ${level} of 5 · ${aiCommits} of ${totalCommits} commits AI-assisted (${Math.round(share * 100)}%)${window ? ` in the last ${window.days} days` : ''}`}
     >
       <span className="flex gap-[3px]" aria-hidden="true">
         {[0, 1, 2, 3, 4].map((i) => (

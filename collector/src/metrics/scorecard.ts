@@ -20,6 +20,7 @@ import {
   type SecurityData,
   skip,
 } from '../types.ts'
+import { type Window, storedWindow } from '../window.ts'
 import { type CommitLike, summarizeAiUsage } from './ai-usage.ts'
 import {
   GHERKIN_NOT_RUN,
@@ -718,12 +719,15 @@ async function repositoryFiles(source: ScorecardSource, branch: string): Promise
  * the facets already collected for the month.
  *
  * Workflows are read at the default branch as it is now, so a backfilled month reports today's
- * gates with that month's run results and commits.
+ * gates with that month's run results and commits. Run results are the newest before the end of
+ * the period, which for the month in progress is now. AI usage counts the commits of
+ * `period.window` when one is given, the trailing window of a month in progress, so it does not
+ * restart from a handful of commits on the 1st; otherwise the calendar month.
  */
 export async function collectScorecard(
   project: ProjectConfig,
   config: ScorecardConfig,
-  period: { from: Date; to: Date },
+  period: { from: Date; to: Date; window?: Window },
   excellence: EngineeringExcellence | undefined,
   previousScores: (number | null)[],
   source: ScorecardSource = githubScorecardSource(project.repo),
@@ -771,13 +775,17 @@ export async function collectScorecard(
 
   let aiUsage: MetricBlock<AiUsage>
   try {
-    aiUsage = summarizeAiUsage(await source.commits(branch, period.from, period.to), config.aiUsage)
+    const commits = period.window ?? period
+    aiUsage = summarizeAiUsage(
+      await source.commits(branch, commits.from, commits.to),
+      config.aiUsage,
+    )
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
     aiUsage = skip(`Commits could not be read: ${message}`)
   }
 
-  return {
+  const result: { available: true; data: Scorecard } = {
     available: true,
     data: buildScorecard({
       project,
@@ -791,4 +799,6 @@ export async function collectScorecard(
       previousScores,
     }),
   }
+  const window = period.window ? storedWindow(period.window) : undefined
+  return window ? { ...result, data: { ...result.data, window } } : result
 }

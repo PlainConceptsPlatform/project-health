@@ -1,12 +1,14 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { type ActionsEntry, entryOf } from './actions'
-import { type ExcellenceKpis, kpisOf } from './excellence'
+import { type ExcellenceKpis, carryFacets, kpisOf } from './excellence'
 import { type DailyScore, groupOf } from './scorecard'
 import type {
   ComplexityData,
   CoverageData,
   DataIndex,
+  EngineeringExcellence,
+  Facet,
   FacetSample,
   HygieneData,
   MonthlyReport,
@@ -158,6 +160,20 @@ export function currentMonth(): string {
   return `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`
 }
 
+/**
+ * The releases of the calendar month itself. A month in progress is measured over a trailing
+ * window that reaches into the month before, and counting that window here would show last month's
+ * releases twice in a chart of months.
+ */
+export function releasesInMonth(
+  report: Pick<MonthlyReport, 'period' | 'window'>,
+  releases: { deployedAt: string }[],
+): number {
+  if (!report.window?.rolling) return releases.length
+  const from = Date.parse(report.period.from)
+  return releases.filter((r) => Date.parse(r.deployedAt) >= from).length
+}
+
 /** Releases and lead time per collected month, for the trend chart. */
 export function readTrend(projectId: string): {
   month: string
@@ -174,7 +190,7 @@ export function readTrend(projectId: string): {
     return [
       {
         month,
-        releases: frequency.available ? frequency.data.count : 0,
+        releases: frequency.available ? releasesInMonth(report, frequency.data.releases) : 0,
         leadTimeHours:
           lead.available && lead.data.commitToProduction.available
             ? lead.data.commitToProduction.data.p50Hours
@@ -201,6 +217,11 @@ export interface ExcellenceHistory {
   hygiene: FacetSample<HygieneData>[]
   /** The month before the one shown, for deltas. null when it has no facets. */
   previous: { month: string; kpis: ExcellenceKpis } | null
+  /**
+   * While the month shown is in progress: its facets with any it has no sample of yet taken from
+   * the previous month, inside the trailing window, as its scorecard rated them. null otherwise.
+   */
+  current?: { excellence: EngineeringExcellence; carried: Facet[]; from: string } | null
 }
 
 /**
@@ -233,6 +254,16 @@ export function readExcellenceHistory(projectId: string, month: string): Excelle
   const before = months.filter((m) => m < month).at(-1)
   const previous = before ? readReport(projectId, before)?.engineeringExcellence : undefined
   if (before && previous) history.previous = { month: before, kpis: kpisOf(previous) }
+
+  const shown = readReport(projectId, month)
+  if (shown?.window?.rolling && shown.engineeringExcellence) {
+    const { excellence, carried } = carryFacets(
+      shown.engineeringExcellence,
+      previous,
+      shown.window.from,
+    )
+    history.current = { excellence, carried, from: before ?? month }
+  }
   return history
 }
 

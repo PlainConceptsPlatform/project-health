@@ -8,6 +8,30 @@ import type {
   HygieneHotspot,
   MutationData,
 } from './types'
+import { FACETS, type Facet } from './types'
+
+/**
+ * The facets to show for a month in progress, as the collector rates its scorecard: this month's
+ * where it has one, otherwise the previous month's while its newest sample is inside the window
+ * (collector/src/window.ts carryFacets). `carried` names the facets taken from the previous month.
+ */
+export function carryFacets(
+  current: EngineeringExcellence,
+  previous: EngineeringExcellence | null | undefined,
+  since: string,
+): { excellence: EngineeringExcellence; carried: Facet[] } {
+  if (!previous) return { excellence: current, carried: [] }
+  const excellence = { ...current }
+  const carried: Facet[] = []
+  for (const facet of FACETS) {
+    const before = previous[facet]
+    if (current[facet]?.available || !before?.available) continue
+    if (Date.parse(before.data.latestGeneratedAt) < Date.parse(since)) continue
+    ;(excellence as Record<string, unknown>)[facet] = before
+    carried.push(facet)
+  }
+  return { excellence, carried }
+}
 
 /** The headline numbers, each null when its facet was not collected. */
 export interface ExcellenceKpis {

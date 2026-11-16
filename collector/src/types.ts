@@ -151,8 +151,22 @@ export interface Release {
   unplannedSource: 'label' | 'out-of-process' | null
 }
 
+/**
+ * The trailing window the month in progress is measured over instead of its calendar month. Only
+ * present on the month in progress; a finished month is its calendar month and carries none.
+ */
+export interface MeasurementWindow {
+  from: string
+  to: string
+  days: number
+  rolling: true
+}
+
 export interface DeploymentFrequency {
-  /** True when the period has not finished, so perWeek is over elapsed days only. */
+  /**
+   * True when a calendar period has not finished, so perWeek is over elapsed days only. A rolling
+   * window is always complete, so it is false there and elapsedDays is the window's length.
+   */
   partialMonth?: boolean
   elapsedDays?: number
   releases: Release[]
@@ -399,6 +413,12 @@ export interface MonthlyReport {
   repo: string
   status: string
   period: { year: number; month: number; from: string; to: string }
+  /**
+   * Present only while the month is in progress: delivery (frequency, lead time, rework, releases),
+   * contributors and the scorecard's AI usage and facets are then measured over this trailing
+   * window rather than from the 1st. Absent on finished months and in files written before it.
+   */
+  window?: MeasurementWindow
   generatedAt: string
   delivery: {
     productionEnvironment: string | null
@@ -728,6 +748,8 @@ export interface Scorecard {
   gates: { present: number; applicable: number }
   aiUsage: MetricBlock<AiUsage>
   alerts: ScorecardAlert[]
+  /** The window AI usage and the facets were read over, while the month is in progress. */
+  window?: MeasurementWindow
 }
 
 export const FACETS = ['coverage', 'complexity', 'mutation', 'security', 'sbom', 'hygiene'] as const

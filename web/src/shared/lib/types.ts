@@ -23,8 +23,16 @@ export interface Release {
   unplannedSource: string | null
 }
 
+/** Mirrors the collector: the trailing window of the month in progress. */
+export interface MeasurementWindow {
+  from: string
+  to: string
+  days: number
+  rolling: true
+}
+
 export interface DeploymentFrequency {
-  /** True when the period has not finished, so perWeek is over elapsed days only. */
+  /** True when a calendar period has not finished; false over a rolling window, which is complete. */
   partialMonth?: boolean
   elapsedDays?: number
   releases: Release[]
@@ -144,6 +152,8 @@ export interface MonthlyReport {
   repo: string
   status: string
   period: { year: number; month: number; from: string; to: string }
+  /** Only on the month in progress: delivery and contributors cover this trailing window. */
+  window?: MeasurementWindow
   generatedAt: string
   delivery: {
     productionEnvironment: string | null
@@ -609,6 +619,8 @@ export interface Scorecard {
   gates: { present: number; applicable: number }
   aiUsage: MetricBlock<AiUsage>
   alerts: ScorecardAlert[]
+  /** The window AI usage and the facets were read over, while the month is in progress. */
+  window?: MeasurementWindow
 }
 
 /** agent, person, merge or queued from the labels; manual when it never went through an agent. */

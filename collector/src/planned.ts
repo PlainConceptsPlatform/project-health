@@ -18,6 +18,7 @@ import {
   type Warning,
   skip,
 } from './types.ts'
+import { type Window, carryFacets, storedWindow } from './window.ts'
 
 /**
  * A planned project is not deployed, so delivery, agents and contributors would only ever read as
@@ -57,8 +58,11 @@ export async function partitionPlanned(
 
 export interface PlannedInput {
   project: ProjectConfig
-  period: { year: number; month: number; from: Date; to: Date }
+  /** `window` is set only while the month is in progress; see measurementWindow. */
+  period: { year: number; month: number; from: Date; to: Date; window?: Window }
   config: ScorecardConfig
+  /** The previous month's facets, which the scorecard of a month in progress can fall back to. */
+  previousExcellence?: EngineeringExcellence | null
   previousScores: (number | null)[]
   source?: ScorecardSource
   now?: Date
@@ -105,7 +109,9 @@ export async function collectPlannedProject(input: PlannedInput): Promise<Monthl
       project,
       config,
       period,
-      engineeringExcellence,
+      period.window?.rolling
+        ? carryFacets(engineeringExcellence, input.previousExcellence, period.window.from)
+        : engineeringExcellence,
       previousScores,
       input.source ?? githubScorecardSource(project.repo),
       now,
@@ -133,6 +139,7 @@ export async function collectPlannedProject(input: PlannedInput): Promise<Monthl
       from: period.from.toISOString(),
       to: period.to.toISOString(),
     },
+    ...(period.window?.rolling ? { window: storedWindow(period.window) } : {}),
     generatedAt: now.toISOString(),
     delivery: {
       productionEnvironment: project.environments.production,
