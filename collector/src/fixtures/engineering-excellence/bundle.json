@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "facet": "bundle",
+  "repo": "your-org/checkout",
+  "ref": "refs/heads/main",
+  "commitSha": "cccccccccccccccccccccccccccccccccccccccc",
+  "runId": 3003,
+  "runAttempt": 1,
+  "generatedAt": "2026-10-12T09:00:00.000Z",
+  "data": {
+    "tool": "size-limit",
+    "compression": "brotli",
+    "totalJsBytes": 412000,
+    "largestChunkBytes": 61000,
+    "largestChunk": "framework-9f8e.js",
+    "chunks": 38,
+    "baselineBytes": 400000,
+    "limitBytes": 440000,
+    "overBudget": false,
+    "gate": { "mode": "report", "since": "2026-10-01", "violations": 0, "failed": false }
+  }
+}

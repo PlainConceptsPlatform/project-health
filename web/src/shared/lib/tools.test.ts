@@ -38,6 +38,13 @@ describe('tool links', () => {
     expect(externalTools(['Stryker', 'mutation facet'])).toEqual(['Stryker'])
   })
 
+  it('links the dead-code and bundle-size tools, and shows the bundle facet as size-limit', () => {
+    expect(toolLink('Knip')).toBe('https://github.com/webpro-nl/knip')
+    expect(toolLink('size-limit')).toBe('https://github.com/ai/size-limit')
+    expect(externalTools(['bundle facet'])).toEqual(['size-limit'])
+    expect(externalTools(['hygiene facet', 'Knip'])).toEqual(['jscpd', 'Semgrep', 'Knip'])
+  })
+
   it('maps every platform gate onto tools that have a link', () => {
     for (const tools of Object.values(PLATFORM_GATES)) {
       for (const tool of tools) expect(TOOL_LINKS[tool], tool).toMatch(/^https:\/\//)

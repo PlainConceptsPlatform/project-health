@@ -608,6 +608,7 @@ describe('facetEvidence', () => {
       gated?: boolean
       gate?: boolean
       commentSlopViolations?: number
+      knip?: { mode: 'report' | 'ratchet'; violations: number }
     } = {},
   ) => {
     const ee = excellence()
@@ -627,7 +628,29 @@ describe('facetEvidence', () => {
         thresholds: { minLines: 10, minTokens: 70 },
         scopes: {},
         global: summary,
-        deadCode: { gated: patch.gated ?? true, warnings: patch.dead ?? 0 },
+        deadCode: {
+          gated: patch.gated ?? true,
+          warnings: patch.dead ?? 0,
+          ...(patch.knip
+            ? {
+                web: {
+                  tool: 'knip' as const,
+                  unusedFiles: 2,
+                  unusedExports: 40,
+                  unusedDependencies: 0,
+                  unlistedDependencies: 0,
+                  byType: { files: 2, exports: 40 },
+                  baseline: { files: 2, exports: 40 },
+                  gate: {
+                    mode: patch.knip.mode,
+                    since: '2026-10-01',
+                    violations: patch.knip.violations,
+                    failed: patch.knip.mode === 'ratchet' && patch.knip.violations > 0,
+                  },
+                },
+              }
+            : {}),
+        },
         hotspots: [],
         gate:
           patch.gate === false
@@ -681,6 +704,61 @@ describe('facetEvidence', () => {
     expect(hygiene({ commentSlopViolations: 1 })?.result).toBe('failing')
     expect(hygiene({ commentSlopViolations: 0 })?.result).toBe('passing')
     expect(hygiene()?.result).toBe('passing')
+  })
+
+  it('shows report-only Knip findings nowhere in the rating, and counts them once it is a ratchet', () => {
+    // Report-only is the first two weeks of a new check: measured, never held, not even named.
+    expect(hygiene({ knip: { mode: 'report', violations: 7 } })).toMatchObject({
+      result: 'passing',
+      tools: ['hygiene facet'],
+    })
+    expect(hygiene({ knip: { mode: 'ratchet', violations: 0 } })).toMatchObject({
+      result: 'passing',
+      tools: ['hygiene facet', 'Knip'],
+    })
+    expect(hygiene({ knip: { mode: 'ratchet', violations: 1 } })?.result).toBe('failing')
+  })
+
+  const performance = (gate: { mode: 'report' | 'ratchet'; overBudget: boolean } | null) => {
+    const ee = excellence()
+    if (gate) {
+      ee.bundle = series(
+        {
+          tool: 'size-limit',
+          compression: 'brotli',
+          totalJsBytes: gate.overBudget ? 450_000 : 410_000,
+          largestChunkBytes: 61_000,
+          largestChunk: 'framework.js',
+          chunks: 30,
+          baselineBytes: 400_000,
+          limitBytes: 440_000,
+          overBudget: gate.overBudget,
+          gate: {
+            mode: gate.mode,
+            since: '2026-10-01',
+            violations: gate.overBudget ? 1 : 0,
+            failed: gate.mode === 'ratchet' && gate.overBudget,
+          },
+        },
+        '2026-10-15T00:00:00Z',
+      )
+    }
+    return facetEvidence('performance', ee, 'o/r')
+  }
+
+  it('reads the bundle budget as performance evidence only once it is a ratchet', () => {
+    // A month collected before the bundle facet existed has no block at all.
+    expect(performance(null)).toBeNull()
+    // Report-only must not lift an absent practice from red, nor sink a present one.
+    expect(performance({ mode: 'report', overBudget: true })).toBeNull()
+    expect(performance({ mode: 'report', overBudget: false })).toBeNull()
+    expect(performance({ mode: 'ratchet', overBudget: false })).toMatchObject({
+      source: 'facet',
+      tools: ['bundle facet'],
+      mode: 'blocking',
+      result: 'passing',
+    })
+    expect(performance({ mode: 'ratchet', overBudget: true })?.result).toBe('failing')
   })
 
   it('treats hygiene measured without a duplication gate as report-only', () => {

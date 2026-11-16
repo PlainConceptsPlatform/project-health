@@ -752,7 +752,15 @@ export interface Scorecard {
   window?: MeasurementWindow
 }
 
-export const FACETS = ['coverage', 'complexity', 'mutation', 'security', 'sbom', 'hygiene'] as const
+export const FACETS = [
+  'coverage',
+  'complexity',
+  'mutation',
+  'security',
+  'sbom',
+  'hygiene',
+  'bundle',
+] as const
 export type Facet = (typeof FACETS)[number]
 
 export interface LineStats {
@@ -918,6 +926,36 @@ export interface CommentSlop {
   } | null
 }
 
+/**
+ * A check that starts report-only and becomes a ratchet against a committed baseline when the
+ * repository flips its mode, a reviewed change. A report-only check never fails CI, so it is shown
+ * but does not count towards the scorecard until it is a ratchet.
+ */
+export interface CheckGate {
+  mode: 'report' | 'ratchet'
+  /** The day the check was introduced (YYYY-MM-DD), or null when it was not recorded. */
+  since: string | null
+  /** Findings over the baseline or budget on this commit, whatever the mode. */
+  violations: number
+  /** True when the check failed the CI run: ratchet mode with violations. */
+  failed: boolean
+}
+
+/** Knip over the web workspace. */
+export interface DeadCodeWeb {
+  tool: 'knip'
+  unusedFiles: number
+  /** Knip's exports, nsExports, types and nsTypes. */
+  unusedExports: number
+  /** Knip's dependencies, devDependencies and optionalPeerDependencies. */
+  unusedDependencies: number
+  /** Knip's unlisted and binaries. */
+  unlistedDependencies: number
+  byType: Record<string, number>
+  baseline: Record<string, number> | null
+  gate: CheckGate
+}
+
 export interface HygieneData {
   thresholds: { minLines: number; minTokens: number }
   scopes: Record<
@@ -925,11 +963,28 @@ export interface HygieneData {
     HygieneSummary & { deadCodeWarnings: number; modules?: Record<string, HygieneSummary> }
   >
   global: HygieneSummary
-  deadCode: { gated: boolean; warnings: number }
+  /** gated and warnings are the .NET unused private members; web is absent without Knip. */
+  deadCode: { gated: boolean; warnings: number; web?: DeadCodeWeb }
   hotspots?: HygieneHotspot[]
   gate: HygieneGate | null
   /** Absent when the repository runs no comment-slop rules. */
   commentSlop?: CommentSlop
+}
+
+/** size-limit over the web static export's JavaScript chunks, against baseline + 10%. */
+export interface BundleData {
+  tool: 'size-limit'
+  /** How every byte count was measured; size-limit's default is brotli. */
+  compression: 'brotli' | 'gzip' | 'none'
+  totalJsBytes: number
+  largestChunkBytes: number
+  largestChunk: string | null
+  chunks: number
+  baselineBytes: number | null
+  /** The budget; null before a baseline is written. */
+  limitBytes: number | null
+  overBudget: boolean
+  gate: CheckGate
 }
 
 export interface FacetDataMap {
@@ -939,6 +994,7 @@ export interface FacetDataMap {
   security: SecurityData
   sbom: SbomData
   hygiene: HygieneData
+  bundle: BundleData
 }
 
 export interface FacetSample<T> {
@@ -960,5 +1016,8 @@ export interface FacetSeries<T> {
 }
 
 export type EngineeringExcellence = {
-  [F in Facet]: MetricBlock<FacetSeries<FacetDataMap[F]>>
+  [F in Exclude<Facet, 'bundle'>]: MetricBlock<FacetSeries<FacetDataMap[F]>>
+} & {
+  /** Absent from months collected before the bundle facet existed. */
+  bundle?: MetricBlock<FacetSeries<BundleData>>
 }

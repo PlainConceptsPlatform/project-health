@@ -136,7 +136,7 @@
       "phase": "test-env",
       "mode": "threshold",
       "optIn": true,
-      "description": "Load tests or Lighthouse budgets against the test environment hold response times within budget. Only when the project requires it.",
+      "description": "Load tests or Lighthouse budgets against the test environment, or a bundle-size budget on the web build (size-limit, once it is a ratchet), hold the app within budget. Only when the project requires it.",
       "tools": [
         { "name": "k6", "pattern": "\\bk6\\b" },
         { "name": "JMeter", "pattern": "jmeter" },

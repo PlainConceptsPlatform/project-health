@@ -349,7 +349,15 @@ export interface DataIndex {
   }[]
 }
 
-export const FACETS = ['coverage', 'complexity', 'mutation', 'security', 'sbom', 'hygiene'] as const
+export const FACETS = [
+  'coverage',
+  'complexity',
+  'mutation',
+  'security',
+  'sbom',
+  'hygiene',
+  'bundle',
+] as const
 export type Facet = (typeof FACETS)[number]
 
 export interface LineStats {
@@ -511,6 +519,25 @@ export interface CommentSlop {
   } | null
 }
 
+/** Mirrors the collector's CheckGate: report-only never fails CI; a ratchet holds the baseline. */
+export interface CheckGate {
+  mode: 'report' | 'ratchet'
+  since: string | null
+  violations: number
+  failed: boolean
+}
+
+export interface DeadCodeWeb {
+  tool: 'knip'
+  unusedFiles: number
+  unusedExports: number
+  unusedDependencies: number
+  unlistedDependencies: number
+  byType: Record<string, number>
+  baseline: Record<string, number> | null
+  gate: CheckGate
+}
+
 export interface HygieneData {
   thresholds: { minLines: number; minTokens: number }
   scopes: Record<
@@ -518,10 +545,23 @@ export interface HygieneData {
     HygieneSummary & { deadCodeWarnings: number; modules?: Record<string, HygieneSummary> }
   >
   global: HygieneSummary
-  deadCode: { gated: boolean; warnings: number }
+  deadCode: { gated: boolean; warnings: number; web?: DeadCodeWeb }
   hotspots?: HygieneHotspot[]
   gate: HygieneGate | null
   commentSlop?: CommentSlop
+}
+
+export interface BundleData {
+  tool: 'size-limit'
+  compression: 'brotli' | 'gzip' | 'none'
+  totalJsBytes: number
+  largestChunkBytes: number
+  largestChunk: string | null
+  chunks: number
+  baselineBytes: number | null
+  limitBytes: number | null
+  overBudget: boolean
+  gate: CheckGate
 }
 
 export interface FacetDataMap {
@@ -531,6 +571,7 @@ export interface FacetDataMap {
   security: SecurityData
   sbom: SbomData
   hygiene: HygieneData
+  bundle: BundleData
 }
 
 export interface FacetSample<T> {
@@ -552,10 +593,12 @@ export interface FacetSeries<T> {
 }
 
 export type EngineeringExcellence = {
-  [F in Exclude<Facet, 'hygiene'>]: MetricBlock<FacetSeries<FacetDataMap[F]>>
+  [F in Exclude<Facet, 'hygiene' | 'bundle'>]: MetricBlock<FacetSeries<FacetDataMap[F]>>
 } & {
   /** Absent from months collected before the hygiene facet existed. */
   hygiene?: MetricBlock<FacetSeries<HygieneData>>
+  /** Absent from months collected before the bundle facet existed. */
+  bundle?: MetricBlock<FacetSeries<BundleData>>
 }
 
 /** Mirrors the collector's scorecard types; see collector/src/types.ts for the rules behind them. */

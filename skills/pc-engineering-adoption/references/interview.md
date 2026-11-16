@@ -59,7 +59,7 @@ produce, and say what each one reads.
 | PR gates | the repository's CI, not a facet | every pull request |
 | Scorecard | the facets above, rendered | needs a dashboard |
 
-Gates and scorecard are not facets. Say so in their description, so nobody reads "all six facets" as
+Gates and scorecard are not facets. Say so in their description, so nobody reads "all the facets" as
 "the standard passed".
 
 Recommend two or three to start. Six is rare, and a facet from a tool that does not run is worse than
