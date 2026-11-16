@@ -62,6 +62,12 @@ export const GLOSSARY = {
   deadCode:
     'Unused private members, locals and parameters. When the repository makes them build errors the count is held at zero by its CI, which is what "gated" means.',
 
+  deadCodeWeb:
+    'Unused files, exports and dependencies in the web app, and packages it imports without listing them, as Knip finds them. The baseline is the dead code the repository has accepted for now; while the check is report-only nothing fails, and once it is a ratchet a change may not add to any count, and an unused or unlisted dependency always fails.',
+
+  bundleSize:
+    'The JavaScript the web app ships, summed over every chunk of its static export, compressed as browsers download it (brotli unless shown otherwise). The budget is the baseline plus 10%; while the check is report-only nothing fails, and once it is a ratchet a build over the budget does.',
+
   commentDensity:
     'Comment-only lines per line of code. It is a rough, line-based measure, so it is shown for its trend only: a sudden jump can mean comments that restate the code.',
 

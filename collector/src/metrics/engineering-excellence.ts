@@ -452,8 +452,8 @@ async function collectFacet<F extends Facet>(
  * Reads the engineering excellence facets the repository's own CI uploads.
  *
  * Unlike every other metric, these numbers are produced by the repository rather than derived from
- * the GitHub API: coverage, complexity, mutation score, scanner findings, SBOM shape and code
- * hygiene. The collector only finds, checks and keeps them. Each facet is independent, because
+ * the GitHub API: coverage, complexity, mutation score, scanner findings, SBOM shape, code
+ * hygiene and the web bundle size. The collector only finds, checks and keeps them. Each facet is independent, because
  * their cadences differ (mutation testing typically runs weekly, the rest on every push to main)
  * and a repository may produce only some of them.
  */
@@ -483,6 +483,7 @@ export async function collectEngineeringExcellence(
     security: await collect('security'),
     sbom: await collect('sbom'),
     hygiene: await collect('hygiene'),
+    bundle: await collect('bundle'),
   }
   return { block, warnings }
 }

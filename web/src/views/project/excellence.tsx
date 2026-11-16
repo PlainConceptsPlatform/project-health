@@ -1,9 +1,13 @@
 import type { ExcellenceHistory } from '@/shared/lib/data'
 import {
+  EXPORT_TYPES,
   type ExcellenceKpis,
+  baselineOf,
+  checkModeLabel,
   debtTrend,
   duplicationDebtTrend,
   duplicationTrends,
+  kilobytes,
   kpisOf,
   moduleRows,
   scopeTrends,
@@ -12,7 +16,9 @@ import {
 } from '@/shared/lib/excellence'
 import { monthName, percent } from '@/shared/lib/format'
 import type {
+  CheckGate,
   ComplexityGate,
+  DeadCodeWeb,
   EngineeringExcellence,
   HygieneData,
   MonthlyReport,
@@ -414,6 +420,76 @@ function DuplicationHotspots({
   )
 }
 
+/** Report-only shows as an outline badge with its start date; a failing ratchet in red. */
+function CheckModeBadge({ gate }: { gate: CheckGate }) {
+  const variant = gate.mode === 'report' ? 'outline' : gate.failed ? 'destructive' : 'secondary'
+  return (
+    <Badge variant={variant}>
+      {checkModeLabel(gate)}
+      {gate.failed ? ', failing in CI' : ''}
+    </Badge>
+  )
+}
+
+/**
+ * Knip's findings over the web workspace, against the baseline. Report-only, the counts are shown
+ * for information and nothing is marked bad; once a ratchet, a count over its baseline is.
+ */
+export function DeadCodeWebPanel({ web }: { web: DeadCodeWeb }) {
+  const held = web.gate.mode === 'ratchet'
+  const allowedFiles = baselineOf(web.baseline, ['files'])
+  const allowedExports = baselineOf(web.baseline, EXPORT_TYPES)
+  const over = (value: number, allowed: number | null) =>
+    held && allowed !== null && value > allowed ? 'bad' : undefined
+  const baselineHint = (allowed: number | null) =>
+    allowed === null ? 'no baseline yet' : `${allowed} baselined`
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <p className="text-sm font-medium">Dead code (web)</p>
+        <CheckModeBadge gate={web.gate} />
+      </div>
+      <div className="grid grid-cols-2 gap-5 rounded-md border p-4 sm:grid-cols-4">
+        <Stat
+          label="Unused files"
+          explain="deadCodeWeb"
+          value={web.unusedFiles}
+          tone={over(web.unusedFiles, allowedFiles)}
+          hint={baselineHint(allowedFiles)}
+        />
+        <Stat
+          label="Unused exports"
+          value={web.unusedExports}
+          tone={over(web.unusedExports, allowedExports)}
+          hint={`${baselineHint(allowedExports)}, types included`}
+        />
+        <Stat
+          label="Unused dependencies"
+          value={web.unusedDependencies}
+          tone={held && web.unusedDependencies > 0 ? 'bad' : undefined}
+          hint="never baselined"
+        />
+        <Stat
+          label="Unlisted dependencies"
+          value={web.unlistedDependencies}
+          tone={held && web.unlistedDependencies > 0 ? 'bad' : undefined}
+          hint="imported, not in package.json"
+        />
+      </div>
+      <p className="text-xs text-muted-foreground">
+        {web.baseline === null
+          ? 'No baseline committed yet.'
+          : web.gate.violations === 0
+            ? 'Within the baseline.'
+            : `${web.gate.violations} over the baseline${held ? '' : ', not failing while report-only'}.`}{' '}
+        {held
+          ? 'Counts towards Code hygiene on the scorecard.'
+          : 'Shown for information: a report-only check does not count on the scorecard.'}
+      </p>
+    </div>
+  )
+}
+
 const LG_COLS: Record<number, string> = {
   4: 'lg:grid-cols-4',
   5: 'lg:grid-cols-5',
@@ -422,7 +498,8 @@ const LG_COLS: Record<number, string> = {
 
 /**
  * Proxies for generated noise: copy-pasted blocks, swallowed exceptions, dead code, comment slop
- * and comment density. Shown for information; it feeds no scorecard practice.
+ * and comment density, and Knip's web dead code where the repository runs it. Code hygiene on the
+ * scorecard reads the gates; Knip counts there only once its gate is a ratchet.
  */
 function HygieneSection({
   excellence,
@@ -543,10 +620,68 @@ function HygieneSection({
               ) : null}
             </div>
 
+            {deadCode.web ? <DeadCodeWebPanel web={deadCode.web} /> : null}
+
             <div>
               <p className="mb-2 text-sm font-medium">Duplication hotspots</p>
               <DuplicationHotspots hygiene={latest} sha={samples.at(-1)?.commitSha} repo={repo} />
             </div>
+          </div>
+        )
+      }}
+    </Metric>
+  )
+}
+
+/**
+ * The web app's JavaScript as size-limit measures it, against the budget (baseline + 10%).
+ * Report-only, an over-budget total is said in words but not marked bad.
+ */
+export function BundleSection({ excellence }: { excellence: EngineeringExcellence }) {
+  if (!excellence.bundle) {
+    return <Unavailable reason="Not collected for this month: the bundle facet is newer." />
+  }
+  return (
+    <Metric block={excellence.bundle}>
+      {({ latest }) => {
+        const held = latest.gate.mode === 'ratchet'
+        const unit = latest.compression === 'none' ? 'uncompressed' : latest.compression
+        return (
+          <div className="space-y-3">
+            <CheckModeBadge gate={latest.gate} />
+            <div className="grid grid-cols-2 gap-5 rounded-md border p-4 sm:grid-cols-3">
+              <Stat
+                label="Total JavaScript"
+                explain="bundleSize"
+                value={kilobytes(latest.totalJsBytes)}
+                tone={held && latest.overBudget ? 'bad' : undefined}
+                hint={`${unit}, ${latest.chunks} chunks`}
+              />
+              <Stat
+                label="Budget"
+                value={kilobytes(latest.limitBytes)}
+                hint={
+                  latest.baselineBytes === null
+                    ? 'no baseline yet'
+                    : `baseline ${kilobytes(latest.baselineBytes)} + 10%`
+                }
+              />
+              <Stat
+                label="Largest chunk"
+                value={kilobytes(latest.largestChunkBytes)}
+                hint={latest.largestChunk ?? undefined}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {latest.overBudget
+                ? `Over budget${held ? '' : ', not failing while report-only'}.`
+                : latest.limitBytes === null
+                  ? 'No budget committed yet.'
+                  : 'Within budget.'}{' '}
+              {held
+                ? 'Counts towards Performance on the scorecard, where that practice applies.'
+                : 'Shown for information: a report-only check does not count on the scorecard.'}
+            </p>
           </div>
         )
       }}
@@ -632,8 +767,21 @@ export function ExcellencePanel({
         </div>
 
         <div>
-          <SectionTitle title="Hygiene" facets={['hygiene facet']} />
+          <SectionTitle
+            title="Hygiene"
+            facets={[
+              'hygiene facet',
+              ...(excellence.hygiene?.available && excellence.hygiene.data.latest.deadCode.web
+                ? ['Knip']
+                : []),
+            ]}
+          />
           <HygieneSection excellence={excellence} history={history} repo={report.repo} />
+        </div>
+
+        <div>
+          <SectionTitle title="Bundle size" facets={['bundle facet']} />
+          <BundleSection excellence={excellence} />
         </div>
       </div>
     </Panel>

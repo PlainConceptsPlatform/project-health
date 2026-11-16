@@ -97,7 +97,7 @@ export function addFacet(options: AddFacetOptions): AddFacetResult {
 
   const series = mergeSamples(
     facet,
-    (previous.available ? previous.data : null) as FacetSeries<FacetDataMap[Facet]> | null,
+    (previous?.available ? previous.data : null) as FacetSeries<FacetDataMap[Facet]> | null,
     [sample],
   )
   if (!series) throw new FacetRejected(`${facet}: the sample could not be placed in ${month}`)

@@ -40,7 +40,7 @@ was planned or shipped in reaction to something, which a person can state when t
 
 It also collects what the DORA report does not: **agent cost in tokens and time**, per kind of work,
 and, for repositories that opt in, **engineering excellence facets** their own CI reports: coverage,
-mutation score, complexity, scanner findings, the SBOM and code hygiene. See
+mutation score, complexity, scanner findings, the SBOM, code hygiene and the web bundle size. See
 [Engineering excellence facets](#engineering-excellence-facets).
 
 ## Adding a project
@@ -171,7 +171,14 @@ The zip holds a single `<facet>.json`:
 | `mutation` | `engineering-excellence-mutation` | weekly | covered and full mutation score per scope and module, against floors |
 | `security` | `engineering-excellence-security` | every push to main | Trivy vulnerabilities, misconfigurations and secrets by severity, Semgrep counts, scanner job results |
 | `sbom` | `engineering-excellence-sbom` | every push to main | component count by ecosystem, licence mix, components without a licence |
-| `hygiene` | `engineering-excellence-hygiene` | every push to main | duplicated lines and rate per scope and module, the worst duplicated files, swallowed exceptions (unjustified and justified), dead-code warnings and whether they are gated, comment density, optionally the repository's duplication `gate` (baselined files and lines, files over their baseline, entries that improved), and optionally `commentSlop` (deterministic comment-slop findings by rule and scope, with its own per-file baseline `gate`) |
+| `hygiene` | `engineering-excellence-hygiene` | every push to main | duplicated lines and rate per scope and module, the worst duplicated files, swallowed exceptions (unjustified and justified), dead-code warnings and whether they are gated, comment density, optionally the repository's duplication `gate` (baselined files and lines, files over their baseline, entries that improved), and optionally `commentSlop` (deterministic comment-slop findings by rule and scope, with its own per-file baseline `gate`) and `deadCode.web` (Knip: unused files, exports and dependencies, unlisted dependencies, counts per Knip issue type, the baseline and its `gate`) |
+| `bundle` | `engineering-excellence-bundle` | every push to main | size-limit over the web static export's JavaScript chunks: total and largest chunk in bytes, chunk count, compression, the baseline and budget (baseline + 10%), whether it is over budget, and its `gate` |
+
+`gate` on `deadCode.web` and `bundle` is the same shape, `{ mode, since, violations, failed }`. A
+check starts in `report` mode (measured, never fails CI) and becomes a `ratchet` against its
+committed baseline when the repository switches it in `quality.config.json`, a reviewed change;
+`since` is the day it was introduced. A repository that produces neither publishes the hygiene facet
+as before, and the bundle block is simply unavailable.
 
 Every file is an envelope:
 
@@ -249,8 +256,9 @@ the SBOM's ecosystems and licences. When the complexity facet carries a `gate`, 
 shows its baselined backlog (lower is better) with a trend line; without one the tile is hidden. A
 Hygiene block shows duplication per scope with its trend, swallowed exceptions, the dead-code gate,
 comment density, comment slop when the facet carries it, and the most duplicated files; when the hygiene facet carries a `gate`, a Duplication
-debt tile does the same for its baselined lines. Hygiene is informational: no scorecard practice
-reads it. With OTLP configured, the month's latest coverage, mutation
+debt tile does the same for its baselined lines. With Knip, a Dead code (web) row shows unused files,
+exports and dependencies against the baseline, and a Bundle size block shows the total JavaScript,
+the largest chunk and the budget; both say "report-only since <date>" until their gate is a ratchet. With OTLP configured, the month's latest coverage, mutation
 score, CRAP count, critical and high vulnerabilities and SBOM size are exported as `engineering.*`
 gauges.
 
@@ -268,8 +276,10 @@ Each practice is decided by one of two sources, and the page says which:
   decide coverage, mutation, complexity, the Trivy and Semgrep gates, the SBOM and code hygiene.
   Code hygiene (practice 11, the AI-slop proxies) passes when the duplication gate has no
   violations, no exception is swallowed without a justification, dead code is gated or absent and,
-  when the facet carries `commentSlop`, its gate has no violations; a hygiene facet without a `gate` is report-only. It counts towards the score and the gates,
-  not towards the L1 to L3 levels.
+  when the facet carries `commentSlop`, its gate has no violations; a hygiene facet without a `gate` is report-only. Knip's web dead code
+  counts only once its gate is a ratchet, and Knip is then named among the tools. It counts towards the score and the gates,
+  not towards the L1 to L3 levels. The bundle facet stands for Performance (practice 10, opt-in) the same way: only as a ratchet,
+  passing within budget and failing over it; report-only, the practice is rated as if the facet were absent.
 - **Hub workflow** (Restore drill, practice 12): a project that owns a production database opts in
   with `scorecard.restoredrill: true` in `projects.json`. One workflow in a hub repository, named by
   `restoreDrill: { repo, workflow, branch }` in `config/scorecard.json`, restores every such database;
@@ -319,7 +329,8 @@ The Tool(s) column names the open-source tools behind each practice and links ea
 (the map is `web/src/shared/lib/tools.ts`). The platform's own gates and facets are shown as the
 tools whose output they read: the complexity gate as coverlet, ReportGenerator, Vitest, Istanbul and
 ESLint; coverage as coverlet, ReportGenerator, Vitest and coverage-v8; mutation as Stryker; hygiene
-as jscpd and Semgrep; security as Trivy and Semgrep; the SBOM as CycloneDX.
+as jscpd and Semgrep (and Knip once its dead-code gate is a ratchet); the bundle as size-limit;
+security as Trivy and Semgrep; the SBOM as CycloneDX.
 
 Two alerts read both axes: *High AI usage, low engineering* (AI 4 or more at L1 or below) and
 *Engineering declining* (the score 10 or more points under the best of the two previous months).

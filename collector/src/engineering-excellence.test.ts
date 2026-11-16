@@ -36,6 +36,11 @@ const fixture = (facet: string) =>
     ),
   ) as Record<string, unknown> & { data: Record<string, unknown> }
 
+/** A producer that wrote kilobytes as a fraction would put 412.5 where the contract wants bytes. */
+const unbudgetedKb = (doc: { data: Record<string, unknown> }) => {
+  doc.data.totalJsBytes = 412.5
+}
+
 const zipOf = (name: string, doc: unknown) => zipSync({ [name]: strToU8(JSON.stringify(doc)) })
 
 const OCTOBER = { from: new Date('2026-10-01T00:00:00Z'), to: new Date('2026-11-01T00:00:00Z') }
@@ -284,6 +289,82 @@ describe('readFacet', () => {
     if (!misplacedRead.ok) expect(misplacedRead.reason).toContain("unexpected 'deadCodeWarnings'")
   })
 
+  const knipBlock = () => ({
+    tool: 'knip',
+    unusedFiles: 2,
+    unusedExports: 47,
+    unusedDependencies: 1,
+    unlistedDependencies: 0,
+    byType: { dependencies: 1, exports: 40, files: 2, types: 7, unlisted: 0 },
+    baseline: { exports: 40, files: 2, types: 7 },
+    gate: { mode: 'report', since: '2026-10-01', violations: 1, failed: false },
+  })
+
+  it("accepts Knip's dead code in the hygiene facet, and a facet from before it existed", () => {
+    const withKnip = fixture('hygiene')
+    ;(withKnip.data.deadCode as Record<string, unknown>).web = knipBlock()
+    const read = readHygiene(withKnip)
+    expect(read.ok).toBe(true)
+    if (read.ok) expect(read.envelope.data.deadCode.web?.gate.mode).toBe('report')
+
+    // No baseline yet is null, not an empty object.
+    const unbaselined = fixture('hygiene')
+    ;(unbaselined.data.deadCode as Record<string, unknown>).web = { ...knipBlock(), baseline: null }
+    expect(readHygiene(unbaselined).ok).toBe(true)
+
+    // Every repository that has not adopted Knip keeps publishing exactly this.
+    expect(fixture('hygiene').data.deadCode).toEqual({ gated: true, warnings: 0 })
+    expect(readHygiene(fixture('hygiene')).ok).toBe(true)
+  })
+
+  it('rejects a Knip block with a mode the gates do not have, or without its gate', () => {
+    const unknownMode = fixture('hygiene')
+    ;(unknownMode.data.deadCode as Record<string, unknown>).web = {
+      ...knipBlock(),
+      gate: { mode: 'warn', since: null, violations: 0, failed: false },
+    }
+    const modeRead = readHygiene(unknownMode)
+    expect(modeRead).toMatchObject({ ok: false, kind: 'mismatch' })
+    if (!modeRead.ok) expect(modeRead.reason).toContain('$.data.deadCode.web.gate.mode')
+
+    const { gate: _gate, ...ungated } = knipBlock()
+    const noGate = fixture('hygiene')
+    ;(noGate.data.deadCode as Record<string, unknown>).web = ungated
+    expect(readHygiene(noGate)).toMatchObject({ ok: false, kind: 'mismatch' })
+  })
+
+  const readBundle = (doc: unknown) =>
+    readFacet({ 'bundle.json': strToU8(JSON.stringify(doc)) }, 'bundle', REPO, 'main')
+
+  it('accepts a bundle facet, with or without a budget', () => {
+    const read = readBundle(fixture('bundle'))
+    expect(read.ok).toBe(true)
+    if (read.ok) {
+      expect(read.envelope.data.totalJsBytes).toBe(412000)
+      expect(read.envelope.data.gate).toEqual({
+        mode: 'report',
+        since: '2026-10-01',
+        violations: 0,
+        failed: false,
+      })
+    }
+    const unbudgeted = fixture('bundle')
+    Object.assign(unbudgeted.data, { baselineBytes: null, limitBytes: null })
+    expect(readBundle(unbudgeted).ok).toBe(true)
+  })
+
+  it('rejects a bundle facet given in kilobytes or with an unknown compression', () => {
+    const kilobytes = fixture('bundle')
+    unbudgetedKb(kilobytes)
+    const kbRead = readBundle(kilobytes)
+    expect(kbRead).toMatchObject({ ok: false, kind: 'mismatch' })
+    if (!kbRead.ok) expect(kbRead.reason).toContain('$.data.totalJsBytes')
+
+    const zstd = fixture('bundle')
+    zstd.data.compression = 'zstd'
+    expect(readBundle(zstd)).toMatchObject({ ok: false, kind: 'mismatch' })
+  })
+
   it('reports a missing file as missing, not as a mismatch', () => {
     expect(readFacet({ 'other.json': strToU8('{}') }, 'coverage', REPO, 'main')).toMatchObject({
       ok: false,
@@ -450,7 +531,7 @@ describe('collectEngineeringExcellence', () => {
     expect(block.sbom).toMatchObject({ available: false })
     expect(
       warnings.filter((w) => w.code === 'ENGINEERING_EXCELLENCE_ARTIFACT_MISSING'),
-    ).toHaveLength(5)
+    ).toHaveLength(6)
   })
 
   it('warns on a schema mismatch and keeps the stored samples instead of the bad one', async () => {

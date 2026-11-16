@@ -1,4 +1,4 @@
-# The six facets
+# The facets
 
 One artifact per facet, named `engineering-excellence-<facet>`, holding a single `<facet>.json`.
 
@@ -9,7 +9,12 @@ One artifact per facet, named `engineering-excellence-<facet>`, holding a single
 | `mutation` | Covered-code and full mutation score per scope and module | Stryker's `mutation-report.json` per scope | Weekly |
 | `security` | Vulnerabilities, misconfigurations and secrets by severity, Semgrep counts, and the result of each blocking scanner job | `trivy.json`, `semgrep.json`, and the job outcomes | Every push |
 | `sbom` | Component count by ecosystem, licence mix, components with no licence | A CycloneDX BOM | Every push |
-| `hygiene` | Duplication per scope and module, the worst files, swallowed exceptions justified and not, dead-code warnings, comment density, optionally the duplication `gate` and `commentSlop` | `jscpd-report.json`, `semgrep.json`, and a committed baseline | Every push |
+| `hygiene` | Duplication per scope and module, the worst files, swallowed exceptions justified and not, dead-code warnings, comment density, optionally the duplication `gate`, `commentSlop` and Knip's `deadCode.web` | `jscpd-report.json`, `semgrep.json`, Knip's `--reporter json`, and committed baselines | Every push |
+| `bundle` | The web static export's JavaScript: total and largest chunk in bytes, the budget (baseline + 10%), over budget or not, and its `gate` | `size-limit --json` (`@size-limit/file`) and the chunk directory | Every push |
+
+`deadCode.web.gate` and `bundle.gate` are `{ mode, since, violations, failed }`: `report` never fails
+CI and does not count on the scorecard; `ratchet` holds the committed baseline. The mode lives in the
+repository's `quality.config.json` and changes only in a reviewed pull request.
 
 ## Envelope
 
@@ -30,8 +35,9 @@ One artifact per facet, named `engineering-excellence-<facet>`, holding a single
 The canonical schema is `schema/engineering-excellence-facets.schema.json` in Project Health. Vendors
 a copy and validate before upload. `data` is defined per facet in that file.
 
-Not every practice has a facet. DAST, performance and the restore drill are read from their own
-workflows, so publishing six facets is not the same as passing the standard.
+Not every practice has a facet. DAST, load-test performance and the restore drill are read from
+their own workflows (the bundle facet stands for performance only once its gate is a ratchet), so
+publishing every facet is not the same as passing the standard.
 
 ## Rules
 

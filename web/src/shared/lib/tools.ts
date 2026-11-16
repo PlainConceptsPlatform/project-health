@@ -45,6 +45,9 @@ export const TOOL_LINKS: Record<string, string> = {
   lizard: 'https://github.com/terryyin/lizard',
   ESLint: 'https://github.com/eslint/eslint',
   jscpd: 'https://github.com/kucherenko/jscpd',
+  Knip: 'https://github.com/webpro-nl/knip',
+  // Bundle size
+  'size-limit': 'https://github.com/ai/size-limit',
   // Test environment
   'OWASP ZAP': 'https://github.com/zaproxy/zaproxy',
   JMeter: 'https://github.com/apache/jmeter',
@@ -74,8 +77,11 @@ export const PLATFORM_GATES: Record<string, string[]> = {
   'coverage facet': ['coverlet', 'ReportGenerator', 'Vitest', 'coverage-v8'],
   // check-mutation.mjs: Stryker's report.
   'mutation facet': ['Stryker'],
-  // check-duplication.mjs reads jscpd; swallowed exceptions are Semgrep findings.
+  // check-duplication.mjs reads jscpd; swallowed exceptions are Semgrep findings. Knip's web dead
+  // code (check-dead-code.mjs) is named by the practice itself, and only once its gate is a ratchet.
   'hygiene facet': ['jscpd', 'Semgrep'],
+  // check-bundle-size.mjs: size-limit with @size-limit/file over the static export's chunks.
+  'bundle facet': ['size-limit'],
   // engineering-excellence.mjs: the Trivy and Semgrep reports, and a CycloneDX SBOM.
   'security facet': ['Trivy', 'Semgrep'],
   'SBOM facet': ['CycloneDX'],

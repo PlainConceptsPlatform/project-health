@@ -7,7 +7,7 @@ license: MIT
 # Engineering adoption
 
 The deliverable is the standard running in the repository: gates that fail a pull request, and the
-six facets the CI publishes from the default branch. A dashboard is optional and comes after.
+facets the CI publishes from the default branch. A dashboard is optional and comes after.
 
 Read [`references/producers.md`](references/producers.md) before you add anything. Two different
 things produce engineering signals, they come from two different places, and mixing them is the

@@ -2,6 +2,7 @@ import type { PracticeDefinition, ScorecardConfig } from '../config.ts'
 import { type WorkflowRun, get, paginate } from '../github.ts'
 import {
   type AiUsage,
+  type CheckGate,
   type DetectedMode,
   type EngineeringExcellence,
   type FacetSeries,
@@ -284,15 +285,25 @@ const jobResult = (jobs: SecurityData['jobs'], pattern: RegExp): PracticeResultS
 }
 
 /**
+ * Only a check whose gate is a ratchet counts. A report-only check is shown on the Engineering tab
+ * but never moves a practice, so a repository can measure for two weeks before it is held to it.
+ */
+export const counts = (gate: CheckGate | null | undefined): gate is CheckGate =>
+  gate?.mode === 'ratchet'
+
+/**
  * A swallowed-exception count of null means the producer ran no scanner, which is not a finding.
- * Dead code only counts when the build does not already fail on it.
+ * Dead code only counts when the build does not already fail on it, and Knip's web dead code only
+ * once its gate is a ratchet.
  */
 export function hygieneVerdict(data: HygieneData): PracticeResultState {
   const duplication = data.gate?.violations ?? 0
   const swallowed = data.global.swallowedExceptions ?? 0
   const dead = data.deadCode.gated ? 0 : data.deadCode.warnings
+  const web = data.deadCode.web
+  const webDead = web && counts(web.gate) ? web.gate.violations : 0
   const comments = data.commentSlop?.gate?.violations ?? 0
-  return duplication + swallowed + dead + comments === 0 ? 'passing' : 'failing'
+  return duplication + swallowed + dead + webDead + comments === 0 ? 'passing' : 'failing'
 }
 
 /**
@@ -395,11 +406,27 @@ export function facetEvidence(
     case 'sbom':
       return evidence(excellence.sbom, 'SBOM facet', () => 'passing')
     case 'hygiene': {
-      const gate = excellence.hygiene.available ? excellence.hygiene.data.latest.gate : null
+      const latest = excellence.hygiene.available ? excellence.hygiene.data.latest : null
       // Duplication measured without a gate is reported, not held.
-      return gate
+      const found = latest?.gate
         ? evidence(excellence.hygiene, 'hygiene facet', hygieneVerdict, 'blocking')
         : evidence(excellence.hygiene, 'hygiene facet', () => 'passing', 'report-only')
+      // Knip is named among the practice's tools once it counts, never while it is report-only.
+      return found && counts(latest?.deadCode.web?.gate)
+        ? { ...found, tools: [...found.tools, 'Knip'] }
+        : found
+    }
+    case 'performance': {
+      // The bundle budget stands for performance only once it is a ratchet; report-only, the
+      // practice is rated as if the facet were absent.
+      const bundle = excellence.bundle
+      if (!bundle?.available || !counts(bundle.data.latest.gate)) return null
+      return evidence(
+        bundle,
+        'bundle facet',
+        (d) => (d.overBudget ? 'failing' : 'passing'),
+        'blocking',
+      )
     }
     default:
       return null

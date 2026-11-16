@@ -1,4 +1,5 @@
 import type {
+  CheckGate,
   ComplexityData,
   CoverageData,
   EngineeringExcellence,
@@ -202,3 +203,26 @@ export const topDuplication = (hygiene: HygieneData, limit = 10): HygieneHotspot
   [...(hygiene.hotspots ?? [])]
     .sort((a, b) => b.duplicatedLines - a.duplicatedLines || a.file.localeCompare(b.file))
     .slice(0, limit)
+
+/**
+ * How a report-then-ratchet check stands, in words: "report-only since 2026-11-16" while it is
+ * measured and never fails CI, "ratchet since …" once a change may not make it worse.
+ */
+export function checkModeLabel(gate: CheckGate): string {
+  const since = gate.since ? ` since ${gate.since}` : ''
+  return gate.mode === 'ratchet' ? `ratchet${since}` : `report-only${since}`
+}
+
+/** Bytes as kB with one decimal, the unit size-limit prints, so the two read the same. */
+export const kilobytes = (bytes: number | null): string =>
+  bytes === null ? 'n/a' : `${(bytes / 1000).toFixed(1)} kB`
+
+/** Knip issue types summed into one headline count, with what the baseline allows of them. */
+export const EXPORT_TYPES = ['exports', 'nsExports', 'types', 'nsTypes']
+export function baselineOf(
+  baseline: Record<string, number> | null,
+  types: string[],
+): number | null {
+  if (!baseline) return null
+  return types.reduce((n, type) => n + (baseline[type] ?? 0), 0)
+}
