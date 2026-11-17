@@ -117,7 +117,7 @@
       "name": "Code hygiene (AI slop)",
       "phase": "build",
       "mode": "threshold",
-      "description": "Duplicated code, swallowed exceptions and dead code are measured on every build and held by a gate.",
+      "description": "Duplicated code, swallowed exceptions, dead code and, once ratcheted, architecture-rule warnings are measured on every build and held by a gate.",
       "tools": [{ "name": "jscpd", "pattern": "\\bjscpd\\b" }]
     },
     {

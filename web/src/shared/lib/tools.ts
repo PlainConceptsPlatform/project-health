@@ -48,6 +48,10 @@ export const TOOL_LINKS: Record<string, string> = {
   Knip: 'https://github.com/webpro-nl/knip',
   // Bundle size
   'size-limit': 'https://github.com/ai/size-limit',
+  // Architecture
+  Steiger: 'https://github.com/feature-sliced/steiger',
+  ArchUnitNET: 'https://github.com/TNG/ArchUnitNET',
+  NetArchTest: 'https://github.com/BenMorris/NetArchTest',
   // Test environment
   'OWASP ZAP': 'https://github.com/zaproxy/zaproxy',
   JMeter: 'https://github.com/apache/jmeter',
@@ -82,6 +86,9 @@ export const PLATFORM_GATES: Record<string, string[]> = {
   'hygiene facet': ['jscpd', 'Semgrep'],
   // check-bundle-size.mjs: size-limit with @size-limit/file over the static export's chunks.
   'bundle facet': ['size-limit'],
+  // check-architecture.mjs reads Steiger's JSON; the .NET part reads the architecture tests' TRX,
+  // whose library the facet names on its own.
+  'architecture facet': ['Steiger'],
   // engineering-excellence.mjs: the Trivy and Semgrep reports, and a CycloneDX SBOM.
   'security facet': ['Trivy', 'Semgrep'],
   'SBOM facet': ['CycloneDX'],

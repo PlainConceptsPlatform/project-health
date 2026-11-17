@@ -365,6 +365,51 @@ describe('readFacet', () => {
     expect(readBundle(zstd)).toMatchObject({ ok: false, kind: 'mismatch' })
   })
 
+  const readArchitecture = (doc: unknown) =>
+    readFacet({ 'architecture.json': strToU8(JSON.stringify(doc)) }, 'architecture', REPO, 'main')
+
+  it('accepts an architecture facet with both parts, or with either one alone', () => {
+    const read = readArchitecture(fixture('architecture'))
+    expect(read.ok).toBe(true)
+    if (read.ok) {
+      expect(read.envelope.data.web?.byRule['fsd/public-api']).toEqual({ errors: 0, warnings: 2 })
+      expect(read.envelope.data.web?.gate.mode).toBe('report')
+      expect(read.envelope.data.dotnet?.failing).toEqual([
+        'LayerTests.Application_has_no_framework',
+      ])
+    }
+    // A .NET-only repository, and one whose architecture tests use no known library.
+    const dotnetOnly = fixture('architecture')
+    Object.assign(dotnetOnly.data, { web: null })
+    Object.assign(dotnetOnly.data.dotnet as object, { tool: null })
+    expect(readArchitecture(dotnetOnly).ok).toBe(true)
+    // A web-only repository before its first baseline.
+    const webOnly = fixture('architecture')
+    Object.assign(webOnly.data, { dotnet: null })
+    Object.assign(webOnly.data.web as object, { baseline: null, version: null })
+    expect(readArchitecture(webOnly).ok).toBe(true)
+  })
+
+  it('rejects an architecture facet without its gate, with a missing part, or an unknown library', () => {
+    const ungated = fixture('architecture')
+    const { gate: _gate, ...web } = ungated.data.web as Record<string, unknown>
+    ungated.data.web = web
+    const ungatedRead = readArchitecture(ungated)
+    expect(ungatedRead).toMatchObject({ ok: false, kind: 'mismatch' })
+    if (!ungatedRead.ok) expect(ungatedRead.reason).toContain("missing 'gate'")
+
+    // A part that did not run is null, never left out.
+    const { dotnet: _dotnet, ...partial } = fixture('architecture').data
+    expect(readArchitecture({ ...fixture('architecture'), data: partial })).toMatchObject({
+      ok: false,
+      kind: 'mismatch',
+    })
+
+    const unknown = fixture('architecture')
+    Object.assign(unknown.data.dotnet as object, { tool: 'archtest' })
+    expect(readArchitecture(unknown)).toMatchObject({ ok: false, kind: 'mismatch' })
+  })
+
   it('reports a missing file as missing, not as a mismatch', () => {
     expect(readFacet({ 'other.json': strToU8('{}') }, 'coverage', REPO, 'main')).toMatchObject({
       ok: false,
@@ -529,9 +574,11 @@ describe('collectEngineeringExcellence', () => {
       expect(block.coverage.data.samples[0]?.commitSha).toBe(coverage.commitSha)
     }
     expect(block.sbom).toMatchObject({ available: false })
+    // A repository that does not produce the architecture facet yet simply has none.
+    expect(block.architecture).toMatchObject({ available: false })
     expect(
       warnings.filter((w) => w.code === 'ENGINEERING_EXCELLENCE_ARTIFACT_MISSING'),
-    ).toHaveLength(6)
+    ).toHaveLength(7)
   })
 
   it('warns on a schema mismatch and keeps the stored samples instead of the bad one', async () => {

@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "facet": "architecture",
+  "repo": "your-org/checkout",
+  "ref": "refs/heads/main",
+  "commitSha": "dddddddddddddddddddddddddddddddddddddddd",
+  "runId": 3004,
+  "runAttempt": 1,
+  "generatedAt": "2026-10-12T09:00:00.000Z",
+  "data": {
+    "web": {
+      "tool": "steiger",
+      "version": "0.10.0",
+      "errors": 2,
+      "warnings": 3,
+      "byRule": {
+        "fsd/forbidden-imports": {
+          "errors": 1,
+          "warnings": 0
+        },
+        "fsd/insignificant-slice": {
+          "errors": 0,
+          "warnings": 1
+        },
+        "fsd/no-public-api-sidestep": {
+          "errors": 1,
+          "warnings": 0
+        },
+        "fsd/public-api": {
+          "errors": 0,
+          "warnings": 2
+        }
+      },
+      "baseline": {
+        "fsd/insignificant-slice": 1,
+        "fsd/public-api": 2
+      },
+      "gate": {
+        "mode": "report",
+        "since": "2026-11-17",
+        "violations": 0,
+        "failed": false
+      }
+    },
+    "dotnet": {
+      "tool": "netarchtest",
+      "project": "App.ArchitectureTests",
+      "rules": 2,
+      "passed": 1,
+      "failed": 1,
+      "skipped": 0,
+      "failing": ["LayerTests.Application_has_no_framework"]
+    }
+  }
+}

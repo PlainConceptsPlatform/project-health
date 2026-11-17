@@ -357,6 +357,7 @@ export const FACETS = [
   'sbom',
   'hygiene',
   'bundle',
+  'architecture',
 ] as const
 export type Facet = (typeof FACETS)[number]
 
@@ -564,6 +565,37 @@ export interface BundleData {
   gate: CheckGate
 }
 
+/** Mirrors the collector's ArchitectureWeb: Steiger over the web app. */
+export interface ArchitectureWeb {
+  tool: 'steiger'
+  version: string | null
+  errors: number
+  warnings: number
+  /** Errors and warnings per Steiger rule, every rule that reported something. */
+  byRule: Record<string, { errors: number; warnings: number }>
+  /** The committed warning baseline per rule; null before one is written. */
+  baseline: Record<string, number> | null
+  gate: CheckGate
+}
+
+/** Mirrors the collector's ArchitectureDotnet: the architecture tests' TRX. */
+export interface ArchitectureDotnet {
+  tool: 'archunitnet' | 'netarchtest' | null
+  project: string | null
+  rules: number
+  passed: number
+  failed: number
+  skipped: number
+  /** The failing rules as Class.Method, at most 50. */
+  failing: string[]
+}
+
+/** Either part is null when the repository does not run it. */
+export interface ArchitectureData {
+  web: ArchitectureWeb | null
+  dotnet: ArchitectureDotnet | null
+}
+
 export interface FacetDataMap {
   coverage: CoverageData
   complexity: ComplexityData
@@ -572,6 +604,7 @@ export interface FacetDataMap {
   sbom: SbomData
   hygiene: HygieneData
   bundle: BundleData
+  architecture: ArchitectureData
 }
 
 export interface FacetSample<T> {
@@ -593,12 +626,16 @@ export interface FacetSeries<T> {
 }
 
 export type EngineeringExcellence = {
-  [F in Exclude<Facet, 'hygiene' | 'bundle'>]: MetricBlock<FacetSeries<FacetDataMap[F]>>
+  [F in Exclude<Facet, 'hygiene' | 'bundle' | 'architecture'>]: MetricBlock<
+    FacetSeries<FacetDataMap[F]>
+  >
 } & {
   /** Absent from months collected before the hygiene facet existed. */
   hygiene?: MetricBlock<FacetSeries<HygieneData>>
   /** Absent from months collected before the bundle facet existed. */
   bundle?: MetricBlock<FacetSeries<BundleData>>
+  /** Absent from months collected before the architecture facet existed. */
+  architecture?: MetricBlock<FacetSeries<ArchitectureData>>
 }
 
 /** Mirrors the collector's scorecard types; see collector/src/types.ts for the rules behind them. */
