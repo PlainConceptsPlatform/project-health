@@ -181,6 +181,7 @@ function runsSuite(
   // `--prefix web` next to its test command.
   if (suite.root !== '') {
     const escaped = suite.root.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp -- the suite root is escaped on the line above
     if (new RegExp(`(?:^|[\\s"'=:])(?:\\./)?${escaped}(?:[/\\s"']|$)`).test(command)) return true
   }
 

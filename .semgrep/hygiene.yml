@@ -1,0 +1,33 @@
+# Code hygiene (practice 11): an empty catch block turns a failure into silence. The TypeScript rule
+# of the platform's shared hygiene rules (agentic-workflows
+# loops/templates/quality-gates/.semgrep/platform-hygiene.yml), scoped to this repository's code.
+# Run by the blocking Semgrep scan in .github/workflows/ci.yml via `--config .semgrep/`.
+#
+# Where swallowing is genuinely correct, say why on the `try` line or the line above it:
+#
+#   // nosemgrep: platform-hygiene-ts-empty-catch -- <why swallowing is correct here>
+rules:
+  - id: platform-hygiene-ts-empty-catch
+    languages: [typescript, javascript]
+    severity: ERROR
+    message: >-
+      Empty catch block: the error is swallowed without logging, rethrowing or a
+      fallback. Handle it, or justify it on the `try` line with
+      `// nosemgrep: platform-hygiene-ts-empty-catch -- <reason>`.
+    metadata:
+      category: hygiene
+    paths:
+      include:
+        - "/collector/src/"
+        - "/web/src/"
+        - "/scripts/"
+      exclude:
+        - "**/*.test.ts"
+        - "**/*.test.tsx"
+        - "**/*.test.mjs"
+        - "**/node_modules/**"
+    pattern-either:
+      - pattern: try { ... } catch { }
+      - pattern: try { ... } catch ($E) { }
+      - pattern: try { ... } catch { } finally { ... }
+      - pattern: try { ... } catch ($E) { } finally { ... }

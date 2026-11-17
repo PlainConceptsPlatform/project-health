@@ -29,6 +29,7 @@ export function ThemeToggle() {
     const next = !dark
     apply(next)
     setDark(next)
+    // nosemgrep: platform-hygiene-ts-empty-catch -- blocked storage only means the choice is not remembered across reloads
     try {
       localStorage.setItem(STORAGE_KEY, next ? 'dark' : 'light')
     } catch {

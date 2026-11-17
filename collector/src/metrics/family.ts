@@ -76,6 +76,7 @@ export function globToRegExp(glob: string): RegExp {
     } else if (char === ',' && braces > 0) pattern += '|'
     else pattern += char.replace(/[.+^$()|[\]\\]/g, '\\$&')
   }
+  // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp -- built from a glob with every regex metacharacter escaped
   return new RegExp(`^${pattern}$`)
 }
 
@@ -93,6 +94,7 @@ export function pathMatcher(globs: string[]): (path: string) => boolean {
       const anchored = glob.replace(/\/$/, '').includes('/')
       glob = glob.replace(/^\//, '').replace(/\/$/, '')
       const regex = globToRegExp(anchored ? glob : `**/${glob}`)
+      // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp -- the source of the escaped glob regex built above
       const inside = new RegExp(`${regex.source.slice(0, -1)}/.*$`)
       return { negated, test: (path: string) => regex.test(path) || inside.test(path) }
     })
@@ -139,6 +141,7 @@ export function appTokens(names: string[]): string[] {
 /** Replaces every app name with APP, so two apps' copies of the same file read the same. */
 export function normaliser(tokens: string[]): (text: string) => string {
   if (tokens.length === 0) return (text) => text
+  // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp -- app names, every regex metacharacter escaped
   const regex = new RegExp(
     tokens.map((t) => t.replace(/[.*+?^${}()|[\]\\-]/g, '\\$&')).join('|'),
     'g',

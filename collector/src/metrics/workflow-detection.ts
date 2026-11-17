@@ -116,6 +116,7 @@ export function inferMode(
 ): DetectedMode {
   if (jobReportOnly) return 'report-only'
   if (REPORT_ONLY.some((pattern) => pattern.test(unit))) return 'report-only'
+  // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp -- blockingWhen comes from config/scorecard.json, which only writers of this repository change
   if (blockingWhen && !new RegExp(blockingWhen, 'i').test(unit)) return 'report-only'
   return 'blocking'
 }
@@ -174,6 +175,7 @@ export function detectTools(
       for (const practice of practices) {
         // The first matching tool names the step. Tools are listed specific first, so a generic
         // pattern such as "complexity" does not add a second name for check-complexity.
+        // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp -- tool patterns come from config/scorecard.json, which only writers of this repository change
         const tool = practice.tools.find((t) => new RegExp(t.pattern, 'i').test(command))
         if (!tool) continue
         hits.push({
@@ -273,6 +275,7 @@ export function summarizeDetections(hits: ToolHit[]): Map<string, PracticeDetect
 export function callersOf(workflow: string, files: { path: string; text: string }[]): string[] {
   const file = workflow.split('/').at(-1) ?? workflow
   const escaped = file.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp -- the workflow file name is escaped on the line above
   const call = new RegExp(`uses:\\s*['"]?\\./\\.github/workflows/${escaped}['"]?`)
   return files.filter((f) => f.path !== workflow && call.test(f.text)).map((f) => f.path)
 }

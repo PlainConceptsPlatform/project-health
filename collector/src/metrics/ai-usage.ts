@@ -27,6 +27,7 @@ const isBot = (author: CommitLike['author']) =>
  */
 export function aiAssistant(commit: CommitLike, config: ScorecardConfig['aiUsage']): string | null {
   const match = (text: string) =>
+    // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp -- the pattern comes from config/scorecard.json, which only writers of this repository change
     config.assistants.find((a) => new RegExp(a.pattern, 'i').test(text))?.name ?? null
 
   for (const trailer of trailers(commit.commit.message)) {

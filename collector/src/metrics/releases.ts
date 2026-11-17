@@ -20,6 +20,7 @@ export async function fetchReleaseHistory(
   const records = await paginate<Deployment>(
     `/repos/${project.repo}/deployments?environment=${encodeURIComponent(environment)}&per_page=100`,
   )
+  // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp -- productionRefPattern comes from projects.json, checked by verify:config
   return groupIntoReleases(records, new RegExp(project.productionRefPattern))
 }
 

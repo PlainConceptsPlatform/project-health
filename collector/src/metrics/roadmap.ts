@@ -224,6 +224,7 @@ export function outcomeOf(issue: Issue, pullRequests: LinkedPullRequest[]): Jour
 }
 
 const closesIssue = (body: string | null, issue: number): boolean =>
+  // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp -- the only variable part is an issue number
   new RegExp(`\\b(close[sd]?|fix(e[sd])?|resolve[sd]?)\\s+#${issue}\\b`, 'i').test(body ?? '')
 
 export function mergeGateOf(comments: IssueComment[]): string | null {

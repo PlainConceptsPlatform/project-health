@@ -57,6 +57,7 @@ interface ProjectsFile {
  */
 function readConfiguredProjects(): ProjectsFile['projects'] {
   for (const name of ['projects.json', 'projects.example.json']) {
+    // nosemgrep: platform-hygiene-ts-empty-catch -- an unreadable candidate falls through to the next one, and the last is the shipped example
     try {
       const file = JSON.parse(readFileSync(join(repoRoot, name), 'utf8')) as ProjectsFile
       const projects = file.projects.filter((p) => p.enabled)

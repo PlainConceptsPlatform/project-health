@@ -26,6 +26,7 @@ process.env.OTEL_EXPORTER_OTLP_ENDPOINT = 'http://localhost:4318'
 const reports: MonthlyReport[] = []
 for (const p of ['billing', 'checkout', 'ledger']) {
   for (const m of ['2026-07', '2026-08']) {
+    // nosemgrep: platform-hygiene-ts-empty-catch -- a manual smoke script; a month the demo data lacks is simply not fed
     try {
       reports.push(JSON.parse(readFileSync(join(repoRoot, 'data', p, `${m}.json`), 'utf8')))
     } catch {}
