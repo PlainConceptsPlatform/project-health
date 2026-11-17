@@ -609,9 +609,49 @@ describe('facetEvidence', () => {
       gate?: boolean
       commentSlopViolations?: number
       knip?: { mode: 'report' | 'ratchet'; violations: number }
+      steiger?: { mode: 'report' | 'ratchet'; violations: number; errors?: number }
+      archTestsFailed?: number
     } = {},
   ) => {
     const ee = excellence()
+    if (patch.steiger || patch.archTestsFailed !== undefined) {
+      ee.architecture = series(
+        {
+          web: patch.steiger
+            ? {
+                tool: 'steiger',
+                version: '0.10.0',
+                errors: patch.steiger.errors ?? 0,
+                warnings: 3 + patch.steiger.violations,
+                byRule: { 'fsd/public-api': { errors: 0, warnings: 3 + patch.steiger.violations } },
+                baseline: { 'fsd/public-api': 3 },
+                gate: {
+                  mode: patch.steiger.mode,
+                  since: '2026-11-17',
+                  violations: patch.steiger.violations,
+                  failed: patch.steiger.mode === 'ratchet' && patch.steiger.violations > 0,
+                },
+              }
+            : null,
+          dotnet:
+            patch.archTestsFailed === undefined
+              ? null
+              : {
+                  tool: 'archunitnet',
+                  project: 'App.ArchitectureTests',
+                  rules: 9,
+                  passed: 9 - patch.archTestsFailed,
+                  failed: patch.archTestsFailed,
+                  skipped: 0,
+                  failing: Array.from(
+                    { length: patch.archTestsFailed },
+                    (_, i) => `LayerTests.Rule_${i}`,
+                  ),
+                },
+        },
+        '2026-10-15T00:00:00Z',
+      )
+    }
     const summary = {
       files: 10,
       lines: 1000,
@@ -717,6 +757,36 @@ describe('facetEvidence', () => {
       tools: ['hygiene facet', 'Knip'],
     })
     expect(hygiene({ knip: { mode: 'ratchet', violations: 1 } })?.result).toBe('failing')
+  })
+
+  it('counts Steiger warnings over the baseline in hygiene only once the architecture gate is a ratchet', () => {
+    // A month collected before the architecture facet existed rates exactly as before.
+    expect(hygiene()).toMatchObject({ result: 'passing', tools: ['hygiene facet'] })
+    expect(hygiene({ steiger: { mode: 'report', violations: 4 } })).toMatchObject({
+      result: 'passing',
+      tools: ['hygiene facet'],
+    })
+    expect(hygiene({ steiger: { mode: 'ratchet', violations: 0 } })).toMatchObject({
+      result: 'passing',
+      tools: ['hygiene facet', 'Steiger'],
+    })
+    expect(hygiene({ steiger: { mode: 'ratchet', violations: 2 } })?.result).toBe('failing')
+    expect(
+      hygiene({
+        knip: { mode: 'ratchet', violations: 0 },
+        steiger: { mode: 'ratchet', violations: 0 },
+      })?.tools,
+    ).toEqual(['hygiene facet', 'Knip', 'Steiger'])
+  })
+
+  it('leaves Steiger errors and failing architecture tests to the CI that already fails on them', () => {
+    expect(hygiene({ steiger: { mode: 'ratchet', violations: 0, errors: 2 } })?.result).toBe(
+      'passing',
+    )
+    expect(hygiene({ archTestsFailed: 1 })).toMatchObject({
+      result: 'passing',
+      tools: ['hygiene facet'],
+    })
   })
 
   const performance = (gate: { mode: 'report' | 'ratchet'; overBudget: boolean } | null) => {

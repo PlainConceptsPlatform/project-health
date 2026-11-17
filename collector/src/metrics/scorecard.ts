@@ -2,6 +2,7 @@ import type { PracticeDefinition, ScorecardConfig } from '../config.ts'
 import { type WorkflowRun, get, paginate } from '../github.ts'
 import {
   type AiUsage,
+  type ArchitectureData,
   type CheckGate,
   type DetectedMode,
   type EngineeringExcellence,
@@ -292,18 +293,30 @@ export const counts = (gate: CheckGate | null | undefined): gate is CheckGate =>
   gate?.mode === 'ratchet'
 
 /**
- * A swallowed-exception count of null means the producer ran no scanner, which is not a finding.
- * Dead code only counts when the build does not already fail on it, and Knip's web dead code only
- * once its gate is a ratchet.
+ * The architecture facet's part in Code hygiene: Steiger warnings over their baseline, once that
+ * gate is a ratchet. Steiger errors and failing architecture tests already fail the repository's CI
+ * in their own jobs, so, like gated dead code, they are not counted again here.
  */
-export function hygieneVerdict(data: HygieneData): PracticeResultState {
+export const architectureWarnings = (data: ArchitectureData | null | undefined): number =>
+  data?.web && counts(data.web.gate) ? data.web.gate.violations : 0
+
+/**
+ * A swallowed-exception count of null means the producer ran no scanner, which is not a finding.
+ * Dead code only counts when the build does not already fail on it, and Knip's web dead code and
+ * Steiger's architecture warnings only once their gate is a ratchet.
+ */
+export function hygieneVerdict(
+  data: HygieneData,
+  architecture: ArchitectureData | null = null,
+): PracticeResultState {
   const duplication = data.gate?.violations ?? 0
   const swallowed = data.global.swallowedExceptions ?? 0
   const dead = data.deadCode.gated ? 0 : data.deadCode.warnings
   const web = data.deadCode.web
   const webDead = web && counts(web.gate) ? web.gate.violations : 0
   const comments = data.commentSlop?.gate?.violations ?? 0
-  return duplication + swallowed + dead + webDead + comments === 0 ? 'passing' : 'failing'
+  const layers = architectureWarnings(architecture)
+  return duplication + swallowed + dead + webDead + comments + layers === 0 ? 'passing' : 'failing'
 }
 
 /**
@@ -407,14 +420,25 @@ export function facetEvidence(
       return evidence(excellence.sbom, 'SBOM facet', () => 'passing')
     case 'hygiene': {
       const latest = excellence.hygiene.available ? excellence.hygiene.data.latest : null
+      const architecture = excellence.architecture?.available
+        ? excellence.architecture.data.latest
+        : null
       // Duplication measured without a gate is reported, not held.
       const found = latest?.gate
-        ? evidence(excellence.hygiene, 'hygiene facet', hygieneVerdict, 'blocking')
+        ? evidence(
+            excellence.hygiene,
+            'hygiene facet',
+            (d) => hygieneVerdict(d, architecture),
+            'blocking',
+          )
         : evidence(excellence.hygiene, 'hygiene facet', () => 'passing', 'report-only')
-      // Knip is named among the practice's tools once it counts, never while it is report-only.
-      return found && counts(latest?.deadCode.web?.gate)
-        ? { ...found, tools: [...found.tools, 'Knip'] }
-        : found
+      // Knip and Steiger are named among the practice's tools once they count, never while they
+      // are report-only.
+      const extra = [
+        ...(counts(latest?.deadCode.web?.gate) ? ['Knip'] : []),
+        ...(counts(architecture?.web?.gate) ? ['Steiger'] : []),
+      ]
+      return found && extra.length > 0 ? { ...found, tools: [...found.tools, ...extra] } : found
     }
     case 'performance': {
       // The bundle budget stands for performance only once it is a ratchet; report-only, the

@@ -45,6 +45,13 @@ describe('tool links', () => {
     expect(externalTools(['hygiene facet', 'Knip'])).toEqual(['jscpd', 'Semgrep', 'Knip'])
   })
 
+  it('links the architecture tools, and shows the architecture facet as Steiger', () => {
+    expect(toolLink('Steiger')).toBe('https://github.com/feature-sliced/steiger')
+    expect(toolLink('ArchUnitNET')).toBe('https://github.com/TNG/ArchUnitNET')
+    expect(toolLink('NetArchTest')).toBe('https://github.com/BenMorris/NetArchTest')
+    expect(externalTools(['architecture facet', 'ArchUnitNET'])).toEqual(['Steiger', 'ArchUnitNET'])
+  })
+
   it('maps every platform gate onto tools that have a link', () => {
     for (const tools of Object.values(PLATFORM_GATES)) {
       for (const tool of tools) expect(TOOL_LINKS[tool], tool).toMatch(/^https:\/\//)

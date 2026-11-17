@@ -1,4 +1,7 @@
 import type {
+  ArchitectureData,
+  ArchitectureDotnet,
+  ArchitectureWeb,
   CheckGate,
   ComplexityData,
   CoverageData,
@@ -225,4 +228,42 @@ export function baselineOf(
 ): number | null {
   if (!baseline) return null
   return types.reduce((n, type) => n + (baseline[type] ?? 0), 0)
+}
+
+/** The library behind the .NET architecture tests, under the name its tool link is keyed by. */
+export const ARCHITECTURE_LIBRARIES: Record<NonNullable<ArchitectureDotnet['tool']>, string> = {
+  archunitnet: 'ArchUnitNET',
+  netarchtest: 'NetArchTest',
+}
+
+/** The open-source tools an architecture facet was read from: Steiger and the tests' library. */
+export const architectureTools = (data: ArchitectureData | null): string[] => [
+  ...(data?.web ? ['Steiger'] : []),
+  ...(data?.dotnet?.tool ? [ARCHITECTURE_LIBRARIES[data.dotnet.tool]] : []),
+]
+
+export interface ArchitectureRuleRow {
+  rule: string
+  errors: number
+  warnings: number
+  /** Warnings the baseline allows; null before a baseline is written. */
+  allowed: number | null
+  /** More warnings than the baseline allows (a rule outside the baseline allows none). */
+  over: boolean
+}
+
+/** Steiger's rules, worst first: errors, then warnings over the baseline, then the most warnings. */
+export function architectureRules(web: ArchitectureWeb): ArchitectureRuleRow[] {
+  return Object.entries(web.byRule)
+    .map(([rule, { errors, warnings }]) => {
+      const allowed = web.baseline ? (web.baseline[rule] ?? 0) : null
+      return { rule, errors, warnings, allowed, over: warnings > (allowed ?? 0) }
+    })
+    .sort(
+      (a, b) =>
+        b.errors - a.errors ||
+        Number(b.over) - Number(a.over) ||
+        b.warnings - a.warnings ||
+        a.rule.localeCompare(b.rule),
+    )
 }

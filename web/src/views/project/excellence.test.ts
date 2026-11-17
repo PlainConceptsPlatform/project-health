@@ -1,15 +1,24 @@
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
-import { baselineOf, checkModeLabel, kilobytes } from '../../shared/lib/excellence'
+import {
+  architectureRules,
+  architectureTools,
+  baselineOf,
+  checkModeLabel,
+  kilobytes,
+} from '../../shared/lib/excellence'
 import type {
+  ArchitectureData,
+  ArchitectureDotnet,
+  ArchitectureWeb,
   BundleData,
   CheckGate,
   DeadCodeWeb,
   EngineeringExcellence,
 } from '../../shared/lib/types'
 import { TooltipProvider } from '../../shared/ui/tooltip'
-import { BundleSection, DeadCodeWebPanel } from './excellence'
+import { ArchitectureSection, BundleSection, DeadCodeWebPanel } from './excellence'
 
 /**
  * A new check runs report-only for its first weeks: measured and shown, never failing CI and never
@@ -138,5 +147,113 @@ describe('report-then-ratchet checks', () => {
 
   it('reads a month collected before the bundle facet existed as unavailable, not as a crash', () => {
     expect(renderBundle(null)).toContain('the bundle facet is newer')
+  })
+})
+
+const steiger = (over: Partial<ArchitectureWeb> = {}): ArchitectureWeb => ({
+  tool: 'steiger',
+  version: '0.10.0',
+  errors: 0,
+  warnings: 5,
+  byRule: {
+    'fsd/insignificant-slice': { errors: 0, warnings: 1 },
+    'fsd/public-api': { errors: 0, warnings: 4 },
+  },
+  baseline: { 'fsd/insignificant-slice': 1, 'fsd/public-api': 2 },
+  gate: gate({ violations: 2 }),
+  ...over,
+})
+
+const archTests = (over: Partial<ArchitectureDotnet> = {}): ArchitectureDotnet => ({
+  tool: 'archunitnet',
+  project: 'App.ArchitectureTests',
+  rules: 9,
+  passed: 9,
+  failed: 0,
+  skipped: 0,
+  failing: [],
+  ...over,
+})
+
+const withArchitecture = (data: ArchitectureData | null) =>
+  ({
+    architecture: data
+      ? {
+          available: true,
+          data: { samples: [], latest: data, latestGeneratedAt: '2026-11-17T00:00:00Z' },
+        }
+      : undefined,
+  }) as unknown as EngineeringExcellence
+const renderArchitecture = (data: ArchitectureData | null) =>
+  inPage(createElement(ArchitectureSection, { excellence: withArchitecture(data) }))
+
+describe('architecture', () => {
+  it('orders Steiger rules worst first and allows none outside the baseline', () => {
+    const rows = architectureRules(
+      steiger({
+        byRule: {
+          'fsd/insignificant-slice': { errors: 0, warnings: 1 },
+          'fsd/public-api': { errors: 0, warnings: 4 },
+          'fsd/forbidden-imports': { errors: 1, warnings: 0 },
+          'fsd/segments-by-purpose': { errors: 0, warnings: 1 },
+        },
+      }),
+    )
+    expect(rows.map((r) => [r.rule, r.allowed, r.over])).toEqual([
+      ['fsd/forbidden-imports', 0, false],
+      ['fsd/public-api', 2, true],
+      ['fsd/segments-by-purpose', 0, true],
+      ['fsd/insignificant-slice', 1, false],
+    ])
+    expect(architectureRules(steiger({ baseline: null }))[0]?.allowed).toBeNull()
+  })
+
+  it('names Steiger and the architecture tests library as the tools', () => {
+    expect(architectureTools({ web: steiger(), dotnet: archTests() })).toEqual([
+      'Steiger',
+      'ArchUnitNET',
+    ])
+    expect(architectureTools({ web: null, dotnet: archTests({ tool: 'netarchtest' }) })).toEqual([
+      'NetArchTest',
+    ])
+    expect(architectureTools({ web: null, dotnet: archTests({ tool: null }) })).toEqual([])
+  })
+
+  it('shows report-only warnings over the baseline without marking them as a failure', () => {
+    const html = renderArchitecture({ web: steiger(), dotnet: archTests() })
+    expect(html).toContain('Steiger 0.10.0')
+    expect(html).toContain('report-only since 2026-11-16')
+    expect(html).toContain('fsd/public-api')
+    expect(html).toContain('2 warnings over the baseline, not failing while report-only')
+    expect(html).toContain('does not count on the scorecard')
+    expect(html).toContain('ArchUnitNET')
+    expect(html).not.toContain('text-destructive')
+  })
+
+  it('marks warnings over the baseline once a ratchet, and errors and failing rules in any mode', () => {
+    const ratchet = renderArchitecture({
+      web: steiger({ gate: gate({ mode: 'ratchet', violations: 2, failed: true }) }),
+      dotnet: null,
+    })
+    expect(ratchet).toContain('failing in CI')
+    expect(ratchet).toContain('count towards Code hygiene')
+    expect(ratchet.match(/text-destructive/g)).toHaveLength(1)
+
+    const broken = renderArchitecture({
+      web: steiger({ errors: 1, gate: gate() }),
+      dotnet: archTests({ passed: 8, failed: 1, failing: ['LayerTests.Domain_is_pure'] }),
+    })
+    expect(broken).toContain('LayerTests.Domain_is_pure')
+    expect(broken.match(/text-destructive/g)).toHaveLength(2)
+  })
+
+  it('shows a part the repository does not run as unavailable, and an older month as unavailable', () => {
+    const dotnetOnly = renderArchitecture({ web: null, dotnet: archTests() })
+    expect(dotnetOnly).toContain('No Steiger report')
+    expect(dotnetOnly).toContain('9')
+    expect(renderArchitecture({ web: steiger(), dotnet: null })).toContain(
+      'No architecture test results',
+    )
+    expect(renderArchitecture(null)).toContain('the architecture facet is newer')
   })
 })

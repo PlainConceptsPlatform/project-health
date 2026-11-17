@@ -68,6 +68,12 @@ export const GLOSSARY = {
   bundleSize:
     'The JavaScript the web app ships, summed over every chunk of its static export, compressed as browsers download it (brotli unless shown otherwise). The budget is the baseline plus 10%; while the check is report-only nothing fails, and once it is a ratchet a build over the budget does.',
 
+  architectureWeb:
+    'Feature-Sliced Design rules over the web app, as Steiger checks them: layers import only downwards, slices only through their public API, never from a sibling slice. An error already fails the repository’s CI. Warnings are held to a baseline per rule: while the check is report-only nothing fails, and once it is a ratchet a change may not add a warning to any rule.',
+
+  architectureDotnet:
+    'The .NET architecture tests, such as Domain depends on nothing but the shared kernel, written with NetArchTest, ArchUnitNET or plain tests and read from their test results. A failing rule already fails the repository’s CI.',
+
   commentDensity:
     'Comment-only lines per line of code. It is a rough, line-based measure, so it is shown for its trend only: a sudden jump can mean comments that restate the code.',
 

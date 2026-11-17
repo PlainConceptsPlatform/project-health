@@ -1,7 +1,10 @@
 import type { ExcellenceHistory } from '@/shared/lib/data'
 import {
+  ARCHITECTURE_LIBRARIES,
   EXPORT_TYPES,
   type ExcellenceKpis,
+  architectureRules,
+  architectureTools,
   baselineOf,
   checkModeLabel,
   debtTrend,
@@ -16,6 +19,8 @@ import {
 } from '@/shared/lib/excellence'
 import { monthName, percent } from '@/shared/lib/format'
 import type {
+  ArchitectureDotnet,
+  ArchitectureWeb,
   CheckGate,
   ComplexityGate,
   DeadCodeWeb,
@@ -690,6 +695,142 @@ export function BundleSection({ excellence }: { excellence: EngineeringExcellenc
 }
 
 /**
+ * Steiger's Feature-Sliced Design rules over the web app, errors and warnings by rule against the
+ * warning baseline. Errors fail the repository's CI in every mode, so they are always marked bad;
+ * warnings over the baseline only once the gate is a ratchet.
+ */
+export function ArchitectureWebPanel({ web }: { web: ArchitectureWeb }) {
+  const held = web.gate.mode === 'ratchet'
+  const allowed = web.baseline
+    ? Object.values(web.baseline).reduce((n, count) => n + count, 0)
+    : null
+  const rules = architectureRules(web)
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <p className="text-sm font-medium">Web, Steiger{web.version ? ` ${web.version}` : ''}</p>
+        <CheckModeBadge gate={web.gate} />
+      </div>
+      <div className="grid grid-cols-2 gap-5 rounded-md border p-4 sm:grid-cols-3">
+        <Stat
+          label="Errors"
+          explain="architectureWeb"
+          value={web.errors}
+          tone={web.errors > 0 ? 'bad' : undefined}
+          hint="fail CI in every mode"
+        />
+        <Stat
+          label="Warnings"
+          value={web.warnings}
+          tone={held && web.gate.violations > 0 ? 'bad' : undefined}
+          hint={allowed === null ? 'no baseline yet' : `${allowed} baselined`}
+        />
+        <Stat label="Over the baseline" value={web.gate.violations} hint="warnings, by rule" />
+      </div>
+      {rules.length > 0 ? (
+        <DataTable head={['Rule', 'Errors', 'Warnings', 'Warnings allowed']}>
+          {rules.map((r) => (
+            <TableRow key={r.rule}>
+              <TableCell className="font-mono text-xs">{r.rule}</TableCell>
+              <TableCell className="tabular-nums">{r.errors}</TableCell>
+              <TableCell className="tabular-nums">
+                {r.warnings}
+                {r.over ? (
+                  <span className="text-muted-foreground">
+                    {held ? ' (over the baseline)' : ' (over, report-only)'}
+                  </span>
+                ) : null}
+              </TableCell>
+              <TableCell className="tabular-nums">
+                {r.allowed === null ? 'n/a' : r.allowed}
+              </TableCell>
+            </TableRow>
+          ))}
+        </DataTable>
+      ) : null}
+      <p className="text-xs text-muted-foreground">
+        {rules.length === 0
+          ? 'No Steiger findings. '
+          : web.baseline === null
+            ? 'No warning baseline committed yet. '
+            : web.gate.violations === 0
+              ? 'Warnings within the baseline. '
+              : `${web.gate.violations} warnings over the baseline${held ? '' : ', not failing while report-only'}. `}
+        {held
+          ? 'Warnings over the baseline count towards Code hygiene on the scorecard.'
+          : 'Shown for information: a report-only check does not count on the scorecard.'}
+      </p>
+    </div>
+  )
+}
+
+/** The .NET architecture tests from their test results: rules passed and the failing ones by name. */
+export function ArchitectureDotnetPanel({ dotnet }: { dotnet: ArchitectureDotnet }) {
+  const library = dotnet.tool ? ARCHITECTURE_LIBRARIES[dotnet.tool] : null
+  return (
+    <div className="space-y-3">
+      <p className="text-sm font-medium">
+        .NET{library ? `, ${library}` : ''}
+        {dotnet.project ? (
+          <span className="font-normal text-muted-foreground"> · {dotnet.project}</span>
+        ) : null}
+      </p>
+      <div className="grid grid-cols-2 gap-5 rounded-md border p-4 sm:grid-cols-4">
+        <Stat label="Rules" explain="architectureDotnet" value={dotnet.rules} />
+        <Stat label="Passed" value={dotnet.passed} />
+        <Stat
+          label="Failed"
+          value={dotnet.failed}
+          tone={dotnet.failed > 0 ? 'bad' : undefined}
+          hint="fail CI"
+        />
+        <Stat label="Skipped" value={dotnet.skipped} />
+      </div>
+      {dotnet.failing.length > 0 ? (
+        <ul className="space-y-1 text-xs">
+          {dotnet.failing.slice(0, 10).map((rule) => (
+            <li key={rule} className="font-mono">
+              {rule}
+            </li>
+          ))}
+          {dotnet.failed > 10 ? (
+            <li className="text-muted-foreground">and {dotnet.failed - 10} more</li>
+          ) : null}
+        </ul>
+      ) : null}
+    </div>
+  )
+}
+
+/**
+ * The architecture rules the repository's CI runs: Steiger over the web app and the .NET
+ * architecture tests. Either part is absent when the repository does not run it.
+ */
+export function ArchitectureSection({ excellence }: { excellence: EngineeringExcellence }) {
+  if (!excellence.architecture) {
+    return <Unavailable reason="Not collected for this month: the architecture facet is newer." />
+  }
+  return (
+    <Metric block={excellence.architecture}>
+      {({ latest }) => (
+        <div className="grid gap-6 lg:grid-cols-2">
+          {latest.web ? (
+            <ArchitectureWebPanel web={latest.web} />
+          ) : (
+            <Unavailable reason="No Steiger report: the web job ran no Steiger 0.10 or later, or the repository has no web app." />
+          )}
+          {latest.dotnet ? (
+            <ArchitectureDotnetPanel dotnet={latest.dotnet} />
+          ) : (
+            <Unavailable reason="No architecture test results: the repository runs no .NET architecture tests in CI." />
+          )}
+        </div>
+      )}
+    </Metric>
+  )
+}
+
+/**
  * Numbers the repository's own CI produces about its code: coverage, mutation score, complexity,
  * scanner findings, the SBOM and code hygiene. Each facet is shown as of the newest sample in the
  * month, and the trends run across every month collected so far.
@@ -782,6 +923,18 @@ export function ExcellencePanel({
         <div>
           <SectionTitle title="Bundle size" facets={['bundle facet']} />
           <BundleSection excellence={excellence} />
+        </div>
+
+        <div>
+          <SectionTitle
+            title="Architecture"
+            facets={
+              excellence.architecture?.available
+                ? architectureTools(excellence.architecture.data.latest)
+                : ['architecture facet']
+            }
+          />
+          <ArchitectureSection excellence={excellence} />
         </div>
       </div>
     </Panel>
