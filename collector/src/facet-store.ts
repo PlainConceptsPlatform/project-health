@@ -111,7 +111,10 @@ export function addFacet(options: AddFacetOptions): AddFacetResult {
   // The index lists the enabled projects; the one just written is always among them, even when the
   // projects file does not name it (a host that receives facets for a project it does not collect).
   const projects = loadProjects()
-  writeIndex(dataDir, projects.some((entry) => entry.id === project.id) ? projects : [...projects, project])
+  writeIndex(
+    dataDir,
+    projects.some((entry) => entry.id === project.id) ? projects : [...projects, project],
+  )
 
   return {
     month,
