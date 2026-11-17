@@ -169,7 +169,7 @@ jobs:
   # BLOCKING. Builds the static export from the demo data and holds it to the budgets in
   # lighthouserc.cjs, on the median of three runs per page, served by lhci's own local server.
   lighthouse:
-    name: Lighthouse budgets (performance, accessibility, best practices)
+    name: Lighthouse budgets (performance, accessibility, best practices, SEO)
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:

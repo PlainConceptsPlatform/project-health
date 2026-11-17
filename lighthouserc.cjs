@@ -28,9 +28,14 @@ module.exports = {
     },
     assert: {
       assertions: {
-        'categories:performance': median(0.8),
-        'categories:accessibility': median(0.9),
-        'categories:best-practices': median(0.9),
+        // Measured baseline (2026-11-17, the first CI run of the pull request that added this
+        // gate): the lowest page median was 0.89 for performance (the project page; the overview
+        // scores 0.98), 0.96 for accessibility and best practices, 1.0 for SEO. Performance keeps
+        // four points of headroom for runner noise; the rest keep one.
+        'categories:performance': median(0.85),
+        'categories:accessibility': median(0.95),
+        'categories:best-practices': median(0.95),
+        'categories:seo': median(0.95),
       },
     },
     upload: {
