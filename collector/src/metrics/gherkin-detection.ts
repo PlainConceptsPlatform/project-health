@@ -123,8 +123,55 @@ const reaches = (suite: FeatureSuite, cwd: string, target: string, recursive: bo
   return within(suite.root, resolved) || suite.featureDirs.some((dir) => within(dir, resolved))
 }
 
+/**
+ * The scalar values of an `env:` block that sits at `indent`, keyed by name. Workflow-level env
+ * names the projects a template runs (`dotnet test "$ACCEPTANCE_TEST_PROJECT"`), so a test command
+ * that targets a variable is read through it rather than skipped.
+ */
+function envValues(lines: string[], indent: number): Record<string, string> {
+  const values: Record<string, string> = {}
+  const at = lines.findIndex(
+    (line) => line.length - line.trimStart().length === indent && /^\s*env:\s*$/.test(line),
+  )
+  if (at < 0) return values
+  for (const line of lines.slice(at + 1)) {
+    if (line.trim() === '' || line.trim().startsWith('#')) continue
+    const lineIndent = line.length - line.trimStart().length
+    if (lineIndent <= indent) break
+    const entry = line.trim().match(/^([A-Za-z_][\w]*):\s*(.*)$/)
+    if (!entry?.[1] || entry[2] === undefined) continue
+    const value = entry[2].trim().replace(/^['"]|['"]$/g, '')
+    if (value !== '' && !/^[>|]/.test(value)) values[entry[1]] = value
+  }
+  return values
+}
+
+const workflowEnv = (text: string) => envValues(text.split(/\r?\n/), 0)
+
+/** The job's own env over the workflow's; the header is the job's lines before its steps. */
+function jobEnv(header: string, base: Record<string, string>): Record<string, string> {
+  const lines = header.split(/\r?\n/).filter((line) => line.trim() !== '')
+  const indent =
+    lines.length > 0 ? Math.min(...lines.map((l) => l.length - l.trimStart().length)) : 0
+  return { ...base, ...envValues(lines, indent) }
+}
+
+/** Replaces `${{ env.X }}`, `${X}` and `$X` with the env value when one is known. */
+const expandEnv = (text: string, env: Record<string, string>): string =>
+  text
+    .replace(/\$\{\{\s*env\.([A-Za-z_]\w*)\s*\}\}/g, (all, name: string) => env[name] ?? all)
+    .replace(/\$\{([A-Za-z_]\w*)\}/g, (all, name: string) => env[name] ?? all)
+    .replace(/\$([A-Za-z_]\w*)/g, (all, name: string) => env[name] ?? all)
+
 /** Whether one step runs a test command that reaches the suite. */
-function runsSuite(unit: string, header: string, suite: FeatureSuite): boolean {
+function runsSuite(
+  rawUnit: string,
+  rawHeader: string,
+  suite: FeatureSuite,
+  env: Record<string, string> = {},
+): boolean {
+  const unit = expandEnv(rawUnit, env)
+  const header = expandEnv(rawHeader, env)
   const command = commandText(unit)
   const lines = commandLines(command)
   const testLines = lines.filter((line) => TEST_COMMANDS.some((c) => c.pattern.test(line)))
@@ -164,9 +211,11 @@ export function detectGherkinRuns(
 ): ToolHit[] {
   if (suites.length === 0) return []
   const hits: ToolHit[] = []
+  const base = workflowEnv(text)
   for (const job of segmentWorkflow(text)) {
+    const env = jobEnv(job.header, base)
     for (const unit of job.steps) {
-      if (!suites.some((suite) => runsSuite(unit, job.header, suite))) continue
+      if (!suites.some((suite) => runsSuite(unit, job.header, suite, env))) continue
       hits.push({
         practice: SPEC_PRACTICE,
         tool: GHERKIN_TOOL,

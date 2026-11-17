@@ -1086,6 +1086,32 @@ ${extra}`
     expect(detectGherkinRuns('w.yml', step(run, extra), suites)).toEqual([])
   })
 
+  it('reads a test target named by the workflow env, as the family CI template does', () => {
+    const text = `env:
+  API_WORKING_DIRECTORY: apps/api
+  ACCEPTANCE_TEST_PROJECT: tests/App.AcceptanceTests/App.AcceptanceTests.csproj
+jobs:
+  api:
+    name: API
+    defaults:
+      run:
+        working-directory: \${{ env.API_WORKING_DIRECTORY }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Acceptance tests
+        if: env.ACCEPTANCE_TEST_PROJECT != ''
+        run: dotnet test "$ACCEPTANCE_TEST_PROJECT" --no-build -c Release
+`
+    const nested = featureSuites(reqnrollTree.map((path) => `apps/api/${path}`))
+    expect(detectGherkinRuns('ci.yml', text, nested)).toHaveLength(1)
+    // An env value that names another project still does not count.
+    const other = text.replace(
+      'tests/App.AcceptanceTests/App.AcceptanceTests.csproj',
+      'tests/App.Core.UnitTests/App.Core.UnitTests.csproj',
+    )
+    expect(detectGherkinRuns('ci.yml', other, nested)).toEqual([])
+  })
+
   it('reads a report-only step as report-only', () => {
     const run = 'dotnet test App.sln || true'
     expect(detectGherkinRuns('w.yml', step(run), suites)[0]?.mode).toBe('report-only')
