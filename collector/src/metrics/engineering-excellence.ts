@@ -453,7 +453,7 @@ async function collectFacet<F extends Facet>(
  *
  * Unlike every other metric, these numbers are produced by the repository rather than derived from
  * the GitHub API: coverage, complexity, mutation score, scanner findings, SBOM shape, code
- * hygiene, the web bundle size and the architecture rules. The collector only finds, checks and keeps them. Each facet is independent, because
+ * hygiene, the web bundle size, the architecture rules and the code-pattern findings. The collector only finds, checks and keeps them. Each facet is independent, because
  * their cadences differ (mutation testing typically runs weekly, the rest on every push to main)
  * and a repository may produce only some of them.
  */
@@ -485,6 +485,7 @@ export async function collectEngineeringExcellence(
     hygiene: await collect('hygiene'),
     bundle: await collect('bundle'),
     architecture: await collect('architecture'),
+    patterns: await collect('patterns'),
   }
   return { block, warnings }
 }

@@ -52,6 +52,10 @@ export const TOOL_LINKS: Record<string, string> = {
   Steiger: 'https://github.com/feature-sliced/steiger',
   ArchUnitNET: 'https://github.com/TNG/ArchUnitNET',
   NetArchTest: 'https://github.com/BenMorris/NetArchTest',
+  // Code patterns
+  'Meziantou.Analyzer': 'https://github.com/meziantou/Meziantou.Analyzer',
+  Roslynator: 'https://github.com/dotnet/roslynator',
+  'Roslyn analyzers': 'https://github.com/dotnet/roslyn-analyzers',
   // Test environment
   'OWASP ZAP': 'https://github.com/zaproxy/zaproxy',
   JMeter: 'https://github.com/apache/jmeter',
@@ -89,6 +93,9 @@ export const PLATFORM_GATES: Record<string, string[]> = {
   // check-architecture.mjs reads Steiger's JSON; the .NET part reads the architecture tests' TRX,
   // whose library the facet names on its own.
   'architecture facet': ['Steiger'],
+  // check-patterns.mjs reads the .NET build's SARIF error logs (the analyzers each repository
+  // references); the facet also records the repository's own Semgrep rules.
+  'patterns facet': ['Roslyn analyzers', 'Semgrep'],
   // engineering-excellence.mjs: the Trivy and Semgrep reports, and a CycloneDX SBOM.
   'security facet': ['Trivy', 'Semgrep'],
   'SBOM facet': ['CycloneDX'],

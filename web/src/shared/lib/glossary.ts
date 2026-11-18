@@ -74,6 +74,12 @@ export const GLOSSARY = {
   architectureDotnet:
     'The .NET architecture tests, such as Domain depends on nothing but the shared kernel, written with NetArchTest, ArchUnitNET or plain tests and read from their test results. A failing rule already fails the repository’s CI.',
 
+  patternsDotnet:
+    'Diagnostics from the .NET build, read from the compiler’s SARIF log: the analyzers the repository references (Meziantou.Analyzer, Roslynator), the .NET CA and IDE rules and the compiler’s own warnings, at the severities the repository sets. Errors plus warnings are held to a baseline per rule: while the check is report-only nothing fails, and once it is a ratchet a change may not add a finding to any rule. Notes and findings suppressed in source are shown, never held.',
+
+  patternsSemgrep:
+    'The repository’s own Semgrep rules (its .semgrep folder: the platform’s hygiene and mockup rules and any it adds). The blocking SAST scan already fails CI on any finding, so these are normally zero.',
+
   commentDensity:
     'Comment-only lines per line of code. It is a rough, line-based measure, so it is shown for its trend only: a sudden jump can mean comments that restate the code.',
 

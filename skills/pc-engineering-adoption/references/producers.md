@@ -5,7 +5,7 @@ Two different things produce engineering signals, and they are not interchangeab
 | Layer | Source | How a repository gets it |
 | --- | --- | --- |
 | The CI that runs the gates: build, tests with coverage floors, per-PR mutation, Semgrep | `@plainconceptsplatform/workflows`, template `loops/templates/ci/app-ci-dotnet-next.yml`, installed as `.github/workflows/app-ci.yml` | Install and update it with the package. Do not hand-copy it |
-| The facets: coverage, complexity, mutation, security, SBOM, hygiene, bundle, architecture | `scripts/engineering-excellence.mjs`, `scripts/lib/` and the schema copy, published in the public `PlainConceptsPlatform/agentic-workflows` repository under `loops/templates/quality-gates/scripts/` | Vendor it, or receive it through a platform-owned path |
+| The facets: coverage, complexity, mutation, security, SBOM, hygiene, bundle, architecture, patterns | `scripts/engineering-excellence.mjs`, `scripts/lib/` and the schema copy, published in the public `PlainConceptsPlatform/agentic-workflows` repository under `loops/templates/quality-gates/scripts/` | Vendor it, or receive it through a platform-owned path |
 
 The boundary is easy to get wrong in both directions:
 

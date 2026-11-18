@@ -7,6 +7,8 @@ import {
   baselineOf,
   checkModeLabel,
   kilobytes,
+  patternRules,
+  patternsTools,
 } from '../../shared/lib/excellence'
 import type {
   ArchitectureData,
@@ -16,9 +18,12 @@ import type {
   CheckGate,
   DeadCodeWeb,
   EngineeringExcellence,
+  PatternsData,
+  PatternsDotnet,
+  PatternsSemgrep,
 } from '../../shared/lib/types'
 import { TooltipProvider } from '../../shared/ui/tooltip'
-import { ArchitectureSection, BundleSection, DeadCodeWebPanel } from './excellence'
+import { ArchitectureSection, BundleSection, DeadCodeWebPanel, PatternsSection } from './excellence'
 
 /**
  * A new check runs report-only for its first weeks: measured and shown, never failing CI and never
@@ -255,5 +260,118 @@ describe('architecture', () => {
       'No architecture test results',
     )
     expect(renderArchitecture(null)).toContain('the architecture facet is newer')
+  })
+})
+
+const analyzers = (over: Partial<PatternsDotnet> = {}): PatternsDotnet => ({
+  tool: 'roslyn',
+  compiler: '4.14.0',
+  logs: 4,
+  errors: 0,
+  warnings: 7,
+  notes: 2,
+  suppressed: 1,
+  byAnalyzer: {
+    meziantou: { errors: 0, warnings: 4, notes: 0 },
+    netanalyzers: { errors: 0, warnings: 0, notes: 2 },
+    roslynator: { errors: 0, warnings: 3, notes: 0 },
+  },
+  byRule: {
+    CA1822: { errors: 0, warnings: 0, notes: 2 },
+    MA0004: { errors: 0, warnings: 4, notes: 0 },
+    RCS1036: { errors: 0, warnings: 3, notes: 0 },
+  },
+  baseline: { MA0004: 3, RCS1036: 3 },
+  gate: gate({ violations: 1 }),
+  ...over,
+})
+
+const ownRules = (over: Partial<PatternsSemgrep> = {}): PatternsSemgrep => ({
+  tool: 'semgrep',
+  version: '1.168.0',
+  rules: 3,
+  errors: 0,
+  warnings: 0,
+  notes: 0,
+  byRule: { 'platform-hygiene-ts-empty-catch': { errors: 0, warnings: 0, notes: 0 } },
+  ...over,
+})
+
+const withPatterns = (data: PatternsData | null) =>
+  ({
+    patterns: data
+      ? {
+          available: true,
+          data: { samples: [], latest: data, latestGeneratedAt: '2026-11-18T00:00:00Z' },
+        }
+      : undefined,
+  }) as unknown as EngineeringExcellence
+const renderPatterns = (data: PatternsData | null) =>
+  inPage(createElement(PatternsSection, { excellence: withPatterns(data) }))
+
+describe('code patterns', () => {
+  it('orders analyzer rules worst first, names the analyzer and allows none outside the baseline', () => {
+    const rows = patternRules(
+      analyzers({
+        byRule: {
+          CA1822: { errors: 0, warnings: 0, notes: 2 },
+          MA0004: { errors: 0, warnings: 4, notes: 0 },
+          RCS1036: { errors: 0, warnings: 3, notes: 0 },
+          CS8618: { errors: 0, warnings: 1, notes: 0 },
+        },
+      }),
+    )
+    expect(rows.map((r) => [r.rule, r.analyzer, r.allowed, r.over])).toEqual([
+      ['MA0004', 'Meziantou.Analyzer', 3, true],
+      ['CS8618', 'C# compiler (CS)', 0, true],
+      ['RCS1036', 'Roslynator', 3, false],
+      ['CA1822', '.NET analyzers (CA)', 0, false],
+    ])
+    expect(patternRules(analyzers({ baseline: null }))[0]?.allowed).toBeNull()
+  })
+
+  it('names the analyzers that reported and Semgrep as the tools', () => {
+    expect(patternsTools({ dotnet: analyzers(), semgrep: ownRules() })).toEqual([
+      'Roslyn analyzers',
+      'Meziantou.Analyzer',
+      'Roslynator',
+      'Semgrep',
+    ])
+    expect(patternsTools({ dotnet: null, semgrep: ownRules() })).toEqual(['Semgrep'])
+  })
+
+  it('shows report-only findings over the baseline without marking them as a failure', () => {
+    const html = renderPatterns({ dotnet: analyzers(), semgrep: ownRules() })
+    expect(html).toContain('MA0004')
+    expect(html).toContain('Meziantou.Analyzer')
+    expect(html).toContain('report-only since 2026-11-16')
+    expect(html).toContain('1 findings over the baseline, not failing while report-only')
+    expect(html).toContain('does not count on the scorecard')
+    expect(html).not.toContain('text-destructive')
+  })
+
+  it('marks findings over the baseline once a ratchet, and any Semgrep finding in any mode', () => {
+    const ratchet = renderPatterns({
+      dotnet: analyzers({ gate: gate({ mode: 'ratchet', violations: 1, failed: true }) }),
+      semgrep: null,
+    })
+    expect(ratchet).toContain('count towards Code hygiene')
+    expect(ratchet.match(/text-destructive/g)).toHaveLength(1)
+
+    const semgrep = renderPatterns({
+      dotnet: null,
+      semgrep: ownRules({
+        errors: 2,
+        byRule: { 'platform-hygiene-ts-empty-catch': { errors: 2, warnings: 0, notes: 0 } },
+      }),
+    })
+    expect(semgrep).toContain('platform-hygiene-ts-empty-catch: 2')
+    expect(semgrep.match(/text-destructive/g)).toHaveLength(1)
+  })
+
+  it('shows a part the repository does not run as unavailable, and an older month as unavailable', () => {
+    expect(renderPatterns({ dotnet: null, semgrep: ownRules() })).toContain('No analyzer SARIF')
+    expect(renderPatterns({ dotnet: analyzers(), semgrep: null })).toContain('No Semgrep report')
+    expect(renderPatterns(null)).toContain('the patterns facet is newer')
   })
 })

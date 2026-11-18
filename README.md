@@ -40,8 +40,8 @@ was planned or shipped in reaction to something, which a person can state when t
 
 It also collects what the DORA report does not: **agent cost in tokens and time**, per kind of work,
 and, for repositories that opt in, **engineering excellence facets** their own CI reports: coverage,
-mutation score, complexity, scanner findings, the SBOM, code hygiene, the web bundle size and the
-architecture rules. See
+mutation score, complexity, scanner findings, the SBOM, code hygiene, the web bundle size, the
+architecture rules and the code-pattern findings. See
 [Engineering excellence facets](#engineering-excellence-facets).
 
 ## Adding a project
@@ -175,14 +175,17 @@ The zip holds a single `<facet>.json`:
 | `hygiene` | `engineering-excellence-hygiene` | every push to main | duplicated lines and rate per scope and module, the worst duplicated files, swallowed exceptions (unjustified and justified), dead-code warnings and whether they are gated, comment density, optionally the repository's duplication `gate` (baselined files and lines, files over their baseline, entries that improved), and optionally `commentSlop` (deterministic comment-slop findings by rule and scope, with its own per-file baseline `gate`) and `deadCode.web` (Knip: unused files, exports and dependencies, unlisted dependencies, counts per Knip issue type, the baseline and its `gate`) |
 | `bundle` | `engineering-excellence-bundle` | every push to main | size-limit over the web static export's JavaScript chunks: total and largest chunk in bytes, chunk count, compression, the baseline and budget (baseline + 10%), whether it is over budget, and its `gate` |
 | `architecture` | `engineering-excellence-architecture` | every push to main | `web`: Steiger's Feature-Sliced Design rules over the web app (`steiger --reporter json`): its version, errors and warnings, both per rule, the warning baseline per rule and its `gate`; `dotnet`: the .NET architecture tests read from their TRX, whatever the library (NetArchTest, ArchUnitNET): rules, passed, failed, skipped, the failing rule names and the library. A part the repository does not run is `null` |
+| `patterns` | `engineering-excellence-patterns` | every push to main | `dotnet`: the .NET build's compiler diagnostics from its SARIF error logs (the analyzers the repository references, such as Meziantou.Analyzer and Roslynator, the CA and IDE rules and the compiler's warnings): errors, warnings and notes per rule and per analyzer, findings suppressed in source, the baseline of errors plus warnings per rule and its `gate`; `semgrep`: the findings of the repository's own `.semgrep/` rules per rule, from the blocking SAST scan. A part the repository does not run is `null` |
 
-`gate` on `deadCode.web`, `bundle` and `architecture.web` is the same shape, `{ mode, since, violations, failed }`. A
+`gate` on `deadCode.web`, `bundle`, `architecture.web` and `patterns.dotnet` is the same shape, `{ mode, since, violations, failed }`. A
 check starts in `report` mode (measured, never fails CI) and becomes a `ratchet` against its
 committed baseline when the repository switches it in `quality.config.json`, a reviewed change;
 `since` is the day it was introduced. A repository that produces none of them publishes the hygiene
 facet as before, and the bundle and architecture blocks are simply unavailable. Steiger errors and
 failing architecture tests already fail the repository's CI in their own jobs; the architecture
-facet records them, and its gate holds only Steiger's warnings.
+facet records them, and its gate holds only Steiger's warnings. Likewise the repository's own
+Semgrep rules already fail its SAST scan; the patterns facet records them, and its gate holds only
+the .NET analyzers' errors and warnings.
 
 Every file is an envelope:
 
@@ -264,7 +267,9 @@ debt tile does the same for its baselined lines. With Knip, a Dead code (web) ro
 exports and dependencies against the baseline, and a Bundle size block shows the total JavaScript,
 the largest chunk and the budget; both say "report-only since <date>" until their gate is a ratchet.
 An Architecture block shows Steiger's errors and warnings by rule against the warning baseline, and
-the .NET architecture rules passed and failed, naming the failing ones. With OTLP configured, the month's latest coverage, mutation
+the .NET architecture rules passed and failed, naming the failing ones. A Code patterns block shows
+the .NET analyzers' findings by rule and analyzer against the baseline, and the repository's own
+Semgrep rules. With OTLP configured, the month's latest coverage, mutation
 score, CRAP count, critical and high vulnerabilities and SBOM size are exported as `engineering.*`
 gauges.
 
@@ -284,7 +289,7 @@ Each practice is decided by one of two sources, and the page says which:
   violations, no exception is swallowed without a justification, dead code is gated or absent and,
   when the facet carries `commentSlop`, its gate has no violations; a hygiene facet without a `gate` is report-only. Knip's web dead code
   counts only once its gate is a ratchet, and Knip is then named among the tools; Steiger's architecture warnings over their
-  baseline the same way (Steiger errors and failing architecture tests already fail CI, so they are not counted again). It counts towards the score and the gates,
+  baseline the same way, and the .NET analyzers' findings over theirs (Steiger errors, failing architecture tests and the repository's own Semgrep rules already fail CI, so they are not counted again). It counts towards the score and the gates,
   not towards the L1 to L3 levels. The bundle facet stands for Performance (practice 10, opt-in) the same way: only as a ratchet,
   passing within budget and failing over it; report-only, the practice is rated as if the facet were absent.
 - **Hub workflow** (Restore drill, practice 12): a project that owns a production database opts in
@@ -337,7 +342,9 @@ The Tool(s) column names the open-source tools behind each practice and links ea
 tools whose output they read: the complexity gate as coverlet, ReportGenerator, Vitest, Istanbul and
 ESLint; coverage as coverlet, ReportGenerator, Vitest and coverage-v8; mutation as Stryker; hygiene
 as jscpd and Semgrep (and Knip and Steiger once their gates are ratchets); the bundle as size-limit;
-the architecture facet as Steiger and the .NET tests' library, ArchUnitNET or NetArchTest;
+the architecture facet as Steiger and the .NET tests' library, ArchUnitNET or NetArchTest; the
+patterns facet as the Roslyn analyzers (Meziantou.Analyzer and Roslynator by name when they report)
+and Semgrep;
 security as Trivy and Semgrep; the SBOM as CycloneDX.
 
 Two alerts read both axes: *High AI usage, low engineering* (AI 4 or more at L1 or below) and

@@ -11,6 +11,7 @@ import {
   type LastRun,
   type MetricBlock,
   PROJECT_TYPES,
+  type PatternsData,
   type PracticeResult,
   type PracticeResultState,
   type PracticeSource,
@@ -301,13 +302,34 @@ export const architectureWarnings = (data: ArchitectureData | null | undefined):
   data?.web && counts(data.web.gate) ? data.web.gate.violations : 0
 
 /**
+ * The patterns facet's part in Code hygiene: .NET analyzer findings over their baseline, once that
+ * gate is a ratchet. The repository's own Semgrep rules already fail the SAST scan, so they are not
+ * counted again here.
+ */
+export const patternViolations = (data: PatternsData | null | undefined): number =>
+  data?.dotnet && counts(data.dotnet.gate) ? data.dotnet.gate.violations : 0
+
+/** The analyzers named among Code hygiene's tools once the patterns gate counts. */
+const ANALYZER_TOOLS: Record<string, string> = {
+  meziantou: 'Meziantou.Analyzer',
+  roslynator: 'Roslynator',
+}
+export const patternTools = (data: PatternsData | null | undefined): string[] =>
+  data?.dotnet && counts(data.dotnet.gate)
+    ? Object.keys(data.dotnet.byAnalyzer).flatMap((a) =>
+        ANALYZER_TOOLS[a] ? [ANALYZER_TOOLS[a]] : [],
+      )
+    : []
+
+/**
  * A swallowed-exception count of null means the producer ran no scanner, which is not a finding.
  * Dead code only counts when the build does not already fail on it, and Knip's web dead code and
- * Steiger's architecture warnings only once their gate is a ratchet.
+ * Steiger's architecture warnings and the .NET analyzer findings only once their gate is a ratchet.
  */
 export function hygieneVerdict(
   data: HygieneData,
   architecture: ArchitectureData | null = null,
+  patterns: PatternsData | null = null,
 ): PracticeResultState {
   const duplication = data.gate?.violations ?? 0
   const swallowed = data.global.swallowedExceptions ?? 0
@@ -316,7 +338,9 @@ export function hygieneVerdict(
   const webDead = web && counts(web.gate) ? web.gate.violations : 0
   const comments = data.commentSlop?.gate?.violations ?? 0
   const layers = architectureWarnings(architecture)
-  return duplication + swallowed + dead + webDead + comments + layers === 0 ? 'passing' : 'failing'
+  const analyzers = patternViolations(patterns)
+  const total = duplication + swallowed + dead + webDead + comments + layers + analyzers
+  return total === 0 ? 'passing' : 'failing'
 }
 
 /**
@@ -423,20 +447,22 @@ export function facetEvidence(
       const architecture = excellence.architecture?.available
         ? excellence.architecture.data.latest
         : null
+      const patterns = excellence.patterns?.available ? excellence.patterns.data.latest : null
       // Duplication measured without a gate is reported, not held.
       const found = latest?.gate
         ? evidence(
             excellence.hygiene,
             'hygiene facet',
-            (d) => hygieneVerdict(d, architecture),
+            (d) => hygieneVerdict(d, architecture, patterns),
             'blocking',
           )
         : evidence(excellence.hygiene, 'hygiene facet', () => 'passing', 'report-only')
-      // Knip and Steiger are named among the practice's tools once they count, never while they
-      // are report-only.
+      // Knip, Steiger and the .NET analyzers are named among the practice's tools once they count,
+      // never while they are report-only.
       const extra = [
         ...(counts(latest?.deadCode.web?.gate) ? ['Knip'] : []),
         ...(counts(architecture?.web?.gate) ? ['Steiger'] : []),
+        ...patternTools(patterns),
       ]
       return found && extra.length > 0 ? { ...found, tools: [...found.tools, ...extra] } : found
     }

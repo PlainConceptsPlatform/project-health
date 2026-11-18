@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "facet": "patterns",
+  "repo": "your-org/checkout",
+  "ref": "refs/heads/main",
+  "commitSha": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+  "runId": 3005,
+  "runAttempt": 1,
+  "generatedAt": "2026-10-12T09:00:00.000Z",
+  "data": {
+    "dotnet": {
+      "tool": "roslyn",
+      "compiler": "4.14.0",
+      "logs": 4,
+      "errors": 0,
+      "warnings": 7,
+      "notes": 2,
+      "suppressed": 1,
+      "byAnalyzer": {
+        "meziantou": { "errors": 0, "warnings": 4, "notes": 0 },
+        "netanalyzers": { "errors": 0, "warnings": 0, "notes": 2 },
+        "roslynator": { "errors": 0, "warnings": 3, "notes": 0 }
+      },
+      "byRule": {
+        "CA1822": { "errors": 0, "warnings": 0, "notes": 2 },
+        "MA0004": { "errors": 0, "warnings": 4, "notes": 0 },
+        "RCS1036": { "errors": 0, "warnings": 3, "notes": 0 }
+      },
+      "baseline": { "MA0004": 3, "RCS1036": 3 },
+      "gate": { "mode": "report", "since": "2026-11-18", "violations": 1, "failed": false }
+    },
+    "semgrep": {
+      "tool": "semgrep",
+      "version": "1.168.0",
+      "rules": 3,
+      "errors": 0,
+      "warnings": 0,
+      "notes": 0,
+      "byRule": {
+        "platform-hygiene-csharp-empty-catch": { "errors": 0, "warnings": 0, "notes": 0 },
+        "platform-hygiene-ts-empty-catch": { "errors": 0, "warnings": 0, "notes": 0 },
+        "platform-mockup-markup-in-code": { "errors": 0, "warnings": 0, "notes": 0 }
+      }
+    }
+  }
+}

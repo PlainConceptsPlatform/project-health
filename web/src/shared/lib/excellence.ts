@@ -11,6 +11,8 @@ import type {
   HygieneData,
   HygieneHotspot,
   MutationData,
+  PatternsData,
+  PatternsDotnet,
 } from './types'
 import { FACETS, type Facet } from './types'
 
@@ -264,6 +266,79 @@ export function architectureRules(web: ArchitectureWeb): ArchitectureRuleRow[] {
         b.errors - a.errors ||
         Number(b.over) - Number(a.over) ||
         b.warnings - a.warnings ||
+        a.rule.localeCompare(b.rule),
+    )
+}
+
+/** The analyzers behind the .NET rule prefixes, under the names their tool links are keyed by. */
+export const PATTERN_ANALYZERS: Record<string, string> = {
+  meziantou: 'Meziantou.Analyzer',
+  roslynator: 'Roslynator',
+  netanalyzers: '.NET analyzers (CA)',
+  codestyle: 'Code style (IDE)',
+  compiler: 'C# compiler (CS)',
+  xunit: 'xUnit analyzers',
+  other: 'Other',
+}
+
+/** The open-source tools a patterns facet was read from: the analyzers that reported, and Semgrep. */
+export const patternsTools = (data: PatternsData | null): string[] => {
+  const analyzers = Object.keys(data?.dotnet?.byAnalyzer ?? {}).filter(
+    (a) => a === 'meziantou' || a === 'roslynator',
+  )
+  return [
+    ...(data?.dotnet ? ['Roslyn analyzers'] : []),
+    ...analyzers.map((a) => PATTERN_ANALYZERS[a] ?? a),
+    ...(data?.semgrep ? ['Semgrep'] : []),
+  ]
+}
+
+export interface PatternRuleRow {
+  rule: string
+  analyzer: string
+  errors: number
+  warnings: number
+  notes: number
+  /** Errors plus warnings the baseline allows; null before a baseline is written. */
+  allowed: number | null
+  /** More errors plus warnings than the baseline allows (a rule outside the baseline allows none). */
+  over: boolean
+}
+
+const analyzerOf = (rule: string): string => {
+  const prefix = /^([A-Za-z]+)\d/.exec(rule)?.[1]
+  const key =
+    {
+      MA: 'meziantou',
+      RCS: 'roslynator',
+      CA: 'netanalyzers',
+      IDE: 'codestyle',
+      CS: 'compiler',
+      xUnit: 'xunit',
+    }[prefix ?? ''] ?? 'other'
+  return PATTERN_ANALYZERS[key] ?? key
+}
+
+/** The analyzer rules, worst first: over the baseline, then the most errors and warnings. */
+export function patternRules(dotnet: PatternsDotnet): PatternRuleRow[] {
+  return Object.entries(dotnet.byRule)
+    .map(([rule, { errors, warnings, notes }]) => {
+      const allowed = dotnet.baseline ? (dotnet.baseline[rule] ?? 0) : null
+      return {
+        rule,
+        analyzer: analyzerOf(rule),
+        errors,
+        warnings,
+        notes,
+        allowed,
+        over: errors + warnings > (allowed ?? 0),
+      }
+    })
+    .sort(
+      (a, b) =>
+        Number(b.over) - Number(a.over) ||
+        b.errors + b.warnings - (a.errors + a.warnings) ||
+        b.notes - a.notes ||
         a.rule.localeCompare(b.rule),
     )
 }

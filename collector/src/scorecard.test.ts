@@ -611,9 +611,62 @@ describe('facetEvidence', () => {
       knip?: { mode: 'report' | 'ratchet'; violations: number }
       steiger?: { mode: 'report' | 'ratchet'; violations: number; errors?: number }
       archTestsFailed?: number
+      analyzers?: { mode: 'report' | 'ratchet'; violations: number }
+      semgrepFindings?: number
     } = {},
   ) => {
     const ee = excellence()
+    if (patch.analyzers || patch.semgrepFindings !== undefined) {
+      ee.patterns = series(
+        {
+          dotnet: patch.analyzers
+            ? {
+                tool: 'roslyn',
+                compiler: '4.14.0',
+                logs: 4,
+                errors: 0,
+                warnings: 5 + patch.analyzers.violations,
+                notes: 0,
+                suppressed: 0,
+                byAnalyzer: {
+                  meziantou: { errors: 0, warnings: 3 + patch.analyzers.violations, notes: 0 },
+                  roslynator: { errors: 0, warnings: 2, notes: 0 },
+                },
+                byRule: {
+                  MA0004: { errors: 0, warnings: 3 + patch.analyzers.violations, notes: 0 },
+                  RCS1036: { errors: 0, warnings: 2, notes: 0 },
+                },
+                baseline: { MA0004: 3, RCS1036: 2 },
+                gate: {
+                  mode: patch.analyzers.mode,
+                  since: '2026-11-18',
+                  violations: patch.analyzers.violations,
+                  failed: patch.analyzers.mode === 'ratchet' && patch.analyzers.violations > 0,
+                },
+              }
+            : null,
+          semgrep:
+            patch.semgrepFindings === undefined
+              ? null
+              : {
+                  tool: 'semgrep',
+                  version: '1.168.0',
+                  rules: 3,
+                  errors: patch.semgrepFindings,
+                  warnings: 0,
+                  notes: 0,
+                  byRule: {
+                    'platform-hygiene-ts-empty-catch': {
+                      errors: patch.semgrepFindings,
+                      warnings: 0,
+                      notes: 0,
+                    },
+                  },
+                },
+        },
+        '2026-10-15T00:00:00Z',
+      )
+    }
     if (patch.steiger || patch.archTestsFailed !== undefined) {
       ee.architecture = series(
         {
@@ -777,6 +830,23 @@ describe('facetEvidence', () => {
         steiger: { mode: 'ratchet', violations: 0 },
       })?.tools,
     ).toEqual(['hygiene facet', 'Knip', 'Steiger'])
+  })
+
+  it('counts .NET analyzer findings over the baseline in hygiene only once the patterns gate is a ratchet', () => {
+    expect(hygiene({ analyzers: { mode: 'report', violations: 6 } })).toMatchObject({
+      result: 'passing',
+      tools: ['hygiene facet'],
+    })
+    expect(hygiene({ analyzers: { mode: 'ratchet', violations: 0 } })).toMatchObject({
+      result: 'passing',
+      tools: ['hygiene facet', 'Meziantou.Analyzer', 'Roslynator'],
+    })
+    expect(hygiene({ analyzers: { mode: 'ratchet', violations: 1 } })?.result).toBe('failing')
+    // The repository's own Semgrep rules already fail the SAST scan; they are not counted again.
+    expect(hygiene({ semgrepFindings: 2 })).toMatchObject({
+      result: 'passing',
+      tools: ['hygiene facet'],
+    })
   })
 
   it('leaves Steiger errors and failing architecture tests to the CI that already fails on them', () => {
