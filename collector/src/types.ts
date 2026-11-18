@@ -761,6 +761,7 @@ export const FACETS = [
   'hygiene',
   'bundle',
   'architecture',
+  'patterns',
 ] as const
 export type Facet = (typeof FACETS)[number]
 
@@ -1025,6 +1026,58 @@ export interface ArchitectureData {
   dotnet: ArchitectureDotnet | null
 }
 
+/** Errors, warnings and notes (SARIF `none` and Semgrep INFO count as notes). */
+export interface PatternCounts {
+  errors: number
+  warnings: number
+  notes: number
+}
+
+/**
+ * The .NET build's compiler diagnostics from its SARIF error logs: the analyzers the repository
+ * references (Meziantou.Analyzer, Roslynator), the CA and IDE rules and the compiler's own warnings,
+ * at the severities the repository sets. Errors plus warnings per rule are held to the baseline by a
+ * report-then-ratchet gate; notes and in-source suppressions are counted, never gated.
+ */
+export interface PatternsDotnet {
+  tool: 'roslyn'
+  compiler: string | null
+  /** SARIF logs read: one per compiled project. */
+  logs: number
+  errors: number
+  warnings: number
+  notes: number
+  suppressed: number
+  /** Per analyzer, from the rule prefix: meziantou, roslynator, netanalyzers, codestyle, compiler, xunit, other. */
+  byAnalyzer: Record<string, PatternCounts>
+  /** Per rule id (MA0004, RCS1036, CA1822, ...), every rule that reported something. */
+  byRule: Record<string, PatternCounts>
+  /** The committed baseline of errors plus warnings per rule; null before one is written. */
+  baseline: Record<string, number> | null
+  gate: CheckGate
+}
+
+/**
+ * The repository's own Semgrep rules (.semgrep/) from the blocking SAST scan, which already fails CI
+ * on any finding: recorded, never baselined.
+ */
+export interface PatternsSemgrep {
+  tool: 'semgrep'
+  version: string | null
+  /** Rules in .semgrep/; null when the rule files were not read. */
+  rules: number | null
+  errors: number
+  warnings: number
+  notes: number
+  byRule: Record<string, PatternCounts>
+}
+
+/** Either part is null when the repository does not run it. */
+export interface PatternsData {
+  dotnet: PatternsDotnet | null
+  semgrep: PatternsSemgrep | null
+}
+
 export interface FacetDataMap {
   coverage: CoverageData
   complexity: ComplexityData
@@ -1034,6 +1087,7 @@ export interface FacetDataMap {
   hygiene: HygieneData
   bundle: BundleData
   architecture: ArchitectureData
+  patterns: PatternsData
 }
 
 export interface FacetSample<T> {
@@ -1055,10 +1109,14 @@ export interface FacetSeries<T> {
 }
 
 export type EngineeringExcellence = {
-  [F in Exclude<Facet, 'bundle' | 'architecture'>]: MetricBlock<FacetSeries<FacetDataMap[F]>>
+  [F in Exclude<Facet, 'bundle' | 'architecture' | 'patterns'>]: MetricBlock<
+    FacetSeries<FacetDataMap[F]>
+  >
 } & {
   /** Absent from months collected before the bundle facet existed. */
   bundle?: MetricBlock<FacetSeries<BundleData>>
   /** Absent from months collected before the architecture facet existed. */
   architecture?: MetricBlock<FacetSeries<ArchitectureData>>
+  /** Absent from months collected before the patterns facet existed. */
+  patterns?: MetricBlock<FacetSeries<PatternsData>>
 }

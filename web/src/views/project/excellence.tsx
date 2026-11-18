@@ -3,6 +3,7 @@ import {
   ARCHITECTURE_LIBRARIES,
   EXPORT_TYPES,
   type ExcellenceKpis,
+  PATTERN_ANALYZERS,
   architectureRules,
   architectureTools,
   baselineOf,
@@ -13,6 +14,8 @@ import {
   kilobytes,
   kpisOf,
   moduleRows,
+  patternRules,
+  patternsTools,
   scopeTrends,
   topDuplication,
   topHotspots,
@@ -27,6 +30,8 @@ import type {
   EngineeringExcellence,
   HygieneData,
   MonthlyReport,
+  PatternsDotnet,
+  PatternsSemgrep,
   Severities,
 } from '@/shared/lib/types'
 import {
@@ -830,6 +835,165 @@ export function ArchitectureSection({ excellence }: { excellence: EngineeringExc
   )
 }
 
+/** How many rules the patterns tables show before "and N more". */
+const PATTERN_ROWS = 15
+
+/**
+ * The .NET build's analyzer diagnostics by rule against the baseline. The template never changes
+ * the build's verdict, so nothing is marked bad until the gate is a ratchet.
+ */
+export function PatternsDotnetPanel({ dotnet }: { dotnet: PatternsDotnet }) {
+  const held = dotnet.gate.mode === 'ratchet'
+  const allowed = dotnet.baseline
+    ? Object.values(dotnet.baseline).reduce((n, count) => n + count, 0)
+    : null
+  const rules = patternRules(dotnet)
+  const analyzers = Object.entries(dotnet.byAnalyzer)
+    .map(([key, c]) => ({ name: PATTERN_ANALYZERS[key] ?? key, findings: c.errors + c.warnings }))
+    .filter((a) => a.findings > 0)
+    .sort((a, b) => b.findings - a.findings)
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <p className="text-sm font-medium">
+          .NET analyzers
+          <span className="font-normal text-muted-foreground">
+            {' '}
+            · {dotnet.logs} projects{dotnet.compiler ? ` · compiler ${dotnet.compiler}` : ''}
+          </span>
+        </p>
+        <CheckModeBadge gate={dotnet.gate} />
+      </div>
+      <div className="grid grid-cols-2 gap-5 rounded-md border p-4 sm:grid-cols-4">
+        <Stat
+          label="Errors and warnings"
+          explain="patternsDotnet"
+          value={dotnet.errors + dotnet.warnings}
+          tone={held && dotnet.gate.violations > 0 ? 'bad' : undefined}
+          hint={allowed === null ? 'no baseline yet' : `${allowed} baselined`}
+        />
+        <Stat label="Over the baseline" value={dotnet.gate.violations} hint="by rule" />
+        <Stat label="Notes" value={dotnet.notes} hint="never held" />
+        <Stat label="Suppressed" value={dotnet.suppressed} hint="in source" />
+      </div>
+      {analyzers.length > 0 ? (
+        <p className="text-xs text-muted-foreground">
+          By analyzer: {analyzers.map((a) => `${a.name} ${a.findings}`).join(' · ')}
+        </p>
+      ) : null}
+      {rules.length > 0 ? (
+        <DataTable head={['Rule', 'Analyzer', 'Errors', 'Warnings', 'Notes', 'Allowed']}>
+          {rules.slice(0, PATTERN_ROWS).map((r) => (
+            <TableRow key={r.rule}>
+              <TableCell className="font-mono text-xs">{r.rule}</TableCell>
+              <TableCell className="text-xs">{r.analyzer}</TableCell>
+              <TableCell className="tabular-nums">{r.errors}</TableCell>
+              <TableCell className="tabular-nums">
+                {r.warnings}
+                {r.over ? (
+                  <span className="text-muted-foreground">
+                    {held ? ' (over the baseline)' : ' (over, report-only)'}
+                  </span>
+                ) : null}
+              </TableCell>
+              <TableCell className="tabular-nums">{r.notes}</TableCell>
+              <TableCell className="tabular-nums">
+                {r.allowed === null ? 'n/a' : r.allowed}
+              </TableCell>
+            </TableRow>
+          ))}
+        </DataTable>
+      ) : null}
+      {rules.length > PATTERN_ROWS ? (
+        <p className="text-xs text-muted-foreground">
+          and {rules.length - PATTERN_ROWS} more rules
+        </p>
+      ) : null}
+      <p className="text-xs text-muted-foreground">
+        {rules.length === 0
+          ? 'No analyzer findings. '
+          : dotnet.baseline === null
+            ? 'No baseline committed yet. '
+            : dotnet.gate.violations === 0
+              ? 'Findings within the baseline. '
+              : `${dotnet.gate.violations} findings over the baseline${held ? '' : ', not failing while report-only'}. `}
+        {held
+          ? 'Findings over the baseline count towards Code hygiene on the scorecard.'
+          : 'Shown for information: a report-only check does not count on the scorecard.'}
+      </p>
+    </div>
+  )
+}
+
+/** The repository's own Semgrep rules: the blocking scan already fails CI on any finding. */
+export function PatternsSemgrepPanel({ semgrep }: { semgrep: PatternsSemgrep }) {
+  const findings = semgrep.errors + semgrep.warnings + semgrep.notes
+  const firing = Object.entries(semgrep.byRule)
+    .map(([rule, c]) => ({ rule, findings: c.errors + c.warnings + c.notes }))
+    .filter((r) => r.findings > 0)
+    .sort((a, b) => b.findings - a.findings || a.rule.localeCompare(b.rule))
+  return (
+    <div className="space-y-3">
+      <p className="text-sm font-medium">
+        Semgrep, the repository&apos;s own rules
+        {semgrep.version ? (
+          <span className="font-normal text-muted-foreground"> · {semgrep.version}</span>
+        ) : null}
+      </p>
+      <div className="grid grid-cols-2 gap-5 rounded-md border p-4">
+        <Stat
+          label="Rules"
+          explain="patternsSemgrep"
+          value={semgrep.rules ?? Object.keys(semgrep.byRule).length}
+        />
+        <Stat
+          label="Findings"
+          value={findings}
+          tone={findings > 0 ? 'bad' : undefined}
+          hint="fail CI"
+        />
+      </div>
+      {firing.length > 0 ? (
+        <ul className="space-y-1 text-xs">
+          {firing.slice(0, 10).map((r) => (
+            <li key={r.rule} className="font-mono">
+              {r.rule}: {r.findings}
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </div>
+  )
+}
+
+/**
+ * The code-pattern findings the repository's CI records: the .NET analyzers from the build's SARIF
+ * and the repository's own Semgrep rules. Either part is absent when the repository does not run it.
+ */
+export function PatternsSection({ excellence }: { excellence: EngineeringExcellence }) {
+  if (!excellence.patterns) {
+    return <Unavailable reason="Not collected for this month: the patterns facet is newer." />
+  }
+  return (
+    <Metric block={excellence.patterns}>
+      {({ latest }) => (
+        <div className="grid gap-6 lg:grid-cols-2">
+          {latest.dotnet ? (
+            <PatternsDotnetPanel dotnet={latest.dotnet} />
+          ) : (
+            <Unavailable reason="No analyzer SARIF: the repository's .NET build wrote no error log, or it has no .NET app." />
+          )}
+          {latest.semgrep ? (
+            <PatternsSemgrepPanel semgrep={latest.semgrep} />
+          ) : (
+            <Unavailable reason="No Semgrep report: the SAST scan left no JSON." />
+          )}
+        </div>
+      )}
+    </Metric>
+  )
+}
+
 /**
  * Numbers the repository's own CI produces about its code: coverage, mutation score, complexity,
  * scanner findings, the SBOM and code hygiene. Each facet is shown as of the newest sample in the
@@ -935,6 +1099,18 @@ export function ExcellencePanel({
             }
           />
           <ArchitectureSection excellence={excellence} />
+        </div>
+
+        <div>
+          <SectionTitle
+            title="Code patterns"
+            facets={
+              excellence.patterns?.available
+                ? patternsTools(excellence.patterns.data.latest)
+                : ['patterns facet']
+            }
+          />
+          <PatternsSection excellence={excellence} />
         </div>
       </div>
     </Panel>

@@ -410,6 +410,48 @@ describe('readFacet', () => {
     expect(readArchitecture(unknown)).toMatchObject({ ok: false, kind: 'mismatch' })
   })
 
+  const readPatterns = (doc: unknown) =>
+    readFacet({ 'patterns.json': strToU8(JSON.stringify(doc)) }, 'patterns', REPO, 'main')
+
+  it('accepts a patterns facet with both parts, or with either one alone', () => {
+    const read = readPatterns(fixture('patterns'))
+    expect(read.ok).toBe(true)
+    if (read.ok) {
+      expect(read.envelope.data.dotnet?.byRule.MA0004).toEqual({ errors: 0, warnings: 4, notes: 0 })
+      expect(read.envelope.data.dotnet?.gate.mode).toBe('report')
+      expect(read.envelope.data.semgrep?.rules).toBe(3)
+    }
+    // A repository without .NET, and one whose Semgrep rule files were not read.
+    const semgrepOnly = fixture('patterns')
+    Object.assign(semgrepOnly.data, { dotnet: null })
+    Object.assign(semgrepOnly.data.semgrep as object, { rules: null, version: null })
+    expect(readPatterns(semgrepOnly).ok).toBe(true)
+    // A .NET repository before its first baseline, its scan left no JSON.
+    const dotnetOnly = fixture('patterns')
+    Object.assign(dotnetOnly.data, { semgrep: null })
+    Object.assign(dotnetOnly.data.dotnet as object, { baseline: null, compiler: null })
+    expect(readPatterns(dotnetOnly).ok).toBe(true)
+  })
+
+  it('rejects a patterns facet without its gate, with a missing part, or another tool', () => {
+    const ungated = fixture('patterns')
+    const { gate: _gate, ...dotnet } = ungated.data.dotnet as Record<string, unknown>
+    ungated.data.dotnet = dotnet
+    const ungatedRead = readPatterns(ungated)
+    expect(ungatedRead).toMatchObject({ ok: false, kind: 'mismatch' })
+    if (!ungatedRead.ok) expect(ungatedRead.reason).toContain("missing 'gate'")
+
+    const { semgrep: _semgrep, ...partial } = fixture('patterns').data
+    expect(readPatterns({ ...fixture('patterns'), data: partial })).toMatchObject({
+      ok: false,
+      kind: 'mismatch',
+    })
+
+    const other = fixture('patterns')
+    Object.assign(other.data.dotnet as object, { tool: 'sonar' })
+    expect(readPatterns(other)).toMatchObject({ ok: false, kind: 'mismatch' })
+  })
+
   it('reports a missing file as missing, not as a mismatch', () => {
     expect(readFacet({ 'other.json': strToU8('{}') }, 'coverage', REPO, 'main')).toMatchObject({
       ok: false,
@@ -576,9 +618,10 @@ describe('collectEngineeringExcellence', () => {
     expect(block.sbom).toMatchObject({ available: false })
     // A repository that does not produce the architecture facet yet simply has none.
     expect(block.architecture).toMatchObject({ available: false })
+    expect(block.patterns).toMatchObject({ available: false })
     expect(
       warnings.filter((w) => w.code === 'ENGINEERING_EXCELLENCE_ARTIFACT_MISSING'),
-    ).toHaveLength(7)
+    ).toHaveLength(8)
   })
 
   it('warns on a schema mismatch and keeps the stored samples instead of the bad one', async () => {

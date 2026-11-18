@@ -12,8 +12,9 @@ One artifact per facet, named `engineering-excellence-<facet>`, holding a single
 | `hygiene` | Duplication per scope and module, the worst files, swallowed exceptions justified and not, dead-code warnings, comment density, optionally the duplication `gate`, `commentSlop` and Knip's `deadCode.web` | `jscpd-report.json`, `semgrep.json`, Knip's `--reporter json`, and committed baselines | Every push |
 | `bundle` | The web static export's JavaScript: total and largest chunk in bytes, the budget (baseline + 10%), over budget or not, and its `gate` | `size-limit --json` (`@size-limit/file`) and the chunk directory | Every push |
 | `architecture` | `web`: Steiger's errors and warnings per rule, the warning baseline and its `gate`; `dotnet`: architecture rules passed and failed, by name, whatever the test library. A part not run is `null` | `steiger --reporter json` and the architecture tests' TRX | Every push |
+| `patterns` | `dotnet`: the .NET analyzers' errors, warnings and notes per rule and analyzer, suppressed findings, the baseline and its `gate`; `semgrep`: the repository's own `.semgrep/` rules' findings per rule. A part not run is `null` | The build's SARIF error logs (`-p:ErrorLog`) and `semgrep.json` | Every push |
 
-`deadCode.web.gate`, `bundle.gate` and `architecture.web.gate` are `{ mode, since, violations, failed }`: `report` never fails
+`deadCode.web.gate`, `bundle.gate`, `architecture.web.gate` and `patterns.dotnet.gate` are `{ mode, since, violations, failed }`: `report` never fails
 CI and does not count on the scorecard; `ratchet` holds the committed baseline. The mode lives in the
 repository's `quality.config.json` and changes only in a reviewed pull request.
 

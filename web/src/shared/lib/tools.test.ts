@@ -52,6 +52,17 @@ describe('tool links', () => {
     expect(externalTools(['architecture facet', 'ArchUnitNET'])).toEqual(['Steiger', 'ArchUnitNET'])
   })
 
+  it('links the code-pattern analyzers, and shows the patterns facet as Roslyn analyzers and Semgrep', () => {
+    expect(toolLink('Meziantou.Analyzer')).toBe('https://github.com/meziantou/Meziantou.Analyzer')
+    expect(toolLink('Roslynator')).toBe('https://github.com/dotnet/roslynator')
+    expect(toolLink('Roslyn analyzers')).toBe('https://github.com/dotnet/roslyn-analyzers')
+    expect(externalTools(['patterns facet', 'Roslynator'])).toEqual([
+      'Roslyn analyzers',
+      'Semgrep',
+      'Roslynator',
+    ])
+  })
+
   it('maps every platform gate onto tools that have a link', () => {
     for (const tools of Object.values(PLATFORM_GATES)) {
       for (const tool of tools) expect(TOOL_LINKS[tool], tool).toMatch(/^https:\/\//)
