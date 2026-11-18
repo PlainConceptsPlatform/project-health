@@ -41,8 +41,10 @@ jobs:
       - name: Inspect
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token || secrets.DISCOVER_TOKEN || secrets.GITHUB_TOKEN }}
+          # The input reaches the shell as an environment variable, never interpolated into the script.
+          REPO: ${{ inputs.repo }}
         run: |
           # pipefail matters: without it tee swallows a non-zero exit and an unreadable repository
           # would report the whole run as successful.
           set -o pipefail
-          pnpm --filter @project-health/collector run start --discover '${{ inputs.repo }}'             | tee -a "$GITHUB_STEP_SUMMARY"
+          pnpm --filter @project-health/collector run start --discover "$REPO"             | tee -a "$GITHUB_STEP_SUMMARY"

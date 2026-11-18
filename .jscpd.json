@@ -1,0 +1,19 @@
+{
+  "path": ["collector/src", "web/src", "scripts"],
+  "format": ["typescript", "tsx", "javascript"],
+  "minLines": 10,
+  "minTokens": 70,
+  "mode": "mild",
+  "reporters": ["console", "json"],
+  "output": "jscpd-report",
+  "gitignore": true,
+  "noTips": true,
+  "ignore": [
+    "**/node_modules/**",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.test.mjs",
+    "**/fixtures/**"
+  ],
+  "threshold": 0.3
+}

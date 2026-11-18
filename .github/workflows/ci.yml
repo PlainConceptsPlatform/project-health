@@ -1,0 +1,195 @@
+name: CI
+
+# The engineering gates the scorecard expects of this repository, on every pull request and every
+# push to main. Until now the collector's tests only ran inside the daily collection, and nothing
+# scanned the code, its dependencies or the site it builds. Each job is a gate on its own, so a
+# failure names the practice it broke:
+#
+#   Tests and coverage   lint, typecheck, config validator, Vitest with the coverage floors in
+#                        collector/ and web/ vitest.config.ts
+#   Secret scan          TruffleHog, verified secrets only
+#   Dependencies & IaC   Trivy, CRITICAL/HIGH with a fix, dev dependencies included
+#   SAST                 Semgrep OSS, the platform rule sets plus .semgrep/ (hygiene)
+#   SBOM                 Syft, CycloneDX
+#   Duplication          jscpd, held at the ceiling in .jscpd.json
+#   Lighthouse budgets   the static export, budgets in lighthouserc.cjs
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TRUFFLEHOG_IMAGE: "ghcr.io/trufflesecurity/trufflehog:3.99.7"
+  SEMGREP_IMAGE: "semgrep/semgrep:1.168.0"
+
+jobs:
+  test:
+    name: Tests and coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Lint (Biome)
+        run: pnpm lint
+      - name: Config validator tests
+        run: pnpm test:config
+      - name: Typecheck
+        run: |
+          pnpm --filter @project-health/collector run typecheck
+          pnpm --filter @project-health/web run typecheck
+      # BLOCKING. Each package fails under its coverage floor (vitest.config.ts, thresholds).
+      - name: Collector tests with coverage
+        run: pnpm --filter @project-health/collector run test --coverage
+      - name: Web tests with coverage
+        run: pnpm --filter @project-health/web run test --coverage
+
+  secret-scan:
+    name: Secret scan (TruffleHog, verified only)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: TruffleHog filesystem scan
+        env:
+          WORKSPACE: ${{ github.workspace }}
+        run: |
+          docker run --rm -v "$WORKSPACE:/repo" "$TRUFFLEHOG_IMAGE" \
+            filesystem /repo --only-verified --fail --no-update
+
+  # vuln: pnpm-lock.yaml, dev dependencies included because the tools in them (Lighthouse CI,
+  # jscpd) run on every pull request. misconfig: the workflows. secret: the whole tree.
+  # CRITICAL/HIGH only, unfixed advisories ignored so an unpatched upstream CVE cannot block
+  # every PR.
+  deps-and-iac-scan:
+    name: Dependencies & IaC (Trivy, blocking)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      TRIVY_INCLUDE_DEV_DEPS: "true"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Trivy filesystem scan
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          scan-type: fs
+          scanners: vuln,misconfig,secret
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: "1"
+          format: table
+
+  # The rule sets the platform apps run, plus .semgrep/ (the TypeScript empty-catch hygiene rule).
+  # Excluded rules:
+  #   github-actions-mutable-action-tag: every action here is pinned by SHA with its tag in a
+  #     comment, which the rule still reads as a tag.
+  #   pnpm-block-exotic-sub-dependencies, pnpm-minimum-release-age, pnpm-trust-policy: settings
+  #     from pnpm 10.16+. This repository is on pnpm 9.12 (packageManager), which has none of them;
+  #     drop these exclusions when it moves to pnpm 10.
+  sast-scan:
+    name: SAST (Semgrep OSS, blocking)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Semgrep scan (blocking)
+        env:
+          WORKSPACE: ${{ github.workspace }}
+        run: |
+          set -euo pipefail
+          docker run --rm -v "$WORKSPACE:/src" -w /src "$SEMGREP_IMAGE" \
+            semgrep scan --error --metrics=off --oss-only --disable-version-check \
+              --config p/default --config p/security-audit --config p/secrets \
+              --config p/typescript --config p/react --config .semgrep/ \
+              --exclude-rule yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag \
+              --exclude-rule package_managers.pnpm.pnpm-block-exotic-sub-dependencies.pnpm-block-exotic-sub-dependencies \
+              --exclude-rule package_managers.pnpm.pnpm-missing-minimum-release-age.pnpm-minimum-release-age \
+              --exclude-rule package_managers.pnpm.pnpm-trust-policy.pnpm-trust-policy
+
+  sbom:
+    name: SBOM (Syft, CycloneDX)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # The action downloads the syft binary with a single non-retried GET, so a transient release
+      # CDN error fails it for no code reason. The first attempt may fail; the retry below runs only
+      # then, and if both fail the job fails.
+      - name: Generate SBOM
+        id: sbom
+        uses: anchore/sbom-action@fffec3d851af758d56fee099cf3fbf8aa8779843 # v0.24.3
+        continue-on-error: true
+        with:
+          format: cyclonedx-json
+          artifact-name: project-health-sbom.cyclonedx.json
+          syft-version: v1.57.0
+          upload-release-assets: false
+      - name: Retry SBOM on a transient download error
+        if: ${{ steps.sbom.outcome == 'failure' }}
+        uses: anchore/sbom-action@fffec3d851af758d56fee099cf3fbf8aa8779843 # v0.24.3
+        with:
+          format: cyclonedx-json
+          artifact-name: project-health-sbom.cyclonedx.json
+          syft-version: v1.57.0
+          upload-release-assets: false
+
+  # BLOCKING (practice 11, code hygiene). jscpd fails when duplicated lines across collector/,
+  # web/ and scripts/ exceed the ceiling in .jscpd.json (`threshold`, percent). The ceiling sits
+  # just above the duplication measured when the gate was added (0.23%, four clones), so that
+  # debt does not block and a new clone of ten lines or more does. Lower it as clones are removed.
+  duplication:
+    name: Duplication (jscpd, blocking)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      # jscpd is a root devDependency, pinned there and in the lockfile.
+      - run: pnpm install --frozen-lockfile
+      - name: Duplication gate (jscpd)
+        run: pnpm exec jscpd -c .jscpd.json
+
+  # BLOCKING. Builds the static export from the demo data and holds it to the budgets in
+  # lighthouserc.cjs, on the median of three runs per page, served by lhci's own local server.
+  lighthouse:
+    name: Lighthouse budgets (performance, accessibility, best practices, SEO)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Build static export
+        run: pnpm --filter @project-health/web run build
+      - name: Lighthouse CI
+        run: pnpm exec lhci autorun
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: ${{ !cancelled() }}
+        with:
+          name: lighthouse-reports
+          path: .lighthouseci/
+          # .lighthouseci is a dot-directory, which upload-artifact skips by default.
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 14

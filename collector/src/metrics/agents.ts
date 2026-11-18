@@ -118,6 +118,7 @@ function sumPerRequest(files: Record<string, Uint8Array>): TokenUsage | null {
   let seen = 0
   for (const line of text.split(/\r?\n/)) {
     if (!line.trim()) continue
+    // nosemgrep: platform-hygiene-ts-empty-catch -- a truncated usage line is skipped so the rest of the run still counts
     try {
       const row = JSON.parse(line) as RawUsage & { model?: string }
       totals.inputTokens += row.input_tokens ?? 0

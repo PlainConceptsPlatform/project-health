@@ -77,11 +77,17 @@ jobs:
           GITHUB_APP_ID: ${{ secrets.BOT_APP_ID }}
           GITHUB_APP_PRIVATE_KEY: ${{ secrets.BOT_PRIVATE_KEY }}
           OTEL_EXPORTER_OTLP_ENDPOINT: ${{ vars.OTEL_EXPORTER_OTLP_ENDPOINT }}
+          # Inputs reach the shell as environment variables, never interpolated into the script.
+          PROJECT: ${{ inputs.project }}
+          MONTH: ${{ inputs.month }}
+          MONTHS: ${{ inputs.months }}
         run: |
+          month=()
+          if [ -n "$MONTH" ]; then month=(--month "$MONTH"); fi
           pnpm --filter @project-health/collector run start \
-            --project '${{ inputs.project }}' \
-            ${{ inputs.month && format('--month {0}', inputs.month) || '' }} \
-            --backfill '${{ inputs.months }}'
+            --project "$PROJECT" \
+            "${month[@]}" \
+            --backfill "$MONTHS"
 
       # An installation token lasts one hour and a collection can take longer (the first run of a
       # month times every Actions run when the billing report is not readable), so the token minted
@@ -97,6 +103,8 @@ jobs:
       - name: Commit collected data
         env:
           PUSH_TOKEN: ${{ steps.push-token.outputs.token }}
+          PROJECT: ${{ inputs.project }}
+          MONTHS: ${{ inputs.months }}
         run: |
           git remote set-url origin "https://x-access-token:${PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           git config user.name 'github-actions[bot]'
@@ -105,7 +113,7 @@ jobs:
           if git diff --staged --quiet; then
             echo 'No metric changes to commit.'
           else
-            git commit -m "chore(data): backfill ${{ inputs.project }} (${{ inputs.months }} month(s))"
+            git commit -m "chore(data): backfill ${PROJECT} (${MONTHS} month(s))"
             # A merge can land on main during the collection; data/ never conflicts with it.
             for attempt in 1 2 3; do
               git pull --rebase --quiet && git push && exit 0

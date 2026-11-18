@@ -89,6 +89,7 @@ function validate(value, schema, path, problems) {
     }
   }
 
+  // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp -- the pattern comes from this repository's own schema/
   if (typeof value === 'string' && schema.pattern && !new RegExp(schema.pattern).test(value)) {
     problems.push(`${path}: ${show(value)} does not match ${schema.pattern}`)
   }
@@ -140,6 +141,7 @@ function checkSemantics(projects, practiceIds) {
 
     if (typeof project?.productionRefPattern === 'string') {
       try {
+        // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp -- compiling the pattern is the check: it reports one that does not compile
         new RegExp(project.productionRefPattern)
       } catch (error) {
         problems.push(`${path}.productionRefPattern: does not compile (${error.message})`)

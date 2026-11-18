@@ -6,3 +6,6 @@ out/
 .env.local
 .DS_Store
 web/public/evidence/
+coverage/
+jscpd-report/
+.lighthouseci/
