@@ -17,7 +17,11 @@ export const ENV_LABEL: Record<PortfolioEnv, string> = {
 /** 0 is critical, 1 needs attention, 2 is fine. Sorting by risk puts the worst first. */
 export type Risk = 0 | 1 | 2
 
+/** Which rule raised the alert, so a filter can pick one kind without matching on the text. */
+export type AlertKind = 'production-below-l1' | 'production-l1' | 'high-ai' | 'declining'
+
 export interface PortfolioAlert {
+  kind: AlertKind
   text: string
   detail: string
   severity: 'red' | 'amber'
@@ -97,13 +101,23 @@ export function riskOf(
   if (env === 'pro' && card.level === 0) {
     return {
       risk: 0 as Risk,
-      alert: { text: 'In production below L1', detail: gatesText(row), severity: 'red' as const },
+      alert: {
+        kind: 'production-below-l1' as const,
+        text: 'In production below L1',
+        detail: gatesText(row),
+        severity: 'red' as const,
+      },
     }
   }
   if (env === 'pro' && card.level === 1) {
     return {
       risk: 1 as Risk,
-      alert: { text: 'In production at L1', detail: gatesText(row), severity: 'amber' as const },
+      alert: {
+        kind: 'production-l1' as const,
+        text: 'In production at L1',
+        detail: gatesText(row),
+        severity: 'amber' as const,
+      },
     }
   }
   const highAi = card.alerts.find((a) => a.code === 'HIGH_AI_LOW_ENGINEERING')
@@ -111,6 +125,7 @@ export function riskOf(
     return {
       risk: 1 as Risk,
       alert: {
+        kind: 'high-ai' as const,
         text: 'High AI, low engineering',
         detail: highAi.message,
         severity: 'amber' as const,
@@ -121,6 +136,7 @@ export function riskOf(
     return {
       risk: 1 as Risk,
       alert: {
+        kind: 'declining' as const,
         text: 'Engineering declining',
         detail:
           basis === 'days'
@@ -150,27 +166,16 @@ export function portfolioRows(rows: ScorecardRow[]): PortfolioRow[] {
   })
 }
 
-export type PortfolioFilter = 'all' | 'attention' | PortfolioEnv
-export type PortfolioSort = 'risk' | 'engineering' | 'gates' | 'trend' | 'name'
-
-export const FILTERS: { key: PortfolioFilter; label: string }[] = [
-  { key: 'all', label: 'All' },
-  { key: 'attention', label: 'Needs attention' },
-  { key: 'pro', label: ENV_LABEL.pro },
-  { key: 'pre', label: ENV_LABEL.pre },
-  { key: 'none', label: ENV_LABEL.none },
-]
+export type PortfolioSort = 'risk' | 'engineering' | 'engineering-asc' | 'gates' | 'trend' | 'name'
 
 export const SORTS: { key: PortfolioSort; label: string }[] = [
-  { key: 'risk', label: 'Risk' },
-  { key: 'engineering', label: 'Engineering' },
-  { key: 'gates', label: 'Gates' },
-  { key: 'trend', label: 'Trend' },
+  { key: 'risk', label: 'Risk, worst first' },
+  { key: 'engineering', label: 'Score, high to low' },
+  { key: 'engineering-asc', label: 'Score, low to high' },
+  { key: 'gates', label: 'Gates, fewest first' },
+  { key: 'trend', label: 'Trend, falling first' },
   { key: 'name', label: 'Name' },
 ]
-
-export const matches = (row: PortfolioRow, filter: PortfolioFilter) =>
-  filter === 'all' ? true : filter === 'attention' ? row.risk < 2 : row.env === filter
 
 const byName = (a: PortfolioRow, b: PortfolioRow) => a.name.localeCompare(b.name)
 const score = (r: PortfolioRow) => r.card?.score ?? -1
@@ -181,6 +186,7 @@ export function sortRows(rows: PortfolioRow[], sort: PortfolioSort): PortfolioRo
     if (!a.card !== !b.card) return a.card ? -1 : 1
     if (sort === 'name') return byName(a, b)
     if (sort === 'engineering') return score(b) - score(a) || byName(a, b)
+    if (sort === 'engineering-asc') return score(a) - score(b) || byName(a, b)
     // Worst first, like risk: the projects with the fewest gates are the ones to look at.
     if (sort === 'gates') return (a.gatesPct ?? -1) - (b.gatesPct ?? -1) || byName(a, b)
     if (sort === 'trend') return (a.delta ?? 0) - (b.delta ?? 0) || byName(a, b)
