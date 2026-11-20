@@ -1,59 +1,47 @@
 # Publishing
 
-Ask one question first: who opens it? A dashboard nobody reads is a pipeline and a hosting bill.
-For many teams the honest first release is option 4.
+The form decides this (Q1, Q2, Q3); this file says what each answer leads to. A dashboard nobody
+opens is a pipeline and a hosting bill, so a local-only web is a good first release, and it is still
+a web: the person sees it in step 5.
 
-## 1. An existing Project Health instance
+## On GitHub: the official Project Health
 
-Only when the repository is on GitHub. The facets are picked up with no integration code: the
-consumer reads `engineering-excellence-<facet>` artifacts from the configured branch. What the
-instance needs is one entry in `projects.json`, added by whoever runs it.
+The facets are picked up with no integration code: the collector reads `engineering-excellence-<facet>`
+artifacts from the configured branch, and also collects delivery, agents, roadmap, CI usage and the
+scorecard from the GitHub API.
 
-## 2. Your own instance, from the template
+- **An existing instance**: one entry in its `projects.json`, added by whoever runs it with that
+  repository's `pc-add-project` skill.
+- **Your own instance**: create a repository from <https://github.com/PlainConceptsPlatform/project-health>,
+  add a token, turn on Pages. Keep it private: delivery metrics name real people.
 
-Only when the repository is on GitHub. Copy `PlainConceptsPlatform/Project-Health`, add a token,
-turn on Pages, and the same collection runs against your projects. Keep it private: delivery metrics
-name real people.
+## Anywhere else: the folder and the pinned web
 
-## 3. A static site from committed JSON, any host
+The web reads `data/index.json` and `data/<id>/<yyyy-mm>.json` at build time and needs nothing else.
+`facet-store` writes them from the facets the CI produced. The full recipe is [`data-and-web.md`](data-and-web.md); the pipelines are in
+[`azure-pipelines.md`](azure-pipelines.md) and [`gitlab-ci.md`](gitlab-ci.md).
 
-The web reads `data/index.json` and `data/<id>/<yyyy-mm>.json` at build time and needs nothing else:
+| Q3 answer | What gets built |
+| --- | --- |
+| Local only | The folder, the collection pipeline, and a one-command `web:dev` written in the README |
+| Azure Static Web Apps | The above plus the Deploy pipeline with `AzureStaticWebApp@0` |
+| GitLab Pages | The above plus the `pages` job |
+| Another static host | The above plus a copy of `web/out/` to that host |
 
-```bash
-PROJECT_HEALTH_CONFIG_DIR=<dir with projects.json and config/> \
-PROJECT_HEALTH_DATA_DIR=<dir with data/> pnpm web:build
-```
+What remains impossible off GitHub today is delivery, agents, pull requests, CI usage and the
+scorecard: no collector reads those hosts. They are recorded as pending, and the month file says so
+in each block instead of showing a zero.
 
-The export lands in `web/out/` and can be served by Azure Static Web Apps, an internal nginx, GitHub
-Pages, or a laptop. A build with no collected data is valid and shows empty states, which is how you
-check the wiring before the first collection.
+## No web
 
-The repository supplies the engineering cards; `delivery`, `agents` and `contributors` are required
-keys in the month document but may each be `{ "available": false, "reason": "..." }`. An honest
-absence is a supported state, and a zero is not a substitute.
+The facets and the month files stay in the repository and the gates do the work. Step 5 and step 8
+are ticked as not needed, with Q2's answer as the reason.
 
-## 4. No dashboard
+## The merge rules of `facet-store`
 
-The facets stay in the repository and the gates do the work. This is often the right first release,
-and it is the only option that needs nothing outside the repository.
-
-## Writing the month files from any host
-
-`facet-store` does the step the collector does for GitHub: it merges one facet into the stored month,
-with the same rules.
-
-```bash
-pnpm facet-store add --project checkout --facet coverage --file coverage.json
-# checkout 2026-10 coverage: 1 sample(s), newest 2026-10-11T23:03:56.547Z, created the month
-```
-
-- The project must already be in `projects.json`. Add it first rather than inventing a config here.
-- `--month yyyy-mm` overrides the month taken from the facet's `generatedAt`; `--commit <sha>` sets
-  the commit when the CI checkouts a different revision than the one measured.
-- It creates the month when it does not exist, with every deployment, agent and pull request block
-  absent and a reason, so the page says why instead of showing a zero.
-- The merge rules are the collector's: one sample per commit, oldest first, deduplicated to the
-  latest run attempt, full detail on the newest and scope totals on the older ones.
-
-So option 3 is a commit of `data/`, not a piece of work. What remains is choosing the host for the
-static export.
+The collector's: one sample per commit, oldest first, deduplicated to the latest run attempt, full
+detail on the newest and scope totals on the older ones. The project must already be in
+`projects.json`. `--month yyyy-mm` overrides the month taken from `generatedAt`; `--commit <sha>`
+sets the commit when the CI checks out a different revision than the one measured. When the month
+does not exist it is created with every deployment, agent and pull request block absent and a
+reason.

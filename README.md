@@ -151,7 +151,14 @@ npx skills add https://github.com/plainconceptsplatform/project-health --skill p
 
 The shorthand `npx skills add PlainConceptsPlatform/project-health` installs every skill the
 repository publishes. Then ask your agent to adopt the engineering standard and it loads the skill.
-The skill's source is in [`skills/pc-engineering-adoption`](skills/pc-engineering-adoption/SKILL.md).
+
+Whatever you ask it, the skill starts with a short form, one question at a time: the CI platform,
+whether you want a web and where it lives, how often to collect, which pillars, how much of the
+engineering standard, and the project's context. It writes the answers to
+`project-health/ADOPTION.md` and then builds step by step: the producer, the first facet, a
+`project-health/` folder of month files, the web running locally, and the CI, collection and
+deployment pipelines for your host. On GitHub it points you to this repository instead of building
+a dashboard. The skill's source is in [`skills/pc-engineering-adoption`](skills/pc-engineering-adoption/SKILL.md).
 
 ## Engineering excellence facets
 
@@ -675,7 +682,12 @@ durable record.
 ### Splitting the data out
 
 `PROJECT_HEALTH_CONFIG_DIR` and `PROJECT_HEALTH_DATA_DIR` decide where `projects.json`, `config/` and
-`data/` are read from and written to. Both default to this repository.
+`data/` are read from and written to. Both default to this repository. `PROJECT_HEALTH_CONFIG_DIR` is
+the folder holding `projects.json` and `config/`; `PROJECT_HEALTH_DATA_DIR` is the folder that
+**contains** `data/`, for the collector, `facet-store` and the web alike, so one folder holding all
+three can be passed to both. The web still accepts a `PROJECT_HEALTH_DATA_DIR` that points at `data/`
+itself, as it used to. `pnpm verify:config` checks the list in `PROJECT_HEALTH_CONFIG_DIR` against
+this repository's schema.
 
 Setting them lets an organisation keep this code public while its project list and collected metrics
 live in a private repository. Delivery metrics name real people and describe private projects; the code
