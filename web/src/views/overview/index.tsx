@@ -5,7 +5,7 @@ import { familyRows } from '@/shared/lib/family'
 import { portfolioRows } from '@/shared/lib/portfolio'
 import { type DailyScore, scorecardRows } from '@/shared/lib/scorecard'
 import { type ProjectSummary, summarise } from '@/shared/lib/summary'
-import type { DataIndex, MonthlyReport } from '@/shared/lib/types'
+import type { DataIndex, MonthlyReport, ProjectFamily } from '@/shared/lib/types'
 import { Unavailable } from '@/shared/ui'
 import { Portfolio } from './portfolio'
 
@@ -43,6 +43,10 @@ export function OverviewView({
     )
   }
 
+  const familyOf: Record<string, ProjectFamily> = Object.fromEntries(
+    index.projects.flatMap((entry) => (entry.family ? [[entry.id, entry.family]] : [])),
+  )
+
   return (
     <Portfolio
       rows={portfolioRows(scorecardRows(index, months, daily))}
@@ -53,6 +57,7 @@ export function OverviewView({
       code={codeRows(index, months, daily)}
       actions={actionsRows(index, months)}
       family={familyRows(index, months, daily)}
+      familyOf={familyOf}
     />
   )
 }

@@ -9,31 +9,36 @@ import {
   DELTA_TITLE,
   type DeltaBasis,
   ENV_LABEL,
-  FILTERS,
   type PortfolioAlert,
   type PortfolioEnv,
-  type PortfolioFilter,
   type PortfolioRow,
-  type PortfolioSort,
-  SORTS,
   byGroup,
-  matches,
   portfolioKpis,
   sortRows,
 } from '@/shared/lib/portfolio'
+import {
+  type PortfolioQuery,
+  type RowContext,
+  emptyQuery,
+  formatQuery,
+  matchesQuery,
+  parseQuery,
+} from '@/shared/lib/portfolio-query'
 import { GROUP_LABEL, LEVEL_BAR, typeLabel } from '@/shared/lib/scorecard'
 import type { ProjectSummary } from '@/shared/lib/summary'
+import type { ProjectFamily } from '@/shared/lib/types'
 import { withBase } from '@/shared/lib/utils'
 import { cn } from '@/shared/ui'
 import { LevelBadge } from '@/shared/ui/scorecard'
 import { Sparkline } from '@/shared/ui/sparkline'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
-import { AlertTriangleIcon, ChevronRightIcon } from 'lucide-react'
-import { useState } from 'react'
+import { AlertTriangleIcon, ChevronDownIcon, ChevronRightIcon } from 'lucide-react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ActionsTable } from './actions'
 import { AgenticTable } from './agentic'
 import { CodeTable } from './code'
 import { FamilyTable } from './family'
+import { Chip, FilterBar } from './filter-bar'
 import { ProjectGrid } from './grid'
 
 const ALERT_TONE: Record<PortfolioAlert['severity'], string> = {
@@ -60,35 +65,6 @@ const envTitle = (row: PortfolioRow) =>
           )
           .join('\n')
       : row.environment?.reason
-
-function Chip({
-  active,
-  onClick,
-  children,
-  className,
-}: {
-  active: boolean
-  onClick: () => void
-  children: React.ReactNode
-  className?: string
-}) {
-  return (
-    <button
-      type="button"
-      aria-pressed={active}
-      onClick={onClick}
-      className={cn(
-        'inline-flex items-center gap-2 border px-3.5 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-        active
-          ? 'border-foreground bg-foreground text-background'
-          : 'border-border bg-background text-foreground hover:bg-muted',
-        className,
-      )}
-    >
-      {children}
-    </button>
-  )
-}
 
 function Kpi({
   label,
@@ -233,18 +209,79 @@ function openRow(e: React.MouseEvent<HTMLTableRowElement>, href: string) {
 
 const COLUMNS = ['Project', 'Engineering', 'Gates', 'AI usage', `Last ${DELTA_DAYS} days`, '']
 
+const projectHref = (row: PortfolioRow) => `/projects/${row.id}/`
+
+function EnvChip({ row }: { row: PortfolioRow }) {
+  return (
+    <span className={cn('inline-flex whitespace-nowrap', ENV_CHIP[row.env])} title={envTitle(row)}>
+      {ENV_LABEL[row.env]}
+    </span>
+  )
+}
+
+function Inferred({ row }: { row: PortfolioRow }) {
+  return row.card && !row.card.facetsPublished ? (
+    <span
+      title="No facets published: values detected from workflows"
+      className="rounded border border-dashed border-muted-foreground/60 px-1.5 text-[11px] text-muted-foreground"
+    >
+      inferred
+    </span>
+  ) : null
+}
+
+function Engineering({ row }: { row: PortfolioRow }) {
+  const card = row.card
+  if (!card) return null
+  return (
+    <div className="flex flex-col gap-1.5">
+      <div className="flex items-center gap-2.5">
+        <LevelBadge level={card.level} />
+        <span className="text-xl font-semibold tabular-nums">{card.score ?? 'n/a'}</span>
+      </div>
+      <div className="h-2 overflow-hidden rounded-full bg-muted">
+        <div
+          className={cn('h-2 rounded-full', LEVEL_BAR[card.level] ?? LEVEL_BAR[0])}
+          style={{ width: `${card.score ?? 0}%` }}
+        />
+      </div>
+    </div>
+  )
+}
+
+function Gates({ row }: { row: PortfolioRow }) {
+  const card = row.card
+  if (!card) return null
+  return (
+    <Measure
+      value={card.gates.present}
+      of={card.gates.applicable}
+      tone={row.gatesPct !== null && row.gatesPct < 50 ? 'text-destructive' : undefined}
+      title={`${card.gates.present} of ${card.gates.applicable} applicable gates pass`}
+    >
+      <div className="h-[5px] overflow-hidden rounded-full bg-muted">
+        <div
+          className={cn('h-[5px] rounded-full', gatesBar(row.gatesPct ?? 0))}
+          style={{ width: `${row.gatesPct ?? 0}%` }}
+        />
+      </div>
+    </Measure>
+  )
+}
+
+/** The table, from a tablet up. Below that the same rows render as ProjectCards. */
 function ScorecardRows({
   rows,
   typeLabels,
 }: { rows: PortfolioRow[]; typeLabels: Record<string, string> }) {
   return (
-    <div className="overflow-x-auto rounded-xl border">
-      <table className="w-full min-w-[960px] table-fixed text-sm">
+    <div className="hidden overflow-x-auto rounded-xl border md:block">
+      <table className="w-full min-w-[720px] table-fixed text-sm">
         <colgroup>
-          <col className="w-[22%]" />
           <col className="w-[26%]" />
-          <col className="w-[16%]" />
-          <col className="w-[16%]" />
+          <col className="w-[22%]" />
+          <col className="w-[14%]" />
+          <col className="w-[14%]" />
           <col className="w-[150px]" />
           <col className="w-[56px]" />
         </colgroup>
@@ -264,7 +301,7 @@ function ScorecardRows({
               // biome-ignore lint/a11y/useKeyWithClickEvents: a mouse shortcut only; the project name link in the row is the keyboard and screen-reader path
               <tr
                 key={row.id}
-                onClick={(e) => openRow(e, `/projects/${row.id}/`)}
+                onClick={(e) => openRow(e, projectHref(row))}
                 className={cn(
                   'cursor-pointer border-t align-middle transition-colors hover:bg-muted/60',
                   row.risk === 0 && 'bg-destructive/[0.03]',
@@ -274,25 +311,13 @@ function ScorecardRows({
                   <div className="flex min-w-0 flex-col gap-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <a
-                        href={withBase(`/projects/${row.id}/`)}
+                        href={withBase(projectHref(row))}
                         className="text-[15px] font-semibold hover:underline"
                       >
                         {row.name}
                       </a>
-                      <span
-                        className={cn('inline-flex whitespace-nowrap', ENV_CHIP[row.env])}
-                        title={envTitle(row)}
-                      >
-                        {ENV_LABEL[row.env]}
-                      </span>
-                      {card && !card.facetsPublished ? (
-                        <span
-                          title="No facets published: values detected from workflows"
-                          className="rounded border border-dashed border-muted-foreground/60 px-1.5 text-[11px] text-muted-foreground"
-                        >
-                          inferred
-                        </span>
-                      ) : null}
+                      <EnvChip row={row} />
+                      <Inferred row={row} />
                     </div>
                     <span className="text-sm text-muted-foreground">
                       {card ? typeLabel(card.projectType, typeLabels) : row.repo}
@@ -303,42 +328,10 @@ function ScorecardRows({
                 {card ? (
                   <>
                     <td className="px-4 py-3.5">
-                      <div className="flex flex-col gap-1.5">
-                        <div className="flex items-center gap-2.5">
-                          <LevelBadge level={card.level} />
-                          <span className="text-xl font-semibold tabular-nums">
-                            {card.score ?? 'n/a'}
-                          </span>
-                        </div>
-                        <div className="h-2 overflow-hidden rounded-full bg-muted">
-                          <div
-                            className={cn(
-                              'h-2 rounded-full',
-                              LEVEL_BAR[card.level] ?? LEVEL_BAR[0],
-                            )}
-                            style={{ width: `${card.score ?? 0}%` }}
-                          />
-                        </div>
-                      </div>
+                      <Engineering row={row} />
                     </td>
                     <td className="px-4 py-3.5">
-                      <Measure
-                        value={card.gates.present}
-                        of={card.gates.applicable}
-                        tone={
-                          row.gatesPct !== null && row.gatesPct < 50
-                            ? 'text-destructive'
-                            : undefined
-                        }
-                        title={`${card.gates.present} of ${card.gates.applicable} applicable gates pass`}
-                      >
-                        <div className="h-[5px] overflow-hidden rounded-full bg-muted">
-                          <div
-                            className={cn('h-[5px] rounded-full', gatesBar(row.gatesPct ?? 0))}
-                            style={{ width: `${row.gatesPct ?? 0}%` }}
-                          />
-                        </div>
-                      </Measure>
+                      <Gates row={row} />
                     </td>
                     <td className="px-4 py-3.5">
                       <AiUsage row={row} />
@@ -362,7 +355,7 @@ function ScorecardRows({
                 )}
                 <td className="px-2 py-3.5">
                   <a
-                    href={withBase(`/projects/${row.id}/`)}
+                    href={withBase(projectHref(row))}
                     aria-label={`Open ${row.name}`}
                     className="inline-flex size-10 items-center justify-center rounded-md text-muted-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
@@ -372,13 +365,6 @@ function ScorecardRows({
               </tr>
             )
           })}
-          {rows.length === 0 ? (
-            <tr className="border-t">
-              <td colSpan={COLUMNS.length} className="px-4 py-8 text-center text-muted-foreground">
-                No projects match this filter.
-              </td>
-            </tr>
-          ) : null}
         </tbody>
       </table>
     </div>
@@ -386,8 +372,111 @@ function ScorecardRows({
 }
 
 /**
+ * The phone layout: one card per project, the whole card a link. AI usage is left to the project
+ * page; level, score, gates and the 30-day change are what decide whether to open it.
+ */
+function ProjectCards({
+  rows,
+  typeLabels,
+}: { rows: PortfolioRow[]; typeLabels: Record<string, string> }) {
+  return (
+    <ul className="m-0 flex list-none flex-col gap-2.5 p-0 md:hidden">
+      {rows.map((row) => {
+        const card = row.card
+        return (
+          <li key={row.id}>
+            <a
+              href={withBase(projectHref(row))}
+              className={cn(
+                'grid grid-cols-[1fr_auto] gap-2 rounded-xl border bg-card p-3.5 transition-colors hover:bg-muted/60 hover:no-underline',
+                row.risk === 0 && 'border-destructive/35',
+              )}
+            >
+              <span className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1.5">
+                <span className="text-base font-semibold">{row.name}</span>
+                <EnvChip row={row} />
+                <Inferred row={row} />
+              </span>
+              <ChevronRightIcon className="mt-1 size-4 text-muted-foreground" aria-hidden="true" />
+              <span className="col-span-2 -mt-1 text-[13px] text-muted-foreground">
+                {card ? typeLabel(card.projectType, typeLabels) : row.repo}
+              </span>
+              {card ? (
+                <span className="col-span-2 grid grid-cols-[1.3fr_1fr_1fr] items-end gap-3">
+                  <Engineering row={row} />
+                  <span className="flex flex-col">
+                    <span className="mb-0.5 text-[11px] uppercase tracking-wide text-muted-foreground">
+                      Gates
+                    </span>
+                    <Gates row={row} />
+                  </span>
+                  <span className="flex flex-col">
+                    <span className="mb-0.5 text-[11px] uppercase tracking-wide text-muted-foreground">
+                      {DELTA_DAYS} days
+                    </span>
+                    <Delta delta={row.delta} basis={row.deltaBasis} />
+                  </span>
+                </span>
+              ) : (
+                <span className="col-span-2 text-xs text-muted-foreground">{row.reason}</span>
+              )}
+              {row.alert ? (
+                <span className="col-span-2">
+                  <AlertPill alert={row.alert} />
+                </span>
+              ) : null}
+            </a>
+          </li>
+        )
+      })}
+    </ul>
+  )
+}
+
+const TABS = ['scorecard', 'delivery', 'agentic', 'code', 'actions', 'family'] as const
+
+/**
+ * The current view as a query string: the scorecard's search, filters and sort, plus the tab when it
+ * is not the scorecard. Read once on load and written back on every change, so the address bar is
+ * always a link to what is on screen. replaceState keeps the history to one entry per visit.
+ */
+function useUrlState(defaultTab: string) {
+  const [query, setQuery] = useState<PortfolioQuery>(emptyQuery)
+  const [tab, setTab] = useState(defaultTab)
+  const [loaded, setLoaded] = useState(false)
+
+  useEffect(() => {
+    const search = window.location.search
+    setQuery(parseQuery(search))
+    const t = new URLSearchParams(search).get('tab')
+    if (t && (TABS as readonly string[]).includes(t)) setTab(t)
+    setLoaded(true)
+  }, [])
+
+  const queryString = useMemo(
+    () => formatQuery(query, tab === defaultTab ? {} : { tab }),
+    [query, tab, defaultTab],
+  )
+
+  useEffect(() => {
+    if (!loaded) return
+    const url = `${window.location.pathname}${queryString ? `?${queryString}` : ''}${window.location.hash}`
+    window.history.replaceState(window.history.state, '', url)
+  }, [queryString, loaded])
+
+  const shareUrl = useCallback(
+    () =>
+      `${window.location.origin}${window.location.pathname}${queryString ? `?${queryString}` : ''}`,
+    [queryString],
+  )
+
+  return { query, setQuery, tab, setTab, shareUrl }
+}
+
+/**
  * The portfolio at a glance: who meets the standard, who is live without it, and where to look
- * first. Filters and sort are client state; every number is derived from the collected reports.
+ * first. Search, filters, sort and the tab are client state kept in the query string; every number
+ * is derived from the collected reports.
  */
 export function Portfolio({
   rows,
@@ -398,6 +487,7 @@ export function Portfolio({
   code,
   actions = [],
   family = [],
+  familyOf = {},
 }: {
   rows: PortfolioRow[]
   typeLabels: Record<string, string>
@@ -408,11 +498,11 @@ export function Portfolio({
   actions?: ActionsRow[]
   /** Projects in a family; the tab is left out when none is. */
   family?: FamilyRow[]
+  /** Each project's place in a family, for the Family filter; absent means no family. */
+  familyOf?: Record<string, ProjectFamily>
 }) {
   const [showInfo, setShowInfo] = useState(false)
-  const [filter, setFilter] = useState<PortfolioFilter>('all')
-  const [sort, setSort] = useState<PortfolioSort>('risk')
-  const [tab, setTab] = useState('scorecard')
+  const { query, setQuery, tab, setTab, shareUrl } = useUrlState('scorecard')
 
   const { applications, tooling } = byGroup(rows)
   const kpi = portfolioKpis(applications)
@@ -425,20 +515,28 @@ export function Portfolio({
     rows.filter((r) => r.risk < 2),
     'risk',
   )
-  const visible = sortRows(
-    applications.filter((r) => matches(r, filter)),
-    sort,
+  const hasFamily = Object.keys(familyOf).length > 0
+
+  const contextOf = useCallback(
+    (row: PortfolioRow): RowContext => ({
+      typeLabel: row.card ? typeLabel(row.card.projectType, typeLabels) : undefined,
+      family: familyOf[row.id] ?? null,
+    }),
+    [typeLabels, familyOf],
   )
-  const visibleTooling = sortRows(
-    tooling.filter((r) => matches(r, filter)),
-    sort,
+  const shownApps = sortRows(
+    applications.filter((r) => matchesQuery(r, query, contextOf(r))),
+    query.sort,
   )
-  const counts = Object.fromEntries(
-    FILTERS.map((f) => [f.key, rows.filter((r) => matches(r, f.key)).length]),
+  const shownTooling = sortRows(
+    tooling.filter((r) => matchesQuery(r, query, contextOf(r))),
+    query.sort,
   )
+  const shown = shownApps.length + shownTooling.length
+  const onlyAttention = query.alert.has('attention') && query.alert.size === 1
 
   return (
-    <div className="flex flex-col gap-7">
+    <div className="flex flex-col gap-5 sm:gap-7">
       <section className="flex flex-col gap-2.5">
         <h1 className="text-3xl font-bold tracking-tight">Projects</h1>
         <div className="flex flex-wrap items-center gap-3">
@@ -481,7 +579,7 @@ export function Portfolio({
         ) : null}
       </section>
 
-      <section className="grid grid-cols-[repeat(auto-fit,minmax(210px,1fr))] gap-4">
+      <section className="grid grid-cols-2 gap-2.5 sm:grid-cols-[repeat(auto-fit,minmax(210px,1fr))] sm:gap-4">
         <Kpi
           label="Gates passing, average"
           value={kpi.gatesAverage === null ? 'n/a' : `${kpi.gatesAverage}%`}
@@ -508,32 +606,44 @@ export function Portfolio({
       </section>
 
       {attention.length > 0 ? (
-        <section className="flex flex-col gap-3.5 rounded-xl border px-5 py-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-base font-semibold">
+        // Collapsed unless something is critical: the alerts are on the rows too, so the strip is a
+        // summary to open, not a second list to scroll past every visit.
+        <details
+          className="group rounded-xl border px-3.5 py-2.5 sm:px-5 sm:py-3.5"
+          open={kpi.critical > 0 ? true : undefined}
+        >
+          <summary className="flex min-h-11 cursor-pointer list-none flex-wrap items-center justify-between gap-2 [&::-webkit-details-marker]:hidden">
+            <h2 className="flex items-center gap-1.5 text-base font-semibold">
+              <ChevronDownIcon
+                className="size-4 -rotate-90 text-muted-foreground transition-transform group-open:rotate-0"
+                aria-hidden="true"
+              />
               Needs attention{' '}
               <span className="font-medium text-muted-foreground">({attention.length})</span>
             </h2>
             <Chip
-              active={false}
-              className="min-h-11 rounded-lg"
+              active={onlyAttention}
+              className="min-h-11 rounded-lg md:min-h-9"
               onClick={() => {
                 setTab('scorecard')
-                setFilter('attention')
-                setSort('risk')
+                setQuery(
+                  onlyAttention
+                    ? { ...query, alert: new Set() }
+                    : { ...emptyQuery(), alert: new Set(['attention']) },
+                )
               }}
             >
-              Show only these
+              {onlyAttention ? 'Showing only these' : 'Show only these'}
             </Chip>
-          </div>
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-3">
+          </summary>
+          <div className="mt-3 grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-2.5">
             {attention.map((row) =>
               row.alert ? (
                 <a
                   key={row.id}
-                  href={withBase(`/projects/${row.id}/`)}
+                  href={withBase(projectHref(row))}
                   className={cn(
-                    'flex items-start gap-2.5 rounded-lg p-3 transition hover:opacity-90',
+                    'flex items-start gap-2.5 rounded-lg p-3 transition hover:no-underline hover:opacity-90',
                     ALERT_TONE[row.alert.severity],
                   )}
                 >
@@ -547,92 +657,85 @@ export function Portfolio({
               ) : null,
             )}
           </div>
-        </section>
+        </details>
       ) : null}
 
       <Tabs value={tab} onValueChange={setTab}>
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <TabsList>
-            <TabsTrigger value="scorecard">Engineering scorecard</TabsTrigger>
-            <TabsTrigger value="delivery">Delivery</TabsTrigger>
-            <TabsTrigger value="agentic">Agentic</TabsTrigger>
-            <TabsTrigger value="code">Code</TabsTrigger>
-            <TabsTrigger value="actions">
-              Actions
-              {actionsFlagged > 0 ? (
-                <span
-                  title={`${actionsFlagged} project(s) over an Actions threshold`}
-                  className="ml-1.5 rounded-full bg-destructive/10 px-1.5 text-xs font-semibold text-destructive tabular-nums"
-                >
-                  {actionsFlagged}
-                </span>
-              ) : null}
-            </TabsTrigger>
-            {family.length > 0 ? (
-              <TabsTrigger value="family">
-                Family
-                {expiredExceptions > 0 ? (
+        {/*
+          Sticky, so another tab is one click away from anywhere down a long list. The list scrolls
+          inside itself on a phone instead of widening the page. 60 px tall on a phone and 52 px
+          from md up: the filter bar below pins itself at exactly that offset.
+        */}
+        <div className="sticky top-0 z-30 -mx-4 bg-background px-4 py-2 sm:-mx-6 sm:px-6">
+          <div className="max-w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <TabsList className="h-11 md:h-9">
+              <TabsTrigger value="scorecard">Engineering scorecard</TabsTrigger>
+              <TabsTrigger value="delivery">Delivery</TabsTrigger>
+              <TabsTrigger value="agentic">Agentic</TabsTrigger>
+              <TabsTrigger value="code">Code</TabsTrigger>
+              <TabsTrigger value="actions">
+                Actions
+                {actionsFlagged > 0 ? (
                   <span
-                    title={`${expiredExceptions} project(s) with an expired family exception`}
+                    title={`${actionsFlagged} project(s) over an Actions threshold`}
                     className="ml-1.5 rounded-full bg-destructive/10 px-1.5 text-xs font-semibold text-destructive tabular-nums"
                   >
-                    {expiredExceptions}
+                    {actionsFlagged}
                   </span>
                 ) : null}
               </TabsTrigger>
-            ) : null}
-          </TabsList>
-          {tab === 'scorecard' ? (
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm text-muted-foreground">Sort by</span>
-              {SORTS.map((s) => (
-                <Chip
-                  key={s.key}
-                  active={sort === s.key}
-                  className="min-h-9 rounded-full"
-                  onClick={() => setSort(s.key)}
-                >
-                  {s.label}
-                </Chip>
-              ))}
-            </div>
-          ) : null}
+              {family.length > 0 ? (
+                <TabsTrigger value="family">
+                  Family
+                  {expiredExceptions > 0 ? (
+                    <span
+                      title={`${expiredExceptions} project(s) with an expired family exception`}
+                      className="ml-1.5 rounded-full bg-destructive/10 px-1.5 text-xs font-semibold text-destructive tabular-nums"
+                    >
+                      {expiredExceptions}
+                    </span>
+                  ) : null}
+                </TabsTrigger>
+              ) : null}
+            </TabsList>
+          </div>
         </div>
         <TabsContent value="scorecard" className="flex flex-col gap-4">
-          <fieldset className="flex flex-wrap gap-2">
-            <legend className="sr-only">Filter projects</legend>
-            {FILTERS.map((f) => (
-              <Chip
-                key={f.key}
-                active={filter === f.key}
-                className="min-h-11 rounded-lg"
-                onClick={() => setFilter(f.key)}
-              >
-                {f.label}
-                <span className="text-xs tabular-nums opacity-80">{counts[f.key]}</span>
-              </Chip>
-            ))}
-          </fieldset>
-          {tooling.length > 0 ? (
-            <h2 className="text-base font-semibold">
-              {GROUP_LABEL.applications}{' '}
-              <span className="font-medium text-muted-foreground">({applications.length})</span>
-            </h2>
+          <FilterBar
+            rows={rows}
+            query={query}
+            onChange={setQuery}
+            contextOf={contextOf}
+            shown={shown}
+            hasFamily={hasFamily}
+            hasTooling={tooling.length > 0}
+            shareUrl={shareUrl}
+          />
+          {shownApps.length > 0 ? (
+            <section className="flex flex-col gap-3.5">
+              {tooling.length > 0 ? (
+                <h2 className="text-base font-semibold">
+                  {GROUP_LABEL.applications}{' '}
+                  <span className="font-medium text-muted-foreground">({shownApps.length})</span>
+                </h2>
+              ) : null}
+              <ScorecardRows rows={shownApps} typeLabels={typeLabels} />
+              <ProjectCards rows={shownApps} typeLabels={typeLabels} />
+            </section>
           ) : null}
-          <ScorecardRows rows={visible} typeLabels={typeLabels} />
-          {tooling.length > 0 ? (
+          {shownTooling.length > 0 ? (
             <section className="flex flex-col gap-4 pt-3">
               <div className="flex flex-col gap-1">
                 <h2 className="text-base font-semibold">
                   {GROUP_LABEL.tooling}{' '}
-                  <span className="font-medium text-muted-foreground">({tooling.length})</span>
+                  <span className="font-medium text-muted-foreground">({shownTooling.length})</span>
                 </h2>
                 <p className="text-sm text-muted-foreground">
                   Libraries, sites and other platform pieces, ranked apart from the applications.
                   They are not deployed to PRE/PRO, so environment based metrics do not apply.
                 </p>
               </div>
-              <div className="grid grid-cols-[repeat(auto-fit,minmax(210px,1fr))] gap-4">
+              <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-[repeat(auto-fit,minmax(210px,1fr))] sm:gap-4">
                 <Kpi
                   label="Gates passing, average"
                   value={toolingKpi.gatesAverage === null ? 'n/a' : `${toolingKpi.gatesAverage}%`}
@@ -645,11 +748,31 @@ export function Portfolio({
                   hint={`across ${toolingKpi.aiCount} with data`}
                 />
               </div>
-              <ScorecardRows rows={visibleTooling} typeLabels={typeLabels} />
+              <ScorecardRows rows={shownTooling} typeLabels={typeLabels} />
+              <ProjectCards rows={shownTooling} typeLabels={typeLabels} />
             </section>
           ) : null}
+          {shown === 0 ? (
+            <div className="rounded-md border border-dashed bg-muted/40 px-4 py-3">
+              <p className="text-sm font-medium text-muted-foreground">
+                No project matches these filters
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Try fewer filters, or{' '}
+                <button
+                  type="button"
+                  onClick={() => setQuery({ ...emptyQuery(), sort: query.sort })}
+                  className="font-medium text-primary underline underline-offset-4"
+                >
+                  clear them all
+                </button>
+                .
+              </p>
+            </div>
+          ) : null}
           <p className="text-sm text-muted-foreground">
-            Hover a value for its counts. Open a project for the gate-by-gate breakdown.
+            Hover a value for its counts. Open a project for the gate-by-gate breakdown. Search,
+            filters and sort are part of the link, so a shared view opens the same way.
           </p>
         </TabsContent>
         <TabsContent value="delivery">

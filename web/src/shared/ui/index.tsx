@@ -1,3 +1,4 @@
+import { ChevronDownIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
 import type { GlossaryKey } from '../lib/glossary'
 import type { MetricBlock } from '../lib/types'
@@ -25,6 +26,10 @@ export { cn }
 /**
  * A titled card. The shadcn Card is the primitive; this only saves repeating the same four
  * elements at every call site.
+ *
+ * The header folds the card away, so a long project page can be closed down to the sections being
+ * read. It is a native details element: it works in the static export without any script, opens
+ * for the browser's find-in-page, and starts open so nothing is hidden on arrival.
  */
 export function Panel({
   title,
@@ -40,15 +45,25 @@ export function Panel({
   className?: string
 }) {
   return (
-    <Card className={className}>
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-        {description ? <CardDescription>{description}</CardDescription> : null}
-        {action ? (
-          <div className="col-start-2 row-span-2 row-start-1 self-start">{action}</div>
-        ) : null}
-      </CardHeader>
-      <CardContent>{children}</CardContent>
+    <Card className={cn('gap-0', className)}>
+      <details open className="group/panel">
+        <summary className="cursor-pointer list-none rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-details-marker]:hidden">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ChevronDownIcon
+                className="size-4 shrink-0 -rotate-90 text-muted-foreground transition-transform group-open/panel:rotate-0"
+                aria-hidden="true"
+              />
+              {title}
+            </CardTitle>
+            {description ? <CardDescription className="pl-6">{description}</CardDescription> : null}
+            {action ? (
+              <div className="col-start-2 row-span-2 row-start-1 self-start">{action}</div>
+            ) : null}
+          </CardHeader>
+        </summary>
+        <CardContent className="mt-6">{children}</CardContent>
+      </details>
     </Card>
   )
 }
