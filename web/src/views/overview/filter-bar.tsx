@@ -60,6 +60,14 @@ const RAG_DOT: Record<AlertFilter, string> = {
   declining: '',
 }
 
+type CopyState = 'idle' | 'copied' | 'failed'
+
+const COPY_LABEL: Record<CopyState, string> = {
+  idle: 'Copy link',
+  copied: 'Copied',
+  failed: 'Copy the address bar',
+}
+
 const control =
   'h-11 rounded-md border bg-background px-3 text-sm text-foreground md:h-9 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
 
@@ -105,7 +113,7 @@ export function FilterBar({
   shareUrl: () => string
 }) {
   const [open, setOpen] = useState(false)
-  const [copied, setCopied] = useState(false)
+  const [copied, setCopied] = useState<CopyState>('idle')
   const search = useRef<HTMLInputElement>(null)
 
   // "/" focuses the search from anywhere on the page, unless the person is already typing.
@@ -122,13 +130,16 @@ export function FilterBar({
   }, [])
 
   const copy = async () => {
+    let outcome: CopyState = 'copied'
     try {
       await navigator.clipboard.writeText(shareUrl())
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
     } catch {
-      // No clipboard (an insecure origin, or permission refused): the address bar has the same link.
+      // No clipboard (an insecure origin, or permission refused). The address bar holds the same
+      // link, so the button says so instead of claiming a copy that did not happen.
+      outcome = 'failed'
     }
+    setCopied(outcome)
+    setTimeout(() => setCopied('idle'), outcome === 'copied' ? 2000 : 4000)
   }
 
   const nFilters = activeFilterCount(query)
@@ -232,12 +243,12 @@ export function FilterBar({
             title="Copy a link to this exact view"
             className="min-h-11 rounded-lg md:min-h-9"
           >
-            {copied ? (
+            {copied === 'copied' ? (
               <CheckIcon className="size-4" aria-hidden="true" />
             ) : (
               <LinkIcon className="size-4" aria-hidden="true" />
             )}
-            <span aria-live="polite">{copied ? 'Copied' : 'Copy link'}</span>
+            <span aria-live="polite">{COPY_LABEL[copied]}</span>
           </Chip>
         </div>
       </div>
