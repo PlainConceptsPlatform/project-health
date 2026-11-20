@@ -598,21 +598,6 @@ export function ProjectView({
               : null}
           </p>
         </div>
-        <div className="flex flex-wrap gap-1.5">
-          {months.map((month) => (
-            <a
-              key={month}
-              href={withBase(`/projects/${report.project}/${month}/`)}
-              className={
-                month === current
-                  ? 'rounded-md bg-primary px-2.5 py-1 text-xs font-medium text-primary-foreground'
-                  : 'rounded-md border px-2.5 py-1 text-xs text-muted-foreground hover:bg-accent'
-              }
-            >
-              {month}
-            </a>
-          ))}
-        </div>
       </div>
 
       {engineeringMonth !== current ? (
@@ -622,7 +607,14 @@ export function ProjectView({
         </p>
       ) : null}
 
-      <ProjectTabs tabs={tabs} />
+      <ProjectTabs
+        tabs={tabs}
+        months={months.map((month) => ({
+          month,
+          href: withBase(`/projects/${report.project}/${month}/`),
+          current: month === current,
+        }))}
+      />
 
       {report.warnings.length > 0 ? <NotesPanel report={report} /> : null}
     </div>

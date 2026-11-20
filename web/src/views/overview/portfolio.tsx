@@ -661,38 +661,44 @@ export function Portfolio({
       ) : null}
 
       <Tabs value={tab} onValueChange={setTab}>
-        {/* The list scrolls inside itself on a phone instead of widening the page. */}
-        <div className="max-w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <TabsList className="h-11 md:h-9">
-            <TabsTrigger value="scorecard">Engineering scorecard</TabsTrigger>
-            <TabsTrigger value="delivery">Delivery</TabsTrigger>
-            <TabsTrigger value="agentic">Agentic</TabsTrigger>
-            <TabsTrigger value="code">Code</TabsTrigger>
-            <TabsTrigger value="actions">
-              Actions
-              {actionsFlagged > 0 ? (
-                <span
-                  title={`${actionsFlagged} project(s) over an Actions threshold`}
-                  className="ml-1.5 rounded-full bg-destructive/10 px-1.5 text-xs font-semibold text-destructive tabular-nums"
-                >
-                  {actionsFlagged}
-                </span>
-              ) : null}
-            </TabsTrigger>
-            {family.length > 0 ? (
-              <TabsTrigger value="family">
-                Family
-                {expiredExceptions > 0 ? (
+        {/*
+          Sticky, so another tab is one click away from anywhere down a long list. The list scrolls
+          inside itself on a phone instead of widening the page. 60 px tall on a phone and 52 px
+          from md up: the filter bar below pins itself at exactly that offset.
+        */}
+        <div className="sticky top-0 z-30 -mx-4 bg-background px-4 py-2 sm:-mx-6 sm:px-6">
+          <div className="max-w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <TabsList className="h-11 md:h-9">
+              <TabsTrigger value="scorecard">Engineering scorecard</TabsTrigger>
+              <TabsTrigger value="delivery">Delivery</TabsTrigger>
+              <TabsTrigger value="agentic">Agentic</TabsTrigger>
+              <TabsTrigger value="code">Code</TabsTrigger>
+              <TabsTrigger value="actions">
+                Actions
+                {actionsFlagged > 0 ? (
                   <span
-                    title={`${expiredExceptions} project(s) with an expired family exception`}
+                    title={`${actionsFlagged} project(s) over an Actions threshold`}
                     className="ml-1.5 rounded-full bg-destructive/10 px-1.5 text-xs font-semibold text-destructive tabular-nums"
                   >
-                    {expiredExceptions}
+                    {actionsFlagged}
                   </span>
                 ) : null}
               </TabsTrigger>
-            ) : null}
-          </TabsList>
+              {family.length > 0 ? (
+                <TabsTrigger value="family">
+                  Family
+                  {expiredExceptions > 0 ? (
+                    <span
+                      title={`${expiredExceptions} project(s) with an expired family exception`}
+                      className="ml-1.5 rounded-full bg-destructive/10 px-1.5 text-xs font-semibold text-destructive tabular-nums"
+                    >
+                      {expiredExceptions}
+                    </span>
+                  ) : null}
+                </TabsTrigger>
+              ) : null}
+            </TabsList>
+          </div>
         </div>
         <TabsContent value="scorecard" className="flex flex-col gap-4">
           <FilterBar

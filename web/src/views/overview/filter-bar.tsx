@@ -173,7 +173,7 @@ export function FilterBar({
 
   return (
     <div
-      className="sticky top-0 z-20 -mx-4 flex flex-col gap-2.5 border-b bg-background px-4 py-2.5 sm:-mx-6 sm:px-6 sm:py-3"
+      className="z-20 -mx-4 flex md:sticky md:top-[52px] flex-col gap-2.5 border-b bg-background px-4 py-2.5 sm:-mx-6 sm:px-6 sm:py-3"
       data-testid="filter-bar"
     >
       <div className="flex flex-wrap items-center gap-2">
