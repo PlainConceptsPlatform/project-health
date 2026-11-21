@@ -21,43 +21,24 @@ import {
   topHotspots,
 } from '@/shared/lib/excellence'
 import { monthName, percent } from '@/shared/lib/format'
-import type {
-  ArchitectureDotnet,
-  ArchitectureWeb,
-  CheckGate,
-  ComplexityGate,
-  DeadCodeWeb,
-  EngineeringExcellence,
-  HygieneData,
-  MonthlyReport,
-  PatternsDotnet,
-  PatternsSemgrep,
-  Severities,
-} from '@/shared/lib/types'
+import { NOT_COLLECTED, type SectionMeta, gateStatus, practiceStatus } from '@/shared/lib/sections'
 import {
-  Badge,
-  DataTable,
-  Metric,
-  Panel,
-  Stat,
-  TableCell,
-  TableRow,
-  Unavailable,
-} from '@/shared/ui'
+  type ArchitectureDotnet,
+  type ArchitectureWeb,
+  type CheckGate,
+  type ComplexityGate,
+  type DeadCodeWeb,
+  type EngineeringExcellence,
+  FACETS,
+  type HygieneData,
+  type MonthlyReport,
+  type PatternsDotnet,
+  type PatternsSemgrep,
+  type Severities,
+} from '@/shared/lib/types'
+import { Badge, DataTable, Metric, Stat, TableCell, TableRow, Unavailable } from '@/shared/ui'
 import { ScopeTrend } from '@/shared/ui/charts'
-import { ToolList } from '@/shared/ui/tools'
-
-/** A section's heading and the open-source tools its facet is read from, each linked. */
-function SectionTitle({ title, facets }: { title: string; facets: string[] }) {
-  return (
-    <div className="mb-2">
-      <p className="text-sm font-medium">{title}</p>
-      <p className="text-xs text-muted-foreground">
-        From <ToolList tools={facets} />
-      </p>
-    </div>
-  )
-}
+import type { ReactNode } from 'react'
 
 const SEVERITIES = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW', 'UNKNOWN'] as const
 
@@ -994,20 +975,34 @@ export function PatternsSection({ excellence }: { excellence: EngineeringExcelle
   )
 }
 
+/** One panel of the Engineering tab: its nav entry and status, and what it shows. */
+export interface EngineeringSection extends SectionMeta {
+  description?: string
+  tools?: string[]
+  content: ReactNode
+}
+
+const scorecardOf = (report: MonthlyReport) =>
+  report.scorecard?.available ? report.scorecard.data : null
+
+/** Whether a facet has a sample this month; a section over facets that have none reads grey. */
+const has = (block: { available: boolean } | undefined) => Boolean(block?.available)
+
 /**
- * Numbers the repository's own CI produces about its code: coverage, mutation score, complexity,
- * scanner findings, the SBOM and code hygiene. Each facet is shown as of the newest sample in the
- * month, and the trends run across every month collected so far.
+ * Numbers the repository's own CI produces about its code, one section per facet group: coverage,
+ * mutation score, complexity, scanner findings, the SBOM, hygiene, bundle size, architecture and code
+ * patterns. Each facet is shown as of the newest sample in the month, and the trends run across
+ * every month collected so far.
+ *
+ * Every facet has to appear in one of these sections: the section nav is built from them, and
+ * excellence.test.ts fails when a facet has no entry.
  */
-export function ExcellencePanel({
-  report,
-  history,
-}: {
-  report: MonthlyReport
-  history: ExcellenceHistory | undefined
-}) {
+export function excellenceSections(
+  report: MonthlyReport,
+  history: ExcellenceHistory | undefined,
+): EngineeringSection[] {
   // A month in progress shows a facet it has no sample of yet from the previous month, as its
-  // scorecard rates it, so the panel does not empty out on the 1st.
+  // scorecard rates it, so the panels do not empty out on the 1st.
   const current = history?.current
   const excellence = current?.excellence ?? report.engineeringExcellence
   const carried =
@@ -1015,104 +1010,169 @@ export function ExcellencePanel({
       ? ` ${current.carried.join(', ')}: no sample yet this month, so the newest from ${monthName(current.from)} within the last ${report.window?.days ?? 30} days.`
       : ''
   const description = `Reported by the repository’s own main branch CI, one sample per commit. These never gate anything here; the repository’s CI decides what fails.${carried}`
+  const card = scorecardOf(report)
+  const status = (ids: string[], present: boolean) =>
+    present ? practiceStatus(card, ids) : NOT_COLLECTED
 
   if (!excellence) {
-    return (
-      <Panel title="Engineering excellence" description={description}>
-        <Unavailable reason="Not collected for this month. A project opts in with engineeringExcellence.enabled in projects.json, and its CI uploads the engineering-excellence-<facet> artifacts described in the README." />
-      </Panel>
-    )
+    return [
+      {
+        id: 'excellence',
+        title: 'Engineering excellence',
+        group: 'excellence',
+        facets: [...FACETS],
+        ...NOT_COLLECTED,
+        description,
+        content: (
+          <Unavailable reason="Not collected for this month. A project opts in with engineeringExcellence.enabled in projects.json, and its CI uploads the engineering-excellence-<facet> artifacts described in the README." />
+        ),
+      },
+    ]
   }
 
   const coverageTrends = scopeTrends(history?.coverage ?? [], (s) => s.lineRate)
   const mutationTrends = scopeTrends(history?.mutation ?? [], (s) => s.coveredScore)
   const gate = excellence.complexity.available ? excellence.complexity.data.latest.gate : null
   const debt = gate ? debtTrend(history?.complexity ?? []) : []
+  const architecture = excellence.architecture?.available
+    ? excellence.architecture.data.latest
+    : null
+  const patterns = excellence.patterns?.available ? excellence.patterns.data.latest : null
+  const bundle = excellence.bundle?.available ? excellence.bundle.data.latest : null
+  const semgrepFindings = patterns?.semgrep
+    ? patterns.semgrep.errors + patterns.semgrep.warnings + patterns.semgrep.notes
+    : 0
+  const failingTests = architecture?.dotnet?.failed ?? 0
 
-  return (
-    <Panel title="Engineering excellence" description={description}>
-      <div className="space-y-6">
-        <Kpis kpis={kpisOf(excellence)} previous={history?.previous ?? null} gate={gate} />
-
-        <div className="grid gap-6 lg:grid-cols-2">
-          <Trends title="Coverage by scope" trends={coverageTrends} />
-          <Trends title="Mutation score by scope" trends={mutationTrends} />
-        </div>
-
-        {debt.length > 1 ? (
-          <div>
-            <p className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">
-              Complexity debt
-            </p>
-            <div className="lg:w-1/2">
-              <ScopeTrend label="Baselined" points={debt} floor={null} unit="count" />
+  return [
+    {
+      id: 'excellence',
+      title: 'Summary and trends',
+      group: 'excellence',
+      facets: ['coverage', 'mutation', 'complexity'],
+      ...status(
+        ['tests', 'mutation', 'complexity'],
+        has(excellence.coverage) || has(excellence.mutation) || has(excellence.complexity),
+      ),
+      description,
+      content: (
+        <div className="space-y-6">
+          <Kpis kpis={kpisOf(excellence)} previous={history?.previous ?? null} gate={gate} />
+          <div className="grid gap-6 lg:grid-cols-2">
+            <Trends title="Coverage by scope" trends={coverageTrends} />
+            <Trends title="Mutation score by scope" trends={mutationTrends} />
+          </div>
+          {debt.length > 1 ? (
+            <div>
+              <p className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">
+                Complexity debt
+              </p>
+              <div className="lg:w-1/2">
+                <ScopeTrend label="Baselined" points={debt} floor={null} unit="count" />
+              </div>
             </div>
-          </div>
-        ) : null}
-
-        <div>
-          <SectionTitle title="Modules" facets={['coverage facet', 'mutation facet']} />
-          <ModulesTable excellence={excellence} />
+          ) : null}
         </div>
-
-        <div>
-          <SectionTitle title="CRAP hotspots" facets={['complexity facet']} />
-          <HotspotsTable excellence={excellence} repo={report.repo} />
-        </div>
-
-        <div className="grid gap-6 lg:grid-cols-2">
-          <div>
-            <SectionTitle title="Security" facets={['security facet']} />
-            <SecuritySection excellence={excellence} />
-          </div>
-          <div>
-            <SectionTitle title="Software bill of materials" facets={['SBOM facet']} />
-            <SbomSection excellence={excellence} />
-          </div>
-        </div>
-
-        <div>
-          <SectionTitle
-            title="Hygiene"
-            facets={[
-              'hygiene facet',
-              ...(excellence.hygiene?.available && excellence.hygiene.data.latest.deadCode.web
-                ? ['Knip']
-                : []),
-            ]}
-          />
-          <HygieneSection excellence={excellence} history={history} repo={report.repo} />
-        </div>
-
-        <div>
-          <SectionTitle title="Bundle size" facets={['bundle facet']} />
-          <BundleSection excellence={excellence} />
-        </div>
-
-        <div>
-          <SectionTitle
-            title="Architecture"
-            facets={
-              excellence.architecture?.available
-                ? architectureTools(excellence.architecture.data.latest)
-                : ['architecture facet']
+      ),
+    },
+    {
+      id: 'modules',
+      title: 'Modules',
+      group: 'excellence',
+      facets: ['coverage', 'mutation'],
+      tools: ['coverage facet', 'mutation facet'],
+      ...status(['tests', 'mutation'], has(excellence.coverage) || has(excellence.mutation)),
+      content: <ModulesTable excellence={excellence} />,
+    },
+    {
+      id: 'hotspots',
+      title: 'CRAP hotspots',
+      group: 'excellence',
+      facets: ['complexity'],
+      tools: ['complexity facet'],
+      ...status(['complexity'], has(excellence.complexity)),
+      content: <HotspotsTable excellence={excellence} repo={report.repo} />,
+    },
+    {
+      id: 'security',
+      title: 'Security',
+      group: 'excellence',
+      facets: ['security'],
+      tools: ['security facet'],
+      ...status(['secrets', 'vulnerabilities', 'sast'], has(excellence.security)),
+      content: <SecuritySection excellence={excellence} />,
+    },
+    {
+      id: 'sbom',
+      title: 'Software bill of materials',
+      group: 'excellence',
+      facets: ['sbom'],
+      tools: ['SBOM facet'],
+      ...status(['sbom'], has(excellence.sbom)),
+      content: <SbomSection excellence={excellence} />,
+    },
+    {
+      id: 'hygiene',
+      title: 'Hygiene',
+      group: 'excellence',
+      facets: ['hygiene'],
+      tools: [
+        'hygiene facet',
+        ...(excellence.hygiene?.available && excellence.hygiene.data.latest.deadCode.web
+          ? ['Knip']
+          : []),
+      ],
+      ...status(['hygiene'], has(excellence.hygiene)),
+      content: <HygieneSection excellence={excellence} history={history} repo={report.repo} />,
+    },
+    {
+      id: 'bundle',
+      title: 'Bundle size',
+      group: 'excellence',
+      facets: ['bundle'],
+      tools: ['bundle facet'],
+      ...(bundle
+        ? bundle.overBudget
+          ? { rag: bundle.gate.mode === 'ratchet' ? 'red' : 'yellow', text: 'Over budget' }
+          : { rag: 'green' as const, text: 'Within budget' }
+        : NOT_COLLECTED),
+      content: <BundleSection excellence={excellence} />,
+    },
+    {
+      id: 'architecture',
+      title: 'Architecture',
+      group: 'excellence',
+      facets: ['architecture'],
+      tools: architecture ? architectureTools(architecture) : ['architecture facet'],
+      ...(architecture
+        ? failingTests > 0
+          ? {
+              rag: 'red' as const,
+              text: `${failingTests} architecture test${failingTests === 1 ? '' : 's'} failing`,
             }
-          />
-          <ArchitectureSection excellence={excellence} />
-        </div>
-
-        <div>
-          <SectionTitle
-            title="Code patterns"
-            facets={
-              excellence.patterns?.available
-                ? patternsTools(excellence.patterns.data.latest)
-                : ['patterns facet']
+          : architecture.web
+            ? gateStatus([architecture.web.gate], 'warning')
+            : { rag: 'green' as const, text: 'Architecture tests pass' }
+        : NOT_COLLECTED),
+      content: <ArchitectureSection excellence={excellence} />,
+    },
+    {
+      id: 'patterns',
+      title: 'Code patterns',
+      group: 'excellence',
+      facets: ['patterns'],
+      tools: patterns ? patternsTools(patterns) : ['patterns facet'],
+      ...(patterns
+        ? semgrepFindings > 0
+          ? {
+              rag: 'red' as const,
+              text: `${semgrepFindings} finding${semgrepFindings === 1 ? '' : 's'} of the repository's own rules`,
             }
-          />
-          <PatternsSection excellence={excellence} />
-        </div>
-      </div>
-    </Panel>
-  )
+          : patterns.dotnet
+            ? gateStatus([patterns.dotnet.gate], 'finding')
+            : { rag: 'green' as const, text: 'No findings' }
+        : NOT_COLLECTED),
+      content: <PatternsSection excellence={excellence} />,
+    },
+  ]
 }

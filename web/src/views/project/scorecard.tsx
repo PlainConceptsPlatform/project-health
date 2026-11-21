@@ -1,69 +1,8 @@
-import { shortDate } from '@/shared/lib/format'
-import { PHASES, typeLabel } from '@/shared/lib/scorecard'
-import type { MonthlyReport, PracticeResult, Scorecard } from '@/shared/lib/types'
-import { Badge, DataTable, InfoTip, Metric, Panel, Stat, TableCell, TableRow } from '@/shared/ui'
-import {
-  AiUsageValue,
-  AlertBadge,
-  LevelBadge,
-  ModeIcon,
-  ScorecardLegend,
-  StatusDot,
-} from '@/shared/ui/scorecard'
-import { ToolList } from '@/shared/ui/tools'
-
-const HEAD = ['#', 'Practice', 'Description', 'Tool(s)', 'Mode', 'Status', 'Source', 'Last run']
-
-function SourceCell({ practice }: { practice: PracticeResult }) {
-  if (practice.source === 'none') return <span className="text-xs text-muted-foreground">None</span>
-  return (
-    <Badge variant={practice.source === 'facet' ? 'secondary' : 'outline'}>
-      {practice.source === 'facet' ? 'Facet' : 'Detected'}
-    </Badge>
-  )
-}
-
-function LastRunCell({ practice }: { practice: PracticeResult }) {
-  const run = practice.lastRun
-  if (!run) return <span className="text-xs text-muted-foreground">n/a</span>
-  const file = run.workflow.split('/').at(-1)
-  return (
-    <a href={run.url} className="text-xs hover:underline" title={run.workflow}>
-      {shortDate(run.at)} · {run.conclusion ?? 'no conclusion'}
-      <span className="block text-muted-foreground">{file}</span>
-    </a>
-  )
-}
-
-function PracticeRow({ practice }: { practice: PracticeResult }) {
-  return (
-    <TableRow className={practice.applicable ? undefined : 'text-muted-foreground'}>
-      <TableCell className="tabular-nums text-muted-foreground">{practice.number}</TableCell>
-      <TableCell className="font-medium">{practice.name}</TableCell>
-      <TableCell className="min-w-72 max-w-md whitespace-normal text-xs text-muted-foreground">
-        {practice.description}
-      </TableCell>
-      <TableCell className="max-w-56 whitespace-normal text-xs">
-        <ToolList tools={practice.tools} />
-        {practice.mode === 'report-only' ? (
-          <span className="block text-muted-foreground">report-only</span>
-        ) : null}
-      </TableCell>
-      <TableCell>
-        <ModeIcon mode={practice.standardMode} />
-      </TableCell>
-      <TableCell>
-        <StatusDot rag={practice.rag} reason={practice.reason} />
-      </TableCell>
-      <TableCell>
-        <SourceCell practice={practice} />
-      </TableCell>
-      <TableCell>
-        <LastRunCell practice={practice} />
-      </TableCell>
-    </TableRow>
-  )
-}
+import { typeLabel } from '@/shared/lib/scorecard'
+import type { MonthlyReport, Scorecard } from '@/shared/lib/types'
+import { Badge, InfoTip, Metric, Panel, type PanelSection, Stat } from '@/shared/ui'
+import { AiUsageValue, AlertBadge, LevelBadge, ScorecardLegend } from '@/shared/ui/scorecard'
+import { PracticeTables } from './practice-filter'
 
 function Summary({ card, typeLabels }: { card: Scorecard; typeLabels: Record<string, string> }) {
   return (
@@ -107,12 +46,15 @@ function Summary({ card, typeLabels }: { card: Scorecard; typeLabels: Record<str
 export function ScorecardPanel({
   report,
   typeLabels,
+  section,
 }: {
   report: MonthlyReport
   typeLabels: Record<string, string>
+  section?: PanelSection
 }) {
   return (
     <Panel
+      section={section}
       title="Engineering scorecard"
       description="Which practices guard this project on its default branch, in which mode, and whether they last passed."
     >
@@ -155,20 +97,7 @@ export function ScorecardPanel({
 
             <ScorecardLegend />
 
-            {PHASES.map((phase) => {
-              const practices = card.practices.filter((p) => p.phase === phase.key)
-              if (practices.length === 0) return null
-              return (
-                <div key={phase.key}>
-                  <p className="mb-2 text-sm font-medium">{phase.label}</p>
-                  <DataTable head={HEAD}>
-                    {practices.map((practice) => (
-                      <PracticeRow key={practice.id} practice={practice} />
-                    ))}
-                  </DataTable>
-                </div>
-              )
-            })}
+            <PracticeTables practices={card.practices} />
           </div>
         )}
       </Metric>

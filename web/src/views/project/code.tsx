@@ -9,7 +9,16 @@ import {
 } from '@/shared/lib/code'
 import type { DailyScore } from '@/shared/lib/scorecard'
 import type { Codebase, MonthlyReport } from '@/shared/lib/types'
-import { DataTable, Metric, Panel, Stat, TableCell, TableRow, cn } from '@/shared/ui'
+import {
+  DataTable,
+  Metric,
+  Panel,
+  type PanelSection,
+  Stat,
+  TableCell,
+  TableRow,
+  cn,
+} from '@/shared/ui'
 import { Sparkline } from '@/shared/ui/sparkline'
 
 function Counts({ rows }: { rows: [string, number][] }) {
@@ -31,10 +40,19 @@ function blobUrl(repo: string, code: Codebase, path: string) {
   return `https://github.com/${repo}/blob/${code.sha ?? code.branch}/${path}`
 }
 
-export function CodePanel({ report, daily = [] }: { report: MonthlyReport; daily?: DailyScore[] }) {
+export function CodePanel({
+  report,
+  daily = [],
+  section,
+}: {
+  report: MonthlyReport
+  daily?: DailyScore[]
+  section?: PanelSection
+}) {
   const trend = densityTrend(daily)
   return (
     <Panel
+      section={section}
       title="Comments and tests"
       description={`Production code and tests on the default branch, scanned daily. The harness asks for at most ${percent(COMMENT_CEILING)} comment lines per line of code.`}
     >

@@ -19,40 +19,10 @@ import {
 } from '@/shared/lib/portfolio-query'
 import { GROUP_LABEL } from '@/shared/lib/scorecard'
 import { cn } from '@/shared/ui'
+import { Chip } from '@/shared/ui/chip'
 import { LevelBadge } from '@/shared/ui/scorecard'
 import { CheckIcon, LinkIcon, SearchIcon, SlidersHorizontalIcon, XIcon } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-
-export function Chip({
-  active,
-  onClick,
-  children,
-  className,
-  ...rest
-}: {
-  active: boolean
-  onClick: () => void
-  children: React.ReactNode
-  className?: string
-} & Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'onClick' | 'className' | 'children'>) {
-  return (
-    <button
-      type="button"
-      aria-pressed={active}
-      onClick={onClick}
-      className={cn(
-        'inline-flex items-center gap-2 border px-3.5 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-        active
-          ? 'border-foreground bg-foreground text-background'
-          : 'border-border bg-background text-foreground hover:bg-muted',
-        className,
-      )}
-      {...rest}
-    >
-      {children}
-    </button>
-  )
-}
 
 const RAG_DOT: Record<AlertFilter, string> = {
   critical: 'bg-destructive',

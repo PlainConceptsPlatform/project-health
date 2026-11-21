@@ -9,7 +9,7 @@ import {
   trendMax,
 } from '@/shared/lib/actions'
 import { monthName } from '@/shared/lib/format'
-import { Panel, Stat, Unavailable } from '@/shared/ui'
+import { Panel, type PanelSection, Stat, Unavailable } from '@/shared/ui'
 import { Sparkline } from '@/shared/ui/sparkline'
 
 function Trend({
@@ -41,7 +41,10 @@ function Trend({
   )
 }
 
-export function ActionsPanel({ history }: { history: ActionsEntry[] }) {
+export function ActionsPanel({
+  history,
+  section,
+}: { history: ActionsEntry[]; section?: PanelSection }) {
   const a = summariseActions(history)
   const m = a.minutes
   const s = a.storage
@@ -49,6 +52,7 @@ export function ActionsPanel({ history }: { history: ActionsEntry[] }) {
 
   return (
     <Panel
+      section={section}
       title="GitHub Actions usage"
       description={`Billable minutes${a.month ? ` in ${monthName(a.month)}` : ''} and the storage Actions keeps for the repository. Storage over ${storageSize(STORAGE_LIMIT_BYTES)}, or minutes up more than ${MINUTES_SURGE * 100}% on the previous month, reads red.`}
     >

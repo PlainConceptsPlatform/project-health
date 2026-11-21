@@ -35,6 +35,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   const newest = entry.latest && entry.latest !== shown ? readReport(id, entry.latest) : null
   return (
     <ProjectView
+      group={entry.group}
       report={report}
       months={entry.months}
       trend={readTrend(id)}

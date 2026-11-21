@@ -18,12 +18,20 @@ import type {
   CheckGate,
   DeadCodeWeb,
   EngineeringExcellence,
+  MonthlyReport,
   PatternsData,
   PatternsDotnet,
   PatternsSemgrep,
 } from '../../shared/lib/types'
+import { FACETS } from '../../shared/lib/types'
 import { TooltipProvider } from '../../shared/ui/tooltip'
-import { ArchitectureSection, BundleSection, DeadCodeWebPanel, PatternsSection } from './excellence'
+import {
+  ArchitectureSection,
+  BundleSection,
+  DeadCodeWebPanel,
+  PatternsSection,
+  excellenceSections,
+} from './excellence'
 
 /**
  * A new check runs report-only for its first weeks: measured and shown, never failing CI and never
@@ -373,5 +381,58 @@ describe('code patterns', () => {
     expect(renderPatterns({ dotnet: null, semgrep: ownRules() })).toContain('No analyzer SARIF')
     expect(renderPatterns({ dotnet: analyzers(), semgrep: null })).toContain('No Semgrep report')
     expect(renderPatterns(null)).toContain('the patterns facet is newer')
+  })
+})
+
+describe('engineering sections', () => {
+  const unavailable = { available: false, reason: 'Not run in CI.' }
+  const report = (excellence: EngineeringExcellence | undefined) =>
+    ({
+      repo: 'example-org/alder',
+      engineeringExcellence: excellence,
+    }) as unknown as MonthlyReport
+
+  it('gives every excellence facet a section, so a new facet cannot ship without a nav entry', () => {
+    const excellence = Object.fromEntries(
+      FACETS.map((f) => [f, unavailable]),
+    ) as unknown as EngineeringExcellence
+    const sections = excellenceSections(report(excellence), undefined)
+    for (const facet of FACETS) {
+      expect(
+        sections.some((s) => s.facets.includes(facet)),
+        `${facet} has no section`,
+      ).toBe(true)
+    }
+    for (const s of sections) {
+      expect(s.text, `${s.id} has no status`).not.toBe('')
+      expect(s.group).toBe('excellence')
+    }
+    expect(new Set(sections.map((s) => s.id)).size).toBe(sections.length)
+  })
+
+  it('reads grey for a facet with no sample rather than a pass', () => {
+    const excellence = Object.fromEntries(
+      FACETS.map((f) => [f, unavailable]),
+    ) as unknown as EngineeringExcellence
+    const sections = excellenceSections(report(excellence), undefined)
+    expect(sections.find((s) => s.id === 'security')?.rag).toBe('grey')
+  })
+
+  it('keeps one section covering every facet when nothing is collected', () => {
+    const sections = excellenceSections(report(undefined), undefined)
+    expect(sections).toHaveLength(1)
+    expect(sections[0]?.facets).toEqual([...FACETS])
+  })
+
+  it('paints a report-only bundle over budget yellow and a held one red', () => {
+    const base = Object.fromEntries(FACETS.map((f) => [f, unavailable]))
+    const status = (data: BundleData) =>
+      excellenceSections(
+        report({ ...base, ...withBundle(data) } as unknown as EngineeringExcellence),
+        undefined,
+      ).find((s) => s.id === 'bundle')?.rag
+    expect(status(bundle())).toBe('yellow')
+    expect(status(bundle({ gate: gate({ mode: 'ratchet', violations: 1 }) }))).toBe('red')
+    expect(status(bundle({ overBudget: false }))).toBe('green')
   })
 })

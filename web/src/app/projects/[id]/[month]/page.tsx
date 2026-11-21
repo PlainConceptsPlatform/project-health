@@ -42,6 +42,7 @@ export default async function Page({ params }: { params: Promise<{ id: string; m
   const shown = `${report.period.year}-${String(report.period.month).padStart(2, '0')}`
   return (
     <ProjectView
+      group={entry.group}
       report={report}
       months={entry.months}
       trend={readTrend(id)}
