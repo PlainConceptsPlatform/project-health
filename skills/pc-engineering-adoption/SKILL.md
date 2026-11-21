@@ -130,7 +130,10 @@ for every facet from step 3, and the project list validated with the Project Hea
 
 Same reference. Run the web against the folder, open it in a browser, and look at it at desktop and
 phone width in both themes. Apply the look from Q3b as tokens only, following
-[`references/dashboard-ux.md`](references/dashboard-ux.md), and run its checklist.
+[`references/dashboard-ux.md`](references/dashboard-ux.md), and run its checklist. Filters, sort,
+the open tab and section, and the folded panels are all query parameters (the Project Health README
+lists them under "Search, filters and links" and "A project's Engineering tab"): open one copied
+link in a fresh window to check the view comes back.
 
 **Checkpoint**: show the person the page (a screenshot, or the URL with the command to open it
 themselves) and the pillars that read "not available" and why. Continue when they have seen it.

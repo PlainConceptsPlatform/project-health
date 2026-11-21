@@ -57,6 +57,15 @@ The facet producer (`scripts/engineering-excellence.mjs`) is published in
 which each repository vendors with a header pointing back. The CI that runs the gates is not part of
 that code: it is the family template, installed and updated by `@plainconceptsplatform/workflows`.
 
+## The web
+
+The Engineering tab is built from one list of sections (`excellenceSections` in
+`web/src/views/project/excellence.tsx`, composed in `engineering.tsx`). The section nav, the status in
+each panel header and which panels start open all come from it. **A new facet registers a section**
+there, with the facets it shows, a status and its tools. `excellence.test.ts` fails when a facet in
+`FACETS` has no section. View state belongs in the query string (`web/src/shared/lib/url-state.ts`),
+never only in component state, so a copied link reopens the view.
+
 ## Tests
 
 A change to a metric needs a test that names the mistake it prevents, not one that raises a coverage

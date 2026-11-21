@@ -402,6 +402,30 @@ and *Back to projects* on a project page reopens it.
 
 Unknown values are dropped, so an old link still opens. The default view has no query at all.
 
+### A project's Engineering tab
+
+The project header (name, environment, level, score and the overview's alert) stays at the top of
+the page with the tabs and the month select, on a phone too. The Engineering, Family and Roadmap tabs
+count what needs action: red practices, expired family exceptions, issues waiting on a person.
+
+Engineering is a list of sections, with a section nav beside it (a chip strip on a phone): the
+scorecard; one panel per group of excellence facets (`excellence` for the summary and trends,
+`modules`, `hotspots`, `security`, `sbom`, `hygiene`, `bundle`, `architecture`, `patterns`); then
+`code` (comments and tests) and `actions`. Every panel header says its colour and why, and links the
+tools it reads, so a folded panel still says what is wrong. Red and yellow panels open on arrival;
+the rest start folded.
+
+| Parameter | Values |
+| --- | --- |
+| `tab` | `engineering/<section>` opens on a section, such as `engineering/hygiene`; `roadmap/<issue>` on an issue |
+| `open`, `shut` | sections the reader opened or folded, against their default |
+| `state` | practice states: `red`, `yellow`, `green`, `grey` |
+| `phase` | practice phases: `build`, `test-env`, `operate` |
+| `pq` | search over practice names, tools, descriptions and reasons |
+
+On arrival `?tab=` moves into the hash (`#engineering/hygiene`), which is what the page reads. Copy
+link writes it back as `?tab=`, so the link survives the sign-in.
+
 ## Roadmap
 
 Where agents and people hand issues over with labels, the labels already record who had each issue

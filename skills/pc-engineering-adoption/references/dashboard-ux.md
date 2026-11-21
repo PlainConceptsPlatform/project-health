@@ -21,6 +21,12 @@ you design anything, and open your result next to it before you call it done.
   GitHub Pages site sends visitors through a sign-in that keeps the query and drops the hash. A shared
   link reopens the same view, and *Back to projects* returns to the overview as it was left.
 - Charts are small and sit beside the number they explain, not on a canvas of their own.
+- The project page keeps a **sticky header** (name, environment, level, score, alert) with the tabs,
+  one line on a phone. A tab carries a count when something on it needs action.
+- A long tab has a **section nav**: a sticky rail from 1024px, a chip strip below, each entry with its
+  section's colour and marked `aria-current` while it is read. Sections deep-link (`#engineering/hygiene`).
+- Panels fold. A folded panel's header still says its colour, why, and the tools it reads; red and
+  yellow panels open on arrival, and what the reader opens or folds is in the query.
 
 **Honesty**
 - A metric that cannot be measured shows *Not available* with its reason. **Never a zero**, never a
@@ -74,6 +80,7 @@ Open the built site in a browser at desktop and phone width, in both themes, and
 - [ ] Every tab opens from its URL hash.
 - [ ] Filters change the rows: pick a chip, search, then clear all; the counts and the rows follow.
 - [ ] Copy link reopens the view: paste it into a new window and the same filters, sort and tab load.
+- [ ] A section link (`?tab=engineering/hygiene`) opens the tab on that section, with its panel open.
 - [ ] Info buttons open by keyboard.
 - [ ] Text contrast holds in dark mode, on the real page and not only in the token file.
 - [ ] No horizontal scroll at 375px.
