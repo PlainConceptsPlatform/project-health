@@ -44,7 +44,7 @@ export function ThemeToggle() {
       onClick={toggle}
       aria-label={label}
       title={label}
-      className="inline-flex size-9 items-center justify-center rounded-md border text-muted-foreground outline-none transition hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring"
+      className="inline-flex size-11 md:size-9 pointer-coarse:size-11 items-center justify-center rounded-md border text-muted-foreground outline-none transition hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring"
     >
       {dark === null ? null : dark ? (
         <SunIcon className="size-4" aria-hidden="true" />

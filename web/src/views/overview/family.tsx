@@ -9,9 +9,9 @@ import {
 import type { Family } from '@/shared/lib/types'
 import { withBase } from '@/shared/lib/utils'
 import { Badge, cn } from '@/shared/ui'
+import { PROJECT_LINK } from '@/shared/ui/project-link'
+import { type Column, ResponsiveTable } from '@/shared/ui/responsive-table'
 import { Sparkline } from '@/shared/ui/sparkline'
-
-const COLUMNS = ['Project', 'Mode', 'Identical', 'Modified', 'Missing', 'Exceptions', 'Template']
 
 function Identical({ family, row }: { family: Family; row: FamilyRow }) {
   const share = family.identicalShare
@@ -80,6 +80,70 @@ function Template({ family }: { family: Family }) {
   )
 }
 
+const drift = (row: FamilyRow) => row.drift as Family
+
+const COLUMNS: Column<FamilyRow>[] = [
+  {
+    key: 'project',
+    label: 'Project',
+    cell: (row) => {
+      const own = row.family === 'own-design'
+      return (
+        <div className="flex flex-col items-start gap-1">
+          <a
+            href={withBase(`/projects/${row.id}/${own ? '' : '#family'}`)}
+            className={cn(PROJECT_LINK, own && 'opacity-70')}
+          >
+            {row.name}
+          </a>
+          {row.drift?.isReference ? <Badge variant="secondary">Template</Badge> : null}
+          {own ? <Badge variant="outline">Own design</Badge> : null}
+        </div>
+      )
+    },
+  },
+  {
+    key: 'mode',
+    label: 'Mode',
+    cell: (row) => (
+      <span title={MODE_DESCRIPTION[drift(row).mode]}>{MODE_LABEL[drift(row).mode]}</span>
+    ),
+  },
+  {
+    key: 'identical',
+    label: 'Identical',
+    cell: (row) => <Identical family={drift(row)} row={row} />,
+  },
+  {
+    key: 'modified',
+    label: 'Modified',
+    cell: (row) => (
+      <>
+        <span className="font-semibold tabular-nums">{drift(row).counts.modified}</span>
+        {drift(row).mode === 'baseline' ? (
+          <div className="text-xs text-muted-foreground tabular-nums">
+            and {drift(row).counts.similar} at least 90% alike
+          </div>
+        ) : null}
+      </>
+    ),
+  },
+  {
+    key: 'missing',
+    label: 'Missing',
+    cell: (row) => (
+      <>
+        <span className="font-semibold tabular-nums">{drift(row).counts.missing}</span>
+        <div className="text-xs text-muted-foreground tabular-nums">
+          {drift(row).counts.extra} only in the app
+        </div>
+      </>
+    ),
+  },
+  { key: 'exceptions', label: 'Exceptions', cell: (row) => <Exceptions family={drift(row)} /> },
+  { key: 'template', label: 'Template', cell: (row) => <Template family={drift(row)} /> },
+]
+
 /**
  * How alike the family's apps are: each member's platform files against the template. Projects
  * that keep their own design on purpose are listed with their reason, never as a failure.
@@ -106,91 +170,26 @@ export function FamilyTable({ rows }: { rows: FamilyRow[] }) {
           </>
         ) : null}
       </p>
-      <div className="overflow-x-auto rounded-xl border">
-        <table className="w-full min-w-[1000px] text-sm">
-          <thead className="bg-muted/50 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            <tr>
-              {COLUMNS.map((c) => (
-                <th key={c} scope="col" className="px-4 py-3 font-semibold">
-                  {c}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => {
-              const f = row.drift
-              const own = row.family === 'own-design'
-              return (
-                <tr
-                  key={row.id}
-                  className={cn('border-t align-middle', own && 'text-muted-foreground')}
-                >
-                  <td className="px-4 py-3.5">
-                    <div className="flex flex-col gap-1">
-                      <a
-                        href={withBase(`/projects/${row.id}/${own ? '' : '#family'}`)}
-                        className={cn(
-                          'text-[15px] font-semibold hover:underline',
-                          own && 'opacity-70',
-                        )}
-                      >
-                        {row.name}
-                      </a>
-                      {f?.isReference ? <Badge variant="secondary">Template</Badge> : null}
-                      {own ? <Badge variant="outline">Own design</Badge> : null}
-                    </div>
-                  </td>
-                  {own ? (
-                    <td colSpan={COLUMNS.length - 1} className="px-4 py-3.5 text-xs">
-                      {row.familyReason}
-                    </td>
-                  ) : f ? (
-                    <>
-                      <td className="px-4 py-3.5" title={MODE_DESCRIPTION[f.mode]}>
-                        {MODE_LABEL[f.mode]}
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <Identical family={f} row={row} />
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <span className="font-semibold tabular-nums">{f.counts.modified}</span>
-                        {f.mode === 'baseline' ? (
-                          <div className="text-xs text-muted-foreground tabular-nums">
-                            and {f.counts.similar} at least 90% alike
-                          </div>
-                        ) : null}
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <span className="font-semibold tabular-nums">{f.counts.missing}</span>
-                        <div className="text-xs text-muted-foreground tabular-nums">
-                          {f.counts.extra} only in the app
-                        </div>
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <Exceptions family={f} />
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <Template family={f} />
-                      </td>
-                    </>
-                  ) : (
-                    <td
-                      colSpan={COLUMNS.length - 1}
-                      className={cn(
-                        'px-4 py-3.5 text-xs',
-                        row.invalid ? 'font-semibold text-destructive' : 'text-muted-foreground',
-                      )}
-                    >
-                      {row.reason}
-                    </td>
-                  )}
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
-      </div>
+      <ResponsiveTable
+        label="Family drift by project"
+        rows={rows}
+        columns={COLUMNS}
+        rowKey={(row) => row.id}
+        rowClassName={(row) => row.family === 'own-design' && 'text-muted-foreground'}
+        note={(row) =>
+          row.family === 'own-design' ? (
+            row.familyReason
+          ) : row.drift ? null : (
+            <span
+              className={cn(
+                row.invalid ? 'font-semibold text-destructive' : 'text-muted-foreground',
+              )}
+            >
+              {row.reason}
+            </span>
+          )
+        }
+      />
       <p className="text-sm text-muted-foreground">
         Contract mode reads <code>.platform/contract.yml</code>: the paths it marks as owned by the
         template, byte for byte with the template version the app records. Apps that still carry{' '}
