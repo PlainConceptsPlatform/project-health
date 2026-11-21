@@ -11,8 +11,9 @@ import {
   tokens,
   windowNote,
 } from '@/shared/lib/format'
+import { currentState } from '@/shared/lib/roadmap'
 import type { DailyScore } from '@/shared/lib/scorecard'
-import type { MonthlyReport } from '@/shared/lib/types'
+import type { MonthlyReport, ProjectGroup } from '@/shared/lib/types'
 import { withBase } from '@/shared/lib/utils'
 import {
   Badge,
@@ -32,14 +33,12 @@ import {
   ReleasesPerDay,
   TokensByKind,
 } from '@/shared/ui/charts'
-import { ActionsPanel } from './actions'
 import { AdoptionPanel } from './agentic'
 import { BackToProjects } from './back-link'
-import { CodePanel } from './code'
-import { ExcellencePanel } from './excellence'
+import { EngineeringContent, redPractices } from './engineering'
 import { FamilyPanel } from './family'
 import { RoadmapView } from './roadmap'
-import { ScorecardPanel } from './scorecard'
+import { ProjectHeader } from './sticky-header'
 import { type ProjectTab, ProjectTabs } from './tabs'
 
 export interface TrendPoint {
@@ -491,6 +490,7 @@ export function ProjectView({
   engineering,
   daily,
   actions = [],
+  group,
 }: {
   report: MonthlyReport
   months: string[]
@@ -506,6 +506,8 @@ export function ProjectView({
   daily?: DailyScore[]
   /** Actions usage of each month up to the engineering month, oldest first. */
   actions?: ActionsEntry[]
+  /** From projects.json: tooling reads no environment in the header. */
+  group?: ProjectGroup
 }) {
   const current = monthKey(report)
   const engineeringReport = engineering?.report ?? report
@@ -516,13 +518,18 @@ export function ProjectView({
     {
       id: 'engineering',
       label: 'Engineering',
+      badge: {
+        count: redPractices(engineeringReport),
+        title: 'practices missing or failing',
+      },
       content: (
-        <>
-          <ScorecardPanel report={engineeringReport} typeLabels={typeLabels} />
-          <ExcellencePanel report={engineeringReport} history={engineeringExcellence} />
-          <CodePanel report={engineeringReport} daily={daily} />
-          <ActionsPanel history={actions} />
-        </>
+        <EngineeringContent
+          report={engineeringReport}
+          history={engineeringExcellence}
+          typeLabels={typeLabels}
+          daily={daily}
+          actions={actions}
+        />
       ),
     },
     {
@@ -556,6 +563,12 @@ export function ProjectView({
     tabs.push({
       id: 'family',
       label: 'Family',
+      badge: {
+        count: engineeringReport.family.available
+          ? engineeringReport.family.data.exceptions.expired.length
+          : 0,
+        title: 'expired family exceptions',
+      },
       content: <FamilyPanel report={engineeringReport} daily={daily} />,
     })
   }
@@ -565,6 +578,12 @@ export function ProjectView({
     tabs.push({
       id: 'roadmap',
       label: 'Roadmap',
+      badge: {
+        count: roadmap.available
+          ? roadmap.data.issues.filter((i) => currentState(i) === 'person').length
+          : 0,
+        title: 'issues waiting on a person',
+      },
       content: roadmap.available ? (
         <RoadmapView
           roadmap={roadmap.data}
@@ -586,7 +605,6 @@ export function ProjectView({
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <BackToProjects />
-          <h1 className="mt-1 text-2xl font-semibold tracking-tight">{report.name}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             <a href={`https://github.com/${report.repo}`} className="hover:underline">
               {report.repo}
@@ -607,6 +625,7 @@ export function ProjectView({
       ) : null}
 
       <ProjectTabs
+        header={<ProjectHeader report={engineeringReport} group={group} daily={daily} />}
         tabs={tabs}
         months={months.map((month) => ({
           month,

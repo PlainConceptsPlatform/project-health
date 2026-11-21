@@ -31,6 +31,8 @@ import type { ProjectFamily } from '@/shared/lib/types'
 import { rememberOverviewQuery } from '@/shared/lib/url-state'
 import { withBase } from '@/shared/lib/utils'
 import { cn } from '@/shared/ui'
+import { ALERT_TONE, AlertPill, EnvChip } from '@/shared/ui/alert-pill'
+import { Chip } from '@/shared/ui/chip'
 import { LevelBadge } from '@/shared/ui/scorecard'
 import { Sparkline } from '@/shared/ui/sparkline'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
@@ -46,33 +48,8 @@ import { ActionsTable } from './actions'
 import { AgenticTable } from './agentic'
 import { CodeTable } from './code'
 import { FamilyTable } from './family'
-import { Chip, FilterBar } from './filter-bar'
+import { FilterBar } from './filter-bar'
 import { ProjectGrid } from './grid'
-
-const ALERT_TONE: Record<PortfolioAlert['severity'], string> = {
-  red: 'bg-destructive/10 text-destructive',
-  amber: 'bg-warning/15 text-warning-foreground dark:text-warning',
-}
-
-// PRO stands out, PRE is quieter, and no environment is plain text: it is an absence, not a tier.
-const ENV_CHIP: Record<PortfolioEnv, string> = {
-  pro: 'rounded-md border border-transparent bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary',
-  pre: 'rounded-md border border-muted-foreground/40 px-2 py-0.5 text-xs font-semibold text-muted-foreground',
-  none: 'text-sm text-muted-foreground',
-  na: 'text-sm text-muted-foreground',
-}
-
-const envTitle = (row: PortfolioRow) =>
-  row.env === 'na'
-    ? 'Platform tooling is not deployed to PRE/PRO environments, so the environment does not apply.'
-    : row.environment?.available
-      ? row.environment.data.environments
-          .map(
-            (e) =>
-              `${e.name}: ${e.tier ?? 'unknown'} (${e.resourceGroup ?? 'from the environment name'})`,
-          )
-          .join('\n')
-      : row.environment?.reason
 
 function Kpi({
   label,
@@ -115,21 +92,6 @@ function Kpi({
         {onShow ? <span className="font-medium underline underline-offset-4"> · show</span> : null}
       </span>
     </Box>
-  )
-}
-
-function AlertPill({ alert }: { alert: PortfolioAlert }) {
-  return (
-    <span
-      title={alert.detail}
-      className={cn(
-        'inline-flex w-fit items-center gap-1.5 rounded-full py-0.5 pr-2.5 pl-2 text-xs font-semibold',
-        ALERT_TONE[alert.severity],
-      )}
-    >
-      <AlertTriangleIcon className="size-3" aria-hidden="true" />
-      {alert.text}
-    </span>
   )
 }
 
@@ -269,14 +231,6 @@ function SortHeader({
 }
 
 const projectHref = (row: PortfolioRow) => `/projects/${row.id}/`
-
-function EnvChip({ row }: { row: PortfolioRow }) {
-  return (
-    <span className={cn('inline-flex whitespace-nowrap', ENV_CHIP[row.env])} title={envTitle(row)}>
-      {ENV_LABEL[row.env]}
-    </span>
-  )
-}
 
 function Inferred({ row }: { row: PortfolioRow }) {
   return row.card && !row.card.facetsPublished ? (

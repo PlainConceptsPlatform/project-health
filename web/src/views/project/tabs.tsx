@@ -1,51 +1,59 @@
 'use client'
 
 import { adoptSharedTab } from '@/shared/lib/url-state'
+import { CopyLink } from '@/shared/ui/copy-link'
+import { type MonthLink, PeriodSelect } from '@/shared/ui/period-select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 import { type ReactNode, useEffect, useRef, useState } from 'react'
 
 export { TAB_PARAM, adoptSharedTab } from '@/shared/lib/url-state'
+export type { MonthLink } from '@/shared/ui/period-select'
 
 export interface ProjectTab {
   id: string
   label: string
   content: ReactNode
+  /** Things on the tab that need action, shown on the tab itself; nothing when zero. */
+  badge?: { count: number; title: string }
 }
 
 /**
  * The panels are rendered on the server and handed in whole; this only decides which one shows.
  * The tab lives in the URL hash so a link to a project's roadmap opens on the roadmap, and the
  * first tab clears the hash so the plain project URL stays the default view. What follows a slash
- * belongs to the tab, such as the selected issue in #roadmap/773.
+ * belongs to the tab, such as the selected issue in #roadmap/773 or the section in
+ * #engineering/hygiene.
  *
  * A shared link carries the same thing as ?tab=roadmap/773 instead. GitHub Pages sends a visitor
  * without a session through the GitHub sign-in, which keeps the query but drops the hash, so the
  * query is moved into the hash on arrival and everything else keeps reading the hash.
+ *
+ * The bar is sticky with the project header above it, on a phone too, so the level and score stay
+ * in sight deep down a long tab. Its height is published as --sticky-offset, which the section nav
+ * and the section anchors use to sit just under it.
  */
-export interface MonthLink {
-  month: string
-  href: string
-  current: boolean
-}
-
-export function ProjectTabs({ tabs, months = [] }: { tabs: ProjectTab[]; months?: MonthLink[] }) {
+export function ProjectTabs({
+  tabs,
+  months = [],
+  header,
+}: {
+  tabs: ProjectTab[]
+  months?: MonthLink[]
+  header?: ReactNode
+}) {
   const first = tabs[0]?.id ?? ''
   const [active, setActive] = useState(first)
-  const monthNav = useRef<HTMLElement>(null)
+  const bar = useRef<HTMLDivElement>(null)
 
-  // The newest month sits at the right end; on a narrow screen the row would open scrolled away
-  // from the month being shown, so bring the current one into view.
-  // Run again once the web font is in: the row only overflows at its final width.
   useEffect(() => {
-    const align = () => {
-      const nav = monthNav.current
-      const current = nav?.querySelector<HTMLElement>('[aria-current="page"]')
-      if (!nav || !current) return
-      const overflow = current.getBoundingClientRect().right - nav.getBoundingClientRect().right
-      if (overflow > 0) nav.scrollLeft += overflow
-    }
-    align()
-    document.fonts?.ready.then(align)
+    const el = bar.current
+    if (!el || typeof ResizeObserver === 'undefined') return
+    const publish = () =>
+      document.documentElement.style.setProperty('--sticky-offset', `${el.offsetHeight}px`)
+    publish()
+    const observer = new ResizeObserver(publish)
+    observer.observe(el)
+    return () => observer.disconnect()
   }, [])
 
   useEffect(() => {
@@ -68,43 +76,37 @@ export function ProjectTabs({ tabs, months = [] }: { tabs: ProjectTab[]; months?
 
   return (
     <Tabs value={active} onValueChange={change} className="gap-6">
-      {/*
-        Sticky with the month picker beside it, so switching tab or month never means scrolling back
-        to the top. Both rows scroll inside themselves on a phone instead of widening the page.
-      */}
-      <div className="sticky top-0 z-30 -mx-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b bg-background px-4 py-2 sm:-mx-6 sm:px-6">
-        <div className="max-w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <TabsList className="h-11 md:h-9">
-            {tabs.map((t) => (
-              <TabsTrigger key={t.id} value={t.id} className="px-4">
-                {t.label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+      <div
+        ref={bar}
+        className="sticky top-0 z-30 -mx-4 flex flex-col gap-2 border-b bg-background px-4 py-2 sm:-mx-6 sm:px-6"
+      >
+        {header}
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+          <div className="max-w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <TabsList className="h-11 md:h-9">
+              {tabs.map((t) => (
+                <TabsTrigger key={t.id} value={t.id} className="px-4">
+                  {t.label}
+                  {t.badge && t.badge.count > 0 ? (
+                    <span
+                      title={t.badge.title}
+                      className="ml-0.5 rounded-full bg-destructive/10 px-1.5 text-xs font-semibold text-destructive tabular-nums"
+                    >
+                      {t.badge.count}
+                      <span className="sr-only"> {t.badge.title}</span>
+                    </span>
+                  ) : null}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </div>
+          <div className="flex items-center gap-2">
+            {months.length > 1 ? (
+              <PeriodSelect months={months} hash={active === first ? '' : active} />
+            ) : null}
+            <CopyLink />
+          </div>
         </div>
-        {months.length > 1 ? (
-          <nav
-            ref={monthNav}
-            aria-label="Month"
-            className="flex max-w-full gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          >
-            {months.map((m) => (
-              <a
-                key={m.month}
-                // The open tab travels with the month, so stepping back a month stays on the roadmap.
-                href={`${m.href}${active === first ? '' : `#${active}`}`}
-                aria-current={m.current ? 'page' : undefined}
-                className={
-                  m.current
-                    ? 'shrink-0 rounded-md bg-primary px-2.5 py-1 text-xs font-medium text-primary-foreground'
-                    : 'shrink-0 rounded-md border px-2.5 py-1 text-xs text-muted-foreground hover:bg-accent'
-                }
-              >
-                {m.month}
-              </a>
-            ))}
-          </nav>
-        ) : null}
       </div>
       {tabs.map((t) => (
         <TabsContent key={t.id} value={t.id} className="space-y-6">

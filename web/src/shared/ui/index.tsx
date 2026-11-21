@@ -1,11 +1,14 @@
 import { ChevronDownIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
 import type { GlossaryKey } from '../lib/glossary'
-import type { MetricBlock } from '../lib/types'
+import type { MetricBlock, Rag } from '../lib/types'
 import { cn } from '../lib/utils'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './card'
+import { FoldDetails } from './fold'
 import { InfoTip } from './info-tip'
+import { RagDot } from './scorecard'
 import { Table, TableBody, TableHead, TableHeader, TableRow } from './table'
+import { ToolList } from './tools'
 
 export { Badge } from './badge'
 export {
@@ -37,16 +40,30 @@ export function Panel({
   action,
   children,
   className,
+  section,
 }: {
   title: ReactNode
   description?: ReactNode
   action?: ReactNode
   children: ReactNode
   className?: string
+  /**
+   * Makes the panel a section of its tab: an anchor (#<tab>/<id>), a status line and tool links
+   * that stay visible while it is folded, and an open state the tab keeps in its URL.
+   */
+  section?: PanelSection
 }) {
   return (
-    <Card className={cn('gap-0', className)}>
-      <details open className="group/panel">
+    <Card
+      id={section ? sectionAnchor(section.id) : undefined}
+      className={cn(
+        'gap-0',
+        section &&
+          'scroll-mt-[calc(var(--sticky-offset,0px)+4rem)] lg:scroll-mt-[calc(var(--sticky-offset,0px)+1rem)]',
+        className,
+      )}
+    >
+      <FoldDetails id={section?.id} className="group/panel">
         <summary className="cursor-pointer list-none rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-details-marker]:hidden">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -55,7 +72,29 @@ export function Panel({
                 aria-hidden="true"
               />
               {title}
+              {section ? (
+                <a
+                  href={`#${section.tab}/${section.id}`}
+                  aria-label={`Link to ${typeof title === 'string' ? title : 'this section'}`}
+                  className="ml-0.5 inline-flex min-h-6 items-center rounded px-1 text-sm font-normal text-muted-foreground hover:text-foreground"
+                >
+                  #
+                </a>
+              ) : null}
             </CardTitle>
+            {section ? (
+              <p className="flex flex-wrap items-center gap-x-3 gap-y-1 pl-6 text-xs text-muted-foreground">
+                <span className="inline-flex items-center gap-1.5 font-medium text-foreground">
+                  <RagDot rag={section.rag} label={false} />
+                  {section.status}
+                </span>
+                {section.tools && section.tools.length > 0 ? (
+                  <span>
+                    From <ToolList tools={section.tools} />
+                  </span>
+                ) : null}
+              </p>
+            ) : null}
             {description ? <CardDescription className="pl-6">{description}</CardDescription> : null}
             {action ? (
               <div className="col-start-2 row-span-2 row-start-1 self-start">{action}</div>
@@ -63,10 +102,22 @@ export function Panel({
           </CardHeader>
         </summary>
         <CardContent className="mt-6">{children}</CardContent>
-      </details>
+      </FoldDetails>
     </Card>
   )
 }
+
+export interface PanelSection {
+  id: string
+  /** The tab the section belongs to, for its #<tab>/<id> link. */
+  tab: string
+  rag: Rag
+  status: string
+  tools?: string[]
+}
+
+/** The element id of a section's panel; the section nav scrolls to it. */
+export const sectionAnchor = (id: string) => `section-${id}`
 
 /** The empty state for a metric a project does not produce. Never an error, never a zero. */
 export function Unavailable({ reason }: { reason: string }) {

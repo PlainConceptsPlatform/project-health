@@ -43,7 +43,7 @@ export function ResponsiveTable<T>({
   const asCards = breakpoint === 'md' ? 'md:hidden' : 'lg:hidden'
   return (
     <>
-      <div className={cn('rounded-xl border', asTable)} data-layout="table">
+      <div className={cn('overflow-x-auto rounded-xl border', asTable)} data-layout="table">
         <table className="w-full text-sm">
           <thead className="bg-muted/50 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             <tr>

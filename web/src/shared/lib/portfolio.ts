@@ -47,7 +47,7 @@ export const DELTA_TITLE: Record<DeltaBasis, string> = {
   month: `Score change against last month: the daily history is not ${DELTA_DAYS} days old yet`,
 }
 
-export function envOf(row: ScorecardRow): PortfolioEnv {
+export function envOf(row: Pick<ScorecardRow, 'group' | 'environment'>): PortfolioEnv {
   if (row.group === 'tooling') return 'na'
   const final = row.environment?.available ? row.environment.data.final : null
   return final === 'PRO' ? 'pro' : final === 'PRE' ? 'pre' : 'none'
@@ -80,7 +80,7 @@ export function deltaOf(row: Pick<ScorecardRow, 'trend' | 'daily'>): {
   return { delta: last === null || prior === null ? null : last - prior, deltaBasis: 'month' }
 }
 
-const gatesText = (row: ScorecardRow) =>
+const gatesText = (row: Pick<ScorecardRow, 'card'>) =>
   row.card
     ? `${row.card.gates.present} of ${row.card.gates.applicable} gates · score ${row.card.score ?? 'n/a'}`
     : ''
@@ -91,7 +91,7 @@ const gatesText = (row: ScorecardRow) =>
  * alert and a falling score need attention.
  */
 export function riskOf(
-  row: ScorecardRow,
+  row: Pick<ScorecardRow, 'card'>,
   env: PortfolioEnv,
   delta: number | null,
   basis: DeltaBasis = 'days',
