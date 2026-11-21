@@ -376,6 +376,32 @@ environment reads not applicable instead of missing: the environment beside its 
 alerts, and deploy frequency, lead time and rework rate in Delivery, whose delivery sorts list
 tooling after every application. The group only changes how the site ranks a project; the collector reads both alike.
 
+### Search, filters and links
+
+The overview has one filter bar above its six tabs: a search over name, repository and type (`/`
+focuses it, Esc clears it), chips for level, alert and environment, and selects for group and family.
+Chips in one group are alternatives (L0 or L1); groups combine (L0 or L1, in PRO). Each chip counts
+the projects it would show with the other filters applied. Every tab lists the same projects, so a
+filter set on the scorecard still holds on Delivery or Actions; the sort belongs to the scorecard,
+where the column headers sort as well.
+
+Everything is in the query string, because GitHub Pages sends a visitor without a session through
+the GitHub sign-in, which keeps the query and drops the hash. **Copy link** copies the current view,
+and *Back to projects* on a project page reopens it.
+
+| Parameter | Values |
+| --- | --- |
+| `q` | search text |
+| `level` | `0,1,2,3`, any of them |
+| `alert` | `critical`, `attention`, `declining` |
+| `env` | `pro`, `pre`, `none` |
+| `group` | `applications`, `tooling` |
+| `family` | `member`, `own-design`, `none` |
+| `sort` | `risk` (default), `engineering`, `engineering-asc`, `gates`, `trend`, `name` |
+| `tab` | `delivery`, `agentic`, `code`, `actions`, `family`; the scorecard is the default |
+
+Unknown values are dropped, so an old link still opens. The default view has no query at all.
+
 ## Roadmap
 
 Where agents and people hand issues over with labels, the labels already record who had each issue
