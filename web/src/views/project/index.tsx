@@ -35,6 +35,7 @@ import {
 } from '@/shared/ui/charts'
 import { AdoptionPanel } from './agentic'
 import { BackToProjects } from './back-link'
+import { ReleasesTable, RunsTable } from './delivery-tables'
 import { EngineeringContent, redPractices } from './engineering'
 import { FamilyPanel } from './family'
 import { RoadmapView } from './roadmap'
@@ -322,45 +323,7 @@ function AgentsPanel({ report }: { report: MonthlyReport }) {
                 </div>
               </div>
 
-              <DataTable head={['Run', 'Kind', 'Issue', 'Started', 'Duration', 'Input', 'Output']}>
-                {data.runs.slice(0, 60).map((run) => (
-                  <TableRow key={run.runId}>
-                    <TableCell>
-                      <a
-                        href={`https://github.com/${report.repo}/actions/runs/${run.runId}`}
-                        className="font-mono text-xs hover:underline"
-                      >
-                        {run.runId}
-                      </a>
-                    </TableCell>
-                    <TableCell className="capitalize">{run.kind}</TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {run.issueNumber ? (
-                        <a
-                          href={`https://github.com/${report.repo}/issues/${run.issueNumber}`}
-                          className="hover:underline"
-                        >
-                          #{run.issueNumber}
-                        </a>
-                      ) : (
-                        'n/a'
-                      )}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {shortDate(run.startedAt)}
-                    </TableCell>
-                    <TableCell className="tabular-nums">
-                      {run.executionSeconds === null ? 'n/a' : seconds(run.executionSeconds)}
-                    </TableCell>
-                    <TableCell className="tabular-nums">
-                      {run.usage ? tokens(run.usage.inputTokens) : 'n/a'}
-                    </TableCell>
-                    <TableCell className="tabular-nums">
-                      {run.usage ? tokens(run.usage.outputTokens) : 'n/a'}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </DataTable>
+              <RunsTable runs={data.runs} repo={report.repo} />
             </div>
           )
         }}
@@ -412,31 +375,7 @@ function ReleasesPanel({ report }: { report: MonthlyReport }) {
       description={`Distinct commits that reached production${report.window ? ` in the last ${report.window.days} days` : ''}`}
     >
       <Metric block={report.delivery.deploymentFrequency}>
-        {(d) => (
-          <DataTable head={['Ref', 'Deployed', 'By', 'Commit', 'Signals']}>
-            {d.releases.map((release) => (
-              <TableRow key={release.sha}>
-                <TableCell className="font-medium">{release.ref}</TableCell>
-                <TableCell className="text-muted-foreground">
-                  {dateTime(release.deployedAt)}
-                </TableCell>
-                <TableCell className="text-muted-foreground">
-                  {release.deployedBy ?? 'unknown'}
-                </TableCell>
-                <TableCell className="font-mono text-xs text-muted-foreground">
-                  {release.sha.slice(0, 8)}
-                </TableCell>
-                <TableCell className="space-x-1.5">
-                  {release.unplanned ? <Badge variant="destructive">unplanned</Badge> : null}
-                  {release.outOfProcess ? <Badge variant="outline">not a tag</Badge> : null}
-                  {release.deploymentIds.length > 1 ? (
-                    <Badge variant="secondary">{release.deploymentIds.length} records</Badge>
-                  ) : null}
-                </TableCell>
-              </TableRow>
-            ))}
-          </DataTable>
-        )}
+        {(d) => <ReleasesTable releases={d.releases} />}
       </Metric>
     </Panel>
   )

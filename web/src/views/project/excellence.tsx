@@ -19,6 +19,7 @@ import {
   scopeTrends,
   topDuplication,
   topHotspots,
+  worstModulesFirst,
 } from '@/shared/lib/excellence'
 import { monthName, percent } from '@/shared/lib/format'
 import { NOT_COLLECTED, type SectionMeta, gateStatus, practiceStatus } from '@/shared/lib/sections'
@@ -38,6 +39,7 @@ import {
 } from '@/shared/lib/types'
 import { Badge, DataTable, Metric, Stat, TableCell, TableRow, Unavailable } from '@/shared/ui'
 import { ScopeTrend } from '@/shared/ui/charts'
+import { ResponsiveTable } from '@/shared/ui/responsive-table'
 import type { ReactNode } from 'react'
 
 const SEVERITIES = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW', 'UNKNOWN'] as const
@@ -210,19 +212,45 @@ function ModulesTable({ excellence }: { excellence: EngineeringExcellence }) {
   if (rows.length === 0) {
     return <Unavailable reason="No facet in this period carried a per-module breakdown." />
   }
+  // The modules most in need of attention first; the rest wait behind "Show all".
   return (
-    <DataTable head={['Scope', 'Module', 'Coverage', 'Mutation', 'CC > 10', 'CRAP > 30']}>
-      {rows.map((r) => (
-        <TableRow key={`${r.scope}/${r.module}`}>
-          <TableCell className="text-muted-foreground">{r.scope}</TableCell>
-          <TableCell className="font-medium">{r.module}</TableCell>
-          <TableCell className="tabular-nums">{rate(r.lineRate)}</TableCell>
-          <TableCell className="tabular-nums">{rate(r.coveredScore)}</TableCell>
-          <TableCell className="tabular-nums">{r.over10 ?? 'n/a'}</TableCell>
-          <TableCell className="tabular-nums">{r.crapOver30 ?? 'n/a'}</TableCell>
-        </TableRow>
-      ))}
-    </DataTable>
+    <ResponsiveTable
+      label="Modules"
+      rows={worstModulesFirst(rows)}
+      rowKey={(r) => `${r.scope}/${r.module}`}
+      breakpoint="md"
+      limit={5}
+      columns={[
+        {
+          key: 'module',
+          label: 'Module',
+          cell: (r) => (
+            <span className="font-medium">
+              {r.module} <span className="font-normal text-muted-foreground">{r.scope}</span>
+            </span>
+          ),
+        },
+        {
+          key: 'coverage',
+          label: 'Coverage',
+          className: 'tabular-nums',
+          cell: (r) => rate(r.lineRate),
+        },
+        {
+          key: 'mutation',
+          label: 'Mutation',
+          className: 'tabular-nums',
+          cell: (r) => rate(r.coveredScore),
+        },
+        { key: 'cc', label: 'CC > 10', className: 'tabular-nums', cell: (r) => r.over10 ?? 'n/a' },
+        {
+          key: 'crap',
+          label: 'CRAP > 30',
+          className: 'tabular-nums',
+          cell: (r) => r.crapOver30 ?? 'n/a',
+        },
+      ]}
+    />
   )
 }
 
@@ -243,11 +271,18 @@ function HotspotsTable({
     ? excellence.complexity.data.samples.at(-1)?.commitSha
     : null
   return (
-    <DataTable head={['Method', 'Module', 'CC', 'Coverage', 'CRAP']}>
-      {hotspots.map((h) => (
-        <TableRow key={`${h.file}:${h.line}:${h.method}`}>
-          <TableCell>
-            {sha ? (
+    <ResponsiveTable
+      label="CRAP hotspots"
+      rows={hotspots}
+      rowKey={(h) => `${h.file}:${h.line}:${h.method}`}
+      breakpoint="md"
+      columns={[
+        {
+          key: 'method',
+          label: 'Method',
+          className: 'max-w-xs break-all',
+          cell: (h) =>
+            sha ? (
               <a
                 href={`https://github.com/${repo}/blob/${sha}/${h.file}${h.line ? `#L${h.line}` : ''}`}
                 className="font-mono text-xs hover:underline"
@@ -256,17 +291,24 @@ function HotspotsTable({
               </a>
             ) : (
               <span className="font-mono text-xs">{h.method}</span>
-            )}
-          </TableCell>
-          <TableCell className="text-muted-foreground">
-            {h.scope} / {h.module}
-          </TableCell>
-          <TableCell className="tabular-nums">{h.cc}</TableCell>
-          <TableCell className="tabular-nums">{percent(h.coverage)}</TableCell>
-          <TableCell className="tabular-nums">{Math.round(h.crap)}</TableCell>
-        </TableRow>
-      ))}
-    </DataTable>
+            ),
+        },
+        {
+          key: 'module',
+          label: 'Module',
+          className: 'text-muted-foreground',
+          cell: (h) => `${h.scope} / ${h.module}`,
+        },
+        { key: 'cc', label: 'CC', className: 'tabular-nums', cell: (h) => h.cc },
+        {
+          key: 'coverage',
+          label: 'Coverage',
+          className: 'tabular-nums',
+          cell: (h) => percent(h.coverage),
+        },
+        { key: 'crap', label: 'CRAP', className: 'tabular-nums', cell: (h) => Math.round(h.crap) },
+      ]}
+    />
   )
 }
 
@@ -714,25 +756,42 @@ export function ArchitectureWebPanel({ web }: { web: ArchitectureWeb }) {
         <Stat label="Over the baseline" value={web.gate.violations} hint="warnings, by rule" />
       </div>
       {rules.length > 0 ? (
-        <DataTable head={['Rule', 'Errors', 'Warnings', 'Warnings allowed']}>
-          {rules.map((r) => (
-            <TableRow key={r.rule}>
-              <TableCell className="font-mono text-xs">{r.rule}</TableCell>
-              <TableCell className="tabular-nums">{r.errors}</TableCell>
-              <TableCell className="tabular-nums">
-                {r.warnings}
-                {r.over ? (
-                  <span className="text-muted-foreground">
-                    {held ? ' (over the baseline)' : ' (over, report-only)'}
-                  </span>
-                ) : null}
-              </TableCell>
-              <TableCell className="tabular-nums">
-                {r.allowed === null ? 'n/a' : r.allowed}
-              </TableCell>
-            </TableRow>
-          ))}
-        </DataTable>
+        <ResponsiveTable
+          label="Steiger rules"
+          rows={rules}
+          rowKey={(r) => r.rule}
+          breakpoint="md"
+          columns={[
+            {
+              key: 'rule',
+              label: 'Rule',
+              className: 'font-mono text-xs break-all',
+              cell: (r) => r.rule,
+            },
+            { key: 'errors', label: 'Errors', className: 'tabular-nums', cell: (r) => r.errors },
+            {
+              key: 'warnings',
+              label: 'Warnings',
+              className: 'tabular-nums',
+              cell: (r) => (
+                <>
+                  {r.warnings}
+                  {r.over ? (
+                    <span className="text-muted-foreground">
+                      {held ? ' (over the baseline)' : ' (over, report-only)'}
+                    </span>
+                  ) : null}
+                </>
+              ),
+            },
+            {
+              key: 'allowed',
+              label: 'Warnings allowed',
+              className: 'tabular-nums',
+              cell: (r) => (r.allowed === null ? 'n/a' : r.allowed),
+            },
+          ]}
+        />
       ) : null}
       <p className="text-xs text-muted-foreground">
         {rules.length === 0
