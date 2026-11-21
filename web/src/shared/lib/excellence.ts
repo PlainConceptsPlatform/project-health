@@ -138,6 +138,20 @@ export function moduleRows(excellence: EngineeringExcellence): ModuleRow[] {
   )
 }
 
+/**
+ * Modules in the order to read them: the lowest coverage first, then the most CRAP hotspots.
+ * A module with no coverage figure sinks below the measured ones rather than reading as zero.
+ */
+export function worstModulesFirst(rows: ModuleRow[]): ModuleRow[] {
+  return [...rows].sort(
+    (a, b) =>
+      Number(a.lineRate === null) - Number(b.lineRate === null) ||
+      (a.lineRate ?? 0) - (b.lineRate ?? 0) ||
+      (b.crapOver30 ?? 0) - (a.crapOver30 ?? 0) ||
+      a.module.localeCompare(b.module),
+  )
+}
+
 export const topHotspots = (excellence: EngineeringExcellence, limit = 10): Hotspot[] =>
   excellence.complexity.available
     ? [...(excellence.complexity.data.latest.hotspots ?? [])]

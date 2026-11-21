@@ -9,6 +9,7 @@ import {
   kilobytes,
   patternRules,
   patternsTools,
+  worstModulesFirst,
 } from '../../shared/lib/excellence'
 import type {
   ArchitectureData,
@@ -434,5 +435,26 @@ describe('engineering sections', () => {
     expect(status(bundle())).toBe('yellow')
     expect(status(bundle({ gate: gate({ mode: 'ratchet', violations: 1 }) }))).toBe('red')
     expect(status(bundle({ overBudget: false }))).toBe('green')
+  })
+})
+
+describe('modules', () => {
+  const row = (module: string, lineRate: number | null, crapOver30: number | null = 0) => ({
+    scope: 'web',
+    module,
+    lineRate,
+    coveredScore: null,
+    over10: null,
+    crapOver30,
+  })
+
+  it('puts the lowest coverage first and modules without a figure last', () => {
+    const sorted = worstModulesFirst([
+      row('fine', 0.9),
+      row('unmeasured', null),
+      row('weak', 0.4),
+      row('weak-crap', 0.4, 3),
+    ])
+    expect(sorted.map((r) => r.module)).toEqual(['weak-crap', 'weak', 'fine', 'unmeasured'])
   })
 })

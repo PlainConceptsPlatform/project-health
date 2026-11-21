@@ -21,6 +21,13 @@ import {
   summarise,
   timingByKind,
 } from '@/shared/lib/roadmap'
+import {
+  type RoadmapFilter,
+  type RoadmapLayout,
+  type RoadmapViewState,
+  readRoadmapView,
+  roadmapViewQuery,
+} from '@/shared/lib/roadmap-view'
 import type {
   AgentRun,
   AgentSummary,
@@ -29,11 +36,14 @@ import type {
   MetricBlock,
   Roadmap,
 } from '@/shared/lib/types'
+import { sharedUrl, writeQuery } from '@/shared/lib/url-state'
 import { withBase } from '@/shared/lib/utils'
 import { Panel, Stat, Unavailable, cn } from '@/shared/ui'
-import { ChevronLeftIcon, ChevronRightIcon, MinusIcon, PlusIcon } from 'lucide-react'
+import { Chip } from '@/shared/ui/chip'
+import { CopyLink } from '@/shared/ui/copy-link'
+import { ChevronLeftIcon, ChevronRightIcon, MinusIcon, PlusIcon, XIcon } from 'lucide-react'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { TAB_PARAM, adoptSharedTab } from './tabs'
+import { adoptSharedTab } from './tabs'
 
 const MINUTE = 60_000
 const DAY = 1440
@@ -44,8 +54,8 @@ const SPANS = [7 * DAY, 3 * DAY, DAY, 12 * 60, 6 * 60, 2 * 60]
 /** A tick every this many minutes for a given visible span, so labels stay about 60px apart. */
 const TICK_STEPS = [15, 30, 60, 120, 180, 360, 720, DAY]
 
-type Filter = 'all' | 'open' | 'stalled' | 'hand' | 'automation'
-type View = 'calendar' | 'aligned'
+type Filter = RoadmapFilter
+type View = RoadmapLayout
 
 const FILTERS: { id: Filter; label: string; test: (i: IssueJourney) => boolean }[] = [
   { id: 'all', label: 'All', test: () => true },
@@ -66,29 +76,8 @@ function Swatch({ state }: { state: JourneyState }) {
   return <span aria-hidden className={cn('inline-block size-3 rounded-sm', STATES[state].swatch)} />
 }
 
-function Chip({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean
-  onClick: () => void
-  children: React.ReactNode
-}) {
-  return (
-    <button
-      type="button"
-      aria-pressed={active}
-      onClick={onClick}
-      className={cn(
-        'inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium transition-colors',
-        active ? 'border-foreground bg-foreground text-background' : 'hover:bg-accent',
-      )}
-    >
-      {children}
-    </button>
-  )
-}
+/** The timeline's filter and layout chips: 44 px on touch. */
+const ROADMAP_CHIP = 'min-h-11 gap-1.5 rounded-md px-3 md:min-h-9'
 
 const iconButton =
   'inline-flex size-9 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground disabled:pointer-events-none disabled:opacity-40'
@@ -765,41 +754,16 @@ const ISSUE_HASH = /^#roadmap\/(\d+)$/
 const issueUrl = (issue: number): string =>
   `${window.location.origin}${window.location.pathname}${window.location.search}#roadmap/${issue}`
 
-/** The link to copy goes in the query, which survives the GitHub sign-in that the hash does not. */
-const sharedIssueUrl = (issue: number): string =>
-  `${window.location.origin}${window.location.pathname}?${TAB_PARAM}=roadmap/${issue}`
-
-function CopyLink({ issue }: { issue: number }) {
-  const [copied, setCopied] = useState(false)
-  useEffect(() => {
-    if (!copied) return
-    const timer = setTimeout(() => setCopied(false), 1500)
-    return () => clearTimeout(timer)
-  }, [copied])
-  return (
-    <button
-      type="button"
-      onClick={() => {
-        navigator.clipboard
-          ?.writeText(sharedIssueUrl(issue))
-          .then(() => setCopied(true))
-          .catch(() => window.history.replaceState(null, '', issueUrl(issue)))
-      }}
-      className="rounded-md border px-3 py-1.5 text-sm hover:bg-accent"
-    >
-      {copied ? 'Link copied' : 'Copy link'}
-    </button>
-  )
-}
-
 function IssueDetail({
   issue,
   repo,
   runs,
+  onClose,
 }: {
   issue: IssueJourney
   repo: string
   runs: AgentRun[]
+  onClose: () => void
 }) {
   const outcome = outcomeOf(issue)
   const log = logOf(issue)
@@ -849,7 +813,10 @@ function IssueDetail({
   ]
 
   return (
-    <div id="roadmap-issue" className="scroll-mt-4 space-y-5 rounded-md border p-5">
+    <div
+      id="roadmap-issue"
+      className="scroll-mt-[calc(var(--sticky-offset,0px)+1rem)] space-y-5 rounded-md border p-5"
+    >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="space-y-1">
           <div className="flex flex-wrap items-center gap-2">
@@ -866,13 +833,22 @@ function IssueDetail({
           </p>
         </div>
         <div className="flex gap-2">
-          <CopyLink issue={issue.number} />
+          {/* The link to copy goes in the query, which survives the GitHub sign-in that the hash does not. */}
+          <CopyLink url={() => sharedUrl(issueUrl(issue.number))} />
           <a
             href={`https://github.com/${repo}/issues/${issue.number}`}
-            className="rounded-md border px-3 py-1.5 text-sm hover:bg-accent"
+            className="inline-flex min-h-11 items-center rounded-lg border px-3 text-sm hover:bg-accent md:min-h-9"
           >
             Open on GitHub
           </a>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label={`Close issue #${issue.number}`}
+            className="inline-flex size-11 items-center justify-center rounded-lg border text-muted-foreground hover:bg-accent hover:text-foreground md:size-9"
+          >
+            <XIcon className="size-4" aria-hidden="true" />
+          </button>
         </div>
       </div>
 
@@ -1182,8 +1158,18 @@ export function RoadmapView({
   to: string
 }) {
   const summary = useMemo(() => summarise(roadmap, from, to), [roadmap, from, to])
-  const [filter, setFilter] = useState<Filter>('all')
-  const [view, setView] = useState<View>('calendar')
+  const [{ filter, view }, setViewState] = useState<RoadmapViewState>({
+    filter: 'all',
+    view: 'calendar',
+  })
+  const update = (next: Partial<RoadmapViewState>) => {
+    const state = { filter, view, ...next }
+    setViewState(state)
+    writeQuery(roadmapViewQuery(state))
+  }
+  const setFilter = (f: Filter) => update({ filter: f })
+  const setView = (v: View) => update({ view: v })
+  useEffect(() => setViewState(readRoadmapView(window.location.search)), [])
   const issues = useMemo(
     () => roadmap.issues.filter(FILTERS.find((f) => f.id === filter)?.test ?? (() => true)),
     [roadmap, filter],
@@ -1220,6 +1206,17 @@ export function RoadmapView({
   const select = (issue: number) => {
     setSelected(issue)
     window.history.replaceState(null, '', issueUrl(issue))
+    // On a phone the detail sits below the timeline, out of sight: bring it into view.
+    if (window.matchMedia('(max-width: 767px)').matches) {
+      requestAnimationFrame(() =>
+        document.getElementById('roadmap-issue')?.scrollIntoView({ block: 'start' }),
+      )
+    }
+  }
+  const close = () => {
+    setSelected(null)
+    const { pathname, search } = window.location
+    window.history.replaceState(null, '', `${pathname}${search}#roadmap`)
   }
 
   const start = Date.parse(from)
@@ -1298,17 +1295,30 @@ export function RoadmapView({
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap gap-2">
               {FILTERS.map((f) => (
-                <Chip key={f.id} active={filter === f.id} onClick={() => setFilter(f.id)}>
+                <Chip
+                  key={f.id}
+                  active={filter === f.id}
+                  onClick={() => setFilter(f.id)}
+                  className={ROADMAP_CHIP}
+                >
                   {f.label}
                   <span className="text-xs opacity-70">{roadmap.issues.filter(f.test).length}</span>
                 </Chip>
               ))}
             </div>
             <div className="flex gap-2">
-              <Chip active={view === 'calendar'} onClick={() => setView('calendar')}>
+              <Chip
+                active={view === 'calendar'}
+                onClick={() => setView('calendar')}
+                className={ROADMAP_CHIP}
+              >
                 Calendar
               </Chip>
-              <Chip active={view === 'aligned'} onClick={() => setView('aligned')}>
+              <Chip
+                active={view === 'aligned'}
+                onClick={() => setView('aligned')}
+                className={ROADMAP_CHIP}
+              >
                 Aligned at open
               </Chip>
             </div>
@@ -1365,6 +1375,7 @@ export function RoadmapView({
                   ? agents.data.runs.filter((r) => r.issueNumber === current.number)
                   : []
               }
+              onClose={close}
             />
           ) : null}
         </div>

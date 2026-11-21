@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { cn } from '../lib/utils'
+import { ShowAll } from './show-all'
 
 export interface Column<T> {
   key: string
@@ -26,6 +27,7 @@ export function ResponsiveTable<T>({
   rowClassName,
   breakpoint = 'lg',
   label,
+  limit,
 }: {
   rows: T[]
   columns: Column<T>[]
@@ -36,13 +38,21 @@ export function ResponsiveTable<T>({
   breakpoint?: 'md' | 'lg'
   /** What the list is, for the card list's accessible name. */
   label: string
+  /** Rows shown before "Show all": the rest are rendered but hidden until asked for. */
+  limit?: number
 }) {
   const [title, ...rest] = columns
   if (!title) return null
   const asTable = breakpoint === 'md' ? 'hidden md:block' : 'hidden lg:block'
   const asCards = breakpoint === 'md' ? 'md:hidden' : 'lg:hidden'
+  const folds = limit !== undefined && rows.length > limit
+  const extra = (i: number, shown: string) =>
+    folds && i >= (limit ?? 0) ? cn('hidden', shown) : undefined
   return (
-    <>
+    <div
+      className={folds ? 'group/list space-y-2.5' : 'contents'}
+      data-all={folds ? 'false' : undefined}
+    >
       <div className={cn('overflow-x-auto rounded-xl border', asTable)} data-layout="table">
         <table className="w-full text-sm">
           <thead className="bg-muted/50 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -55,10 +65,17 @@ export function ResponsiveTable<T>({
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) => {
+            {rows.map((row, i) => {
               const text = note?.(row) ?? null
               return (
-                <tr key={rowKey(row)} className={cn('border-t align-middle', rowClassName?.(row))}>
+                <tr
+                  key={rowKey(row)}
+                  className={cn(
+                    'border-t align-middle',
+                    rowClassName?.(row),
+                    extra(i, 'group-data-[all=true]/list:table-row'),
+                  )}
+                >
                   <td className={cn('px-4 py-3.5', title.className)}>{title.cell(row)}</td>
                   {text === null ? (
                     rest.map((c) => (
@@ -78,12 +95,16 @@ export function ResponsiveTable<T>({
         </table>
       </div>
       <ul aria-label={label} className={cn('m-0 flex list-none flex-col gap-2.5 p-0', asCards)}>
-        {rows.map((row) => {
+        {rows.map((row, i) => {
           const text = note?.(row) ?? null
           return (
             <li
               key={rowKey(row)}
-              className={cn('rounded-xl border bg-card p-3.5', rowClassName?.(row))}
+              className={cn(
+                'rounded-xl border bg-card p-3.5',
+                rowClassName?.(row),
+                extra(i, 'group-data-[all=true]/list:block'),
+              )}
               data-layout="card"
             >
               <div className="mb-2.5">{title.cell(row)}</div>
@@ -105,6 +126,7 @@ export function ResponsiveTable<T>({
           )
         })}
       </ul>
-    </>
+      {folds ? <ShowAll count={rows.length} /> : null}
+    </div>
   )
 }
