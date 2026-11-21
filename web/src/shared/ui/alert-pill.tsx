@@ -14,7 +14,7 @@ export const ALERT_TONE: Record<PortfolioAlert['severity'], string> = {
 
 // PRO stands out, PRE is quieter, and no environment is plain text: it is an absence, not a tier.
 const ENV_CHIP: Record<PortfolioEnv, string> = {
-  pro: 'rounded-md border border-transparent bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary',
+  pro: 'rounded-md border border-transparent bg-primary/10 px-2 py-0.5 text-xs font-semibold text-[color-mix(in_oklab,var(--primary)_80%,black)] dark:text-primary',
   pre: 'rounded-md border border-muted-foreground/40 px-2 py-0.5 text-xs font-semibold text-muted-foreground',
   none: 'text-sm text-muted-foreground',
   na: 'text-sm text-muted-foreground',

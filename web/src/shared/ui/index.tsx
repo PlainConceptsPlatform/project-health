@@ -76,7 +76,7 @@ export function Panel({
                 <a
                   href={`#${section.tab}/${section.id}`}
                   aria-label={`Link to ${typeof title === 'string' ? title : 'this section'}`}
-                  className="ml-0.5 inline-flex min-h-6 items-center rounded px-1 text-sm font-normal text-muted-foreground hover:text-foreground"
+                  className="ml-0.5 inline-flex size-6 items-center justify-center rounded text-sm font-normal text-muted-foreground hover:text-foreground"
                 >
                   #
                 </a>

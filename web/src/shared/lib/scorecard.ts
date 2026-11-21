@@ -40,8 +40,10 @@ export const MODE_DESCRIPTION: Record<StandardMode, string> = {
 export const LEVEL_CLASS = [
   'border-destructive/40 bg-destructive/10 text-destructive',
   'border-warning/60 bg-warning/15 text-warning-foreground dark:text-warning',
-  'border-primary/30 bg-primary/10 text-primary',
-  'border-primary/30 bg-primary/10 text-primary',
+  // The primary is a shade too light for 12px text on its own tint (4.0:1), so the text is mixed
+  // a fifth towards black in light mode; dark mode keeps the primary, which passes there.
+  'border-primary/30 bg-primary/10 text-[color-mix(in_oklab,var(--primary)_80%,black)] dark:text-primary',
+  'border-primary/30 bg-primary/10 text-[color-mix(in_oklab,var(--primary)_80%,black)] dark:text-primary',
 ] as const
 
 /** The score bar beside a level badge, in the badge's colour. */
