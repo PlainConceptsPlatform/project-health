@@ -20,16 +20,8 @@ import {
   InfoTip,
   Stat,
   Unavailable,
-  cn,
 } from '@/shared/ui'
 import { useMemo, useState } from 'react'
-
-const STATUSES: { key: Filters['status']; label: string }[] = [
-  { key: 'all', label: 'All' },
-  { key: 'production', label: 'Production' },
-  { key: 'pre-production', label: 'Pre-production' },
-  { key: 'planned', label: 'Planned' },
-]
 
 /** The sentinel for "no month picked", which is the default and is not itself a month. */
 const LATEST = 'latest'
@@ -181,7 +173,7 @@ function ProjectCard({ p, month }: { p: ProjectSummary; month: string | null }) 
 }
 
 const control =
-  'h-9 rounded-md border bg-background px-3 text-sm text-foreground outline-none transition focus-visible:ring-2 focus-visible:ring-ring'
+  'h-11 rounded-md border bg-background md:h-9 px-3 text-sm text-foreground outline-none transition focus-visible:ring-2 focus-visible:ring-ring'
 
 export function ProjectGrid({
   projects,
@@ -192,12 +184,7 @@ export function ProjectGrid({
 }) {
   const [sort, setSort] = useState<SortKey>('status')
   const [month, setMonth] = useState<string>(LATEST)
-  const [filters, setFilters] = useState<Filters>({
-    status: 'all',
-    search: '',
-    agentsOnly: false,
-    withDataOnly: false,
-  })
+  const [filters, setFilters] = useState<Filters>({ agentsOnly: false, withDataOnly: false })
 
   const months = useMemo(() => Object.keys(byMonth).sort().reverse(), [byMonth])
 
@@ -213,36 +200,10 @@ export function ProjectGrid({
     [source, filters, sort],
   )
 
-  const counts = useMemo(() => {
-    const by = { all: source.length, production: 0, 'pre-production': 0, planned: 0 }
-    for (const p of source) by[p.status] += 1
-    return by
-  }, [source])
-
   return (
     <div className="space-y-5">
-      {/* One row of controls above the grid, so the whole set is visible at once. */}
+      {/* The Delivery tab's own controls; search and status are in the shared filter bar above. */}
       <div className="flex flex-wrap items-center gap-2">
-        <div className="flex flex-wrap gap-1">
-          {STATUSES.map((s) => (
-            <button
-              key={s.key}
-              type="button"
-              onClick={() => setFilters((f) => ({ ...f, status: s.key }))}
-              aria-pressed={filters.status === s.key}
-              className={cn(
-                'h-9 rounded-md border px-3 text-sm transition',
-                filters.status === s.key
-                  ? 'border-primary bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
-              )}
-            >
-              {s.label}
-              <span className="ml-1.5 tabular-nums opacity-70">{counts[s.key]}</span>
-            </button>
-          ))}
-        </div>
-
         <label className="flex items-center gap-2 text-sm text-muted-foreground">
           Month
           <select
@@ -260,16 +221,7 @@ export function ProjectGrid({
           </select>
         </label>
 
-        <input
-          type="search"
-          value={filters.search}
-          onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value }))}
-          placeholder="Filter by name"
-          aria-label="Filter projects by name"
-          className={cn(control, 'w-44')}
-        />
-
-        <label className="flex h-9 cursor-pointer items-center gap-2 rounded-md border px-3 text-sm text-muted-foreground transition hover:bg-accent hover:text-accent-foreground">
+        <label className="flex h-11 cursor-pointer md:h-9 items-center gap-2 rounded-md border px-3 text-sm text-muted-foreground transition hover:bg-accent hover:text-accent-foreground">
           <input
             type="checkbox"
             checked={filters.agentsOnly}
@@ -279,7 +231,7 @@ export function ProjectGrid({
           Runs agents
         </label>
 
-        <label className="flex h-9 cursor-pointer items-center gap-2 rounded-md border px-3 text-sm text-muted-foreground transition hover:bg-accent hover:text-accent-foreground">
+        <label className="flex h-11 cursor-pointer md:h-9 items-center gap-2 rounded-md border px-3 text-sm text-muted-foreground transition hover:bg-accent hover:text-accent-foreground">
           <input
             type="checkbox"
             checked={filters.withDataOnly}
