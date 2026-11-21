@@ -40,7 +40,11 @@ you design anything, and open your result next to it before you call it done.
 - Compact cards, tables for comparison, sober type, no gradients or decoration that carries no
   information.
 - Light and dark themes, both legible, with a toggle in the header.
-- Usable at phone width, with no horizontal scroll except a timeline that is meant to scroll.
+- Usable at phone width, with no horizontal scroll except a timeline that is meant to scroll. A
+  comparison table has a **card fallback**: below its breakpoint each row becomes one card of label
+  and value pairs, and no table carries a fixed minimum width. Tab bars scroll inside themselves.
+- Touch targets are at least 44px below 768px and under a coarse pointer: chips, tabs, the theme
+  toggle and the project link on a card.
 - Every interactive element is a real button or link with an accessible name.
 
 ## What the person chooses

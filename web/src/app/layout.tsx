@@ -54,7 +54,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
       <body className="min-h-screen bg-background font-sans text-foreground antialiased">
         <header className="border-t-[3px] border-b border-t-primary bg-background">
-          <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-3 gap-y-2 px-6 py-4">
+          <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-3 gap-y-2 px-4 py-4 sm:px-6">
             <nav aria-label="Breadcrumb" className="inline-flex items-center gap-2 text-lg">
               <a
                 href={PLATFORM_FOUNDATIONS.href}
@@ -96,7 +96,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                 href={repo}
                 aria-label={`Open ${slug} on GitHub`}
                 title={slug}
-                className="inline-flex size-9 items-center justify-center rounded-md border text-muted-foreground outline-none transition hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring"
+                className="inline-flex size-11 items-center justify-center rounded-md border text-muted-foreground md:size-9 pointer-coarse:size-11 outline-none transition hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <Github className="size-4" aria-hidden="true" />
               </a>
@@ -107,17 +107,17 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <TooltipProvider delayDuration={150}>
           {synthetic ? (
             <div className="border-b border-warning/30 bg-warning/15">
-              <p className="mx-auto max-w-6xl px-6 py-2.5 text-sm text-warning-foreground">
+              <p className="mx-auto max-w-6xl px-4 py-2.5 sm:px-6 text-sm text-warning-foreground">
                 <strong className="font-semibold">Example data.</strong> These numbers are generated
                 so the dashboard demonstrates itself. Point <code>projects.json</code> at your own
                 repositories and run a collection to replace them.
               </p>
             </div>
           ) : null}
-          <main className="mx-auto max-w-6xl px-6 py-8">{children}</main>
+          <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">{children}</main>
         </TooltipProvider>
 
-        <footer className="mx-auto max-w-6xl px-6 pb-10 pt-4">
+        <footer className="mx-auto max-w-6xl px-4 pb-10 pt-4 sm:px-6">
           <p className="text-xs text-muted-foreground">
             {PROVENANCE[source]}{' '}
             <a href={repo} className="underline hover:text-foreground">

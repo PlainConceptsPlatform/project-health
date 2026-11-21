@@ -80,18 +80,25 @@ function Kpi({
   unit,
   hint,
   critical,
+  onShow,
 }: {
   label: string
   value: React.ReactNode
   unit?: string
   hint: string
   critical?: boolean
+  /** Filters the list down to the projects this figure counts. */
+  onShow?: () => void
 }) {
+  const Box = onShow ? 'button' : 'div'
   return (
-    <div
+    <Box
+      {...(onShow ? { type: 'button' as const, onClick: onShow } : {})}
       className={cn(
-        'flex flex-col gap-1.5 rounded-xl border p-4',
+        'flex flex-col gap-1.5 rounded-xl border p-3 text-left sm:p-4',
         critical && 'border-destructive/30 bg-destructive/5',
+        onShow &&
+          'cursor-pointer transition hover:bg-destructive/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
       )}
     >
       <span
@@ -105,8 +112,9 @@ function Kpi({
       </span>
       <span className={cn('text-sm text-muted-foreground', critical && 'text-destructive/80')}>
         {hint}
+        {onShow ? <span className="font-medium underline underline-offset-4"> · show</span> : null}
       </span>
-    </div>
+    </Box>
   )
 }
 
@@ -694,6 +702,14 @@ export function Portfolio({
           value={kpi.critical}
           hint="live with almost no gates"
           critical={kpi.critical > 0}
+          onShow={
+            kpi.critical > 0
+              ? () => {
+                  setTab('scorecard')
+                  setQuery({ ...emptyQuery(), alert: new Set(['critical']) })
+                }
+              : undefined
+          }
         />
         <Kpi
           label="AI usage, average"
