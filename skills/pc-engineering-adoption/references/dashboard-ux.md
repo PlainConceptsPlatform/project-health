@@ -49,6 +49,7 @@ you design anything, and open your result next to it before you call it done.
 - Usable at phone width, with no horizontal scroll except a timeline that is meant to scroll. A
   comparison table has a **card fallback**: below its breakpoint each row becomes one card of label
   and value pairs, and no table carries a fixed minimum width. Tab bars scroll inside themselves.
+  A long list shows its first rows and a *Show all* or *Show more*, never a silent cut.
 - Touch targets are at least 44px below 768px and under a coarse pointer: chips, tabs, the theme
   toggle and the project link on a card.
 - Every interactive element is a real button or link with an accessible name.

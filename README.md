@@ -426,6 +426,11 @@ the rest start folded.
 On arrival `?tab=` moves into the hash (`#engineering/hygiene`), which is what the page reads. Copy
 link writes it back as `?tab=`, so the link survives the sign-in.
 
+The Delivery tab's tables are searchable as well: releases by ref, commit, person or signal, with an
+*Unplanned only* filter (`rq`, `unplanned=1`), and agent runs by kind, run or issue (`runq`), shown
+60 at a time with *Show more*. On a phone, wide tables (releases, runs, modules, CRAP hotspots,
+Steiger rules) become one card per row; Modules lists the five weakest first, then *Show all*.
+
 ## Roadmap
 
 Where agents and people hand issues over with labels, the labels already record who had each issue
@@ -461,6 +466,10 @@ Opt in per project, overriding label names only where a repository uses others:
 ```json
 "roadmap": { "enabled": true }
 ```
+
+The timeline's filter and layout are part of the link: `?rf=` is `open`, `stalled`, `hand` or
+`automation` and `?rv=aligned` aligns every issue at its opening, with `#roadmap/<issue>` (shared as
+`?tab=roadmap/<issue>`) for the selected issue. The Roadmap tab counts the issues waiting on a person.
 
 Times are wall clock: a pull request merged the next morning spends its night waiting to merge. A
 closed issue is not read again once stored, unless it changes. One warning reads both sides of the
