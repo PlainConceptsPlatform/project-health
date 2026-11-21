@@ -39,10 +39,13 @@ One `question` call, one message. Ask only these, because discover already answe
 | Field | Why a person decides it |
 | --- | --- |
 | `id` | The folder under `data/` and the URL segment, forever. Kebab-case, short, stable across renames |
-| `name` | How it reads on the dashboard |
-| `type` | Decides which scorecard practices apply |
-| `group` | `applications` or `tooling`; decides which table it is ranked in |
+| `name` | How it reads on the dashboard, and what the overview's search matches (with the repository and the type) |
+| `type` | Decides which scorecard practices apply; searchable by its label |
+| `group` | `applications` or `tooling`; decides which table it is ranked in, and is an overview filter (`?group=`) |
 | `status` | `production`, `pre-production` or `planned`. Not a guess: it changes which metrics are skipped |
+
+A `family` (`member` or `own-design`) is an overview filter too (`?family=`), so set it on every
+app built from a family template, not only the ones whose drift you want to read.
 
 **Done when** every field in the entry is either reported by discover or answered by the person.
 

@@ -216,20 +216,19 @@ export function sortSummaries(items: ProjectSummary[], key: SortKey): ProjectSum
   }
 }
 
+/**
+ * The Delivery tab's own toggles. Search and status come from the overview's filter bar, which
+ * every tab shares, so they are applied before the rows get here.
+ */
 export interface Filters {
-  status: ProjectSummary['status'] | 'all'
-  search: string
   agentsOnly: boolean
   withDataOnly: boolean
 }
 
 export function filterSummaries(items: ProjectSummary[], filters: Filters): ProjectSummary[] {
-  const needle = filters.search.trim().toLowerCase()
   return items.filter((p) => {
-    if (filters.status !== 'all' && p.status !== filters.status) return false
     if (filters.agentsOnly && !p.agentRuns) return false
     if (filters.withDataOnly && !p.hasData) return false
-    if (needle && !`${p.name} ${p.repo}`.toLowerCase().includes(needle)) return false
     return true
   })
 }

@@ -12,6 +12,7 @@ import {
   type PortfolioAlert,
   type PortfolioEnv,
   type PortfolioRow,
+  type PortfolioSort,
   byGroup,
   portfolioKpis,
   sortRows,
@@ -27,12 +28,19 @@ import {
 import { GROUP_LABEL, LEVEL_BAR, typeLabel } from '@/shared/lib/scorecard'
 import type { ProjectSummary } from '@/shared/lib/summary'
 import type { ProjectFamily } from '@/shared/lib/types'
+import { rememberOverviewQuery } from '@/shared/lib/url-state'
 import { withBase } from '@/shared/lib/utils'
 import { cn } from '@/shared/ui'
 import { LevelBadge } from '@/shared/ui/scorecard'
 import { Sparkline } from '@/shared/ui/sparkline'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
-import { AlertTriangleIcon, ChevronDownIcon, ChevronRightIcon } from 'lucide-react'
+import {
+  AlertTriangleIcon,
+  ArrowDownIcon,
+  ArrowUpIcon,
+  ChevronDownIcon,
+  ChevronRightIcon,
+} from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ActionsTable } from './actions'
 import { AgenticTable } from './agentic'
@@ -207,7 +215,50 @@ function openRow(e: React.MouseEvent<HTMLTableRowElement>, href: string) {
   else window.location.assign(url)
 }
 
-const COLUMNS = ['Project', 'Engineering', 'Gates', 'AI usage', `Last ${DELTA_DAYS} days`, '']
+/**
+ * The table's columns. A column with sorts sorts the list from its header: the first click picks the
+ * first sort, a second click on the same header the second one (score high to low, then low to high).
+ */
+const COLUMNS: { label: string; sorts?: PortfolioSort[]; className?: string }[] = [
+  { label: 'Project', sorts: ['name'] },
+  { label: 'Engineering', sorts: ['engineering', 'engineering-asc'] },
+  { label: 'Gates', sorts: ['gates'] },
+  { label: 'AI usage', className: 'hidden lg:table-cell' },
+  { label: `Last ${DELTA_DAYS} days`, sorts: ['trend'] },
+  { label: '' },
+]
+
+/** What aria-sort says for a column, given the active sort. */
+function ariaSort(sorts: PortfolioSort[] | undefined, sort: PortfolioSort) {
+  if (!sorts?.includes(sort)) return undefined
+  return sort === 'engineering' ? 'descending' : 'ascending'
+}
+
+function SortHeader({
+  label,
+  sorts,
+  sort,
+  onSort,
+}: {
+  label: string
+  sorts: PortfolioSort[]
+  sort: PortfolioSort
+  onSort: (sort: PortfolioSort) => void
+}) {
+  const at = sorts.indexOf(sort)
+  const next = sorts[(at + 1) % sorts.length] ?? sorts[0]
+  const Arrow = sort === 'engineering' ? ArrowDownIcon : ArrowUpIcon
+  return (
+    <button
+      type="button"
+      onClick={() => next && onSort(next)}
+      className="-mx-1 inline-flex items-center gap-1 rounded px-1 uppercase tracking-wide hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+    >
+      {label}
+      {at >= 0 ? <Arrow className="size-3" aria-hidden="true" /> : null}
+    </button>
+  )
+}
 
 const projectHref = (row: PortfolioRow) => `/projects/${row.id}/`
 
@@ -273,23 +324,41 @@ function Gates({ row }: { row: PortfolioRow }) {
 function ScorecardRows({
   rows,
   typeLabels,
-}: { rows: PortfolioRow[]; typeLabels: Record<string, string> }) {
+  sort,
+  onSort,
+}: {
+  rows: PortfolioRow[]
+  typeLabels: Record<string, string>
+  sort: PortfolioSort
+  onSort: (sort: PortfolioSort) => void
+}) {
   return (
-    <div className="hidden overflow-x-auto rounded-xl border md:block">
-      <table className="w-full min-w-[720px] table-fixed text-sm">
+    <div className="hidden rounded-xl border md:block">
+      <table className="w-full table-fixed text-sm">
         <colgroup>
-          <col className="w-[26%]" />
-          <col className="w-[22%]" />
-          <col className="w-[14%]" />
-          <col className="w-[14%]" />
+          <col className="w-[30%] lg:w-[26%]" />
+          <col className="w-[26%] lg:w-[22%]" />
+          <col className="w-[18%] lg:w-[14%]" />
+          <col className="hidden lg:table-column lg:w-[14%]" />
           <col className="w-[150px]" />
           <col className="w-[56px]" />
         </colgroup>
         <thead className="bg-muted/50 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           <tr>
             {COLUMNS.map((c) => (
-              <th key={c || 'open'} scope="col" className="px-4 py-3 font-semibold">
-                {c ? c : <span className="sr-only">Open</span>}
+              <th
+                key={c.label || 'open'}
+                scope="col"
+                aria-sort={ariaSort(c.sorts, sort)}
+                className={cn('px-4 py-3 font-semibold', c.className)}
+              >
+                {!c.label ? (
+                  <span className="sr-only">Open</span>
+                ) : c.sorts ? (
+                  <SortHeader label={c.label} sorts={c.sorts} sort={sort} onSort={onSort} />
+                ) : (
+                  c.label
+                )}
               </th>
             ))}
           </tr>
@@ -333,7 +402,7 @@ function ScorecardRows({
                     <td className="px-4 py-3.5">
                       <Gates row={row} />
                     </td>
-                    <td className="px-4 py-3.5">
+                    <td className="hidden px-4 py-3.5 lg:table-cell">
                       <AiUsage row={row} />
                     </td>
                     <td className="px-4 py-3.5">
@@ -433,6 +502,26 @@ function ProjectCards({
   )
 }
 
+/** The empty state when the filters hide every project: never a blank table. */
+function NoMatch({ onClear }: { onClear: () => void }) {
+  return (
+    <div className="rounded-md border border-dashed bg-muted/40 px-4 py-3">
+      <p className="text-sm font-medium text-muted-foreground">No project matches these filters</p>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Try fewer filters, or{' '}
+        <button
+          type="button"
+          onClick={onClear}
+          className="font-medium text-primary underline underline-offset-4"
+        >
+          clear them all
+        </button>
+        . Search and filters are part of the link, so a shared view opens the same way.
+      </p>
+    </div>
+  )
+}
+
 const TABS = ['scorecard', 'delivery', 'agentic', 'code', 'actions', 'family'] as const
 
 /**
@@ -460,8 +549,14 @@ function useUrlState(defaultTab: string) {
 
   useEffect(() => {
     if (!loaded) return
-    const url = `${window.location.pathname}${queryString ? `?${queryString}` : ''}${window.location.hash}`
-    window.history.replaceState(window.history.state, '', url)
+    const search = queryString ? `?${queryString}` : ''
+    window.history.replaceState(
+      window.history.state,
+      '',
+      `${window.location.pathname}${search}${window.location.hash}`,
+    )
+    // "Back to projects" on a project page reopens this exact view.
+    rememberOverviewQuery(search)
   }, [queryString, loaded])
 
   const shareUrl = useCallback(
@@ -533,6 +628,15 @@ export function Portfolio({
     query.sort,
   )
   const shown = shownApps.length + shownTooling.length
+  // Every tab lists the same projects: the filter bar picks them once and each tab keeps its own
+  // columns and order. The sort belongs to the scorecard, the one list ranked by risk.
+  const visible = new Set([...shownApps, ...shownTooling].map((r) => r.id))
+  const pick = <T extends { id: string }>(list: T[]) => list.filter((r) => visible.has(r.id))
+  const clear = () => setQuery({ ...emptyQuery(), sort: query.sort })
+  const listed = <T extends { id: string }>(list: T[], render: (rows: T[]) => React.ReactNode) => {
+    const kept = pick(list)
+    return kept.length > 0 || list.length === 0 ? render(kept) : <NoMatch onClear={clear} />
+  }
   const onlyAttention = query.alert.has('attention') && query.alert.size === 1
 
   return (
@@ -700,17 +804,18 @@ export function Portfolio({
             </TabsList>
           </div>
         </div>
+        <FilterBar
+          rows={rows}
+          query={query}
+          onChange={setQuery}
+          contextOf={contextOf}
+          shown={shown}
+          hasFamily={hasFamily}
+          hasTooling={tooling.length > 0}
+          shareUrl={shareUrl}
+          sortable={tab === 'scorecard'}
+        />
         <TabsContent value="scorecard" className="flex flex-col gap-4">
-          <FilterBar
-            rows={rows}
-            query={query}
-            onChange={setQuery}
-            contextOf={contextOf}
-            shown={shown}
-            hasFamily={hasFamily}
-            hasTooling={tooling.length > 0}
-            shareUrl={shareUrl}
-          />
           {shownApps.length > 0 ? (
             <section className="flex flex-col gap-3.5">
               {tooling.length > 0 ? (
@@ -719,7 +824,12 @@ export function Portfolio({
                   <span className="font-medium text-muted-foreground">({shownApps.length})</span>
                 </h2>
               ) : null}
-              <ScorecardRows rows={shownApps} typeLabels={typeLabels} />
+              <ScorecardRows
+                rows={shownApps}
+                typeLabels={typeLabels}
+                sort={query.sort}
+                onSort={(sort) => setQuery({ ...query, sort })}
+              />
               <ProjectCards rows={shownApps} typeLabels={typeLabels} />
             </section>
           ) : null}
@@ -748,48 +858,51 @@ export function Portfolio({
                   hint={`across ${toolingKpi.aiCount} with data`}
                 />
               </div>
-              <ScorecardRows rows={shownTooling} typeLabels={typeLabels} />
+              <ScorecardRows
+                rows={shownTooling}
+                typeLabels={typeLabels}
+                sort={query.sort}
+                onSort={(sort) => setQuery({ ...query, sort })}
+              />
               <ProjectCards rows={shownTooling} typeLabels={typeLabels} />
             </section>
           ) : null}
-          {shown === 0 ? (
-            <div className="rounded-md border border-dashed bg-muted/40 px-4 py-3">
-              <p className="text-sm font-medium text-muted-foreground">
-                No project matches these filters
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Try fewer filters, or{' '}
-                <button
-                  type="button"
-                  onClick={() => setQuery({ ...emptyQuery(), sort: query.sort })}
-                  className="font-medium text-primary underline underline-offset-4"
-                >
-                  clear them all
-                </button>
-                .
-              </p>
-            </div>
-          ) : null}
+          {shown === 0 ? <NoMatch onClear={clear} /> : null}
           <p className="text-sm text-muted-foreground">
             Hover a value for its counts. Open a project for the gate-by-gate breakdown. Search,
             filters and sort are part of the link, so a shared view opens the same way.
           </p>
         </TabsContent>
         <TabsContent value="delivery">
-          <ProjectGrid projects={projects} byMonth={byMonth} />
+          {listed(projects, (kept) => (
+            <ProjectGrid
+              projects={kept}
+              byMonth={Object.fromEntries(
+                Object.entries(byMonth).map(([month, list]) => [month, pick(list)]),
+              )}
+            />
+          ))}
         </TabsContent>
         <TabsContent value="agentic">
-          <AgenticTable rows={agentic} />
+          {listed(agentic, (kept) => (
+            <AgenticTable rows={kept} />
+          ))}
         </TabsContent>
         <TabsContent value="code">
-          <CodeTable rows={code} />
+          {listed(code, (kept) => (
+            <CodeTable rows={kept} />
+          ))}
         </TabsContent>
         <TabsContent value="actions">
-          <ActionsTable rows={actions} />
+          {listed(actions, (kept) => (
+            <ActionsTable rows={kept} />
+          ))}
         </TabsContent>
         {family.length > 0 ? (
           <TabsContent value="family">
-            <FamilyTable rows={family} />
+            {listed(family, (kept) => (
+              <FamilyTable rows={kept} />
+            ))}
           </TabsContent>
         ) : null}
       </Tabs>

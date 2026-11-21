@@ -90,7 +90,8 @@ function Group({ legend, children }: { legend: string; children: React.ReactNode
 }
 
 /**
- * Search, sort and filters for the scorecard. Sticky, so the controls stay in reach while scrolling
+ * Search, sort and filters for the overview. One filter state serves all six tabs, so switching tab
+ * keeps the same projects; the sort only shows on the scorecard, the list it ranks. Sticky, so the controls stay in reach while scrolling
  * a long list; on a phone the filter groups fold behind a Filters button so the list stays visible.
  */
 export function FilterBar({
@@ -102,6 +103,7 @@ export function FilterBar({
   hasFamily,
   hasTooling,
   shareUrl,
+  sortable = true,
 }: {
   rows: PortfolioRow[]
   query: PortfolioQuery
@@ -111,6 +113,8 @@ export function FilterBar({
   hasFamily: boolean
   hasTooling: boolean
   shareUrl: () => string
+  /** False on the tabs that keep their own order. */
+  sortable?: boolean
 }) {
   const [open, setOpen] = useState(false)
   const [copied, setCopied] = useState<CopyState>('idle')
@@ -210,7 +214,12 @@ export function FilterBar({
             /
           </span>
         </label>
-        <label className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
+        <label
+          className={cn(
+            'items-center gap-1.5 text-sm text-muted-foreground',
+            sortable ? 'inline-flex' : 'hidden',
+          )}
+        >
           <span className="hidden sm:inline">Sort</span>
           <select
             value={query.sort}

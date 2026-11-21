@@ -1,23 +1,10 @@
 'use client'
 
+import { adoptSharedTab } from '@/shared/lib/url-state'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 import { type ReactNode, useEffect, useRef, useState } from 'react'
 
-/** The query parameter a shared link uses for what would otherwise follow the hash. */
-export const TAB_PARAM = 'tab'
-
-/**
- * Moves ?tab=roadmap/773 into #roadmap/773. Panels read the hash in effects that can run before
- * this component's own, so each of them calls this first; after the first call it does nothing.
- */
-export function adoptSharedTab(): void {
-  const params = new URLSearchParams(window.location.search)
-  const shared = params.get(TAB_PARAM)
-  if (!shared) return
-  params.delete(TAB_PARAM)
-  const search = params.size ? `?${params}` : ''
-  window.history.replaceState(null, '', `${window.location.pathname}${search}#${shared}`)
-}
+export { TAB_PARAM, adoptSharedTab } from '@/shared/lib/url-state'
 
 export interface ProjectTab {
   id: string

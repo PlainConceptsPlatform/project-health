@@ -34,6 +34,7 @@ import {
 } from '@/shared/ui/charts'
 import { ActionsPanel } from './actions'
 import { AdoptionPanel } from './agentic'
+import { BackToProjects } from './back-link'
 import { CodePanel } from './code'
 import { ExcellencePanel } from './excellence'
 import { FamilyPanel } from './family'
@@ -584,9 +585,7 @@ export function ProjectView({
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <a href={withBase('/')} className="text-sm text-muted-foreground hover:underline">
-            Back to projects
-          </a>
+          <BackToProjects />
           <h1 className="mt-1 text-2xl font-semibold tracking-tight">{report.name}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             <a href={`https://github.com/${report.repo}`} className="hover:underline">

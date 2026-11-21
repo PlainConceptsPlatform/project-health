@@ -13,6 +13,13 @@ you design anything, and open your result next to it before you call it done.
 - An overview page with one row per project, then a page per project with tabs.
 - A project's tab lives in the URL hash, so a link opens on the right tab. The first tab is the plain
   URL.
+- Every list has the same **filter bar**: a search (`/` focuses it), chip groups that combine (OR
+  inside a group, AND across groups) with a count on each chip, a sort where the list is ranked, a
+  result count with removable active filters and *Clear all*, and *Copy link*. A filter that hides
+  everything shows an empty state with a way to clear it, never a blank table.
+- **View state lives in the query string** (`?q=&level=&env=&sort=&tab=`), not the hash: a private
+  GitHub Pages site sends visitors through a sign-in that keeps the query and drops the hash. A shared
+  link reopens the same view, and *Back to projects* returns to the overview as it was left.
 - Charts are small and sit beside the number they explain, not on a canvas of their own.
 
 **Honesty**
@@ -61,6 +68,8 @@ Open the built site in a browser at desktop and phone width, in both themes, and
 
 - [ ] The overview and one project page render; a project with no data shows reasons, not zeros.
 - [ ] Every tab opens from its URL hash.
+- [ ] Filters change the rows: pick a chip, search, then clear all; the counts and the rows follow.
+- [ ] Copy link reopens the view: paste it into a new window and the same filters, sort and tab load.
 - [ ] Info buttons open by keyboard.
 - [ ] Text contrast holds in dark mode, on the real page and not only in the token file.
 - [ ] No horizontal scroll at 375px.
